@@ -264,8 +264,11 @@ sc2::Point2D BuildingPlacer::getRefineryPosition()
 
             if (homeDistance < minGeyserDistanceFromHome)
             {
-                minGeyserDistanceFromHome = homeDistance;
-                closestGeyser = unit.pos;
+                if (m_bot.Map().canBuildTypeAtPosition(geyserPos.x, geyserPos.y, sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                {
+                    minGeyserDistanceFromHome = homeDistance;
+                    closestGeyser = unit.pos;
+                }
             }
         }
     }

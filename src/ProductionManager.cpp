@@ -159,19 +159,27 @@ void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
         return;
     }
 
+    sc2::UnitTypeID t = item.type;
+
     // if we're dealing with a building
     // TODO: deal with morphed buildings & addons
     if (m_bot.Data(item.type).isBuilding)
     {
         // send the building task to the building manager
-        m_buildingManager.addBuildingTask(item.type.getUnitTypeID(), m_bot.GetStartLocation());
+        if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
+        {
+            //TODO: DELETE THE MEMORY LEAK
+            sc2::Point2D * proxyLocation = &m_bot.GetProxyLocation();
+            std::cout << "PROXYLOC" << proxyLocation->x << "x " << proxyLocation->y << "y " << std::endl;
+            m_buildingManager.addBuildingTask(t, *proxyLocation);
+        }
+        else
+        {
+            m_buildingManager.addBuildingTask(t, m_bot.GetStartLocation());
+        }
     }
     // if we're dealing with a non-building unit
-    else if (item.type.isUnit())
-    {
-        Micro::SmartTrain(producer, item.type.getUnitTypeID(), m_bot);
-    }
-    else if (item.type.isUpgrade())
+    else
     {
         Micro::SmartAbility(producer, m_bot.Data(item.type.getUpgradeID()).buildAbility, m_bot);
     }

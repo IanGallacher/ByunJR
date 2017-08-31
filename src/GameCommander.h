@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Timer.hpp"
 #include "ProductionManager.h"
+#include "ProxyManager.h"
 #include "ScoutManager.h"
 #include "CombatCommander.h"
 
@@ -15,6 +16,7 @@ class GameCommander
 
     ProductionManager       m_productionManager;
     ScoutManager            m_scoutManager;
+    ProxyManager            m_proxyManager;
     CombatCommander         m_combatCommander;
 
     std::vector<UnitTag>    m_validUnits;
@@ -29,6 +31,7 @@ class GameCommander
 public:
 
     GameCommander(CCBot & bot);
+    sc2::Point2D GetProxyLocation();
 
     void onStart();
     void onFrame();

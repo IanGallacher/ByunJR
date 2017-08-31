@@ -208,6 +208,11 @@ void WorkerManager::setCombatWorker(const UnitTag & workerTag)
     m_workerData.setWorkerJob(workerTag, WorkerJobs::Combat);
 }
 
+void WorkerManager::setProxyWorker(const UnitTag & workerTag)
+{
+    m_workerData.setWorkerJob(workerTag, WorkerJobs::Proxy);
+}
+
 void WorkerManager::drawResourceDebugInfo()
 {
     if (!m_bot.Config().DrawResourceInfo)

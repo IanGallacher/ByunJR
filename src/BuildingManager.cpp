@@ -119,6 +119,12 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         // reserve this building's space
         m_buildingPlacer.reserveTiles((int)b.finalPosition.x, (int)b.finalPosition.y, Util::GetUnitTypeWidth(b.type, m_bot), Util::GetUnitTypeHeight(b.type, m_bot));
 
+        if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
+        {
+            sc2::Point2D proxyLocation = b.desiredPosition;
+            std::cout << "finalplacementlocation" << proxyLocation.x << "x " << proxyLocation.y << "y " << std::endl;
+        }
+
         b.status = BuildingStatus::Assigned;
     }
 }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommandCenter", "CommandCenter.vcxproj", "{D4AC5062-8BEA-46D8-9231-57241C214F1C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ByunJR", "ByunJR.vcxproj", "{D4AC5062-8BEA-46D8-9231-57241C214F1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

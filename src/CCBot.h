@@ -35,6 +35,7 @@ public:
     CCBot();
     void OnGameStart() override;
     void OnStep() override;
+    sc2::Point2D GetProxyLocation();
 
           BotConfig & Config();
           WorkerManager & Workers();

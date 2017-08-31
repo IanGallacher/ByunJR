@@ -126,6 +126,10 @@ void WorkerData::setWorkerJob(const UnitTag & unit, int job, UnitTag jobUnitTag)
     {
 
     }
+    else if (job == WorkerJobs::Proxy)
+    {
+
+    }
 }
 
 void WorkerData::clearPreviousJob(const UnitTag & unit)
@@ -247,6 +251,7 @@ int WorkerData::getNumAssignedWorkers(const UnitTag & unit)
     return 0;
 }
 
+// Used for printing debug text on the worker.
 const char * WorkerData::getJobCode(const UnitTag & unit)
 {
     const int j = getWorkerJob(unit);
@@ -260,6 +265,7 @@ const char * WorkerData::getJobCode(const UnitTag & unit)
     if (j == WorkerJobs::Repair)    return "R";
     if (j == WorkerJobs::Move)      return "O";
     if (j == WorkerJobs::Scout)     return "S";
+    if (j == WorkerJobs::Proxy)     return "P";
     return "X";
 }
 

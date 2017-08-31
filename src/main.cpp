@@ -20,7 +20,14 @@ int main(int argc, char* argv[])
         std::cout << "Unable to find or parse settings." << std::endl;
         return 1;
     }
-    
+
+    coordinator.SetRealtime(false);
+
+    // WARNING: Bot logic has not been thorougly tested on step sizes > 1
+    //          Setting this = N means the bot's onFrame gets called once every N frames
+    //          The bot may crash or do unexpected things if its logic is not called every frame
+    coordinator.SetStepSize(2);
+
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -61,13 +68,6 @@ int main(int argc, char* argv[])
     // Add the custom bot, it will control the players.
     CCBot bot;
 
-    
-    // WARNING: Bot logic has not been thorougly tested on step sizes > 1
-    //          Setting this = N means the bot's onFrame gets called once every N frames
-    //          The bot may crash or do unexpected things if its logic is not called every frame
-    coordinator.SetStepSize(stepSize);
-    coordinator.SetRealtime(false);
-
     coordinator.SetParticipants({
         CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
         CreateComputer(Util::GetRaceFromString(enemyRaceString))
@@ -77,11 +77,23 @@ int main(int argc, char* argv[])
     coordinator.LaunchStarcraft();
     coordinator.StartGame(mapString);
 
+    std::cout << "GLHF" << std::endl;
     // Step forward the game simulation.
-    while (true) 
+    while (coordinator.AllGamesEnded() != true) 
     {
         coordinator.Update();
     }
+    if (bot.Control()->SaveReplay("LastReplay.Sc2Replay"))
+    {
+        std::cout << "REPLAYSUCESS" << "LastReplay.Sc2Replay";
+    }
+    else
+    {
+        std::cout << "REPLAY FAIL" << "LastReplay.Sc2Replay";
+    }
+    coordinator.LeaveGame();
+    //coordinator.SaveReplayList("C:\Users\IanGallacher\Documents\Github\CommandCenter\bin\replay");
+    getchar();
 
     return 0;
 }

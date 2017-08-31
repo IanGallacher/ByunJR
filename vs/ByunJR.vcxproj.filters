@@ -91,11 +91,8 @@
     <ClCompile Include="..\src\CombatCommander.cpp">
       <Filter>micro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\BuildType.cpp">
-      <Filter>macro</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\TechTree.cpp">
-      <Filter>util</Filter>
+    <ClCompile Include="..\src\ProxyManager.cpp">
+      <Filter>micro</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,11 +191,8 @@
     <ClInclude Include="..\src\CombatCommander.h">
       <Filter>micro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\BuildType.h">
-      <Filter>macro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\TechTree.h">
-      <Filter>util</Filter>
+    <ClInclude Include="..\src\ProxyManager.h">
+      <Filter>micro</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

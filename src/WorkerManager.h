@@ -30,6 +30,7 @@ public:
     void        drawWorkerInformation();
     void        setScoutWorker(const UnitTag & worker);
     void        setCombatWorker(const UnitTag & worker);
+    void        setProxyWorker(const UnitTag & workerTag);
     void        setBuildingWorker(const sc2::Unit & worker, Building & b);
     void        setRepairWorker(const sc2::Unit & worker,const sc2::Unit & unitToRepair);
     void        stopRepairing(const sc2::Unit & worker);

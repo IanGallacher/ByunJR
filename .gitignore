@@ -1,16 +1,5 @@
-# Cmake build routine
-CMakeCache.txt
-CMakeFiles/
-Makefile
-cmake_install.cmake
-
-# IDEs
-.vscode/
 vs/.vs/
 vs/commandcenter
 vs/*.user
-
-bin/CommandCenter
 bin/*.exe
 bin/*.ilk
-bin/TechTree.json

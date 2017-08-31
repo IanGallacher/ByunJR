@@ -29,17 +29,17 @@ const sc2::Race & BuildOrder::getRace() const
     return m_race;
 }
 
-size_t BuildOrder::size() const
+const size_t BuildOrder::size() const
 {
     return m_buildOrder.size();
 }
 
-const BuildType & BuildOrder::operator [] (const size_t & index) const
+const sc2::UnitTypeID & BuildOrder::operator [] (const size_t & index) const
 {
     return m_buildOrder[index];
 }
 
-BuildType & BuildOrder::operator [] (const size_t & index)
+sc2::UnitTypeID & BuildOrder::operator [] (const size_t & index)
 {
     return m_buildOrder[index];
 }

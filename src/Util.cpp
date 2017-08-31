@@ -189,6 +189,42 @@ float Util::GetAttackRange(const sc2::UnitTypeID & type, CCBot & bot)
     return maxRange;
 }
 
+float Util::GetAttackDamage(const sc2::UnitTypeID & type, CCBot & bot)
+{
+    auto & weapons = bot.Observation()->GetUnitTypeData()[type].weapons;
+
+    if (weapons.empty())
+    {
+        return 0.0f;
+    }
+
+    float maxDamage = 0.0f;
+    for (auto & weapon : weapons)
+    {
+        maxDamage = weapon.damage_;
+    }
+
+    return maxDamage;
+}
+
+int Util::EnemyDPSInRange(const sc2::Point3D unitPos, CCBot & bot)
+{
+    float totalDPS = 0;
+    for (auto & enemyunit : bot.Observation()->GetUnits())
+    {
+        double dist = Util::Dist(enemyunit.pos, unitPos);
+        double range = GetAttackRange(enemyunit.unit_type, bot);
+        // if we are in range, the dps that is coming at us increases.
+        if (dist < range + 0.5f)
+        {
+            totalDPS += GetAttackDamage(enemyunit.unit_type, bot);
+        }
+    }
+
+    return totalDPS;
+}
+
+
 // TODO: implement
 bool Util::IsDetectorType(const sc2::UnitTypeID & type)
 {

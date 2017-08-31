@@ -23,7 +23,7 @@
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
-    <ProjectName>CommandCenter</ProjectName>
+    <ProjectName>ByunJR</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -109,7 +109,7 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <AdditionalOptions>-DNOMINMAX %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4099; 4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4099</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -158,7 +158,6 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalOptions>-DNOMINMAX %(AdditionalOptions)</AdditionalOptions>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_SCL_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -297,17 +296,16 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\MapTools.cpp" />
     <ClCompile Include="..\src\MeleeManager.cpp" />
-    <ClCompile Include="..\src\BuildType.cpp" />
     <ClCompile Include="..\src\Micro.cpp" />
     <ClCompile Include="..\src\MicroManager.cpp" />
     <ClCompile Include="..\src\ProductionManager.cpp" />
+    <ClCompile Include="..\src\ProxyManager.cpp" />
     <ClCompile Include="..\src\RangedManager.cpp" />
     <ClCompile Include="..\src\ScoutManager.cpp" />
     <ClCompile Include="..\src\Squad.cpp" />
     <ClCompile Include="..\src\SquadData.cpp" />
     <ClCompile Include="..\src\SquadOrder.cpp" />
     <ClCompile Include="..\src\StrategyManager.cpp" />
-    <ClCompile Include="..\src\TechTree.cpp" />
     <ClCompile Include="..\src\UnitData.cpp" />
     <ClCompile Include="..\src\UnitInfoManager.cpp" />
     <ClCompile Include="..\src\Util.cpp" />
@@ -333,17 +331,16 @@
     <ClInclude Include="..\src\JSONTools.h" />
     <ClInclude Include="..\src\MapTools.h" />
     <ClInclude Include="..\src\MeleeManager.h" />
-    <ClInclude Include="..\src\BuildType.h" />
     <ClInclude Include="..\src\Micro.h" />
     <ClInclude Include="..\src\MicroManager.h" />
     <ClInclude Include="..\src\ProductionManager.h" />
+    <ClInclude Include="..\src\ProxyManager.h" />
     <ClInclude Include="..\src\RangedManager.h" />
     <ClInclude Include="..\src\ScoutManager.h" />
     <ClInclude Include="..\src\Squad.h" />
     <ClInclude Include="..\src\SquadData.h" />
     <ClInclude Include="..\src\SquadOrder.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
-    <ClInclude Include="..\src\TechTree.h" />
     <ClInclude Include="..\src\Timer.hpp" />
     <ClInclude Include="..\src\UnitData.h" />
     <ClInclude Include="..\src\UnitInfoManager.h" />

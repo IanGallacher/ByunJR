@@ -120,6 +120,11 @@ sc2::Point2D CCBot::GetStartLocation() const
     return Observation()->GetStartLocation();
 }
 
+sc2::Point2D CCBot::GetProxyLocation()
+{
+    return m_gameCommander.GetProxyLocation();
+}
+
 void CCBot::OnError(const std::vector<sc2::ClientError> & client_errors, const std::vector<std::string> & protocol_errors)
 {
     

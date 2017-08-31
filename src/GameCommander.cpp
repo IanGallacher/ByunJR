@@ -6,6 +6,7 @@ GameCommander::GameCommander(CCBot & bot)
     : m_bot                 (bot)
     , m_productionManager   (bot)
     , m_scoutManager        (bot)
+    , m_proxyManager        (bot)
     , m_combatCommander     (bot)
     , m_initialScoutSet     (false)
 {
@@ -16,6 +17,7 @@ void GameCommander::onStart()
 {
     m_productionManager.onStart();
     m_scoutManager.onStart();
+    m_proxyManager.onStart();
     m_combatCommander.onStart();
 }
 
@@ -27,6 +29,7 @@ void GameCommander::onFrame()
 
     m_productionManager.onFrame();
     m_scoutManager.onFrame();
+    m_proxyManager.onFrame();
     m_combatCommander.onFrame(m_combatUnits);
 
     drawDebugInterface();
@@ -92,6 +95,8 @@ void GameCommander::setScoutUnits()
             if (workerScout)
             {
                 m_scoutManager.setWorkerScout(workerScoutTag);
+                m_bot.Workers().setProxyWorker(workerScoutTag);
+                
                 assignUnit(workerScoutTag, m_scoutUnits);
                 m_initialScoutSet = true;
             }
@@ -125,7 +130,7 @@ void GameCommander::setCombatUnits()
 
         BOT_ASSERT(unit, "Have a null unit in our valid units\n");
 
-        if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type, m_bot))
+        if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type))
         {
             assignUnit(unitTag, m_combatUnits);
         }
@@ -156,3 +161,10 @@ void GameCommander::assignUnit(const UnitTag & unit, std::vector<UnitTag> & unit
 
     units.push_back(unit);
 }
+
+sc2::Point2D GameCommander::GetProxyLocation()
+{
+//    return m_proxyManager.getProxyLocation();
+    return sc2::Point2D(150, 100);
+}
+
