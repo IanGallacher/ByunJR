@@ -12,14 +12,14 @@ BuildOrder::BuildOrder(const sc2::Race & race)
 
 }
 
-BuildOrder::BuildOrder(const sc2::Race & race, const std::vector<BuildType> & vec)
+BuildOrder::BuildOrder(const sc2::Race & race, const std::vector<sc2::UnitTypeID> & vec)
     : m_race(race)
     , m_buildOrder(vec)
 {
 
 }
 
-void BuildOrder::add(const BuildType & type)
+void BuildOrder::add(const sc2::UnitTypeID & type)
 {
     m_buildOrder.push_back(type);
 }

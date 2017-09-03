@@ -1,6 +1,6 @@
 #include "sc2api/sc2_api.h"
 #include "sc2utils/sc2_manage_process.h"
-#include "rapidjson/document.h"
+#include "rapidjson\document.h"
 #include "JSONTools.h"
 #include "Util.h"
 
@@ -10,7 +10,6 @@
 #include <cmath>
 
 #include "CCBot.h"
-
 
 int main(int argc, char* argv[]) 
 {
@@ -48,7 +47,6 @@ int main(int argc, char* argv[])
     std::string botRaceString;
     std::string enemyRaceString;
     std::string mapString;
-    int stepSize = 1;
 
     if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
     {
@@ -56,7 +54,6 @@ int main(int argc, char* argv[])
         JSONTools::ReadString("BotRace", info, botRaceString);
         JSONTools::ReadString("EnemyRace", info, enemyRaceString);
         JSONTools::ReadString("MapFile", info, mapString);
-        JSONTools::ReadInt("StepSize", info, stepSize);
     }
     else
     {
@@ -83,13 +80,13 @@ int main(int argc, char* argv[])
     {
         coordinator.Update();
     }
-    if (bot.Control()->SaveReplay("LastReplay.Sc2Replay"))
+    if (bot.Control()->SaveReplay("C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay"))
     {
-        std::cout << "REPLAYSUCESS" << "LastReplay.Sc2Replay";
+        std::cout << "REPLAYSUCESS" << "C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay";
     }
     else
     {
-        std::cout << "REPLAY FAIL" << "LastReplay.Sc2Replay";
+        std::cout << "REPLAY FAIL" << "C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay";
     }
     coordinator.LeaveGame();
     //coordinator.SaveReplayList("C:\Users\IanGallacher\Documents\Github\CommandCenter\bin\replay");

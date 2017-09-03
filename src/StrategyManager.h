@@ -30,7 +30,7 @@ class StrategyManager
     int                             m_totalGamesPlayed;
     const BuildOrder                m_emptyBuildOrder;
 
-    bool  shouldExpandNow() const;
+    const bool  shouldExpandNow() const;
     const UnitPairVector getProtossBuildOrderGoal() const;
     const UnitPairVector getTerranBuildOrderGoal() const;
     const UnitPairVector getZergBuildOrderGoal() const;
@@ -42,7 +42,7 @@ public:
     void onStart();
     void onFrame();
     void onEnd(const bool isWinner);
-    void addStrategy(const std::string & name, const Strategy & strategy);
+    void addStrategy(const std::string & name, Strategy & strategy);
     const UnitPairVector getBuildOrderGoal() const;
     const BuildOrder & getOpeningBookBuildOrder() const;
     void readStrategyFile(const std::string & str);

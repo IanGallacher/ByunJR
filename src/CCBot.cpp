@@ -10,7 +10,6 @@ CCBot::CCBot()
     , m_workers(*this)
     , m_gameCommander(*this)
     , m_strategy(*this)
-    , m_techTree(*this)
 {
     
 }
@@ -18,7 +17,7 @@ CCBot::CCBot()
 void CCBot::OnGameStart() 
 {
     m_config.readConfigFile();
-    
+
     // get my race
     auto playerID = Observation()->GetPlayerID();
     for (auto & playerInfo : Observation()->GetGameInfo().player_info)
@@ -32,8 +31,7 @@ void CCBot::OnGameStart()
             m_playerRace[Players::Enemy] = playerInfo.race_requested;
         }
     }
-    
-    m_techTree.onStart();
+
     m_strategy.onStart();
     m_map.onStart();
     m_unitInfo.onStart();
@@ -88,21 +86,6 @@ const BaseLocationManager & CCBot::Bases() const
 const UnitInfoManager & CCBot::UnitInfo() const
 {
     return m_unitInfo;
-}
-
-const TypeData & CCBot::Data(const sc2::UnitTypeID & type) const
-{
-    return m_techTree.getData(type);
-}
-
-const TypeData & CCBot::Data(const sc2::UpgradeID & type) const
-{
-    return m_techTree.getData(type);
-}
-
-const TypeData & CCBot::Data(const BuildType & type) const
-{
-    return m_techTree.getData(type);
 }
 
 WorkerManager & CCBot::Workers()

@@ -38,7 +38,7 @@ void SquadData::clearSquadData()
 
 void SquadData::removeSquad(const std::string & squadName)
 {
-    const auto & squadPtr = m_squads.find(squadName);
+    auto & squadPtr = m_squads.find(squadName);
 
     BOT_ASSERT(squadPtr != m_squads.end(), "Trying to clear a squad that didn't exist: %s", squadName.c_str());
     if (squadPtr == m_squads.end())
@@ -191,7 +191,7 @@ bool SquadData::canAssignUnitToSquad(const UnitTag & unit, const Squad & squad) 
 
 Squad & SquadData::getSquad(const std::string & squadName)
 {
-    BOT_ASSERT(squadExists(squadName), "Trying to access squad that doesn't exist: %s", squadName.c_str());
+    BOT_ASSERT(squadExists(squadName), "Trying to access squad that doesn't exist: %s", squadName);
     if (!squadExists(squadName))
     {
         int a = 10;

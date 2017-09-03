@@ -111,7 +111,7 @@ int RangedManager::getAttackPriority(const UnitTag & attacker, const UnitTag & u
     auto unit = m_bot.GetUnit(unitTag);
     BOT_ASSERT(unit, "null unit in getAttackPriority");
 
-    if (Util::IsCombatUnit(*unit, m_bot))
+    if (Util::IsCombatUnit(*unit))
     {
         return 10;
     }

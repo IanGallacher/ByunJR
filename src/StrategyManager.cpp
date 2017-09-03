@@ -2,7 +2,6 @@
 #include "CCBot.h"
 #include "JSONTools.h"
 #include "Util.h"
-#include "BuildType.h"
 
 Strategy::Strategy()
 {
@@ -52,12 +51,12 @@ const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
     }
 }
 
-bool StrategyManager::shouldExpandNow() const
+const bool StrategyManager::shouldExpandNow() const
 {
     return false;
 }
 
-void StrategyManager::addStrategy(const std::string & name, const Strategy & strategy)
+void StrategyManager::addStrategy(const std::string & name, Strategy & strategy)
 {
     m_strategies[name] = strategy;
 }
@@ -168,8 +167,9 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     {
                         if (build[b].IsString())
                         {
-                            BuildType buildType(build[b].GetString(), m_bot);
-                            buildOrder.add(buildType);
+                            sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
+
+                            buildOrder.add(typeID);
                         }
                         else
                         {

@@ -126,7 +126,7 @@ void ScoutManager::moveScouts()
 
     }
 
-    // for each start location in the level
+    // for each start location in the levelz
     if (!enemyBaseLocation)
     {
         m_scoutStatus = "Enemy base unknown, exploring";

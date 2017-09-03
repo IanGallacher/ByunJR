@@ -20,7 +20,6 @@ class ScoutManager
     void            moveScouts();
     void            drawScoutInformation();
 
-
 public:
 
     ScoutManager(CCBot & bot);

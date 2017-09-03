@@ -25,7 +25,7 @@ void BuildingManager::onFrame()
     for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
     {
         // filter out units which aren't buildings under construction
-        if (m_bot.Data(unit.unit_type).isBuilding)
+        if (Util::IsBuilding(unit.unit_type))
         {
             std::stringstream ss;
             ss << unit.tag;
@@ -140,7 +140,7 @@ void BuildingManager::constructAssignedBuildings()
         }
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
-        sc2::AbilityID buildAbility = m_bot.Data(b.type).buildAbility;
+        sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
         const sc2::Unit * builderUnit = m_bot.GetUnit(b.builderUnitTag);
 
         bool isConstructing = false;
@@ -219,7 +219,7 @@ void BuildingManager::checkForStartedConstruction()
     for (auto & buildingStarted : m_bot.UnitInfo().getUnits(Players::Self))
     {
         // filter out units which aren't buildings under construction
-        if (!m_bot.Data(buildingStarted.unit_type).isBuilding || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
+        if (!Util::IsBuilding(buildingStarted.unit_type) || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
         {
             continue;
         }
@@ -440,7 +440,7 @@ void BuildingManager::removeBuildings(const std::vector<Building> & toRemove)
 {
     for (auto & b : toRemove)
     {
-        const auto & it = std::find(m_buildings.begin(), m_buildings.end(), b);
+        auto & it = std::find(m_buildings.begin(), m_buildings.end(), b);
 
         if (it != m_buildings.end())
         {

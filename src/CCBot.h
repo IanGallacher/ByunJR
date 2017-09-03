@@ -10,8 +10,6 @@
 #include "GameCommander.h"
 #include "BuildingManager.h"
 #include "StrategyManager.h"
-#include "TechTree.h"
-#include "BuildType.h"
 
 class CCBot : public sc2::Agent 
 {
@@ -23,18 +21,17 @@ class CCBot : public sc2::Agent
     WorkerManager           m_workers;
     StrategyManager         m_strategy;
     BotConfig               m_config;
-    TechTree                m_techTree;
 
     GameCommander           m_gameCommander;
 
-    void OnError(const std::vector<sc2::ClientError> & client_errors, 
-                 const std::vector<std::string> & protocol_errors = {}) override;
+    void OnError(const std::vector<sc2::ClientError> & client_errors,
+                 const std::vector<std::string> & protocol_errors = {});
 
 public:
 
     CCBot();
     void OnGameStart() override;
-    void OnStep() override;
+    void OnStep();
     sc2::Point2D GetProxyLocation();
 
           BotConfig & Config();
@@ -43,9 +40,6 @@ public:
     const MapTools & Map() const;
     const UnitInfoManager & UnitInfo() const;
     const StrategyManager & Strategy() const;
-    const TypeData & Data(const sc2::UnitTypeID & type) const;
-    const TypeData & Data(const sc2::UpgradeID & type) const;
-    const TypeData & Data(const BuildType & type) const;
     const sc2::Race & GetPlayerRace(int player) const;
     sc2::Point2D GetStartLocation() const;
     const sc2::Unit * GetUnit(const UnitTag & tag) const;

@@ -13,7 +13,7 @@ UnitData::UnitData()
 void UnitData::updateUnit(const sc2::Unit & unit)
 {
     bool firstSeen = false;
-    const auto & it = m_unitMap.find((int)unit.tag);
+    auto & it = m_unitMap.find((int)unit.tag);
     if (it == m_unitMap.end())
     {
         firstSeen = true;
@@ -62,7 +62,7 @@ void UnitData::removeBadUnits()
     }
 }
 
-bool UnitData::badUnitInfo(const UnitInfo & ui) const
+const bool UnitData::badUnitInfo(const UnitInfo & ui) const
 {
     return false;
 }

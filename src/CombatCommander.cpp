@@ -94,10 +94,7 @@ void CombatCommander::updateAttackSquads()
         BOT_ASSERT(unit, "null unit in combat units");
 
         // get every unit of a lower priority and put it into the attack squad
-        if (!Util::IsWorker(*unit) 
-            && !(unit->unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD) 
-            && !(unit->unit_type == sc2::UNIT_TYPEID::ZERG_QUEEN) 
-            && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
+        if (!Util::IsWorker(*unit) && !(unit->unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
         {
             m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
         }
@@ -413,7 +410,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation()
     {
         const UnitInfo & ui = kv.second;
 
-        if (m_bot.Data(ui.type).isBuilding && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
+        if (Util::IsBuilding(ui.type) && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
         {
             return ui.lastPosition;
         }

@@ -8,11 +8,7 @@
 #include <ctime>
 #include <iomanip>
 
-#ifdef WIN32
-    #define BOT_BREAK __debugbreak();
-#else
-    #define BOT_BREAK ;
-#endif
+#define BOT_BREAK __debugbreak();
 
 #if true
     #define BOT_ASSERT(cond, msg, ...) \

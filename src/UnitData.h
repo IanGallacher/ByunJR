@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Common.h"
+#include "sc2api/sc2_api.h"
 
 struct UnitInfo
 {
     // we need to store all of this data because if the unit is not visible, we
     // can't reference it from the unit pointer
 
-    UnitTag         tag;
+    int             tag;
     float           lastHealth;
     float           lastShields;
     int             player;
@@ -27,17 +27,17 @@ struct UnitInfo
 
     }
 
-    bool operator == (sc2::Unit & unit) const
+    const bool operator == (sc2::Unit & unit) const
     {
         return tag == unit.tag;
     }
 
-    bool operator == (const UnitInfo & rhs) const
+    const bool operator == (const UnitInfo & rhs) const
     {
         return (tag == rhs.tag);
     }
 
-    bool operator < (const UnitInfo & rhs) const
+    const bool operator < (const UnitInfo & rhs) const
     {
         return (tag < rhs.tag);
     }
@@ -53,7 +53,7 @@ class UnitData
     int                     m_mineralsLost;
     int	                    m_gasLost;
 
-    bool badUnitInfo(const UnitInfo & ui) const;
+    const bool badUnitInfo(const UnitInfo & ui) const;
 
 public:
 
