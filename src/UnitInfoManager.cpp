@@ -251,7 +251,7 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit & unit)
     }
 
     // if the position isn't valid throw it out
-    if (!m_bot.Map().isValid(unit.pos))
+    if (!m_bot.Map().isOnMap(unit.pos))
     {
         return false;
     }

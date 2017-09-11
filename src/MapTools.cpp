@@ -111,7 +111,7 @@ void MapTools::computeConnectivity()
                     sc2::Point2D nextTile(tile.x + actionX[a], tile.y + actionY[a]);
 
                     // if the new tile is inside the map bounds, is walkable, and has not been assigned a sector, add it to the current sector and the fringe
-                    if (isValid(nextTile) && isWalkable(nextTile) && (getSectorNumber(nextTile) == 0))
+                    if (isOnMap(nextTile) && isWalkable(nextTile) && (getSectorNumber(nextTile) == 0))
                     {
                         m_sectorNumber[(int)nextTile.x][(int)nextTile.y] = sectorNumber;
                         fringe.push_back(nextTile);
@@ -124,7 +124,7 @@ void MapTools::computeConnectivity()
 
 bool MapTools::isExplored(const sc2::Point2D & pos) const
 {
-    if (!isValid(pos)) { return false; }
+    if (!isOnMap(pos)) { return false; }
 
     sc2::Visibility vis = m_bot.Observation()->GetVisibility(pos);
     return vis == sc2::Visibility::Fogged || vis == sc2::Visibility::Visible;
@@ -132,7 +132,7 @@ bool MapTools::isExplored(const sc2::Point2D & pos) const
 
 bool MapTools::isVisible(const sc2::Point2D & pos) const
 {
-    if (!isValid(pos)) { return false; }
+    if (!isOnMap(pos)) { return false; }
 
     return m_bot.Observation()->GetVisibility(pos) == sc2::Visibility::Visible;
 }
@@ -185,7 +185,7 @@ const DistanceMap & MapTools::getDistanceMap(const sc2::Point2D & tile) const
 
 int MapTools::getSectorNumber(int x, int y) const
 {
-    if (!isValid(x, y))
+    if (!isOnMap(x, y))
     {
         return 0;
     }
@@ -198,14 +198,16 @@ int MapTools::getSectorNumber(const sc2::Point2D & pos) const
     return getSectorNumber((int)pos.x, (int)pos.y);
 }
 
-bool MapTools::isValid(int x, int y) const
+// Returns true if the point is on the map, and not just the playable portions of the map.
+bool MapTools::isOnMap(int x, int y) const
 {
     return x >= 0 && y >= 0 && x < m_width && y < m_height;
 }
 
-bool MapTools::isValid(const sc2::Point2D & pos) const
+// Returns true if the point is on the map, and not just the playable portions of the map.
+bool MapTools::isOnMap(const sc2::Point2D & pos) const
 {
-    return isValid((int)pos.x, (int)pos.y);
+    return isOnMap((int)pos.x, (int)pos.y);
 }
 
 void MapTools::draw() const
@@ -215,7 +217,7 @@ void MapTools::draw() const
     {
         for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
         {
-            if (!isValid((int)x, (int)y))
+            if (!isOnMap((int)x, (int)y))
             {
                 continue;
             }
@@ -291,7 +293,7 @@ void MapTools::drawTextScreen(const sc2::Point2D & pos, const std::string & str,
 
 bool MapTools::isConnected(int x1, int y1, int x2, int y2) const
 {
-    if (!isValid(x1, y1) || !isValid(x2, y2))
+    if (!isOnMap(x1, y1) || !isOnMap(x2, y2))
     {
         return false;
     }
@@ -309,7 +311,7 @@ bool MapTools::isConnected(const sc2::Point2D & p1, const sc2::Point2D & p2) con
 
 bool MapTools::isBuildable(int x, int y) const
 {
-    if (!isValid(x, y))
+    if (!isOnMap(x, y))
     {
         return false;
     }
@@ -347,7 +349,7 @@ void MapTools::printMap()
 
 bool MapTools::isDepotBuildableTile(const sc2::Point2D & tile) const
 {
-    if (!isValid(tile))
+    if (!isOnMap(tile))
     {
         return false;
     }
@@ -357,7 +359,7 @@ bool MapTools::isDepotBuildableTile(const sc2::Point2D & tile) const
 
 bool MapTools::isWalkable(int x, int y) const
 {
-    if (!isValid(x, y))
+    if (!isOnMap(x, y))
     {
         return false;
     }
@@ -422,7 +424,7 @@ sc2::Point2D MapTools::getLeastRecentlySeenPosition() const
 
     for (auto & tile : baseLocation->getClosestTiles())
     {
-        BOT_ASSERT(isValid(tile), "How is this tile not valid?");
+        BOT_ASSERT(isOnMap(tile), "How is this tile not valid?");
 
         int lastSeen = m_lastSeen[(int)tile.x][(int)tile.y];
         if (lastSeen < minSeen)

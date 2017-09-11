@@ -249,7 +249,7 @@ void BaseLocationManager::onFrame()
 
 BaseLocation * BaseLocationManager::getBaseLocation(const sc2::Point2D & pos) const
 {
-    if (!m_bot.Map().isValid(pos)) { return nullptr; }
+    if (!m_bot.Map().isOnMap(pos)) { return nullptr; }
 
     return m_tileBaseLocations[(int)pos.x][(int)pos.y];
 }

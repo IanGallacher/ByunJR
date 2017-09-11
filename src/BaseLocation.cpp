@@ -136,7 +136,7 @@ bool BaseLocation::isPlayerStartLocation(int player) const
 
 bool BaseLocation::containsPosition(const sc2::Point2D & pos) const
 {
-    if (!m_bot.Map().isValid(pos) || (pos.x == 0 && pos.y == 0))
+    if (!m_bot.Map().isOnMap(pos) || (pos.x == 0 && pos.y == 0))
     {
         return false;
     }

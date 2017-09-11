@@ -34,7 +34,7 @@ bool BuildingPlacer::canBuildHere(int bx, int by, const Building & b) const
     {
         for (int y = by; y < by + Util::GetUnitTypeHeight(b.type, m_bot); y++)
         {
-            if (!m_bot.Map().isValid(x, y) || m_reserveMap[x][y])
+            if (!m_bot.Map().isOnMap(x, y) || m_reserveMap[x][y])
             {
                 return false;
             }
@@ -169,7 +169,7 @@ bool BuildingPlacer::tileOverlapsBaseLocation(int x, int y, sc2::UnitTypeID type
 bool BuildingPlacer::buildable(const Building & b, int x, int y) const
 {
     // TODO: does this take units on the map into account?
-    if (!m_bot.Map().isValid(x, y) || !m_bot.Map().canBuildTypeAtPosition(x, y, b.type))
+    if (!m_bot.Map().isOnMap(x, y) || !m_bot.Map().canBuildTypeAtPosition(x, y, b.type))
     {
         return false;
     }

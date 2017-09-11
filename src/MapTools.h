@@ -57,8 +57,8 @@ public:
     void    drawBoxAroundUnit(const UnitTag & uinit, sc2::Color color) const;
     void    drawSphereAroundUnit(const UnitTag & uinit, sc2::Color color) const;
     
-    bool    isValid(int x, int y) const;
-    bool    isValid(const sc2::Point2D & pos) const;
+    bool    isOnMap(int x, int y) const;
+    bool    isOnMap(const sc2::Point2D & pos) const;
     bool    isPowered(const sc2::Point2D & pos) const;
     bool    isExplored(const sc2::Point2D & pos) const;
     bool    isVisible(const sc2::Point2D & pos) const;

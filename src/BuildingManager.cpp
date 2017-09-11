@@ -101,7 +101,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
 
         // grab a worker unit from WorkerManager which is closest to this final position
         sc2::Point2D testLocation = getBuildingLocation(b);
-        if (!m_bot.Map().isValid(testLocation))
+        if (!m_bot.Map().isOnMap(testLocation))
         {
             continue;
         }
