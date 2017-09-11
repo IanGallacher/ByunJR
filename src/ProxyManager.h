@@ -9,18 +9,22 @@ class ProxyManager
     CCBot &   m_bot;
     UnitTag         m_proxyUnitTag;
     bool            m_proxyUnderAttack;
+    // bool            loggedResult;
 
     // Proxy training
     bool            loadProxyTrainingData();
-    bool            writeProxyTrainingData(int x, int y, int fitness);
+    void            upadateViableLocationsList();
+    void            recordResult(int x, int y, int fitness);
     bool            isProxyLocationValid(int x, int y);
+    void            testAllPointsOnMap();
     bool            setupProxyLocation();
-    bool            proxyBuildingAtRandomLocation();
+    bool            proxyBuildingAtChosenRandomLocation();
 
 public:
     ProxyManager(CCBot & bot);
     void onStart();
     void onFrame();
+    bool writeAllTrainingData();
 
     sc2::Point2D    getProxyLocation();
 };
