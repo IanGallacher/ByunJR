@@ -35,6 +35,7 @@ public:
 
     void onStart();
     void onFrame();
+    void OnUnitEnterVision(const sc2::Unit & unit);
 
     void handleUnitAssignments();
     void setValidUnits();

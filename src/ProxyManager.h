@@ -24,6 +24,7 @@ public:
     ProxyManager(CCBot & bot);
     void onStart();
     void onFrame();
+    void OnUnitEnterVision(const sc2::Unit & unit);
     bool writeAllTrainingData();
 
     sc2::Point2D    getProxyLocation();

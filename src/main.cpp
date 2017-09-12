@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 
     std::cout << "GLHF" << std::endl;
     // Step forward the game simulation.
-    while (coordinator.AllGamesEnded() != true) 
+    while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight()) 
     {
         coordinator.Update();
     }

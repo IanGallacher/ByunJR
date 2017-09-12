@@ -35,6 +35,10 @@ void GameCommander::onFrame()
     drawDebugInterface();
 }
 
+void GameCommander::OnUnitEnterVision(const sc2::Unit& unit) {
+    m_proxyManager.OnUnitEnterVision(unit);
+}
+
 void GameCommander::drawDebugInterface()
 {
     drawGameInformation(4, 1);

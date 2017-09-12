@@ -23,6 +23,7 @@ class CCBot : public sc2::Agent
     BotConfig               m_config;
 
     GameCommander           m_gameCommander;
+    bool                    m_isWillingToFight;
 
     void OnError(const std::vector<sc2::ClientError> & client_errors,
                  const std::vector<std::string> & protocol_errors = {});
@@ -32,6 +33,9 @@ public:
     CCBot();
     void OnGameStart() override;
     void OnStep();
+    void OnUnitEnterVision(const sc2::Unit & unit);
+    bool IsWillingToFight();
+    void Resign();
     sc2::Point2D GetProxyLocation();
 
           BotConfig & Config();

@@ -9,7 +9,8 @@ CCBot::CCBot()
     , m_unitInfo(*this)
     , m_workers(*this)
     , m_gameCommander(*this)
-    , m_strategy(*this)
+    , m_strategy(*this),
+    m_isWillingToFight(true)
 {
     
 }
@@ -55,6 +56,23 @@ void CCBot::OnStep()
 
     Debug()->SendDebug();
 }
+
+void CCBot::OnUnitEnterVision(const sc2::Unit& unit) {
+    m_gameCommander.OnUnitEnterVision(unit);
+}
+
+// Returns true if the bot thinks it still has a chance.
+// Return false if there is no point continuing the simulation.
+bool CCBot::IsWillingToFight()
+{
+    return m_isWillingToFight;
+}
+
+void CCBot::Resign()
+{
+    m_isWillingToFight = false;
+}
+
 
 // TODO: Figure out my race
 const sc2::Race & CCBot::GetPlayerRace(int player) const

@@ -65,6 +65,16 @@ void ProxyManager::onFrame()
     proxyBuildingAtChosenRandomLocation();
 }
 
+void ProxyManager::OnUnitEnterVision(const sc2::Unit& unit)
+{
+    double dist(m_bot.Map().getGroundDistance(unit.pos, m_bot.GetUnit(m_proxyUnitTag)->pos));
+
+    if (dist < 8)
+    {
+        m_bot.Resign();
+    }
+}
+
 // Load all the values from training data stored on the disk.
 // If no training data is found, test all points on the map and load that instead.
 // Training data is stored in a standard .txt file. Spaces separate values, and new lines separate data entries.
