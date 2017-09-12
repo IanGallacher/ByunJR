@@ -144,10 +144,9 @@ void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, 
     //// otherwise shoot
     else
     {
-        bot.Actions()->UnitCommand(rangedUnit, sc2::ABILITY_ID::EFFECT_KD8CHARGE, target);
+        //bot.Actions()->UnitCommand(rangedUnit, sc2::ABILITY_ID::EFFECT_KD8CHARGE, target);
         SmartAttackUnit(rangedUnit, target, bot);
     }
-    //bot.Actions()->UnitCommand(rangedUnit, sc2::ABILITY_ID::ATTACK_ATTACK, target);
 }
 
 void Micro::SmartBuild(const UnitTag & builder, const sc2::UnitTypeID & buildingType, sc2::Point2D pos, CCBot & bot)
