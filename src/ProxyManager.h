@@ -67,8 +67,8 @@ public:
     ProxyManager(ByunJRBot & bot);
     void onStart();
     void onFrame();
-    void OnUnitEnterVision(const sc2::Unit & unit);
     void onUnitCreated(const sc2::Unit & unit);
+    void OnUnitEnterVision(const sc2::Unit & unit);
     void writeAllTrainingData();
     bool proxyBuildingAtChosenRandomLocation();
 

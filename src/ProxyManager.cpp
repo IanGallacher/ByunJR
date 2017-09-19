@@ -166,7 +166,6 @@ bool ProxyTrainingData::setupProxyLocation()
 
 void ProxyTrainingData::writeAllTrainingData(std::string filename)
 {
-
     std::cout << "WritingAllTrainingDataToFile...";
     std::ofstream outfile;
     std::stringstream buffer;
@@ -246,6 +245,17 @@ void ProxyManager::onFrame()
 {
     proxyBuildingAtChosenRandomLocation();
 }
+
+void ProxyManager::onUnitCreated(const sc2::Unit& unit)
+{
+    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
+    {
+        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+
+        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(unit.tag, enemyBaseLocation->getPosition()));
+        m_firstReaperCreated = true;
+    }
+}
  
 void ProxyManager::OnUnitEnterVision(const sc2::Unit& unit)
 {
@@ -257,17 +267,6 @@ void ProxyManager::OnUnitEnterVision(const sc2::Unit& unit)
     {
         m_bot.Resign();
         std::cout << "THERE IS NO POINT IN CONTINUING";
-    }
-}
-
-void ProxyManager::onUnitCreated(const sc2::Unit& unit)
-{
-    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
-    {
-        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
-
-        m_ptd.recordResult( (int)m_bot.Query()->PathingDistance(unit.tag, enemyBaseLocation->getPosition()));
-        m_firstReaperCreated = true;
     }
 }
 //
