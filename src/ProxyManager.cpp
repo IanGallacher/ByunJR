@@ -11,9 +11,9 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     int arena_height = (int) (bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
 
     std::cout << "miny" << bot.Observation()->GetGameInfo().playable_min.y << "minx" << bot.Observation()->GetGameInfo().playable_min.x;
+    
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-
     m_result.resize(arena_height);
     for (auto &row : m_result)
     {
