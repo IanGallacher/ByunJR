@@ -232,6 +232,7 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
 
 sc2::Point2D ProxyTrainingData::getProxyLocation()
 {
+    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
     sc2::Point2D proxyLocation((float) m_proxy_x, (float) m_proxy_y);
     return proxyLocation;
 }
