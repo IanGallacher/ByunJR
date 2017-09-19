@@ -92,7 +92,8 @@ int main(int argc, char* argv[])
         std::cout << "REPLAY FAIL" << "C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay";
     }
     coordinator.LeaveGame();
-    //coordinator.SaveReplayList("C:\Users\IanGallacher\Documents\Github\CommandCenter\bin\replay");
+
+    std::cout << "Press any key to continue.";
     getchar();
 
     return 0;
