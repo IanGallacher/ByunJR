@@ -262,7 +262,7 @@ void ProxyManager::OnUnitEnterVision(const sc2::Unit& unit)
 
 void ProxyManager::onUnitCreated(const sc2::Unit& unit)
 {
-    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER)
+    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
     {
         const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
 
