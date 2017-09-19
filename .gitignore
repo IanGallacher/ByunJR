@@ -3,3 +3,4 @@ vs/commandcenter
 vs/*.user
 bin/*.exe
 bin/*.ilk
+*.Sc2Replay
