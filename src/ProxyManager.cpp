@@ -204,8 +204,8 @@ ProxyManager::ProxyManager(ByunJRBot & bot)
 {
 
 }
+
 // YOU MUST CALL setupProxyLocation() before this.
-// TODO: Set this up as a constructor function.
 bool ProxyManager::proxyBuildingAtChosenRandomLocation()
 {
     std::ofstream outfile;
