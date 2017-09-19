@@ -5,11 +5,11 @@
 #include "sc2api/sc2_api.h"
 #include "DistanceMap.h"
 
-class CCBot;
+class ByunJRBot;
 
 class BaseLocation
 {
-    CCBot &               m_bot;
+    ByunJRBot &                 m_bot;
     DistanceMap                 m_distanceMap;
 
     sc2::Point2D                m_depotPosition;
@@ -32,7 +32,7 @@ class BaseLocation
     
 public:
 
-    BaseLocation(CCBot & bot, int baseID, const std::vector<sc2::Unit> & resources);
+    BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::Unit> & resources);
     
     int getGroundDistance(const sc2::Point2D & pos) const;
     bool isStartLocation() const;

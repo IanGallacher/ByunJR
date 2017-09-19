@@ -1,10 +1,10 @@
 #include "UnitInfoManager.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 
 #include <sstream>
 
-UnitInfoManager::UnitInfoManager(CCBot & bot)
+UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
     : m_bot(bot)
 {
 

@@ -7,11 +7,11 @@
 #include "ScoutManager.h"
 #include "CombatCommander.h"
 
-class CCBot;
+class ByunJRBot;
 
 class GameCommander
 {
-    CCBot &                 m_bot;
+    ByunJRBot &                 m_bot;
     Timer                   m_timer;
 
     ProductionManager       m_productionManager;
@@ -30,12 +30,14 @@ class GameCommander
 
 public:
 
-    GameCommander(CCBot & bot);
+    GameCommander(ByunJRBot & bot);
     sc2::Point2D GetProxyLocation();
 
     void onStart();
     void onFrame();
     void OnUnitEnterVision(const sc2::Unit & unit);
+    void onUnitCreated(const sc2::Unit & unit);
+    void onUnitDestroy(const sc2::Unit & unit);
 
     void handleUnitAssignments();
     void setValidUnits();
@@ -46,7 +48,4 @@ public:
     void drawGameInformation(int x, int y);
 
     bool shouldSendInitialScout();
-
-    void onUnitCreate(const sc2::Unit & unit);
-    void onUnitDestroy(const sc2::Unit & unit);
 };

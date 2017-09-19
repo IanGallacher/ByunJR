@@ -1,8 +1,8 @@
 #include "GameCommander.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-GameCommander::GameCommander(CCBot & bot)
+GameCommander::GameCommander(ByunJRBot & bot)
     : m_bot                 (bot)
     , m_productionManager   (bot)
     , m_scoutManager        (bot)
@@ -37,6 +37,16 @@ void GameCommander::onFrame()
 
 void GameCommander::OnUnitEnterVision(const sc2::Unit& unit) {
     m_proxyManager.OnUnitEnterVision(unit);
+}
+
+void GameCommander::onUnitCreated(const sc2::Unit & unit)
+{
+    m_proxyManager.onUnitCreated(unit);
+}
+
+void GameCommander::onUnitDestroy(const sc2::Unit & unit)
+{
+    //_productionManager.onUnitDestroy(unit);
 }
 
 void GameCommander::drawDebugInterface()
@@ -139,17 +149,6 @@ void GameCommander::setCombatUnits()
         }
     }
 }
-
-void GameCommander::onUnitCreate(const sc2::Unit & unit)
-{
-
-}
-
-void GameCommander::onUnitDestroy(const sc2::Unit & unit)
-{
-    //_productionManager.onUnitDestroy(unit);
-}
-
 
 void GameCommander::assignUnit(const UnitTag & unit, std::vector<UnitTag> & units)
 {

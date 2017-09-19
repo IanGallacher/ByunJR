@@ -1,6 +1,6 @@
 #include "CombatCommander.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Micro.h"
 
 const size_t IdlePriority = 0;
@@ -9,7 +9,7 @@ const size_t BaseDefensePriority = 2;
 const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
 
-CombatCommander::CombatCommander(CCBot & bot)
+CombatCommander::CombatCommander(ByunJRBot & bot)
     : m_bot(bot)
     , m_squadData(bot)
     , m_initialized(false)

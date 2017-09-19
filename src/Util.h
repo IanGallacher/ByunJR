@@ -3,7 +3,7 @@
 #include "sc2api/sc2_api.h"
 #include "Common.h"
 
-class CCBot;
+class ByunJRBot;
 
 namespace Util
 {
@@ -32,16 +32,16 @@ namespace Util
     bool IsWorkerType(const sc2::UnitTypeID & unit);
     bool IsIdle(const sc2::Unit & unit);
     bool IsCompleted(const sc2::Unit & unit);
-    float GetAttackRange(const sc2::UnitTypeID & type, CCBot & bot);
-    float GetAttackDamage(const sc2::UnitTypeID & type, CCBot & bot);
+    float GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot);
+    float GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot);
     
-    bool UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, CCBot & m_bot);
+    bool UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, ByunJRBot & m_bot);
     sc2::UnitTypeID WhatBuilds(const sc2::UnitTypeID & type);
-    int EnemyDPSInRange(const sc2::Point3D unitPos, CCBot & bot);
-    int GetUnitTypeWidth(const sc2::UnitTypeID type, const CCBot & bot);
-    int GetUnitTypeHeight(const sc2::UnitTypeID type, const CCBot & bot);
-    int GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const CCBot & bot);
-    int GetUnitTypeGasPrice(const sc2::UnitTypeID type, const CCBot & bot);
+    int EnemyDPSInRange(const sc2::Point3D unitPos, ByunJRBot & bot);
+    int GetUnitTypeWidth(const sc2::UnitTypeID type, const ByunJRBot & bot);
+    int GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot);
+    int GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const ByunJRBot & bot);
+    int GetUnitTypeGasPrice(const sc2::UnitTypeID type, const ByunJRBot & bot);
     sc2::UnitTypeID GetTownHall(const sc2::Race & race);
     sc2::UnitTypeID GetSupplyProvider(const sc2::Race & race);
     std::string GetStringFromRace(const sc2::Race & race);

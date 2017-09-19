@@ -1,10 +1,10 @@
 #include "Common.h"
 #include "BuildingPlacer.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Building.h"
 #include "Util.h"
 
-BuildingPlacer::BuildingPlacer(CCBot & bot)
+BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
     : m_bot(bot)
 {
 

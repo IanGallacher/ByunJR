@@ -5,10 +5,10 @@
 #include "UnitData.h"
 #include "BaseLocation.h"
 
-class CCBot;
+class ByunJRBot;
 class UnitInfoManager 
 {
-    CCBot &           m_bot;
+    ByunJRBot &           m_bot;
 
     std::map<int, UnitData> m_unitData;
 
@@ -24,7 +24,7 @@ class UnitInfoManager
 
 public:
 
-    UnitInfoManager(CCBot & bot);
+    UnitInfoManager(ByunJRBot & bot);
 
     void                    onFrame();
     void                    onStart();

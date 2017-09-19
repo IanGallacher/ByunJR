@@ -1,5 +1,5 @@
 #include "DistanceMap.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
 const size_t LegalActions = 4;
@@ -29,7 +29,7 @@ const std::vector<sc2::Point2D> & DistanceMap::getSortedTiles() const
 
 // Computes m_dist[x][y] = ground distance from (startX, startY) to (x,y)
 // Uses BFS, since the map is quite large and DFS may cause a stack overflow
-void DistanceMap::computeDistanceMap(CCBot & m_bot, const sc2::Point2D & startTile)
+void DistanceMap::computeDistanceMap(ByunJRBot & m_bot, const sc2::Point2D & startTile)
 {
     m_startTile = startTile;
     m_width = m_bot.Map().width();
@@ -65,7 +65,7 @@ void DistanceMap::computeDistanceMap(CCBot & m_bot, const sc2::Point2D & startTi
     }
 }
 
-void DistanceMap::draw(CCBot & bot) const
+void DistanceMap::draw(ByunJRBot & bot) const
 {
     const int tilesToDraw = 200;
     for (size_t i(0); i < tilesToDraw; ++i)

@@ -87,13 +87,13 @@
     <ClCompile Include="..\src\SquadOrder.cpp">
       <Filter>micro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\CCBot.cpp" />
     <ClCompile Include="..\src\CombatCommander.cpp">
       <Filter>micro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ProxyManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ByunJRBot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\BaseLocationManager.h">
@@ -187,13 +187,13 @@
     <ClInclude Include="..\src\RangedManager.h">
       <Filter>micro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\CCBot.h" />
     <ClInclude Include="..\src\CombatCommander.h">
       <Filter>micro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ProxyManager.h">
       <Filter>micro</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ByunJRBot.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="global">

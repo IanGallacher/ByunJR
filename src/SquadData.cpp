@@ -1,8 +1,8 @@
 #include "SquadData.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-SquadData::SquadData(CCBot & bot)
+SquadData::SquadData(ByunJRBot & bot)
     : m_bot(bot)
 {
 

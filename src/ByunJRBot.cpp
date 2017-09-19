@@ -1,9 +1,9 @@
 #include "sc2api/sc2_api.h"
 
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-CCBot::CCBot()
+ByunJRBot::ByunJRBot()
     : m_map(*this)
     , m_bases(*this)
     , m_unitInfo(*this)
@@ -15,7 +15,7 @@ CCBot::CCBot()
     
 }
 
-void CCBot::OnGameStart() 
+void ByunJRBot::OnGameStart() 
 {
     m_config.readConfigFile();
 
@@ -42,7 +42,7 @@ void CCBot::OnGameStart()
     m_gameCommander.onStart();
 }
 
-void CCBot::OnStep()
+void ByunJRBot::OnStep()
 {
     Control()->GetObservation();
 
@@ -57,76 +57,80 @@ void CCBot::OnStep()
     Debug()->SendDebug();
 }
 
-void CCBot::OnUnitEnterVision(const sc2::Unit& unit) {
+void ByunJRBot::OnUnitEnterVision(const sc2::Unit& unit) {
     m_gameCommander.OnUnitEnterVision(unit);
+}
+
+void ByunJRBot::OnUnitCreated(const sc2::Unit& unit) {
+    m_gameCommander.onUnitCreated(unit);
 }
 
 // Returns true if the bot thinks it still has a chance.
 // Return false if there is no point continuing the simulation.
-bool CCBot::IsWillingToFight()
+bool ByunJRBot::IsWillingToFight()
 {
     return m_isWillingToFight;
 }
 
-void CCBot::Resign()
+void ByunJRBot::Resign()
 {
     m_isWillingToFight = false;
 }
 
 
 // TODO: Figure out my race
-const sc2::Race & CCBot::GetPlayerRace(int player) const
+const sc2::Race & ByunJRBot::GetPlayerRace(int player) const
 {
     BOT_ASSERT(player == Players::Self || player == Players::Enemy, "invalid player for GetPlayerRace");
     return m_playerRace[player];
 }
 
-BotConfig & CCBot::Config()
+BotConfig & ByunJRBot::Config()
 {
      return m_config;
 }
 
-const MapTools & CCBot::Map() const
+const MapTools & ByunJRBot::Map() const
 {
     return m_map;
 }
 
-const StrategyManager & CCBot::Strategy() const
+const StrategyManager & ByunJRBot::Strategy() const
 {
     return m_strategy;
 }
 
-const BaseLocationManager & CCBot::Bases() const
+const BaseLocationManager & ByunJRBot::Bases() const
 {
     return m_bases;
 }
 
-const UnitInfoManager & CCBot::UnitInfo() const
+const UnitInfoManager & ByunJRBot::UnitInfo() const
 {
     return m_unitInfo;
 }
 
-WorkerManager & CCBot::Workers()
+WorkerManager & ByunJRBot::Workers()
 {
     return m_workers;
 }
 
-const sc2::Unit * CCBot::GetUnit(const UnitTag & tag) const
+const sc2::Unit * ByunJRBot::GetUnit(const UnitTag & tag) const
 {
     return Observation()->GetUnit(tag);
 }
 
-sc2::Point2D CCBot::GetStartLocation() const
+sc2::Point2D ByunJRBot::GetStartLocation() const
 {
     return Observation()->GetStartLocation();
 }
 
-sc2::Point2D CCBot::GetProxyLocation()
+sc2::Point2D ByunJRBot::GetProxyLocation()
 {
     return m_gameCommander.GetProxyLocation();
 }
 
-void CCBot::OnError(const std::vector<sc2::ClientError> & client_errors, const std::vector<std::string> & protocol_errors)
+void ByunJRBot::OnError(const std::vector<sc2::ClientError> & client_errors, const std::vector<std::string> & protocol_errors)
 {
     
 }

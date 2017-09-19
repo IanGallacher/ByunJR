@@ -1,7 +1,7 @@
 #include "sc2api/sc2_api.h"
 #include "sc2utils/sc2_manage_process.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include <iostream>
 
 Util::IsUnit::IsUnit(sc2::UNIT_TYPEID type) 
@@ -123,22 +123,22 @@ bool Util::IsIdle(const sc2::Unit & unit)
     return unit.orders.empty();
 }
 
-int Util::GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const CCBot & bot)
+int Util::GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
     return bot.Observation()->GetUnitTypeData()[type].mineral_cost;
 }
 
-int Util::GetUnitTypeGasPrice(const sc2::UnitTypeID type, const CCBot & bot)
+int Util::GetUnitTypeGasPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
     return bot.Observation()->GetUnitTypeData()[type].vespene_cost;
 }
 
-int Util::GetUnitTypeWidth(const sc2::UnitTypeID type, const CCBot & bot)
+int Util::GetUnitTypeWidth(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
     return (int)(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
 
-int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const CCBot & bot)
+int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
     return (int)(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
@@ -168,7 +168,7 @@ bool Util::IsDetector(const sc2::Unit & unit)
     return IsDetectorType(unit.unit_type);
 }
 
-float Util::GetAttackRange(const sc2::UnitTypeID & type, CCBot & bot)
+float Util::GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot)
 {
     auto & weapons = bot.Observation()->GetUnitTypeData()[type].weapons;
     
@@ -188,7 +188,7 @@ float Util::GetAttackRange(const sc2::UnitTypeID & type, CCBot & bot)
 
     return maxRange;
 }
-float Util::GetAttackDamage(const sc2::UnitTypeID & type, CCBot & bot)
+float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
 {
     auto & weapons = bot.Observation()->GetUnitTypeData()[type].weapons;
 
@@ -501,7 +501,7 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
     }
 }
 
-int Util::EnemyDPSInRange(const sc2::Point3D unitPos, CCBot & bot)
+int Util::EnemyDPSInRange(const sc2::Point3D unitPos, ByunJRBot & bot)
 {
     float totalDPS = 0;
     for (auto & enemyunit : bot.Observation()->GetUnits())
@@ -543,7 +543,7 @@ UnitTag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationI
 
 		if (!closestTag || (dist < closestDist))
 		{
-			closestTag = unit;
+			closestTag = unit; // Possibly meant to be unit.tag?
 			closestDist = dist;
 		}
 	}
@@ -1186,7 +1186,7 @@ bool Util::IsBuilding(const sc2::UnitTypeID & type)
 
 // checks where a given unit can make a given unit type now
 // this is done by iterating its legal abilities for the build command to make the unit
-bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, CCBot & m_bot)
+bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, ByunJRBot & m_bot)
 {
     sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(unit.tag);
     

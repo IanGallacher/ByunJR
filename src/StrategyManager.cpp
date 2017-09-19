@@ -1,5 +1,5 @@
 #include "StrategyManager.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "JSONTools.h"
 #include "Util.h"
 
@@ -19,7 +19,7 @@ Strategy::Strategy(const std::string & name, const sc2::Race & race, const Build
 }
 
 // constructor
-StrategyManager::StrategyManager(CCBot & bot)
+StrategyManager::StrategyManager(ByunJRBot & bot)
     : m_bot(bot)
 {
 

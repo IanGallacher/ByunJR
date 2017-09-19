@@ -1,8 +1,8 @@
 #include "Squad.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-Squad::Squad(CCBot & bot)
+Squad::Squad(ByunJRBot & bot)
     : m_bot(bot)
     , m_lastRetreatSwitch(0)
     , m_lastRetreatSwitchVal(false)
@@ -14,7 +14,7 @@ Squad::Squad(CCBot & bot)
 
 }
 
-Squad::Squad(const std::string & name, const SquadOrder & order, size_t priority, CCBot & bot)
+Squad::Squad(const std::string & name, const SquadOrder & order, size_t priority, ByunJRBot & bot)
     : m_bot(bot)
     , m_name(name)
     , m_order(order)

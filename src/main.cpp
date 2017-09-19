@@ -9,7 +9,10 @@
 #include <random>
 #include <cmath>
 
-#include "CCBot.h"
+#include "ByunJRBot.h"
+
+#include <conio.h>
+
 
 int main(int argc, char* argv[]) 
 {
@@ -63,7 +66,7 @@ int main(int argc, char* argv[])
     }
 
     // Add the custom bot, it will control the players.
-    CCBot bot;
+    ByunJRBot bot;
 
     coordinator.SetParticipants({
         CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),

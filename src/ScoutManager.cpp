@@ -1,9 +1,9 @@
 #include "ScoutManager.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 #include "Micro.h"
 
-ScoutManager::ScoutManager(CCBot & bot)
+ScoutManager::ScoutManager(ByunJRBot & bot)
     : m_bot             (bot)
     , m_scoutUnitTag    (0)
     , m_numScouts       (0)

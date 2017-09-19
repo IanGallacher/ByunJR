@@ -1,8 +1,8 @@
 #include "RangedManager.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 
-RangedManager::RangedManager(CCBot & bot)
+RangedManager::RangedManager(ByunJRBot & bot)
     : MicroManager(bot)
 {
 

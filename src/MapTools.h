@@ -5,11 +5,11 @@
 #include "sc2api/sc2_api.h"
 #include "DistanceMap.h"
 
-class CCBot;
+class ByunJRBot;
 
 class MapTools
 {
-    CCBot & m_bot;
+    ByunJRBot & m_bot;
     int     m_width;
     int     m_height;
     float   m_maxZ;
@@ -35,7 +35,7 @@ class MapTools
 
 public:
 
-    MapTools(CCBot & bot);
+    MapTools(ByunJRBot & bot);
 
     void    onStart();
     void    onFrame();

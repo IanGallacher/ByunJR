@@ -1,12 +1,12 @@
 #include "BaseLocation.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include <sstream>
 #include <iostream>
 
 const int NearBaseLocationTileDistance = 20;
 
-BaseLocation::BaseLocation(CCBot & bot, int baseID, const std::vector<sc2::Unit> & resources)
+BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::Unit> & resources)
     : m_bot(bot)
     , m_baseID               (baseID)
     , m_isStartLocation      (false)

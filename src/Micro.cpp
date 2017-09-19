@@ -1,15 +1,15 @@
 #include "Micro.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 
 const float dotRadius = 0.1f;
 
-void Micro::SmartStop(const UnitTag & attacker, CCBot & bot)
+void Micro::SmartStop(const UnitTag & attacker, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::STOP);
 }
 
-void Micro::SmartAttackUnit(const UnitTag & attacker, const UnitTag & target, CCBot & bot)
+void Micro::SmartAttackUnit(const UnitTag & attacker, const UnitTag & target, ByunJRBot & bot)
 {
 
 	//UAB_ASSERT(attacker, "SmartAttackUnit: Attacker not valid");
@@ -48,12 +48,12 @@ void Micro::SmartAttackUnit(const UnitTag & attacker, const UnitTag & target, CC
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target);
 }
 
-void Micro::SmartAttackMove(const UnitTag & attacker, const sc2::Point2D & targetPosition, CCBot & bot)
+void Micro::SmartAttackMove(const UnitTag & attacker, const sc2::Point2D & targetPosition, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, targetPosition);
 }
 
-void Micro::SmartMove(const UnitTag & unitToMove, const sc2::Point2D & targetPosition, CCBot & bot)
+void Micro::SmartMove(const UnitTag & unitToMove, const sc2::Point2D & targetPosition, ByunJRBot & bot)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
     bool sentCommandAlready = false;
@@ -68,17 +68,17 @@ void Micro::SmartMove(const UnitTag & unitToMove, const sc2::Point2D & targetPos
         bot.Actions()->UnitCommand(unitToMove, sc2::ABILITY_ID::MOVE, targetPosition);
 }
 
-void Micro::SmartRightClick(const UnitTag & unit, const UnitTag & target, CCBot & bot)
+void Micro::SmartRightClick(const UnitTag & unit, const UnitTag & target, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
-void Micro::SmartRepair(const UnitTag & unit, const UnitTag & target, CCBot & bot)
+void Micro::SmartRepair(const UnitTag & unit, const UnitTag & target, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
-void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, CCBot & bot)
+void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, ByunJRBot & bot)
 {
     //UAB_ASSERT(rangedUnit, "SmartKiteTarget: Unit not valid");
     //UAB_ASSERT(target, "SmartKiteTarget: Target not valid");
@@ -149,17 +149,17 @@ void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, 
     }
 }
 
-void Micro::SmartBuild(const UnitTag & builder, const sc2::UnitTypeID & buildingType, sc2::Point2D pos, CCBot & bot)
+void Micro::SmartBuild(const UnitTag & builder, const sc2::UnitTypeID & buildingType, sc2::Point2D pos, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType), pos);
 }
 
-void Micro::SmartBuildTag(const UnitTag & builder, const sc2::UnitTypeID & buildingType, UnitTag targetTag, CCBot & bot)
+void Micro::SmartBuildTag(const UnitTag & builder, const sc2::UnitTypeID & buildingType, UnitTag targetTag, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType), targetTag);
 }
 
-void Micro::SmartTrain(const UnitTag & builder, const sc2::UnitTypeID & buildingType, CCBot & bot)
+void Micro::SmartTrain(const UnitTag & builder, const sc2::UnitTypeID & buildingType, ByunJRBot & bot)
 {
     bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType));
 }

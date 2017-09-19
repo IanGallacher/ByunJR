@@ -1,10 +1,10 @@
 #include "Common.h"
 #include "BuildingManager.h"
 #include "Micro.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-BuildingManager::BuildingManager(CCBot & bot)
+BuildingManager::BuildingManager(ByunJRBot & bot)
     : m_bot(bot)
     , m_buildingPlacer(bot)
     , m_debugMode(false)

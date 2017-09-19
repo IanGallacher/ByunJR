@@ -1,31 +1,76 @@
 #pragma once
 
 #include "Common.h"
+#include "MapTools.h"
 
-class CCBot;
+class ByunJRBot;
+
+
+class ProxyLocation {
+public:
+    sc2::Point2D m_loc;
+    int m_fitness;
+
+    ProxyLocation(sc2::Point2D loc, int fitness)
+    {
+        m_loc = loc;
+        m_fitness = fitness;
+    }
+};
+
+// ProxyTrainingData is for a specific map ONLY.
+class ProxyTrainingData
+{
+    int m_proxy_x;
+    int m_proxy_y;
+    MapTools* m_map;
+
+    sc2::Point2D m_playable_min;
+    sc2::Point2D m_playable_max;
+
+    // There is a subtle difference between result and ViableLocations.
+    // Result is a vector of vectors that represent ALL points on the map. 
+    // ViableLocations is an UNINDEXED list that does not include places that get scouted easily or are impossible to build on.
+    // When picking a random proxy location, ViableLocations is used to make sure that the location we pick is always viable. 
+    std::vector<std::vector<int>> m_result;  // stored in the format result[y][x]
+    std::vector<ProxyLocation> ViableLocations;
+
+
+
+    bool            loadProxyTrainingData();
+    void            testAllPointsOnMap();
+    bool            setupProxyLocation();
+
+public:
+    void InitAllValues(ByunJRBot & bot);
+
+    // Proxy training
+    void            upadateViableLocationsList();
+    bool            isProxyLocationValid(int x, int y);
+    void            recordResult(int fitness);
+    void            writeAllTrainingData(std::string filename);
+
+    sc2::Point2D    getProxyLocation();
+};
 
 class ProxyManager
 {
-    CCBot &   m_bot;
+    ByunJRBot &     m_bot;
     UnitTag         m_proxyUnitTag;
     bool            m_proxyUnderAttack;
+    bool            m_firstReaperCreated;
+    ProxyTrainingData        m_ptd;
     // bool            loggedResult;
 
-    // Proxy training
-    bool            loadProxyTrainingData();
-    void            upadateViableLocationsList();
-    void            recordResult(int x, int y, int fitness);
-    bool            isProxyLocationValid(int x, int y);
-    void            testAllPointsOnMap();
-    bool            setupProxyLocation();
-    bool            proxyBuildingAtChosenRandomLocation();
 
 public:
-    ProxyManager(CCBot & bot);
+    ProxyManager(ByunJRBot & bot);
     void onStart();
     void onFrame();
     void OnUnitEnterVision(const sc2::Unit & unit);
-    bool writeAllTrainingData();
+    void onUnitCreated(const sc2::Unit & unit);
+    void writeAllTrainingData();
+    bool proxyBuildingAtChosenRandomLocation();
 
     sc2::Point2D    getProxyLocation();
 };

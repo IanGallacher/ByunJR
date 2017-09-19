@@ -3,7 +3,7 @@
 #include "Common.h"
 #include <map>
 
-class CCBot;
+class ByunJRBot;
 
 
 class DistanceMap 
@@ -18,7 +18,7 @@ class DistanceMap
 public:
     
     DistanceMap();
-    void computeDistanceMap(CCBot & m_bot, const sc2::Point2D & startTile);
+    void computeDistanceMap(ByunJRBot & m_bot, const sc2::Point2D & startTile);
 
     int getDistance(int tileX, int tileY) const;
     int getDistance(const sc2::Point2D & pos) const;
@@ -27,5 +27,5 @@ public:
     const std::vector<sc2::Point2D> & getSortedTiles() const;
     const sc2::Point2D & getStartTile() const;
 
-    void draw(CCBot & bot) const;
+    void draw(ByunJRBot & bot) const;
 };

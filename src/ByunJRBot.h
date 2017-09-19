@@ -11,7 +11,7 @@
 #include "BuildingManager.h"
 #include "StrategyManager.h"
 
-class CCBot : public sc2::Agent 
+class ByunJRBot : public sc2::Agent 
 {
     sc2::Race               m_playerRace[2];
 
@@ -30,10 +30,11 @@ class CCBot : public sc2::Agent
 
 public:
 
-    CCBot();
+    ByunJRBot();
     void OnGameStart() override;
     void OnStep();
     void OnUnitEnterVision(const sc2::Unit & unit);
+    void OnUnitCreated(const sc2::Unit & unit);
     bool IsWillingToFight();
     void Resign();
     sc2::Point2D GetProxyLocation();

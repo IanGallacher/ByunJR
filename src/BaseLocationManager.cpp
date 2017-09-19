@@ -1,9 +1,9 @@
 #include "BaseLocationManager.h"
 #include "Util.h"
 
-#include "CCBot.h"
-
-BaseLocationManager::BaseLocationManager(CCBot & bot)
+#include "ByunJRBot.h"
+ 
+BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
     : m_bot(bot)
 {
     

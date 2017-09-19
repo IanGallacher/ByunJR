@@ -3,11 +3,11 @@
 #include "WorkerData.h"
 
 class Building;
-class CCBot;
+class ByunJRBot;
 
 class WorkerManager
 {
-    CCBot & m_bot;
+    ByunJRBot & m_bot;
 
     mutable WorkerData  m_workerData;
     UnitTag     m_previousClosestWorker;
@@ -20,7 +20,7 @@ class WorkerManager
 
 public:
 
-    WorkerManager(CCBot & bot);
+    WorkerManager(ByunJRBot & bot);
 
     void        onStart();
     void        onFrame();

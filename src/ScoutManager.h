@@ -2,11 +2,11 @@
 
 #include "Common.h"
 
-class CCBot;
+class ByunJRBot;
 
 class ScoutManager
 {
-    CCBot &   m_bot;
+    ByunJRBot &   m_bot;
 
     UnitTag         m_scoutUnitTag;
     std::string     m_scoutStatus;
@@ -22,7 +22,7 @@ class ScoutManager
 
 public:
 
-    ScoutManager(CCBot & bot);
+    ScoutManager(ByunJRBot & bot);
 
     void onStart();
     void onFrame();

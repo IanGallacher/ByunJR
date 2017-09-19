@@ -2,7 +2,7 @@
 
 #include "Common.h"
 
-class CCBot;
+class ByunJRBot;
 
 struct BuildOrderItem
 {
@@ -16,7 +16,7 @@ struct BuildOrderItem
 
 class BuildOrderQueue
 {
-    CCBot & m_bot;
+    ByunJRBot & m_bot;
     std::deque<BuildOrderItem> m_queue;
 
     int m_lowestPriority;
@@ -26,7 +26,7 @@ class BuildOrderQueue
 
 public:
 
-    BuildOrderQueue(CCBot & bot);
+    BuildOrderQueue(ByunJRBot & bot);
 
     void clearAll();											// clears the entire build order queue
     void skipItem();											// increments skippedItems

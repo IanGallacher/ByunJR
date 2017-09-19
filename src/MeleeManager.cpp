@@ -1,8 +1,8 @@
 #include "MeleeManager.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 
-MeleeManager::MeleeManager(CCBot & bot)
+MeleeManager::MeleeManager(ByunJRBot & bot)
     : MicroManager(bot)
 {
 

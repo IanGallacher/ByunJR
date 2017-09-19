@@ -3,11 +3,11 @@
 #include "sc2api/sc2_api.h"
 #include "BaseLocation.h"
 
-class CCBot;
+class ByunJRBot;
 
 class BaseLocationManager
 {
-    CCBot & m_bot;
+    ByunJRBot & m_bot;
 
     std::vector<BaseLocation>                       m_baseLocationData;
     std::vector<const BaseLocation *>               m_baseLocationPtrs;
@@ -20,7 +20,7 @@ class BaseLocationManager
 
 public:
 
-    BaseLocationManager(CCBot & bot);
+    BaseLocationManager(ByunJRBot & bot);
     
     void onStart();
     void onFrame();

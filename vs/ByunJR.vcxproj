@@ -278,7 +278,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\CCBot.cpp" />
+    <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\BaseLocation.cpp" />
     <ClCompile Include="..\src\BaseLocationManager.cpp" />
     <ClCompile Include="..\src\BotAssert.cpp" />
@@ -313,7 +313,7 @@
     <ClCompile Include="..\src\WorkerManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\CCBot.h" />
+    <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\BaseLocation.h" />
     <ClInclude Include="..\src\BaseLocationManager.h" />
     <ClInclude Include="..\src\BotAssert.h" />

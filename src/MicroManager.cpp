@@ -1,8 +1,8 @@
 #include "MicroManager.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 
-MicroManager::MicroManager(CCBot & bot)
+MicroManager::MicroManager(ByunJRBot & bot)
     : m_bot(bot)
 {
 }

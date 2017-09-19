@@ -1,10 +1,10 @@
 #include "WorkerManager.h"
 #include "Micro.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include "Util.h"
 #include "Building.h"
 
-WorkerManager::WorkerManager(CCBot & bot)
+WorkerManager::WorkerManager(ByunJRBot & bot)
     : m_bot         (bot)
     , m_workerData  (bot)
 {

@@ -1,11 +1,11 @@
 #include "WorkerData.h"
 #include "Micro.h"
 #include "Util.h"
-#include "CCBot.h"
+#include "ByunJRBot.h"
 #include <iostream>
 #include <sstream>
 
-WorkerData::WorkerData(CCBot & bot)
+WorkerData::WorkerData(ByunJRBot & bot)
     : m_bot(bot)
 {
     for (int i=0; i < WorkerJobs::Num; ++i)

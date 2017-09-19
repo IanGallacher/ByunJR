@@ -3,11 +3,11 @@
 #include "Common.h"
 #include "Squad.h"
 
-class CCBot;
+class ByunJRBot;
 
 class SquadData
 {
-    CCBot & m_bot;
+    ByunJRBot & m_bot;
     std::map<std::string, Squad> m_squads;
 
     void    updateAllSquads();
@@ -15,7 +15,7 @@ class SquadData
 
 public:
 
-    SquadData(CCBot & bot);
+    SquadData(ByunJRBot & bot);
 
     void            onFrame();
     void            clearSquadData();

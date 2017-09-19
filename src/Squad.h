@@ -5,11 +5,11 @@
 #include "RangedManager.h"
 #include "SquadOrder.h"
 
-class CCBot;
+class ByunJRBot;
 
 class Squad
 {
-    CCBot &             m_bot;
+    ByunJRBot &             m_bot;
 
     std::string         m_name;
     std::set<UnitTag>   m_units;
@@ -37,8 +37,8 @@ class Squad
 
 public:
 
-    Squad(const std::string & name, const SquadOrder & order, size_t priority, CCBot & bot);
-    Squad(CCBot & bot);
+    Squad(const std::string & name, const SquadOrder & order, size_t priority, ByunJRBot & bot);
+    Squad(ByunJRBot & bot);
 
     void onFrame();
     void setSquadOrder(const SquadOrder & so);
