@@ -261,9 +261,9 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
  
 void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
 {
-    const sc2::Unit *UnitEnteredVision = m_bot.GetUnit(m_proxyUnitTag);
-    if (!UnitEnteredVision) return;
-    double dist(m_bot.Map().getGroundDistance(unit.pos, UnitEnteredVision->pos));
+    const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
+    if (!proxySCV) return;
+    double dist(m_bot.Map().getGroundDistance(unit.pos, proxySCV->pos));
 
     if (dist < 8 && !m_firstReaperCreated)
     {
