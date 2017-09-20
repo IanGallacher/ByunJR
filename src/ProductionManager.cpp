@@ -107,13 +107,8 @@ void ProductionManager::manageBuildOrderQueue()
     }
 }
 
-// Every frame, see if more pylons are required. 
+// Every frame, see if more depots are required. 
 void ProductionManager::preventSupplyBlock() {
-    // if there is a pylon in production, don't keep spending minerals on more pylons. 
-
-    std::cout << m_bot.Observation()->GetFoodUsed() << " " << m_bot.Observation()->GetFoodCap() <<  std::endl;
-
-
     // If the current supply that we have plus the total amount of things that could be made 
     if (
         (m_bot.Observation()->GetFoodUsed() + productionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
