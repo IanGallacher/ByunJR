@@ -83,13 +83,13 @@ int main(int argc, char* argv[])
     {
         coordinator.Update();
     }
-    if (bot.Control()->SaveReplay("C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay"))
+    if (bot.Control()->SaveReplay("replay\\asdf.Sc2Replay"))
     {
-        std::cout << "REPLAYSUCESS" << "C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay";
+        std::cout << "REPLAYSUCESS" << "replay\\asdf.Sc2Replay";
     }
     else
     {
-        std::cout << "REPLAY FAIL" << "C:\\Users\\IanGallacher\\Documents\\Github\\CommandCenter\\bin\\replay\\asdf.Sc2Replay";
+        std::cout << "REPLAY FAIL" << "replay\\asdf.Sc2Replay";
     }
     coordinator.LeaveGame();
 
