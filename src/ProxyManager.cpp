@@ -259,7 +259,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
     }
 }
  
-void ProxyManager::OnUnitEnterVision(const sc2::Unit& unit)
+void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
 {
     const sc2::Unit *UnitEnteredVision = m_bot.GetUnit(m_proxyUnitTag);
     if (!UnitEnteredVision) return;

@@ -35,10 +35,6 @@ void GameCommander::onFrame()
     drawDebugInterface();
 }
 
-void GameCommander::OnUnitEnterVision(const sc2::Unit& unit) {
-    m_proxyManager.OnUnitEnterVision(unit);
-}
-
 void GameCommander::onUnitCreated(const sc2::Unit & unit)
 {
     m_proxyManager.onUnitCreated(unit);
@@ -47,6 +43,10 @@ void GameCommander::onUnitCreated(const sc2::Unit & unit)
 void GameCommander::onUnitDestroy(const sc2::Unit & unit)
 {
     //_productionManager.onUnitDestroy(unit);
+}
+
+void GameCommander::onUnitEnterVision(const sc2::Unit& unit) {
+    m_proxyManager.onUnitEnterVision(unit);
 }
 
 void GameCommander::onBuildingConstructionComplete(const sc2::Unit& unit) {

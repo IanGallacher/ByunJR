@@ -62,7 +62,7 @@ void ByunJRBot::OnUnitCreated(const sc2::Unit& unit) {
 }
 
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit& unit) {
-    m_gameCommander.OnUnitEnterVision(unit);
+    m_gameCommander.onUnitEnterVision(unit);
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit& unit) {
