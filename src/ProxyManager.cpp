@@ -223,6 +223,7 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
     {
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
         m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
+        m_bot.Workers().setProxyWorker(m_proxyUnitTag);
         Micro::SmartMove(m_proxyUnitTag, myVec, m_bot);
     }
     //}

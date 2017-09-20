@@ -72,8 +72,9 @@ void WorkerManager::handleIdleWorkers()
         auto worker = m_bot.GetUnit(workerTag);
         if (!worker) { continue; }
 
-        // if it's a scout, don't handle it here
-        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Scout)
+        // if it's a scout or creating a proxy building, don't handle it here
+        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Scout
+        ||  m_workerData.getWorkerJob(workerTag) == WorkerJobs::Proxy)
         {
             continue;
         }
@@ -108,14 +109,15 @@ UnitTag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) const
         if (!m_bot.GetUnit(workerTag)) { continue; }
 
         // if it is a mineral worker
-        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Minerals)
+        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Minerals
+          || m_workerData.getWorkerJob(workerTag) == WorkerJobs::Proxy)
         {
             double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, pos);
 
             if (!closestMineralWorker || dist < closestDist)
             {
                 closestMineralWorker = workerTag;
-                dist = closestDist;
+                closestDist = dist;
             }
         }
     }
