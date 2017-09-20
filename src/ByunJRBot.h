@@ -33,8 +33,9 @@ public:
     ByunJRBot();
     void OnGameStart() override;
     void OnStep();
-    void OnUnitEnterVision(const sc2::Unit & unit);
     void OnUnitCreated(const sc2::Unit & unit);
+    void OnUnitEnterVision(const sc2::Unit & unit);
+    void OnBuildingConstructionComplete(const sc2::Unit & unit);
     bool IsWillingToFight();
     void Resign();
     sc2::Point2D GetProxyLocation();

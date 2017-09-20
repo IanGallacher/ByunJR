@@ -245,6 +245,7 @@ void ProxyManager::onStart()
 void ProxyManager::onFrame()
 {
     proxyBuildingAtChosenRandomLocation();
+    //std::cout << m_bot.Observation()->GetScore().score_details.collection_rate_minerals;
 }
 
 void ProxyManager::onUnitCreated(const sc2::Unit& unit)

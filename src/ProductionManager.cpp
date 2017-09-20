@@ -24,6 +24,7 @@ void ProductionManager::setBuildOrder(const BuildOrder & buildOrder)
 
 void ProductionManager::onStart()
 {
+    m_planned_supply_depots = 0;
     m_buildingManager.onStart();
     setBuildOrder(m_bot.Strategy().getOpeningBookBuildOrder());
 }
@@ -41,12 +42,20 @@ void ProductionManager::onFrame()
     drawProductionInformation();
 }
 
+void ProductionManager::onBuildingConstructionComplete(const sc2::Unit unit) {
+    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+    {
+        m_planned_supply_depots--;
+    }
+}
+
 // on unit destroy
 void ProductionManager::onUnitDestroy(const sc2::Unit & unit)
 {
     // TODO: might have to re-do build order if a vital unit died
 }
 
+// Called every frame.
 void ProductionManager::manageBuildOrderQueue()
 {
     // if there is nothing in the queue, oh well
@@ -54,6 +63,8 @@ void ProductionManager::manageBuildOrderQueue()
     {
         return;
     }
+
+    preventSupplyBlock();
 
     // the current item to be used
     BuildOrderItem & currentItem = m_queue.getHighestPriorityItem();
@@ -94,6 +105,38 @@ void ProductionManager::manageBuildOrderQueue()
             break;
         }
     }
+}
+
+// Every frame, see if more pylons are required. 
+void ProductionManager::preventSupplyBlock() {
+    // if there is a pylon in production, don't keep spending minerals on more pylons. 
+
+    std::cout << m_bot.Observation()->GetFoodUsed() << " " << m_bot.Observation()->GetFoodCap() <<  std::endl;
+
+
+    // If the current supply that we have plus the total amount of things that could be made 
+    if (
+        (m_bot.Observation()->GetFoodUsed() + productionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
+                                                            // Is greater than 
+        >=
+        // the player supply capacity, including pylons in production. 
+        // The depots in production is key, otherwise you will build hundreds of pylons while supply blocked.
+        (m_bot.Observation()->GetFoodCap() + (m_planned_supply_depots * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
+        )
+    {
+        m_planned_supply_depots++;
+        m_queue.queueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
+    }
+}
+
+int ProductionManager::productionCapacity() {
+    // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
+    size_t commandCenters = m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                          + m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                          + m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+
+    size_t barracks = m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    return (int) (commandCenters + barracks) * 2;
 }
 
 UnitTag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo)
@@ -168,7 +211,6 @@ void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            //TODO: DELETE THE MEMORY LEAK
             sc2::Point2D * proxyLocation = &m_bot.GetProxyLocation();
             std::cout << "PROXYLOC" << proxyLocation->x << "x " << proxyLocation->y << "y " << std::endl;
             m_buildingManager.addBuildingTask(t, *proxyLocation);

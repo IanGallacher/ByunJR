@@ -49,6 +49,10 @@ void GameCommander::onUnitDestroy(const sc2::Unit & unit)
     //_productionManager.onUnitDestroy(unit);
 }
 
+void GameCommander::onBuildingConstructionComplete(const sc2::Unit& unit) {
+    m_productionManager.onBuildingConstructionComplete(unit);
+}
+
 void GameCommander::drawDebugInterface()
 {
     drawGameInformation(4, 1);

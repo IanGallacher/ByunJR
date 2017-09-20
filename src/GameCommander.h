@@ -38,6 +38,7 @@ public:
     void OnUnitEnterVision(const sc2::Unit & unit);
     void onUnitCreated(const sc2::Unit & unit);
     void onUnitDestroy(const sc2::Unit & unit);
+    void onBuildingConstructionComplete(const sc2::Unit& unit);
 
     void handleUnitAssignments();
     void setValidUnits();
