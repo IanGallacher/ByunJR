@@ -206,9 +206,9 @@ void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            sc2::Point2D * proxyLocation = &m_bot.GetProxyLocation();
-            std::cout << "PROXYLOC" << proxyLocation->x << "x " << proxyLocation->y << "y " << std::endl;
-            m_buildingManager.addBuildingTask(t, *proxyLocation);
+            sc2::Point2D proxyLocation = m_bot.GetProxyLocation();
+            std::cout << "PROXYLOC" << proxyLocation.x << "x " << proxyLocation.y << "y " << std::endl;
+            m_buildingManager.addBuildingTask(t, proxyLocation);
         }
         else
         {
@@ -229,7 +229,7 @@ bool ProductionManager::canMakeNow(UnitTag producerTag, sc2::UnitTypeID type)
         return false;
     }
 
-    sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(producerTag);
+    sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(m_bot.GetUnit(producerTag));
 
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty())

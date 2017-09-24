@@ -1,6 +1,6 @@
 #include "sc2api/sc2_api.h"
 #include "sc2utils/sc2_manage_process.h"
-#include "rapidjson\document.h"
+#include "rapidjson/document.h"
 #include "JSONTools.h"
 #include "Util.h"
 
@@ -11,7 +11,7 @@
 
 #include "ByunJRBot.h"
 
-#include <conio.h>
+//#include <conio.h>
 
 
 int main(int argc, char* argv[]) 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
         std::cerr << "Please read the instructions and try again\n";
         exit(-1);
     }
-
+    std::cout << mapString << std::endl;
     // Add the custom bot, it will control the players.
     ByunJRBot bot;
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
     // Start the game.
     coordinator.LaunchStarcraft();
-    coordinator.StartGame(mapString);
+    coordinator.StartGame("/home/thedoctor/Documents/StarCraftII/Maps/AbyssalReefLE.SC2Map");
 
     std::cout << "GLHF" << std::endl;
     // Step forward the game simulation.
@@ -83,18 +83,18 @@ int main(int argc, char* argv[])
     {
         coordinator.Update();
     }
-    if (bot.Control()->SaveReplay("replay\\asdf.Sc2Replay"))
+    if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
     {
-        std::cout << "REPLAYSUCESS" << "replay\\asdf.Sc2Replay";
+        std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
     }
     else
     {
-        std::cout << "REPLAY FAIL" << "replay\\asdf.Sc2Replay";
+        std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
     }
     coordinator.LeaveGame();
 
     std::cout << "Press any key to continue.";
-    getchar();
+    //getchar();
 
     return 0;
 }

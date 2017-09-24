@@ -255,7 +255,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
     {
         const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
 
-        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(unit.tag, enemyBaseLocation->getPosition()));
+        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(&unit, enemyBaseLocation->getPosition()));
         m_firstReaperCreated = true;
     }
 }

@@ -165,7 +165,7 @@ void BuildingManager::constructAssignedBuildings()
             // if we haven't explored the build position, go there
             if (!isBuildingPositionExplored(b))
             {
-                Micro::SmartMove(*builderUnit, b.finalPosition, m_bot);
+                Micro::SmartMove(builderUnit->tag, b.finalPosition, m_bot);
             }
             // if this is not the first time we've sent this guy to build this
             // it must be the case that something was in the way of building
@@ -183,9 +183,9 @@ void BuildingManager::constructAssignedBuildings()
                     UnitTag geyserTag = 0;
                     for (auto & unit : m_bot.Observation()->GetUnits())
                     {
-                        if (Util::IsGeyser(unit) && Util::Dist(b.finalPosition, unit.pos) < 3)
+                        if (Util::IsGeyser(*unit) && Util::Dist(b.finalPosition, unit->pos) < 3)
                         {
-                            geyserTag = unit.tag;
+                            geyserTag = unit->tag;
                             break;
                         }
                     }
@@ -440,7 +440,7 @@ void BuildingManager::removeBuildings(const std::vector<Building> & toRemove)
 {
     for (auto & b : toRemove)
     {
-        auto & it = std::find(m_buildings.begin(), m_buildings.end(), b);
+        const auto & it = std::find(m_buildings.begin(), m_buildings.end(), b);
 
         if (it != m_buildings.end())
         {

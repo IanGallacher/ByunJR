@@ -4,3 +4,4 @@ vs/*.user
 bin/*.exe
 bin/*.ilk
 *.Sc2Replay
+/cmake-build-debug/
