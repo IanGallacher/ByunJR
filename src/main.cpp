@@ -14,22 +14,8 @@
 #include <conio.h>
 
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
-    sc2::Coordinator coordinator;
-    if (!coordinator.LoadSettings(argc, argv)) 
-    {
-        std::cout << "Unable to find or parse settings." << std::endl;
-        return 1;
-    }
-
-    coordinator.SetRealtime(false);
-
-    // WARNING: Bot logic has not been thorougly tested on step sizes > 1
-    //          Setting this = N means the bot's onFrame gets called once every N frames
-    //          The bot may crash or do unexpected things if its logic is not called every frame
-    coordinator.SetStepSize(2);
-
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -64,37 +50,56 @@ int main(int argc, char* argv[])
         std::cerr << "Please read the instructions and try again\n";
         exit(-1);
     }
-
-    // Add the custom bot, it will control the players.
-    ByunJRBot bot;
-
-    coordinator.SetParticipants({
-        CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-        CreateComputer(Util::GetRaceFromString(enemyRaceString))
-    });
-
-    // Start the game.
-    coordinator.LaunchStarcraft();
-    coordinator.StartGame(mapString);
-
-    std::cout << "GLHF" << std::endl;
-    // Step forward the game simulation.
-    while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight()) 
+    while(true) 
     {
+        sc2::Coordinator coordinator;
+        if (!coordinator.LoadSettings(argc, argv))
+        {
+            std::cout << "Unable to find or parse settings." << std::endl;
+            return 1;
+        }
+
+        coordinator.SetRealtime(false);
+
+        // WARNING: Bot logic has not been thorougly tested on step sizes > 1
+        //          Setting this = N means the bot's onFrame gets called once every N frames
+        //          The bot may crash or do unexpected things if its logic is not called every frame
+        coordinator.SetStepSize(50);
+
+        // Add the custom bot, it will control the players.
+        ByunJRBot bot;
+
+        coordinator.SetParticipants({
+            CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
+            CreateComputer(Util::GetRaceFromString(enemyRaceString))
+        });
+
+        // Start the game.
+        coordinator.LaunchStarcraft();
+        coordinator.StartGame(mapString);
+
+        //std::cout << "GLHF" << std::endl;
+        // Step forward the game simulation.
+        while (!coordinator.AllGamesEnded() && bot.IsWillingToFight())
+        {
+            coordinator.Update();
+        }
+        if (bot.Control()->SaveReplay("replay\\asdf.Sc2Replay"))
+        {
+            std::cout << "REPLAYSUCESS" << "replay\\asdf.Sc2Replay";
+        }
+        else
+        {
+            std::cout << "REPLAY FAIL" << "replay\\asdf.Sc2Replay";
+        }
+        coordinator.LeaveGame();
         coordinator.Update();
-    }
-    if (bot.Control()->SaveReplay("replay\\asdf.Sc2Replay"))
-    {
-        std::cout << "REPLAYSUCESS" << "replay\\asdf.Sc2Replay";
-    }
-    else
-    {
-        std::cout << "REPLAY FAIL" << "replay\\asdf.Sc2Replay";
-    }
-    coordinator.LeaveGame();
+        while (coordinator.Update() && coordinator.AllGamesEnded()) {}
 
-    std::cout << "Press any key to continue.";
-    getchar();
+        //coordinator.WaitForAllResponses();
+    }
+   // std::cout << "Press any key to continue.";
+    //getchar();
 
     return 0;
 }

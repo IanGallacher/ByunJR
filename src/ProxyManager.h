@@ -23,7 +23,14 @@ class ProxyTrainingData
 {
     int m_proxy_x;
     int m_proxy_y;
-    MapTools* m_map;
+
+    int m_playerStart_y;
+    int m_enemyStart_y;
+
+    int m_arena_width;
+    int m_arena_height;
+
+    const MapTools* m_map;
 
     sc2::Point2D m_playable_min;
     sc2::Point2D m_playable_max;
