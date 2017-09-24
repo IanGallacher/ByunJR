@@ -16,19 +16,6 @@
 
 int main(int argc, char* argv[]) 
 {
-    sc2::Coordinator coordinator;
-    if (!coordinator.LoadSettings(argc, argv)) 
-    {
-        std::cout << "Unable to find or parse settings." << std::endl;
-        return 1;
-    }
-
-    coordinator.SetRealtime(false);
-
-    // WARNING: Bot logic has not been thorougly tested on step sizes > 1
-    //          Setting this = N means the bot's onFrame gets called once every N frames
-    //          The bot may crash or do unexpected things if its logic is not called every frame
-    coordinator.SetStepSize(2);
 
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
@@ -65,33 +52,54 @@ int main(int argc, char* argv[])
         exit(-1);
     }
     std::cout << mapString << std::endl;
-    // Add the custom bot, it will control the players.
-    ByunJRBot bot;
 
-    coordinator.SetParticipants({
-        CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-        CreateComputer(Util::GetRaceFromString(enemyRaceString))
-    });
-
-    // Start the game.
-    coordinator.LaunchStarcraft();
-    coordinator.StartGame("/home/thedoctor/Documents/StarCraftII/Maps/AbyssalReefLE.SC2Map");
 
     std::cout << "GLHF" << std::endl;
     // Step forward the game simulation.
-    while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight()) 
-    {
-        coordinator.Update();
+
+    while (true) {
+        sc2::Coordinator coordinator;
+        if (!coordinator.LoadSettings(argc, argv))
+        {
+            std::cout << "Unable to find or parse settings." << std::endl;
+            return 1;
+        }
+
+        coordinator.SetRealtime(false);
+
+        // WARNING: Bot logic has not been thorougly tested on step sizes > 1
+        //          Setting this = N means the bot's onFrame gets called once every N frames
+        //          The bot may crash or do unexpected things if its logic is not called every frame
+        coordinator.SetStepSize(2);
+
+        // Add the custom bot, it will control the players.
+        ByunJRBot bot;
+
+        coordinator.SetParticipants({
+                                            CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
+                                            CreateComputer(Util::GetRaceFromString(enemyRaceString))
+                                    });
+
+        // Start the game.
+        coordinator.LaunchStarcraft();
+        coordinator.StartGame("/home/thedoctor/Documents/StarCraftII/Maps/AbyssalReefLE.SC2Map");
+        while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
+        {
+            coordinator.Update();
+        }
+        if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
+        {
+            std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
+        }
+        else
+        {
+            std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
+        }
+        coordinator.LeaveGame();
+
+
     }
-    if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
-    {
-        std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
-    }
-    else
-    {
-        std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
-    }
-    coordinator.LeaveGame();
+
 
     std::cout << "Press any key to continue.";
     //getchar();

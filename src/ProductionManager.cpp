@@ -228,6 +228,8 @@ bool ProductionManager::canMakeNow(UnitTag producerTag, sc2::UnitTypeID type)
     {
         return false;
     }
+    if(producerTag==0)
+        return false;
 
     sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(m_bot.GetUnit(producerTag));
 

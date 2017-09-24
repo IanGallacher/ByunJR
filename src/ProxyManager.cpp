@@ -7,17 +7,27 @@
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 {
-    int arena_width = (int) (bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
-    int arena_height = (int) (bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
+    m_playable_max = bot.Observation()->GetGameInfo().playable_max;
+    m_playable_min = bot.Observation()->GetGameInfo().playable_min;
+
+    m_arena_width = (int) (bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
+    m_arena_height = (int) (bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
+
+    m_map = &bot.Map();
+
+    m_playerStart_y = bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
+    // This won't work for four player maps.
+    m_enemyStart_y = bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
+
 
     std::cout << "miny" << bot.Observation()->GetGameInfo().playable_min.y << "minx" << bot.Observation()->GetGameInfo().playable_min.x;
     
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-    m_result.resize(arena_height);
+    m_result.resize(m_arena_height);
     for (auto &row : m_result)
     {
-        row.resize(arena_width);
+        row.resize(m_arena_width);
     }
 
     loadProxyTrainingData();
@@ -37,7 +47,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
     std::ifstream trainingData;
     std::string line;
 
-    trainingData.open("proxytraining.txt");
+    trainingData.open("MyTrainingData.txt");
 
     // If we have an empty file, go ahead and test all the points on the map and use that instead of loading the file.
     if (trainingData.peek() == std::ifstream::traits_type::eof())
@@ -100,7 +110,7 @@ void ProxyTrainingData::upadateViableLocationsList()
     {
         for (int x = 0; x < m_result[y].size(); ++x)
         {
-            if (m_result[y][x] != -1)
+            if (m_result[y][x] == 0)
             {
                 sc2::Point2D point((float) x, (float) y);
                 ProxyLocation pl = { point, m_result[y][x] };
@@ -113,6 +123,12 @@ void ProxyTrainingData::upadateViableLocationsList()
 void ProxyTrainingData::recordResult(int fitness)
 {
     m_result[m_proxy_y][m_proxy_x] = fitness;
+    if(m_playerStart_y < m_enemyStart_y)
+       m_result[m_proxy_y][m_proxy_x] = fitness;
+    else
+        m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x] = fitness;
+
+    writeAllTrainingData("MyTrainingData");
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
@@ -128,6 +144,9 @@ void ProxyTrainingData::testAllPointsOnMap()
 {
     int play_width = (int) (m_playable_max.x - m_playable_min.x);
     int play_height = (int) (m_playable_max.y - m_playable_min.y);
+
+    BOT_ASSERT(play_height != 0, "Play area height is zero!");
+    BOT_ASSERT(play_width != 0, "Play area height is zero!");
 
     for (int y = 0; y < play_height; ++y)
     {
@@ -240,6 +259,7 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
 
 void ProxyManager::onStart()
 {
+    m_firstReaperCreated = false;
     m_ptd.InitAllValues(m_bot);
 }
 
@@ -255,11 +275,12 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
     {
         const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
 
+        m_bot.Resign();
         m_ptd.recordResult((int)m_bot.Query()->PathingDistance(&unit, enemyBaseLocation->getPosition()));
         m_firstReaperCreated = true;
     }
 }
- 
+
 void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
 {
     const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
@@ -269,6 +290,7 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
     if (dist < 8 && !m_firstReaperCreated)
     {
         m_bot.Resign();
+        m_ptd.recordResult(-1);
         std::cout << "THERE IS NO POINT IN CONTINUING";
     }
 }
