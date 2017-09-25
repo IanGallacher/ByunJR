@@ -257,12 +257,12 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
 {
     const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
     if (!proxySCV) return;
-    double dist(m_bot.Map().getGroundDistance(unit.pos, proxySCV->pos));
+    double dist( sqrt((unit.pos.x-proxySCV->pos.x)*(unit.pos.x-proxySCV->pos.x)+(unit.pos.y-proxySCV->pos.y)*(unit.pos.y-proxySCV->pos.y)));
 
     if (dist < 8 && !m_firstReaperCreated)
     {
         m_bot.Resign();
-        m_ptd.recordResult(-1);
+        m_ptd.recordResult(-9);
         std::cout << "THERE IS NO POINT IN CONTINUING";
     }
 }
