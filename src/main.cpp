@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
         // Start the game.
         coordinator.LaunchStarcraft();
-        coordinator.StartGame("/home/thedoctor/Documents/StarCraftII/Maps/AbyssalReefLE.SC2Map");
+        coordinator.StartGame("AbyssalReefLE.SC2Map");
         while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
         {
             coordinator.Update();
