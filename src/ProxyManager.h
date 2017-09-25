@@ -73,7 +73,6 @@ public:
     void onFrame();
     void onUnitCreated(const sc2::Unit & unit);
     void onUnitEnterVision(const sc2::Unit & unit);
-    void writeAllTrainingData();
     bool proxyBuildingAtChosenRandomLocation();
 
     sc2::Point2D    getProxyLocation();

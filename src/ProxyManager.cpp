@@ -37,6 +37,18 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 }
 
 
+
+
+// Returns the proxy location in "True Map Space"
+sc2::Point2D ProxyTrainingData::getProxyLocation()
+{
+    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
+    return proxyLocation;
+}
+
+
+
 // Load all the values from training data stored on the disk.
 // If no training data is found, test all points on the map for buildable barracks locations and load that instead.
 // Training data is stored in a standard .txt file. Spaces separate values, and new lines separate data entries.
@@ -103,7 +115,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
 } 
 
 
-// Iterate through the result data structure and update the ViableLocations vector.
+// Iterate through the result (training data) data structure and update the ViableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
     for (int y = 0; y < m_result.size(); ++y)
@@ -132,6 +144,7 @@ void ProxyTrainingData::recordResult(int fitness)
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
+// This function takes the parameters in "True Map Space"
 bool ProxyTrainingData::isProxyLocationValid(int x, int y)
 {
     if (m_map->canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
@@ -142,15 +155,12 @@ bool ProxyTrainingData::isProxyLocationValid(int x, int y)
 // If we can't build at the chosen location, update that information in our data structure.
 void ProxyTrainingData::testAllPointsOnMap()
 {
-    int play_width = (int) (m_playable_max.x - m_playable_min.x);
-    int play_height = (int) (m_playable_max.y - m_playable_min.y);
+    BOT_ASSERT(m_arena_height != 0, "Play area height is zero!");
+    BOT_ASSERT(m_arena_width != 0, "Play area height is zero!");
 
-    BOT_ASSERT(play_height != 0, "Play area height is zero!");
-    BOT_ASSERT(play_width != 0, "Play area height is zero!");
-
-    for (int y = 0; y < play_height; ++y)
+    for (int y = 0; y < m_arena_height; ++y)
     {
-        for (int x = 0; x < play_width; ++x)
+        for (int x = 0; x < m_arena_width; ++x)
         {
             if (!isProxyLocationValid(x + (int) m_playable_min.x, y + (int) m_playable_min.y))
             {
@@ -162,24 +172,20 @@ void ProxyTrainingData::testAllPointsOnMap()
 
 bool ProxyTrainingData::setupProxyLocation()
 {
-    std::ofstream outfile;
-
-
     srand( (unsigned int) time(NULL));
     int index = rand() % ViableLocations.size();
 
-    sc2::Point2D play_min = m_playable_min;
+    // There are two coordinate systems for storing the proxy location.
+    // "True Map Space" - Some maps are larger than the total play area.
+    // "Training Space" - The play area only.
+    // To convert from training space to true map space, add m_playable_min.
+    // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
+    // m_proxy_x is stored in "Training Space."
+    m_proxy_x = (int) (ViableLocations[index].m_loc.x);
+    m_proxy_y = (int) (ViableLocations[index].m_loc.y);
 
-
-    m_proxy_x = (int) (ViableLocations[index].m_loc.x + play_min.x);
-    m_proxy_y = (int) (ViableLocations[index].m_loc.y + play_min.y);
-
-    //for (const BaseLocation * startLocation : m_bot.Bases().getStartingBaseLocations())
-    //{
-    //    std::cout << startLocation->getPosition().x << "basexloc " << startLocation->getPosition().y << "baseyloc" << std::endl;
-    //}
     sc2::Vector2D myVec( (float) m_proxy_x, (float) m_proxy_y);
-    std::cout << myVec.x << "veclocx " << myVec.y << "veclocy" << std::endl;
+    std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
     return true;
 }
 
@@ -224,39 +230,6 @@ ProxyManager::ProxyManager(ByunJRBot & bot)
 
 }
 
-// YOU MUST CALL setupProxyLocation() before this.
-bool ProxyManager::proxyBuildingAtChosenRandomLocation()
-{
-    std::ofstream outfile;
-
-    //const sc2::Unit * ourScout = m_bot.GetUnit(m_proxyUnitTag);
-    sc2::Vector2D myVec(m_ptd.getProxyLocation());
-
-    //if (m_bot.GetUnit(m_proxyUnitTag)->pos.x > myVec.x - 1 && m_bot.GetUnit(m_proxyUnitTag)->pos.x < myVec.x + 1)
-    //{
-    //    m_bot.Workers().finishedWithWorker(m_proxyUnitTag);
-    //}
-    //else
-    //{
-    if (m_proxyUnitTag == 0)
-    {
-        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
-        m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
-        m_bot.Workers().setProxyWorker(m_proxyUnitTag);
-        Micro::SmartMove(m_proxyUnitTag, myVec, m_bot);
-    }
-    //}
-
-    return true;
-}
-
-sc2::Point2D ProxyTrainingData::getProxyLocation()
-{
-    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
-    sc2::Point2D proxyLocation((float) m_proxy_x, (float) m_proxy_y);
-    return proxyLocation;
-}
-
 void ProxyManager::onStart()
 {
     m_firstReaperCreated = false;
@@ -266,7 +239,6 @@ void ProxyManager::onStart()
 void ProxyManager::onFrame()
 {
     proxyBuildingAtChosenRandomLocation();
-    //std::cout << m_bot.Observation()->GetScore().score_details.collection_rate_minerals;
 }
 
 void ProxyManager::onUnitCreated(const sc2::Unit& unit)
@@ -294,11 +266,31 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
         std::cout << "THERE IS NO POINT IN CONTINUING";
     }
 }
-//
-//void ProxyManager::writeAllTrainingData()
-//{
-//    m_ptd.writeAllTrainingData("MyTrainingData");
-//}
+
+// YOU MUST CALL m_ptd.InitAllValues() before this.
+bool ProxyManager::proxyBuildingAtChosenRandomLocation()
+{
+    std::ofstream outfile;
+
+    sc2::Vector2D myVec(m_ptd.getProxyLocation());
+
+    //if (m_bot.GetUnit(m_proxyUnitTag)->pos.x > myVec.x - 1 && m_bot.GetUnit(m_proxyUnitTag)->pos.x < myVec.x + 1)
+    //{
+    //    m_bot.Workers().finishedWithWorker(m_proxyUnitTag);
+    //}
+    //else
+    //{
+    if (m_proxyUnitTag == 0)
+    {
+        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
+        m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
+        m_bot.Workers().setProxyWorker(m_proxyUnitTag);
+        Micro::SmartMove(m_proxyUnitTag, myVec, m_bot);
+    }
+    //}
+
+    return true;
+}
 
 sc2::Point2D ProxyManager::getProxyLocation()
 {
