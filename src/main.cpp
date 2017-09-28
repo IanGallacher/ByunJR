@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
         // Start the game.
         coordinator.LaunchStarcraft();
-        coordinator.StartGame("AbyssalReefLE.SC2Map");
+        coordinator.StartGame(mapString);
         while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
         {
             coordinator.Update();
