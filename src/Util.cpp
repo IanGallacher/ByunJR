@@ -506,12 +506,12 @@ int Util::EnemyDPSInRange(const sc2::Point3D unitPos, ByunJRBot & bot)
     float totalDPS = 0;
     for (auto & enemyunit : bot.Observation()->GetUnits())
     {
-        double dist = Util::Dist(enemyunit.pos, unitPos);
-        double range = GetAttackRange(enemyunit.unit_type, bot);
+        double dist = Util::Dist(enemyunit->pos, unitPos);
+        double range = GetAttackRange(enemyunit->unit_type, bot);
         // if we are in range, the dps that is coming at us increases.
         if (dist < range+0.5f)
         {
-            totalDPS += GetAttackDamage(enemyunit.unit_type, bot);
+            totalDPS += GetAttackDamage(enemyunit->unit_type, bot);
         }
     }
 
@@ -539,11 +539,11 @@ UnitTag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationI
 
 	for (auto & unit : obs->GetUnits())
 	{
-		double dist = Util::DistSq(unit.pos, ourUnit.pos);
+		double dist = Util::DistSq(unit->pos, ourUnit.pos);
 
 		if (!closestTag || (dist < closestDist))
 		{
-			closestTag = unit; // Possibly meant to be unit.tag?
+			closestTag = unit->tag; // Possibly meant to be unit.tag?
 			closestDist = dist;
 		}
 	}
@@ -1186,9 +1186,9 @@ bool Util::IsBuilding(const sc2::UnitTypeID & type)
 
 // checks where a given unit can make a given unit type now
 // this is done by iterating its legal abilities for the build command to make the unit
-bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, ByunJRBot & m_bot)
+bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, ByunJRBot & bot)
 {
-    sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(unit.tag);
+    sc2::AvailableAbilities available_abilities = bot.Query()->GetAbilitiesForUnit(&unit);
     
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty()) 

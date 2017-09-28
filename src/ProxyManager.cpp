@@ -7,12 +7,6 @@
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 {
-    m_playerStart_y = bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
-
-    // This won't work for four player maps.
-    m_enemyStart_y = bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
-    //m_enemyStart_y = bot.Bases().getPlayerStartingBaseLocation(Players::Enemy)->getPosition().y;
-
     m_playable_max = bot.Observation()->GetGameInfo().playable_max;
     m_playable_min = bot.Observation()->GetGameInfo().playable_min;
 
@@ -20,6 +14,11 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     m_arena_height = (int) (bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
 
     m_map = &bot.Map();
+
+    m_playerStart_y = bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
+    // This won't work for four player maps.
+    m_enemyStart_y = bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
+
 
     std::cout << "miny" << bot.Observation()->GetGameInfo().playable_min.y << "minx" << bot.Observation()->GetGameInfo().playable_min.x;
     
@@ -36,6 +35,18 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     writeAllTrainingData("MyTrainingData");
     setupProxyLocation();
 }
+
+
+
+
+// Returns the proxy location in "True Map Space"
+sc2::Point2D ProxyTrainingData::getProxyLocation()
+{
+    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
+    return proxyLocation;
+}
+
 
 
 // Load all the values from training data stored on the disk.
@@ -104,7 +115,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
 } 
 
 
-// Iterate through the result data structure and update the ViableLocations vector.
+// Iterate through the result (training data) data structure and update the ViableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
     for (int y = 0; y < m_result.size(); ++y)
@@ -112,7 +123,6 @@ void ProxyTrainingData::upadateViableLocationsList()
         for (int x = 0; x < m_result[y].size(); ++x)
         {
             if (m_result[y][x] == 0)
-            //if (m_result[y][x] != -1)
             {
                 sc2::Point2D point((float) x, (float) y);
                 ProxyLocation pl = { point, m_result[y][x] };
@@ -124,11 +134,9 @@ void ProxyTrainingData::upadateViableLocationsList()
 
 void ProxyTrainingData::recordResult(int fitness)
 {
-    // Before recording the result, flip the location we write the data based on spawn location.
-    // Example: Proxying a reaper in enemy base is good. Sometimes you may spawn in his starting location!
-    //          Making a proxy barracks in your own base is significantly weaker than making it in your opponents base.
+    m_result[m_proxy_y][m_proxy_x] = fitness;
     if(m_playerStart_y < m_enemyStart_y)
-        m_result[m_proxy_y][m_proxy_x] = fitness;
+       m_result[m_proxy_y][m_proxy_x] = fitness;
     else
         m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x] = fitness;
 
@@ -136,6 +144,7 @@ void ProxyTrainingData::recordResult(int fitness)
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
+// This function takes the parameters in "True Map Space"
 bool ProxyTrainingData::isProxyLocationValid(int x, int y)
 {
     if (m_map->canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
@@ -146,13 +155,12 @@ bool ProxyTrainingData::isProxyLocationValid(int x, int y)
 // If we can't build at the chosen location, update that information in our data structure.
 void ProxyTrainingData::testAllPointsOnMap()
 {
-    int play_width = (int) (m_playable_max.x - m_playable_min.x);
-    int play_height = (int) (m_playable_max.y - m_playable_min.y);
-    BOT_ASSERT(play_height != 0, "Play area height is zero!");
-    BOT_ASSERT(play_width != 0, "Play area height is zero!");
-    for (int y = 0; y < play_height; ++y)
+    BOT_ASSERT(m_arena_height != 0, "Play area height is zero!");
+    BOT_ASSERT(m_arena_width != 0, "Play area height is zero!");
+
+    for (int y = 0; y < m_arena_height; ++y)
     {
-        for (int x = 0; x < play_width; ++x)
+        for (int x = 0; x < m_arena_width; ++x)
         {
             if (!isProxyLocationValid(x + (int) m_playable_min.x, y + (int) m_playable_min.y))
             {
@@ -164,24 +172,20 @@ void ProxyTrainingData::testAllPointsOnMap()
 
 bool ProxyTrainingData::setupProxyLocation()
 {
-    std::ofstream outfile;
-
-
     srand( (unsigned int) time(NULL));
     int index = rand() % ViableLocations.size();
 
-    sc2::Point2D play_min = m_playable_min;
+    // There are two coordinate systems for storing the proxy location.
+    // "True Map Space" - Some maps are larger than the total play area.
+    // "Training Space" - The play area only.
+    // To convert from training space to true map space, add m_playable_min.
+    // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
+    // m_proxy_x is stored in "Training Space."
+    m_proxy_x = (int) (ViableLocations[index].m_loc.x);
+    m_proxy_y = (int) (ViableLocations[index].m_loc.y);
 
-
-    m_proxy_x = (int) (ViableLocations[index].m_loc.x + play_min.x);
-    m_proxy_y = (int) (ViableLocations[index].m_loc.y + play_min.y);
-
-    //for (const BaseLocation * startLocation : m_bot.Bases().getStartingBaseLocations())
-    //{
-    //    std::cout << startLocation->getPosition().x << "basexloc " << startLocation->getPosition().y << "baseyloc" << std::endl;
-    //}
     sc2::Vector2D myVec( (float) m_proxy_x, (float) m_proxy_y);
-    std::cout << myVec.x << "veclocx " << myVec.y << "veclocy" << std::endl;
+    std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
     return true;
 }
 
@@ -226,12 +230,48 @@ ProxyManager::ProxyManager(ByunJRBot & bot)
 
 }
 
-// YOU MUST CALL setupProxyLocation() before this.
+void ProxyManager::onStart()
+{
+    m_firstReaperCreated = false;
+    m_ptd.InitAllValues(m_bot);
+}
+
+void ProxyManager::onFrame()
+{
+    proxyBuildingAtChosenRandomLocation();
+}
+
+void ProxyManager::onUnitCreated(const sc2::Unit& unit)
+{
+    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
+    {
+        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+
+        m_bot.Resign();
+        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(&unit, enemyBaseLocation->getPosition()));
+        m_firstReaperCreated = true;
+    }
+}
+
+void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
+{
+    const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
+    if (!proxySCV) return;
+    double dist( sqrt((unit.pos.x-proxySCV->pos.x)*(unit.pos.x-proxySCV->pos.x)+(unit.pos.y-proxySCV->pos.y)*(unit.pos.y-proxySCV->pos.y)));
+
+    if (dist < 8 && !m_firstReaperCreated)
+    {
+        m_bot.Resign();
+        m_ptd.recordResult(-9);
+        std::cout << "THERE IS NO POINT IN CONTINUING";
+    }
+}
+
+// YOU MUST CALL m_ptd.InitAllValues() before this.
 bool ProxyManager::proxyBuildingAtChosenRandomLocation()
 {
     std::ofstream outfile;
 
-    //const sc2::Unit * ourScout = m_bot.GetUnit(m_proxyUnitTag);
     sc2::Vector2D myVec(m_ptd.getProxyLocation());
 
     //if (m_bot.GetUnit(m_proxyUnitTag)->pos.x > myVec.x - 1 && m_bot.GetUnit(m_proxyUnitTag)->pos.x < myVec.x + 1)
@@ -251,56 +291,6 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
 
     return true;
 }
-
-sc2::Point2D ProxyTrainingData::getProxyLocation()
-{
-    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
-    sc2::Point2D proxyLocation((float) m_proxy_x, (float) m_proxy_y);
-    return proxyLocation;
-}
-
-void ProxyManager::onStart()
-{
-    m_firstReaperCreated = false;
-    m_ptd.InitAllValues(m_bot);
-}
-
-void ProxyManager::onFrame()
-{
-    proxyBuildingAtChosenRandomLocation();
-    //std::cout << m_bot.Observation()->GetScore().score_details.collection_rate_minerals;
-}
-
-void ProxyManager::onUnitCreated(const sc2::Unit& unit)
-{
-    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
-    {
-        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
-
-        m_bot.Resign();
-        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(unit.tag, enemyBaseLocation->getPosition()));
-        m_firstReaperCreated = true;
-    }
-}
- 
-void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
-{
-    const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
-    if (!proxySCV) return;
-    double dist(m_bot.Map().getGroundDistance(unit.pos, proxySCV->pos));
-
-    if (dist < 8 && !m_firstReaperCreated)
-    {
-        m_bot.Resign(); 
-        m_ptd.recordResult(-1);
-        std::cout << "THERE IS NO POINT IN CONTINUING";
-    }
-}
-//
-//void ProxyManager::writeAllTrainingData()
-//{
-//    m_ptd.writeAllTrainingData("MyTrainingData");
-//}
 
 sc2::Point2D ProxyManager::getProxyLocation()
 {

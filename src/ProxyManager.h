@@ -23,17 +23,14 @@ class ProxyTrainingData
 {
     int m_proxy_x;
     int m_proxy_y;
-
-    int m_playerStart_y;
-    int m_enemyStart_y;
-
-    int m_arena_width;
-    int m_arena_height;
-
     const MapTools* m_map;
 
     sc2::Point2D m_playable_min;
     sc2::Point2D m_playable_max;
+    int m_arena_height;
+    int m_arena_width;
+    int m_enemyStart_y;
+    int m_playerStart_y;
 
     // There is a subtle difference between result and ViableLocations.
     // Result is a vector of vectors that represent ALL points on the map. 
@@ -76,7 +73,6 @@ public:
     void onFrame();
     void onUnitCreated(const sc2::Unit & unit);
     void onUnitEnterVision(const sc2::Unit & unit);
-    void writeAllTrainingData();
     bool proxyBuildingAtChosenRandomLocation();
 
     sc2::Point2D    getProxyLocation();

@@ -1,0 +1,121 @@
+cmake_minimum_required(VERSION 3.8)
+project(ByunJR)
+
+find_package ( Threads REQUIRED )
+
+set(CMAKE_CXX_STANDARD 11)
+include_directories(../s2client-api/include)
+include_directories(../s2client-api/contrib/protobuf/src)
+
+set(SOURCE_FILES
+        src/rapidjson/error/en.h
+        src/rapidjson/error/error.h
+        src/rapidjson/internal/biginteger.h
+        src/rapidjson/internal/diyfp.h
+        src/rapidjson/internal/dtoa.h
+        src/rapidjson/internal/ieee754.h
+        src/rapidjson/internal/itoa.h
+        src/rapidjson/internal/meta.h
+        src/rapidjson/internal/pow10.h
+        src/rapidjson/internal/stack.h
+        src/rapidjson/internal/strfunc.h
+        src/rapidjson/internal/strtod.h
+        src/rapidjson/msinttypes/inttypes.h
+        src/rapidjson/msinttypes/stdint.h
+        src/rapidjson/allocators.h
+        src/rapidjson/document.h
+        src/rapidjson/encodedstream.h
+        src/rapidjson/encodings.h
+        src/rapidjson/filereadstream.h
+        src/rapidjson/filewritestream.h
+        src/rapidjson/memorybuffer.h
+        src/rapidjson/memorystream.h
+        src/rapidjson/pointer.h
+        src/rapidjson/prettywriter.h
+        src/rapidjson/rapidjson.h
+        src/rapidjson/reader.h
+        src/rapidjson/stringbuffer.h
+        src/rapidjson/writer.h
+        src/BaseLocation.cpp
+        src/BaseLocation.h
+        src/BaseLocationManager.cpp
+        src/BaseLocationManager.h
+        src/BotAssert.cpp
+        src/BotAssert.h
+        src/BotConfig.cpp
+        src/BotConfig.h
+        src/Building.cpp
+        src/Building.h
+        src/BuildingData.cpp
+        src/BuildingData.h
+        src/BuildingManager.cpp
+        src/BuildingManager.h
+        src/BuildingPlacer.cpp
+        src/BuildingPlacer.h
+        src/BuildOrder.cpp
+        src/BuildOrder.h
+        src/BuildOrderQueue.cpp
+        src/BuildOrderQueue.h
+        src/ByunJRBot.cpp
+        src/ByunJRBot.h
+        src/CombatCommander.cpp
+        src/CombatCommander.h
+        src/Common.h
+        src/DistanceMap.cpp
+        src/DistanceMap.h
+        src/GameCommander.cpp
+        src/GameCommander.h
+        src/JSONTools.cpp
+        src/JSONTools.h
+        src/main.cpp
+        src/MapTools.cpp
+        src/MapTools.h
+        src/MeleeManager.cpp
+        src/MeleeManager.h
+        src/Micro.cpp
+        src/Micro.h
+        src/MicroManager.cpp
+        src/MicroManager.h
+        src/ProductionManager.cpp
+        src/ProductionManager.h
+        src/ProxyManager.cpp
+        src/ProxyManager.h
+        src/RangedManager.cpp
+        src/RangedManager.h
+        src/ScoutManager.cpp
+        src/ScoutManager.h
+        src/Squad.cpp
+        src/Squad.h
+        src/SquadData.cpp
+        src/SquadData.h
+        src/SquadOrder.cpp
+        src/SquadOrder.h
+        src/StrategyManager.cpp
+        src/StrategyManager.h
+        src/Timer.hpp
+        src/UnitData.cpp
+        src/UnitData.h
+        src/UnitInfoManager.cpp
+        src/UnitInfoManager.h
+        src/Util.cpp
+        src/Util.h
+        src/WorkerData.cpp
+        src/WorkerData.h
+        src/WorkerManager.cpp
+        src/WorkerManager.h)
+
+add_executable(ByunJR ${SOURCE_FILES})
+target_link_libraries(ByunJR
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libsc2api.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libsc2protocol.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libprotobuf-lite.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libcivetweb.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libprotoc.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libprotobuf.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libsc2lib.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libsc2renderer.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libsc2utils.a
+        /home/thedoctor/Documents/GitHub/s2client-api/build/bin/libSDL2.a
+        ${CMAKE_DL_LIBS}
+        Threads::Threads)
+

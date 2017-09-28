@@ -8,7 +8,7 @@
 #include <ctime>
 #include <iomanip>
 
-#define BOT_BREAK __debugbreak();
+//#define BOT_BREAK __debugbreak();
 
 #if true
     #define BOT_ASSERT(cond, msg, ...) \
@@ -17,7 +17,7 @@
             if (!(cond)) \
             { \
                 Assert::ReportFailure(#cond, __FILE__, __LINE__, (msg), ##__VA_ARGS__); \
-                BOT_BREAK \
+                /*BOT_BREAK*/ \
             } \
         } while(0)
 #else

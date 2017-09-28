@@ -6,7 +6,7 @@ const float dotRadius = 0.1f;
 
 void Micro::SmartStop(const UnitTag & attacker, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::STOP);
+    //bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::STOP);
 }
 
 void Micro::SmartAttackUnit(const UnitTag & attacker, const UnitTag & target, ByunJRBot & bot)
@@ -45,12 +45,12 @@ void Micro::SmartAttackUnit(const UnitTag & attacker, const UnitTag & target, By
 	//	BWAPI::Broodwar->drawCircleMap(target->getPosition(), dotRadius, BWAPI::Colors::Red, true);
 	//	BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
 	//}
-    bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target);
+    bot.Actions()->UnitCommand(bot.GetUnit(attacker), sc2::ABILITY_ID::ATTACK_ATTACK, bot.GetUnit(target));
 }
 
 void Micro::SmartAttackMove(const UnitTag & attacker, const sc2::Point2D & targetPosition, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, targetPosition);
+    bot.Actions()->UnitCommand(bot.GetUnit(attacker), sc2::ABILITY_ID::ATTACK_ATTACK, targetPosition);
 }
 
 void Micro::SmartMove(const UnitTag & unitToMove, const sc2::Point2D & targetPosition, ByunJRBot & bot)
@@ -65,17 +65,17 @@ void Micro::SmartMove(const UnitTag & unitToMove, const sc2::Point2D & targetPos
         }
     }
     if (sentCommandAlready == false)
-        bot.Actions()->UnitCommand(unitToMove, sc2::ABILITY_ID::MOVE, targetPosition);
+        bot.Actions()->UnitCommand(bot.GetUnit(unitToMove), sc2::ABILITY_ID::MOVE, targetPosition);
 }
 
 void Micro::SmartRightClick(const UnitTag & unit, const UnitTag & target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
+    bot.Actions()->UnitCommand(bot.GetUnit(unit), sc2::ABILITY_ID::SMART, bot.GetUnit(target));
 }
 
 void Micro::SmartRepair(const UnitTag & unit, const UnitTag & target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
+    bot.Actions()->UnitCommand(bot.GetUnit(unit), sc2::ABILITY_ID::SMART, bot.GetUnit(target));
 }
 
 void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, ByunJRBot & bot)
@@ -151,15 +151,15 @@ void Micro::SmartKiteTarget(const UnitTag & rangedUnit, const UnitTag & target, 
 
 void Micro::SmartBuild(const UnitTag & builder, const sc2::UnitTypeID & buildingType, sc2::Point2D pos, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType), pos);
+    bot.Actions()->UnitCommand(bot.GetUnit(builder), Util::UnitTypeIDToAbilityID(buildingType), pos);
 }
 
 void Micro::SmartBuildTag(const UnitTag & builder, const sc2::UnitTypeID & buildingType, UnitTag targetTag, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType), targetTag);
+    bot.Actions()->UnitCommand(bot.GetUnit(builder), Util::UnitTypeIDToAbilityID(buildingType), bot.GetUnit(targetTag));
 }
 
 void Micro::SmartTrain(const UnitTag & builder, const sc2::UnitTypeID & buildingType, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(buildingType));
+    bot.Actions()->UnitCommand(bot.GetUnit(builder), Util::UnitTypeIDToAbilityID(buildingType));
 }

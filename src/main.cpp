@@ -1,6 +1,6 @@
 #include "sc2api/sc2_api.h"
 #include "sc2utils/sc2_manage_process.h"
-#include "rapidjson\document.h"
+#include "rapidjson/document.h"
 #include "JSONTools.h"
 #include "Util.h"
 
@@ -11,11 +11,12 @@
 
 #include "ByunJRBot.h"
 
-#include <conio.h>
+//#include <conio.h>
 
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) 
 {
+
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -50,8 +51,13 @@ int main(int argc, char* argv[])
         std::cerr << "Please read the instructions and try again\n";
         exit(-1);
     }
-    while(true) 
-    {
+    std::cout << mapString << std::endl;
+
+
+    std::cout << "GLHF" << std::endl;
+    // Step forward the game simulation.
+
+    while (true) {
         sc2::Coordinator coordinator;
         if (!coordinator.LoadSettings(argc, argv))
         {
@@ -64,41 +70,38 @@ int main(int argc, char* argv[])
         // WARNING: Bot logic has not been thorougly tested on step sizes > 1
         //          Setting this = N means the bot's onFrame gets called once every N frames
         //          The bot may crash or do unexpected things if its logic is not called every frame
-        coordinator.SetStepSize(50);
+        coordinator.SetStepSize(2);
 
         // Add the custom bot, it will control the players.
         ByunJRBot bot;
 
         coordinator.SetParticipants({
-            CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-            CreateComputer(Util::GetRaceFromString(enemyRaceString))
-        });
+                                            CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
+                                            CreateComputer(Util::GetRaceFromString(enemyRaceString))
+                                    });
 
         // Start the game.
         coordinator.LaunchStarcraft();
         coordinator.StartGame(mapString);
-
-        //std::cout << "GLHF" << std::endl;
-        // Step forward the game simulation.
-        while (!coordinator.AllGamesEnded() && bot.IsWillingToFight())
+        while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
         {
             coordinator.Update();
         }
-        if (bot.Control()->SaveReplay("replay\\asdf.Sc2Replay"))
+        if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
         {
-            std::cout << "REPLAYSUCESS" << "replay\\asdf.Sc2Replay";
+            std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
         }
         else
         {
-            std::cout << "REPLAY FAIL" << "replay\\asdf.Sc2Replay";
+            std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
         }
         coordinator.LeaveGame();
-        coordinator.Update();
-        while (coordinator.Update() && coordinator.AllGamesEnded()) {}
 
-        //coordinator.WaitForAllResponses();
+
     }
-   // std::cout << "Press any key to continue.";
+
+
+    std::cout << "Press any key to continue.";
     //getchar();
 
     return 0;

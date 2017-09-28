@@ -57,16 +57,16 @@ void ByunJRBot::OnStep()
     Debug()->SendDebug();
 }
 
-void ByunJRBot::OnUnitCreated(const sc2::Unit& unit) {
-    m_gameCommander.onUnitCreated(unit);
+void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
+    m_gameCommander.onUnitCreated(*unit);
 }
 
-void ByunJRBot::OnUnitEnterVision(const sc2::Unit& unit) {
-    m_gameCommander.onUnitEnterVision(unit);
+void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
+    m_gameCommander.onUnitEnterVision(*unit);
 }
 
-void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit& unit) {
-    m_gameCommander.onBuildingConstructionComplete(unit);
+void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
+    m_gameCommander.onBuildingConstructionComplete(*unit);
 }
 
 // Returns true if the bot thinks it still has a chance.
