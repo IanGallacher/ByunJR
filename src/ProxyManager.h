@@ -41,6 +41,7 @@ class ProxyTrainingData
 
 
 
+    std::string     getTrainingDataFileName();
     bool            loadProxyTrainingData();
     void            testAllPointsOnMap();
     bool            setupProxyLocation();

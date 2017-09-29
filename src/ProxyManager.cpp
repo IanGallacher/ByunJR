@@ -32,12 +32,14 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     loadProxyTrainingData();
 
-    writeAllTrainingData(bot.Config().MapName + "TrainingData");
+    writeAllTrainingData(getTrainingDataFileName());
     setupProxyLocation();
 }
 
-
-
+std::string ProxyTrainingData::getTrainingDataFileName()
+{
+    return m_bot->Config().MapName + "TrainingData";
+}
 
 // Returns the proxy location in "True Map Space"
 sc2::Point2D ProxyTrainingData::getProxyLocation()
@@ -46,8 +48,6 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
     sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
     return proxyLocation;
 }
-
-
 
 // Load all the values from training data stored on the disk.
 // If no training data is found, test all points on the map for buildable barracks locations and load that instead.
@@ -59,7 +59,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
     std::ifstream trainingData;
     std::string line;
 
-    trainingData.open(m_bot->Config().MapName + "TrainingData.txt");
+    trainingData.open(getTrainingDataFileName());
 
     // If we have an empty file, go ahead and test all the points on the map and use that instead of loading the file.
     if (trainingData.peek() == std::ifstream::traits_type::eof())
@@ -139,7 +139,7 @@ void ProxyTrainingData::recordResult(int fitness)
     else
         m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x] = fitness;
 
-    writeAllTrainingData("MyTrainingData");
+    writeAllTrainingData(getTrainingDataFileName());
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
