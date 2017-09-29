@@ -134,7 +134,6 @@ void ProxyTrainingData::upadateViableLocationsList()
 
 void ProxyTrainingData::recordResult(int fitness)
 {
-    m_result[m_proxy_y][m_proxy_x] = fitness;
     if(m_playerStart_y < m_enemyStart_y)
        m_result[m_proxy_y][m_proxy_x] = fitness;
     else
