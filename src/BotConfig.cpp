@@ -8,10 +8,10 @@ BotConfig::BotConfig()
     ConfigFileFound                     = true;
     ConfigFileParsed                    = true;
     ConfigFileLocation                  = "BotConfig.txt";
-    BotName                             = "UAlbertaBot";
-    Authors                             = "Dave Churchill";
+    BotName                             = "ByunJR";
+    Authors                             = "Ian Gallacher & David Churchill";
     PrintInfoOnStart                    = false;
-    StrategyName                        = "Protoss_ZealotRush";
+    StrategyName                        = "Terran_ReaperRush";
     ReadDir                             = "read/";
     WriteDir                            = "write/";
     UseEnemySpecificStrategy            = false;
