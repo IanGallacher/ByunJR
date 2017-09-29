@@ -23,7 +23,7 @@ class ProxyTrainingData
 {
     int m_proxy_x;
     int m_proxy_y;
-    const MapTools* m_map;
+    ByunJRBot* m_bot;
 
     sc2::Point2D m_playable_min;
     sc2::Point2D m_playable_max;

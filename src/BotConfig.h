@@ -16,6 +16,7 @@ public:
     bool UsingAutoObserver;		
     
     std::string BotName;
+    std::string MapName;
     std::string Authors;
     bool PrintInfoOnStart;
     std::string BotMode;

@@ -13,11 +13,11 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     m_arena_width = (int) (bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
     m_arena_height = (int) (bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
 
-    m_map = &bot.Map();
+    m_bot = &bot;
 
-    m_playerStart_y = bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
+    m_playerStart_y = (int) bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
     // This won't work for four player maps.
-    m_enemyStart_y = bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
+    m_enemyStart_y = (int) bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
 
     std::cout << "miny" << bot.Observation()->GetGameInfo().playable_min.y << "minx" << bot.Observation()->GetGameInfo().playable_min.x;
@@ -32,7 +32,7 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     loadProxyTrainingData();
 
-    writeAllTrainingData("MyTrainingData");
+    writeAllTrainingData(bot.Config().MapName + "TrainingData");
     setupProxyLocation();
 }
 
@@ -59,7 +59,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
     std::ifstream trainingData;
     std::string line;
 
-    trainingData.open("MyTrainingData.txt");
+    trainingData.open(m_bot->Config().MapName + "TrainingData.txt");
 
     // If we have an empty file, go ahead and test all the points on the map and use that instead of loading the file.
     if (trainingData.peek() == std::ifstream::traits_type::eof())
@@ -147,7 +147,7 @@ void ProxyTrainingData::recordResult(int fitness)
 // This function takes the parameters in "True Map Space"
 bool ProxyTrainingData::isProxyLocationValid(int x, int y)
 {
-    if (m_map->canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
+    if (m_bot->Map().canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;
     return false;
 }

@@ -43,7 +43,8 @@ int main(int argc, char* argv[])
         const rapidjson::Value & info = doc["Game Info"];
         JSONTools::ReadString("BotRace", info, botRaceString);
         JSONTools::ReadString("EnemyRace", info, enemyRaceString);
-        JSONTools::ReadString("MapFile", info, mapString);
+        JSONTools::ReadString("MapName", info, mapString);
+        mapString += ".SC2Map"; // The MapName does not include the file extension.
     }
     else
     {

@@ -12,6 +12,7 @@ BotConfig::BotConfig()
     Authors                             = "Ian Gallacher & David Churchill";
     PrintInfoOnStart                    = false;
     StrategyName                        = "Terran_ReaperRush";
+    MapName                             = "InterloperLE.SC2Map";
     ReadDir                             = "read/";
     WriteDir                            = "write/";
     UseEnemySpecificStrategy            = false;
@@ -83,6 +84,13 @@ void BotConfig::readConfigFile()
         JSONTools::ReadString("BotName", info, BotName);
         JSONTools::ReadString("Authors", info, Authors);
         JSONTools::ReadBool("PrintInfoOnStart", info, PrintInfoOnStart);
+    }
+
+    // Parse some of the Game Info
+    if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
+    {
+        const rapidjson::Value & gameInfo = doc["Game Info"];
+        JSONTools::ReadString("MapName", gameInfo, MapName);
     }
 
     // Parse the Micro Options

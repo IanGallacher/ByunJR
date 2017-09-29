@@ -10,7 +10,7 @@
     {
         "BotRace"                   : "Terran",
         "EnemyRace"                 : "Zerg",
-        "MapFile"                   : "InterloperLE.SC2Map"
+        "MapName"                   : "InterloperLE"
     },
 
     "Micro" :
