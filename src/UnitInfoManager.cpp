@@ -221,8 +221,6 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
         m_bot.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
         m_bot.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
     }
-
-
 }
 
 void UnitInfoManager::updateUnit(const sc2::Unit & unit)
