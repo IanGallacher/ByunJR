@@ -94,6 +94,9 @@
       <Filter>micro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ByunJRBot.cpp" />
+    <ClCompile Include="..\src\GeneticAlgorithm.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\BaseLocationManager.h">
@@ -194,6 +197,9 @@
       <Filter>micro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ByunJRBot.h" />
+    <ClInclude Include="..\src\GeneticAlgorithm.h">
+      <Filter>AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="global">
@@ -210,6 +216,9 @@
     </Filter>
     <Filter Include="micro">
       <UniqueIdentifier>{9829f5c0-728d-4121-8884-bf1fddd88a87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{1786ff3b-e8d4-4894-893e-fe3221fed656}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

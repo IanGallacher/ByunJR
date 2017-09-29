@@ -55,8 +55,11 @@ public:
     int WorkersPerRefinery;
     int BuildingSpacing;
     int PylonSpacing;
+    int ProxyLocationX;
+    int ProxyLocationY;
  
     BotConfig();
 
     void readConfigFile();
+    void setProxyLocation(const int x, const int y);
 };

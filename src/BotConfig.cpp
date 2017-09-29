@@ -46,6 +46,9 @@ BotConfig::BotConfig()
     WorkersPerRefinery                  = 3;
     BuildingSpacing                     = 1;
     PylonSpacing                        = 3;
+
+    ProxyLocationX                      = 0;
+    ProxyLocationY                      = 0;
 }
 
 void BotConfig::readConfigFile()
@@ -165,4 +168,10 @@ sc2::Race BotConfig::GetRace(const std::string & raceName)
 
     BOT_ASSERT(false, "Race not found: %s", raceName.c_str());
     return sc2::Race::Random;
+}
+
+void BotConfig::setProxyLocation(const int x, const int y)
+{
+    ProxyLocationX = x;
+    ProxyLocationY = y;
 }

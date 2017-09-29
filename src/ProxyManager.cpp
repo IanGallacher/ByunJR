@@ -211,8 +211,10 @@ bool ProxyTrainingData::setupProxyLocation()
     // To convert from training space to true map space, add m_playable_min.
     // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
     // m_proxy_x is stored in "Training Space."
-    m_proxy_x = (int) (ViableLocations[index].m_loc.x);
-    m_proxy_y = (int) (ViableLocations[index].m_loc.y);
+    // m_proxy_x = (int) (ViableLocations[index].m_loc.x);
+    // m_proxy_y = (int) (ViableLocations[index].m_loc.y);
+    m_proxy_x = m_bot->Config().ProxyLocationX;
+    m_proxy_y = m_bot->Config().ProxyLocationY;
 
     sc2::Vector2D myVec( (float) m_proxy_x, (float) m_proxy_y);
     std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
