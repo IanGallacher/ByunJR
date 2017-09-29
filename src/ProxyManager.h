@@ -47,7 +47,7 @@ class ProxyTrainingData
     // When picking a random proxy location, ViableLocations is used to make sure that the location we pick is always viable. 
     std::vector<ProxyLocation> ViableLocations;
 
-    // Using <MapDataValue> was considered, but results (the distance from the reaper spawn point to the enemy base)
+    // Using <MapDataValue> for m_result was considered, but results (the distance from the reaper spawn point to the enemy base)
     // do not implicity cast to MapDataValue. There is no MapDataValue that represents 149 tiles worth of distance for example. 
     // <int> is used instead to avoid strange typecasts, but please use a MapDataValue to store data whenever possible. 
     std::vector<std::vector<int>> m_result;  // stored in the format result[y][x]
