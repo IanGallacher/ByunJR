@@ -65,6 +65,10 @@ bool ProxyTrainingData::loadProxyTrainingData()
     if (trainingData.peek() == std::ifstream::traits_type::eof())
     {
         testAllPointsOnMap();
+        // In order to save computation time, only half of the valid locations will be searched initially. 
+        // After we feel like we have some good canidates for the "best" proxy location, 
+        // we can look for nearby tile locations that were eliminated by this function.
+        reduceSearchSpace(2);
     }
 
     else if (trainingData.is_open())
@@ -114,7 +118,6 @@ bool ProxyTrainingData::loadProxyTrainingData()
     return 0;
 } 
 
-
 // Iterate through the result (training data) data structure and update the ViableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
@@ -122,7 +125,7 @@ void ProxyTrainingData::upadateViableLocationsList()
     {
         for (int x = 0; x < m_result[y].size(); ++x)
         {
-            if (m_result[y][x] == 0)
+            if (m_result[y][x] == MapDataValue::LocationWithoutResultValue)
             {
                 sc2::Point2D point((float) x, (float) y);
                 ProxyLocation pl = { point, m_result[y][x] };
@@ -139,6 +142,7 @@ void ProxyTrainingData::recordResult(int fitness)
     else
         m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x] = fitness;
 
+    std::cout << fitness << "fitness" << std::endl;
     writeAllTrainingData(getTrainingDataFileName());
 }
 
@@ -163,8 +167,35 @@ void ProxyTrainingData::testAllPointsOnMap()
         {
             if (!isProxyLocationValid(x + (int) m_playable_min.x, y + (int) m_playable_min.y))
             {
-                m_result[y][x] = -1;
+                m_result[y][x] = MapDataValue::UnbuildableLocation;
             }
+        }
+    }
+}
+
+// reductionFactor means "for every {reductionFactor} items, keep only 1 of them."
+// Example: If reductionFactor is 2, keep only half of the valid building locations.
+// Example: If reductionFactor is 1, keep everything. 
+void ProxyTrainingData::reduceSearchSpace(int reductionFactor)
+{
+    BOT_ASSERT(m_arena_height != 0, "Play area height is zero!");
+    BOT_ASSERT(m_arena_width != 0, "Play area height is zero!");
+    BOT_ASSERT(reductionFactor > 0, "reductionFactor must be one or bigger");
+
+    // If reductionFactor is one, nothing will change.
+    // Save time by skipping the rest of the function.
+    if (reductionFactor == 1) { return; }
+
+    int validLocationNumber = 0;
+    for (int y = 0; y < m_arena_height; ++y)
+    {
+        for (int x = 0; x < m_arena_width; ++x)
+        {
+            if (validLocationNumber % 2 == 0)
+            {
+                m_result[y][x] = MapDataValue::IgnoredLocationToSaveSearchSpace;
+            }
+            ++validLocationNumber;
         }
     }
 }
