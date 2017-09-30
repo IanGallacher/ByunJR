@@ -329,5 +329,10 @@ sc2::Point2D ProxyManager::getProxyLocation()
     return m_ptd.getProxyLocation();
 }
 
+ProxyTrainingData & ProxyManager::getProxyTrainingData()
+{
+    return m_ptd;
+}
+
 
 #pragma endregion ProxyManagerMemberFunctions

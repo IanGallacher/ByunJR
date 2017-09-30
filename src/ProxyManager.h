@@ -91,5 +91,6 @@ public:
     void onUnitEnterVision(const sc2::Unit & unit);
     bool proxyBuildingAtChosenRandomLocation();
 
-    sc2::Point2D    getProxyLocation();
+    sc2::Point2D getProxyLocation();
+    ProxyTrainingData& getProxyTrainingData();
 };

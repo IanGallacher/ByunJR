@@ -32,6 +32,7 @@ public:
 
     GameCommander(ByunJRBot & bot);
     sc2::Point2D GetProxyLocation();
+    ProxyManager & GetProxyManager();
 
     void onStart();
     void onFrame();

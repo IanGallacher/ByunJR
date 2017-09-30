@@ -171,6 +171,10 @@ void GameCommander::assignUnit(const UnitTag & unit, std::vector<UnitTag> & unit
 sc2::Point2D GameCommander::GetProxyLocation()
 {
     return m_proxyManager.getProxyLocation();
-//    return sc2::Point2D(150, 100);
+    //    return sc2::Point2D(150, 100);
+}
+
+ProxyManager & GameCommander::GetProxyManager() {
+    return m_proxyManager;
 }
 
