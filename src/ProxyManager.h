@@ -41,11 +41,11 @@ class ProxyTrainingData
         LocationWithoutResultValue = 0
     };
 
-    // There is a subtle difference between result and ViableLocations.
+    // There is a subtle difference between m_result and m_viableLocations.
     // Result is a vector of vectors that represent ALL points on the map. 
-    // ViableLocations is an UNINDEXED list that does not include places that get scouted easily or are impossible to build on.
-    // When picking a random proxy location, ViableLocations is used to make sure that the location we pick is always viable. 
-    std::vector<ProxyLocation> ViableLocations;
+    // m_viableLocations is an UNINDEXED list that does not include places that get scouted easily or are impossible to build on.
+    // When picking a random proxy location, m_viableLocations is used to make sure that the location we pick is always viable. 
+    std::vector<ProxyLocation> m_viableLocations;
 
     // Using <MapDataValue> for m_result was considered, but results (the distance from the reaper spawn point to the enemy base)
     // do not implicity cast to MapDataValue. There is no MapDataValue that represents 149 tiles worth of distance for example. 

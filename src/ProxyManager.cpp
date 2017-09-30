@@ -61,7 +61,7 @@ bool ProxyTrainingData::proxyLocationReady()
 
 sc2::Point2D ProxyTrainingData::getRandomViableProxyLocation()
 {
-    return ViableLocations[rand() % (int)ViableLocations.size()].m_loc;
+    return m_viableLocations[rand() % (int)m_viableLocations.size()].m_loc;
 }
 
 // Load all the values from training data stored on the disk.
@@ -133,7 +133,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
     return 0;
 } 
 
-// Iterate through the result (training data) data structure and update the ViableLocations vector.
+// Iterate through the result (training data) data structure and update the m_viableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
     for (int y = 0; y < m_result.size(); ++y)
@@ -144,7 +144,7 @@ void ProxyTrainingData::upadateViableLocationsList()
             {
                 sc2::Point2D point((float) x, (float) y);
                 ProxyLocation pl = { point, m_result[y][x] };
-                ViableLocations.push_back(pl);
+                m_viableLocations.push_back(pl);
             }
         }
     }
@@ -218,7 +218,7 @@ void ProxyTrainingData::reduceSearchSpace(int reductionFactor)
 bool ProxyTrainingData::setupProxyLocation()
 {
     srand( (unsigned int) time(NULL));
-    int index = rand() % ViableLocations.size();
+    int index = rand() % m_viableLocations.size();
 
     // There are two coordinate systems for storing the proxy location.
     // "True Map Space" - Some maps are larger than the total play area.
@@ -226,8 +226,8 @@ bool ProxyTrainingData::setupProxyLocation()
     // To convert from training space to true map space, add m_playable_min.
     // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
     // m_proxy_x is stored in "Training Space."
-    // m_proxy_x = (int) (ViableLocations[index].m_loc.x);
-    // m_proxy_y = (int) (ViableLocations[index].m_loc.y);
+    // m_proxy_x = (int) (m_viableLocations[index].m_loc.x);
+    // m_proxy_y = (int) (m_viableLocations[index].m_loc.y);
     m_proxy_x = m_bot->Config().ProxyLocationX;
     m_proxy_y = m_bot->Config().ProxyLocationY;
 
