@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
             coordinator.LaunchStarcraft();
             coordinator.StartGame(mapString);
 
+            bool alreadyInit = false;
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {
                 coordinator.Update();
@@ -110,9 +111,15 @@ int main(int argc, char* argv[])
                     geneticAlgorithmSetup = true;
                 }
 
-                Candidate c = ga.getPopulation()->getCandidate(i);
-                bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
-                bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
+
+
+                if (alreadyInit == false)
+                {
+                    Candidate c = ga.getPopulation()->getCandidate(i);
+                    bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
+                    bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
+                    alreadyInit = true;
+                }
             }
 
             if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
@@ -124,6 +131,7 @@ int main(int argc, char* argv[])
                 std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
             }
             coordinator.LeaveGame();
+            ga.evolvePopulation();
         }
 
         ga.evolvePopulation();
