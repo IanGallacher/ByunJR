@@ -12,12 +12,9 @@
 #include "ByunJRBot.h"
 #include "GeneticAlgorithm.h"
 
-//#include <conio.h>
 
-
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
-
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -60,11 +57,9 @@ int main(int argc, char* argv[])
     // Step forward the game simulation.
 
     GeneticAlgorithm ga = GeneticAlgorithm();
-
+    bool geneticAlgorithmSetup = false;
 
     while (true) {
-        ga.evolvePopulation();
-
         // Test all 10 Candidates inside the population
         for (int i = 0; i < 10; i++)
         {
@@ -84,8 +79,6 @@ int main(int argc, char* argv[])
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;
-            Candidate c = ga.getPopulation()->getCandidate(i);
-            bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
 
             coordinator.SetParticipants({
                 CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
@@ -95,10 +88,33 @@ int main(int argc, char* argv[])
             // Start the game.
             coordinator.LaunchStarcraft();
             coordinator.StartGame(mapString);
+
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {
                 coordinator.Update();
+
+                if (geneticAlgorithmSetup == false)
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        Population* pop = ga.getPopulation();
+                        // grab proxy training data once
+                        sc2::Point2D point = bot.GameCommander().GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        std::vector<int> genes = std::vector<int>();
+                        genes.resize(2);
+                        genes[0] = point.x;
+                        genes[1] = point.y;
+                        Candidate can = Candidate(genes);
+                        pop->setCanidate(i, can);
+                    }
+                    geneticAlgorithmSetup = true;
+                }
+
+                Candidate c = ga.getPopulation()->getCandidate(i);
+                bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
+                bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
             }
+
             if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
             {
                 std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
@@ -109,6 +125,8 @@ int main(int argc, char* argv[])
             }
             coordinator.LeaveGame();
         }
+
+        ga.evolvePopulation();
     }
 
 

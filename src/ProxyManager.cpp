@@ -4,6 +4,7 @@
 #include "Micro.h"
 #include "sc2lib/sc2_lib.h"
 
+#pragma region ProxyTrainingDataFunctions
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 {
@@ -47,6 +48,20 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
     BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
     sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
     return proxyLocation;
+}
+
+// Is the proxy location ready to go? Has it been setup yet?
+bool ProxyTrainingData::proxyLocationReady()
+{
+    if (m_proxy_x == 0 || m_proxy_y == 0)
+        return false;
+    else
+        return true;
+}
+
+sc2::Point2D ProxyTrainingData::getRandomViableProxyLocation()
+{
+    return ViableLocations[rand() % (int)ViableLocations.size()].m_loc;
 }
 
 // Load all the values from training data stored on the disk.
@@ -250,7 +265,7 @@ void ProxyTrainingData::writeAllTrainingData(std::string filename)
     outfile.close();
     std::cout << "DONE!" << std::endl;
 }
-
+#pragma endregion ProxyTrainingDataFunctions
 
 
 #pragma region ProxyManagerMemberFunctions
@@ -304,7 +319,8 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
 {
     std::ofstream outfile;
 
-    sc2::Vector2D myVec(m_ptd.getProxyLocation());
+    if (!m_ptd.proxyLocationReady())
+        return false;
 
     //if (m_bot.GetUnit(m_proxyUnitTag)->pos.x > myVec.x - 1 && m_bot.GetUnit(m_proxyUnitTag)->pos.x < myVec.x + 1)
     //{
@@ -314,6 +330,7 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
     //{
     if (m_proxyUnitTag == 0)
     {
+        sc2::Vector2D myVec(m_ptd.getProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
         m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
         m_bot.Workers().setProxyWorker(m_proxyUnitTag);

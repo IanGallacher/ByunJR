@@ -59,10 +59,11 @@ class ProxyTrainingData
     bool            loadProxyTrainingData();
     void            testAllPointsOnMap();
     void            reduceSearchSpace(int reductionFactor);
-    bool            setupProxyLocation();
 
 public:
-    void InitAllValues(ByunJRBot & bot);
+    void            InitAllValues(ByunJRBot & bot);
+    bool            setupProxyLocation();
+    bool            proxyLocationReady();
 
     // Proxy training
     void            upadateViableLocationsList();
@@ -71,6 +72,7 @@ public:
     void            writeAllTrainingData(std::string filename);
 
     sc2::Point2D    getProxyLocation();
+    sc2::Point2D    getRandomViableProxyLocation();
 };
 
 class ProxyManager
