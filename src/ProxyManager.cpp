@@ -100,7 +100,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
     std::ifstream trainingData;
     std::string line;
 
-    trainingData.open(getTrainingDataFileName());
+    trainingData.open(getTrainingDataFileName() + ".txt");
 
     // If we have an empty file, go ahead and test all the points on the map and use that instead of loading the file.
     if (trainingData.peek() == std::ifstream::traits_type::eof())
