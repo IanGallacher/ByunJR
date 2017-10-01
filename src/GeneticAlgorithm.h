@@ -1,5 +1,8 @@
 #pragma once
 #include "common.h"
+#include "ProxyManager.h"
+
+class ProxyManager;
 
 class Candidate {
     std::vector<int> m_genes;
@@ -16,12 +19,14 @@ public:
 };
 
 class Population {
-    Candidate m_canidates [10];
+    std::vector<Candidate> m_canidates;
 
 public :
+    Population(const int size);
     void setCanidate(int index, Candidate c);
     Candidate getCandidate(int index);
     Candidate getFittest();
+    void setReward(int i, int reward);
 };
 
 class GeneticAlgorithm {
@@ -38,6 +43,7 @@ class GeneticAlgorithm {
 
     public:
         GeneticAlgorithm();
-        Population evolvePopulation();
+        Population evolvePopulation(ProxyTrainingData & pm);
         Population* getPopulation();
+        void setReward(int i, int reward);
 };

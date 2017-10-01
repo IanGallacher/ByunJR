@@ -50,6 +50,32 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
     return proxyLocation;
 }
 
+int ProxyTrainingData::getReward()
+{
+    if (m_playerStart_y < m_enemyStart_y)
+        return m_result[m_proxy_y][m_proxy_x];
+    else
+        return m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x];
+
+}
+
+sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
+{
+    sc2::Point2D closestPoint;
+    int dist = 99999;
+    for (int i = 0; i < m_viableLocations.size(); ++i)
+    {
+        int deltaX = (m_viableLocations[i].m_loc.x - x);
+        int deltaY = (m_viableLocations[i].m_loc.y - y);
+        int newDist = (deltaX * deltaX) + (deltaY * deltaY);
+        if (newDist < dist)
+        {
+            closestPoint = sc2::Point2D(x, y);
+        }
+    }
+    return closestPoint;
+}
+
 // Is the proxy location ready to go? Has it been setup yet?
 bool ProxyTrainingData::proxyLocationReady()
 {

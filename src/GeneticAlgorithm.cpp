@@ -16,7 +16,7 @@ Candidate::Candidate(std::vector<int> genes, int fitness)
     m_fitness = fitness;
 }
 
-void Candidate::SetFitness(int fitness)
+void Candidate::SetFitness(const int fitness)
 {
     m_fitness = fitness;
 }
@@ -37,6 +37,11 @@ int Candidate::getFitness()
 }
 
 
+Population::Population(const int size)
+{
+    m_canidates = std::vector<Candidate>();
+    m_canidates.resize(size);
+}
 
 void Population::setCanidate(int index, Candidate c)
 {
@@ -48,10 +53,15 @@ Candidate Population::getCandidate(int index)
     return m_canidates[index];
 }
 
+void Population::setReward(int index, int reward)
+{
+    m_canidates[index].SetFitness(reward);
+}
+
 Candidate Population::getFittest() {
     Candidate fittest = m_canidates[0];
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < m_canidates.size(); ++i) {
         if (fittest.getFitness() <= getCandidate(i).getFitness()) {
             fittest = getCandidate(i);
         }
@@ -66,13 +76,13 @@ GeneticAlgorithm::GeneticAlgorithm()
     mutationRate(0.015),
     tournamentSize(5),
     elitism(true),
-    m_population()
+    m_population(10)
 {
 
 }
 
-Population GeneticAlgorithm::evolvePopulation() {
-    Population newPopulation = Population(); // new Population(pop.size(), false);
+Population GeneticAlgorithm::evolvePopulation(ProxyTrainingData & pm) {
+    Population newPopulation(10); // new Population(pop.size(), false);
 
     int elitismOffset;
     // Keep our best candidate
@@ -90,6 +100,11 @@ Population GeneticAlgorithm::evolvePopulation() {
         Candidate indiv1 = tournamentSelection(m_population);
         Candidate indiv2 = tournamentSelection(m_population);
         Candidate newIndiv = crossover(indiv1, indiv2);
+
+        // make sure we have the closest valid proxy location.
+        sc2::Point2D point = pm.getNearestUntestedProxyLocation( newIndiv.getGene(0), newIndiv.getGene(1) );
+        auto genes = std::vector<int> { (int)point.x, (int)point.y };
+        auto finalIndiv = Candidate(genes);
         newPopulation.setCanidate(i, newIndiv);
     }
 
@@ -103,18 +118,21 @@ Population GeneticAlgorithm::evolvePopulation() {
 
 // Crossover individuals
 Candidate GeneticAlgorithm::crossover(Candidate indiv1, Candidate indiv2) {
-    Candidate newSol = Candidate();
+    auto genes = std::vector<int>();
+    genes.resize(2);
     // Loop through genes
     for (int i = 0; i < 2; i++) { //2 is how many genes there are.
         // Crossover
         if (rand() % 2 == 0) {
-            newSol.setGene(i, indiv1.getGene(i));
+            genes[i] = indiv1.getGene(i);
         }
         else {
-            newSol.setGene(i, indiv2.getGene(i));
+            genes[i] = indiv2.getGene(i);
         }
     }
-    return newSol;
+
+    auto can = Candidate(genes);
+    return can;
 }
 
 // Mutate an candidate
@@ -134,12 +152,17 @@ Population* GeneticAlgorithm::getPopulation()
     return &m_population;
 }
 
+void GeneticAlgorithm::setReward(int i, int reward)
+{
+    m_population.setReward(i, reward);
+}
+
 
 // Select individuals for crossover
 Candidate GeneticAlgorithm::tournamentSelection(Population pop) 
 {
     // Create a tournament population
-    Population tournament;
+    Population tournament(5);
     // For each place in the tournament get a random individual
     for (int i = 0; i < tournamentSize; i++) {
         int randomId = rand() % 10; //pop.size());

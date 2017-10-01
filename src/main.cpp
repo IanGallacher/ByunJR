@@ -6,8 +6,6 @@
 
 #include <iostream>
 #include <string>
-#include <random>
-#include <cmath>
 
 #include "ByunJRBot.h"
 #include "GeneticAlgorithm.h"
@@ -112,7 +110,6 @@ int main(int argc, char* argv[])
                 }
 
 
-
                 if (alreadyInit == false)
                 {
                     Candidate c = ga.getPopulation()->getCandidate(i);
@@ -131,10 +128,14 @@ int main(int argc, char* argv[])
                 std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
             }
             coordinator.LeaveGame();
-            ga.evolvePopulation();
+            ga.setReward(i, bot.GameCommander().GetProxyManager().getProxyTrainingData().getReward());
+            if(i==9)
+            {
+                ga.evolvePopulation(bot.GameCommander().GetProxyManager().getProxyTrainingData());
+            }
         }
 
-        ga.evolvePopulation();
+        //ga.evolvePopulation();
     }
 
 

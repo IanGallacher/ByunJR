@@ -72,6 +72,8 @@ public:
     void            writeAllTrainingData(std::string filename);
 
     sc2::Point2D    getProxyLocation();
+    int             getReward();
+    sc2::Point2D    getNearestUntestedProxyLocation(int x, int y);
     sc2::Point2D    getRandomViableProxyLocation();
 };
 
