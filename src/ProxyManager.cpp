@@ -20,9 +20,6 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     // This won't work for four player maps.
     m_enemyStart_y = (int) bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
-
-    std::cout << "miny" << bot.Observation()->GetGameInfo().playable_min.y << "minx" << bot.Observation()->GetGameInfo().playable_min.x;
-    
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
     m_result.resize(m_arena_height);

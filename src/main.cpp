@@ -121,17 +121,18 @@ int main(int argc, char* argv[])
 
             if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
             {
-                std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
+                std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay" << std::endl;
             }
             else
             {
-                std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
+                std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
             }
             coordinator.LeaveGame();
             ga.setReward(i, bot.GameCommander().GetProxyManager().getProxyTrainingData().getReward());
             if(i==9)
             {
                 ga.evolvePopulation(bot.GameCommander().GetProxyManager().getProxyTrainingData());
+                std::cout << "MUTATING" << std::endl;
             }
         }
 

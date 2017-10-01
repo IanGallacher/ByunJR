@@ -207,7 +207,6 @@ void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
             sc2::Point2D proxyLocation = m_bot.GameCommander().GetProxyLocation();
-            std::cout << "PROXYLOC" << proxyLocation.x << "x " << proxyLocation.y << "y " << std::endl;
             m_buildingManager.addBuildingTask(t, proxyLocation);
         }
         else
