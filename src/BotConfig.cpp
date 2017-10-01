@@ -15,6 +15,7 @@ BotConfig::BotConfig()
     MapName                             = "InterloperLE.SC2Map";
     ReadDir                             = "read/";
     WriteDir                            = "write/";
+    TrainingMode                        = false;
     UseEnemySpecificStrategy            = false;
     FoundEnemySpecificStrategy          = false;
     UsingAutoObserver                   = false;
@@ -109,6 +110,7 @@ void BotConfig::readConfigFile()
     if (doc.HasMember("Macro") && doc["Macro"].IsObject())
     {
         const rapidjson::Value & macro = doc["Macro"];
+        JSONTools::ReadBool("TrainingMode", macro, TrainingMode);
         JSONTools::ReadInt("BuildingSpacing", macro, BuildingSpacing);
         JSONTools::ReadInt("PylongSpacing", macro, PylonSpacing);
         JSONTools::ReadInt("WorkersPerRefinery", macro, WorkersPerRefinery);

@@ -24,6 +24,7 @@ public:
     std::string StrategyName;
     std::string ReadDir;
     std::string WriteDir;
+    bool TrainingMode;
     bool UseEnemySpecificStrategy;
     bool FoundEnemySpecificStrategy;
     

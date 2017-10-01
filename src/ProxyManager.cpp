@@ -47,8 +47,10 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
     BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
     sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
     
-    //return proxyLocation;
-    return getBestProxyLocation();
+    if(m_bot->Config().TrainingMode)
+        return proxyLocation;
+    else
+        return getBestProxyLocation();
 }
 
 // Returns the best proxy location in "True Map Space"
@@ -66,8 +68,8 @@ sc2::Point2D ProxyTrainingData::getBestProxyLocation()
     }
     else
     {
-        bestProxyX = m_arena_height - (m_best_proxy_x + m_playable_min.x);
-        bestProxyY = m_arena_width - (m_best_proxy_y + m_playable_min.y);
+        bestProxyX = (m_arena_height - m_best_proxy_x) + m_playable_min.x;
+        bestProxyY = (m_arena_width - m_best_proxy_y) + m_playable_min.y;
     }
     const sc2::Point2D proxyLocation((float) bestProxyX, (float) bestProxyY);
 
@@ -347,7 +349,7 @@ void ProxyManager::onFrame()
 
 void ProxyManager::onUnitCreated(const sc2::Unit& unit)
 {
-    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
+    if (m_bot.Config().TrainingMode && unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
     {
         const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
 
@@ -363,7 +365,7 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
     if (!proxySCV) return;
     double dist( sqrt((unit.pos.x-proxySCV->pos.x)*(unit.pos.x-proxySCV->pos.x)+(unit.pos.y-proxySCV->pos.y)*(unit.pos.y-proxySCV->pos.y)));
 
-    if (dist < 8 && !m_firstReaperCreated)
+    if (m_bot.Config().TrainingMode && dist < 8 && !m_firstReaperCreated)
     {
         m_bot.Resign();
         m_ptd.recordResult(-9);
