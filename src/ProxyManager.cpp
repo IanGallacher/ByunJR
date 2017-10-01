@@ -358,17 +358,22 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
     }
 }
 
-void ProxyManager::onUnitEnterVision(const sc2::Unit& unit)
+void ProxyManager::onUnitEnterVision(const sc2::Unit& enemyUnit)
 {
-    const sc2::Unit *proxySCV = m_bot.GetUnit(m_proxyUnitTag);
-    if (!proxySCV) return;
-    double dist( sqrt((unit.pos.x-proxySCV->pos.x)*(unit.pos.x-proxySCV->pos.x)+(unit.pos.y-proxySCV->pos.y)*(unit.pos.y-proxySCV->pos.y)));
-
-    if (m_bot.Config().TrainingMode && dist < 8 && !m_firstReaperCreated)
+    // TODO: Optimize this code to only search buildings, not every single unit a player owns.
+    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
     {
-        m_bot.Resign();
-        m_ptd.recordResult(-9);
-        std::cout << "THERE IS NO POINT IN CONTINUING";
+        if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit.tag == m_proxyUnitTag)
+        {
+            const double dist(sqrt((enemyUnit.pos.x - unit.pos.x)*(enemyUnit.pos.x - unit.pos.x) + (enemyUnit.pos.y - unit.pos.y)*(enemyUnit.pos.y - unit.pos.y)));
+
+            if (m_bot.Config().TrainingMode && dist < 8 && !m_firstReaperCreated)
+            {
+                m_bot.Resign();
+                m_ptd.recordResult(-9);
+                std::cout << "THERE IS NO POINT IN CONTINUING";
+            }
+        }
     }
 }
 
