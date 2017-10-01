@@ -43,7 +43,7 @@ class GeneticAlgorithm {
 
     public:
         GeneticAlgorithm();
-        Population evolvePopulation(ProxyTrainingData & pm);
+        void evolvePopulation(ProxyTrainingData & pm);
         Population* getPopulation();
         void setReward(int i, int reward);
 };

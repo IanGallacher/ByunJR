@@ -81,7 +81,7 @@ GeneticAlgorithm::GeneticAlgorithm()
 
 }
 
-Population GeneticAlgorithm::evolvePopulation(ProxyTrainingData & pm) {
+void GeneticAlgorithm::evolvePopulation(ProxyTrainingData & pm) {
     Population newPopulation(10); // new Population(pop.size(), false);
 
     int elitismOffset;
@@ -113,7 +113,7 @@ Population GeneticAlgorithm::evolvePopulation(ProxyTrainingData & pm) {
         mutate(newPopulation.getCandidate(i));
     }
 
-    return newPopulation;
+    m_population = newPopulation;
 }
 
 // Crossover individuals
