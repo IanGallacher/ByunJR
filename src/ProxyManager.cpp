@@ -33,10 +33,10 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     loadProxyTrainingData();
 
-    writeAllTrainingData(getTrainingDataFileName());
     setupProxyLocation();
 }
 
+// WARNING: DOES NOT INCLUDE FILE EXTENSION
 std::string ProxyTrainingData::getTrainingDataFileName()
 {
     return m_bot->Config().MapName + "TrainingData";
