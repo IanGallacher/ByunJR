@@ -262,7 +262,9 @@ void ProxyTrainingData::reduceSearchSpace(int reductionFactor)
     {
         for (int x = 0; x < m_arena_width; ++x)
         {
-            if (validLocationNumber % 2 == 0)
+            // keep only 1/reductionfactor valid entries. 
+            // We are only interested in the untested locations.
+            if (validLocationNumber % reductionFactor == 0 && m_result[y][x] == MapDataValue::LocationWithoutResultValue)
             {
                 m_result[y][x] = MapDataValue::IgnoredLocationToSaveSearchSpace;
             }
