@@ -23,6 +23,8 @@ class ProxyTrainingData
 {
     int m_proxy_x;
     int m_proxy_y;
+    int m_best_proxy_x;
+    int m_best_proxy_y;
     ByunJRBot* m_bot;
 
     sc2::Point2D m_playable_min;
@@ -72,6 +74,7 @@ public:
     void            writeAllTrainingData(std::string filename);
 
     sc2::Point2D    getProxyLocation();
+    sc2::Point2D    getBestProxyLocation();
     int             getReward();
     sc2::Point2D    getNearestUntestedProxyLocation(int x, int y);
     sc2::Point2D    getRandomViableProxyLocation();

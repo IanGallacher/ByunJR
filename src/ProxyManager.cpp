@@ -35,7 +35,6 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     setupProxyLocation();
 }
-
 // WARNING: DOES NOT INCLUDE FILE EXTENSION
 std::string ProxyTrainingData::getTrainingDataFileName()
 {
@@ -47,6 +46,31 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
 {
     BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
     sc2::Point2D proxyLocation((float) m_proxy_x + m_playable_min.x, (float) m_proxy_y + m_playable_min.y);
+    
+    //return proxyLocation;
+    return getBestProxyLocation();
+}
+
+// Returns the best proxy location in "True Map Space"
+sc2::Point2D ProxyTrainingData::getBestProxyLocation()
+{
+    BOT_ASSERT(m_best_proxy_x != 0 || m_best_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
+
+
+    int bestProxyX = -1;
+    int bestProxyY = -1;
+    if (m_playerStart_y < m_enemyStart_y)
+    {
+        bestProxyX = (m_best_proxy_x + m_playable_min.x);
+        bestProxyY = (m_best_proxy_y + m_playable_min.y);
+    }
+    else
+    {
+        bestProxyX = m_arena_height - (m_best_proxy_x + m_playable_min.x);
+        bestProxyY = m_arena_width - (m_best_proxy_y + m_playable_min.y);
+    }
+    const sc2::Point2D proxyLocation((float) bestProxyX, (float) bestProxyY);
+
     return proxyLocation;
 }
 
@@ -162,6 +186,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
 // Iterate through the result (training data) data structure and update the m_viableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
+    int best_reward = 99999;
     for (int y = 0; y < m_result.size(); ++y)
     {
         for (int x = 0; x < m_result[y].size(); ++x)
@@ -171,6 +196,12 @@ void ProxyTrainingData::upadateViableLocationsList()
                 sc2::Point2D point((float) x, (float) y);
                 ProxyLocation pl = { point, m_result[y][x] };
                 m_viableLocations.push_back(pl);
+            }
+            else if (m_result[y][x] > 0 && m_result[y][x] < best_reward)
+            {
+                m_best_proxy_x = x;
+                m_best_proxy_y = y;
+                best_reward = m_result[y][x];
             }
         }
     }
