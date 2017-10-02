@@ -1,14 +1,14 @@
-#include "sc2api/sc2_api.h"
-#include "sc2utils/sc2_manage_process.h"
-#include "rapidjson/document.h"
-#include "JSONTools.h"
-#include "Util.h"
-
 #include <iostream>
 #include <string>
+#include <sc2api/sc2_api.h>
+#include <sc2utils/sc2_manage_process.h>
 
 #include "ByunJRBot.h"
-#include "GeneticAlgorithm.h"
+#include "ai/GeneticAlgorithm.h"
+#include "rapidjson/document.h"
+#include "util/JSONTools.h"
+#include "util/Util.h"
+
 
 
 int main(int argc, char* argv[])

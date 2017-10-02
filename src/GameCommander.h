@@ -1,29 +1,27 @@
 #pragma once
-
-#include "Common.h"
-#include "Timer.hpp"
-#include "ProductionManager.h"
-#include "ProxyManager.h"
-#include "ScoutManager.h"
-#include "CombatCommander.h"
+#include "macro/ProductionManager.h"
+#include "micro/ProxyManager.h"
+#include "micro/ScoutManager.h"
+#include "micro/CombatCommander.h"
+#include "util/Timer.hpp"
 
 class ByunJRBot;
 
 class GameCommander
 {
-    ByunJRBot &                 m_bot;
-    Timer                   m_timer;
+    ByunJRBot &              m_bot;
+    Timer                    m_timer;
 
-    ProductionManager       m_productionManager;
-    ScoutManager            m_scoutManager;
-    ProxyManager            m_proxyManager;
-    CombatCommander         m_combatCommander;
+    ProductionManager        m_productionManager;
+    ScoutManager             m_scoutManager;
+    ProxyManager             m_proxyManager;
+    CombatCommander          m_combatCommander;
 
     std::vector<sc2::Tag>    m_validUnits;
     std::vector<sc2::Tag>    m_combatUnits;
     std::vector<sc2::Tag>    m_scoutUnits;
 
-    bool                    m_initialScoutSet;
+    bool                     m_initialScoutSet;
 
     void assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units);
     bool isAssigned(const sc2::Tag & unit) const;

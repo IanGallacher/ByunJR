@@ -1,15 +1,15 @@
 #pragma once
 
-#include "sc2api/sc2_api.h"
+#include <sc2api/sc2_api.h>
 
-#include "MapTools.h"
-#include "BaseLocationManager.h"
-#include "UnitInfoManager.h"
-#include "WorkerManager.h"
-#include "BotConfig.h"
 #include "GameCommander.h"
-#include "BuildingManager.h"
-#include "StrategyManager.h"
+#include "global/BaseLocationManager.h"
+#include "global/BotConfig.h"
+#include "global/MapTools.h"
+#include "global/StrategyManager.h"
+#include "global/UnitInfoManager.h"
+#include "global/WorkerManager.h"
+#include "macro/BuildingManager.h"
 
 class ByunJRBot : public sc2::Agent 
 {

@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Libraries\SC2API_Binary_vs2017\lib\;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Libraries\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\src;C:\Libraries\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Libraries\SC2AI\sc2api_precompiled\lib;$(LibraryPath)</LibraryPath>
@@ -278,77 +278,77 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\ai\GeneticAlgorithm.cpp" />
     <ClCompile Include="..\src\ByunJRBot.cpp" />
-    <ClCompile Include="..\src\BaseLocation.cpp" />
-    <ClCompile Include="..\src\BaseLocationManager.cpp" />
-    <ClCompile Include="..\src\BotAssert.cpp" />
-    <ClCompile Include="..\src\BotConfig.cpp" />
-    <ClCompile Include="..\src\Building.cpp" />
-    <ClCompile Include="..\src\BuildingData.cpp" />
-    <ClCompile Include="..\src\BuildingManager.cpp" />
-    <ClCompile Include="..\src\BuildingPlacer.cpp" />
-    <ClCompile Include="..\src\BuildOrder.cpp" />
-    <ClCompile Include="..\src\BuildOrderQueue.cpp" />
-    <ClCompile Include="..\src\CombatCommander.cpp" />
-    <ClCompile Include="..\src\DistanceMap.cpp" />
+    <ClCompile Include="..\src\common\BotAssert.cpp" />
     <ClCompile Include="..\src\GameCommander.cpp" />
-    <ClCompile Include="..\src\GeneticAlgorithm.cpp" />
-    <ClCompile Include="..\src\JSONTools.cpp" />
+    <ClCompile Include="..\src\global\BaseLocationManager.cpp" />
+    <ClCompile Include="..\src\global\BotConfig.cpp" />
+    <ClCompile Include="..\src\global\MapTools.cpp" />
+    <ClCompile Include="..\src\global\StrategyManager.cpp" />
+    <ClCompile Include="..\src\global\UnitInfoManager.cpp" />
+    <ClCompile Include="..\src\global\WorkerManager.cpp" />
+    <ClCompile Include="..\src\macro\BaseLocation.cpp" />
+    <ClCompile Include="..\src\macro\Building.cpp" />
+    <ClCompile Include="..\src\macro\BuildingData.cpp" />
+    <ClCompile Include="..\src\macro\BuildingManager.cpp" />
+    <ClCompile Include="..\src\macro\BuildingPlacer.cpp" />
+    <ClCompile Include="..\src\macro\BuildOrder.cpp" />
+    <ClCompile Include="..\src\macro\BuildOrderQueue.cpp" />
+    <ClCompile Include="..\src\macro\ProductionManager.cpp" />
+    <ClCompile Include="..\src\macro\WorkerData.cpp" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\MapTools.cpp" />
-    <ClCompile Include="..\src\MeleeManager.cpp" />
-    <ClCompile Include="..\src\Micro.cpp" />
-    <ClCompile Include="..\src\MicroManager.cpp" />
-    <ClCompile Include="..\src\ProductionManager.cpp" />
-    <ClCompile Include="..\src\ProxyManager.cpp" />
-    <ClCompile Include="..\src\RangedManager.cpp" />
-    <ClCompile Include="..\src\ScoutManager.cpp" />
-    <ClCompile Include="..\src\Squad.cpp" />
-    <ClCompile Include="..\src\SquadData.cpp" />
-    <ClCompile Include="..\src\SquadOrder.cpp" />
-    <ClCompile Include="..\src\StrategyManager.cpp" />
-    <ClCompile Include="..\src\UnitData.cpp" />
-    <ClCompile Include="..\src\UnitInfoManager.cpp" />
-    <ClCompile Include="..\src\Util.cpp" />
-    <ClCompile Include="..\src\WorkerData.cpp" />
-    <ClCompile Include="..\src\WorkerManager.cpp" />
+    <ClCompile Include="..\src\micro\CombatCommander.cpp" />
+    <ClCompile Include="..\src\micro\MeleeManager.cpp" />
+    <ClCompile Include="..\src\micro\Micro.cpp" />
+    <ClCompile Include="..\src\micro\MicroManager.cpp" />
+    <ClCompile Include="..\src\micro\ProxyManager.cpp" />
+    <ClCompile Include="..\src\micro\RangedManager.cpp" />
+    <ClCompile Include="..\src\micro\ScoutManager.cpp" />
+    <ClCompile Include="..\src\micro\Squad.cpp" />
+    <ClCompile Include="..\src\micro\SquadData.cpp" />
+    <ClCompile Include="..\src\micro\SquadOrder.cpp" />
+    <ClCompile Include="..\src\util\DistanceMap.cpp" />
+    <ClCompile Include="..\src\util\JSONTools.cpp" />
+    <ClCompile Include="..\src\util\UnitData.cpp" />
+    <ClCompile Include="..\src\util\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\ai\GeneticAlgorithm.h" />
     <ClInclude Include="..\src\ByunJRBot.h" />
-    <ClInclude Include="..\src\BaseLocation.h" />
-    <ClInclude Include="..\src\BaseLocationManager.h" />
-    <ClInclude Include="..\src\BotAssert.h" />
-    <ClInclude Include="..\src\Building.h" />
-    <ClInclude Include="..\src\BuildingData.h" />
-    <ClInclude Include="..\src\BuildingManager.h" />
-    <ClInclude Include="..\src\BuildingPlacer.h" />
-    <ClInclude Include="..\src\BuildOrder.h" />
-    <ClInclude Include="..\src\BuildOrderQueue.h" />
-    <ClInclude Include="..\src\CombatCommander.h" />
-    <ClInclude Include="..\src\Common.h" />
-    <ClInclude Include="..\src\BotConfig.h" />
-    <ClInclude Include="..\src\DistanceMap.h" />
+    <ClInclude Include="..\src\common\BotAssert.h" />
+    <ClInclude Include="..\src\common\Common.h" />
     <ClInclude Include="..\src\GameCommander.h" />
-    <ClInclude Include="..\src\GeneticAlgorithm.h" />
-    <ClInclude Include="..\src\JSONTools.h" />
-    <ClInclude Include="..\src\MapTools.h" />
-    <ClInclude Include="..\src\MeleeManager.h" />
-    <ClInclude Include="..\src\Micro.h" />
-    <ClInclude Include="..\src\MicroManager.h" />
-    <ClInclude Include="..\src\ProductionManager.h" />
-    <ClInclude Include="..\src\ProxyManager.h" />
-    <ClInclude Include="..\src\RangedManager.h" />
-    <ClInclude Include="..\src\ScoutManager.h" />
-    <ClInclude Include="..\src\Squad.h" />
-    <ClInclude Include="..\src\SquadData.h" />
-    <ClInclude Include="..\src\SquadOrder.h" />
-    <ClInclude Include="..\src\StrategyManager.h" />
-    <ClInclude Include="..\src\Timer.hpp" />
-    <ClInclude Include="..\src\UnitData.h" />
-    <ClInclude Include="..\src\UnitInfoManager.h" />
-    <ClInclude Include="..\src\Util.h" />
-    <ClInclude Include="..\src\WorkerData.h" />
-    <ClInclude Include="..\src\WorkerManager.h" />
+    <ClInclude Include="..\src\global\BaseLocationManager.h" />
+    <ClInclude Include="..\src\global\BotConfig.h" />
+    <ClInclude Include="..\src\global\MapTools.h" />
+    <ClInclude Include="..\src\global\StrategyManager.h" />
+    <ClInclude Include="..\src\global\UnitInfoManager.h" />
+    <ClInclude Include="..\src\global\WorkerManager.h" />
+    <ClInclude Include="..\src\macro\BaseLocation.h" />
+    <ClInclude Include="..\src\macro\Building.h" />
+    <ClInclude Include="..\src\macro\BuildingData.h" />
+    <ClInclude Include="..\src\macro\BuildingManager.h" />
+    <ClInclude Include="..\src\macro\BuildingPlacer.h" />
+    <ClInclude Include="..\src\macro\BuildOrder.h" />
+    <ClInclude Include="..\src\macro\BuildOrderQueue.h" />
+    <ClInclude Include="..\src\macro\ProductionManager.h" />
+    <ClInclude Include="..\src\macro\WorkerData.h" />
+    <ClInclude Include="..\src\micro\CombatCommander.h" />
+    <ClInclude Include="..\src\micro\MeleeManager.h" />
+    <ClInclude Include="..\src\micro\Micro.h" />
+    <ClInclude Include="..\src\micro\MicroManager.h" />
+    <ClInclude Include="..\src\micro\ProxyManager.h" />
+    <ClInclude Include="..\src\micro\RangedManager.h" />
+    <ClInclude Include="..\src\micro\ScoutManager.h" />
+    <ClInclude Include="..\src\micro\Squad.h" />
+    <ClInclude Include="..\src\micro\SquadData.h" />
+    <ClInclude Include="..\src\micro\SquadOrder.h" />
+    <ClInclude Include="..\src\util\DistanceMap.h" />
+    <ClInclude Include="..\src\util\JSONTools.h" />
+    <ClInclude Include="..\src\util\Timer.hpp" />
+    <ClInclude Include="..\src\util\UnitData.h" />
+    <ClInclude Include="..\src\util\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

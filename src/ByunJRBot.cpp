@@ -1,7 +1,8 @@
-#include "sc2api/sc2_api.h"
+#include <sc2api/sc2_api.h>
 
 #include "ByunJRBot.h"
-#include "Util.h"
+#include "common/BotAssert.h"
+#include "common/Common.h"
 
 ByunJRBot::ByunJRBot()
     : m_map(*this)
