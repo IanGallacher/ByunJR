@@ -367,7 +367,7 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit& enemyUnit)
         {
             const double dist(sqrt((enemyUnit.pos.x - unit.pos.x)*(enemyUnit.pos.x - unit.pos.x) + (enemyUnit.pos.y - unit.pos.y)*(enemyUnit.pos.y - unit.pos.y)));
 
-            if (m_bot.Config().TrainingMode && dist < 8 && !m_firstReaperCreated)
+            if (m_bot.Config().TrainingMode && dist < 10 && !m_firstReaperCreated)
             {
                 m_bot.Resign();
                 m_ptd.recordResult(-9);
