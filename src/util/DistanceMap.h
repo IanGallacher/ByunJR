@@ -1,8 +1,4 @@
 #pragma once
-
-class ByunJRBot;
-
-
 class DistanceMap 
 {
     int m_width;
