@@ -5,9 +5,9 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
 #include "common/BotAssert.h"
+#include "macro/Building.h"
 #include "micro/ProxyManager.h"
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 #pragma region ProxyTrainingDataFunctions
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.

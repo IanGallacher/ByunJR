@@ -2,8 +2,8 @@
 
 #include "ByunJRBot.h"
 #include "common/Common.h"
-#include "global/WorkerManager.h"
 #include "macro/Building.h"
+#include "macro/WorkerManager.h"
 #include "util/Util.h"
 
 WorkerManager::WorkerManager(ByunJRBot & bot)

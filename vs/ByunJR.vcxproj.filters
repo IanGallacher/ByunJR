@@ -10,23 +10,8 @@
     <ClCompile Include="..\src\global\StrategyManager.cpp">
       <Filter>global</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\global\UnitInfoManager.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\global\WorkerManager.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\global\BaseLocationManager.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\global\BotConfig.cpp">
       <Filter>global</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\global\MapTools.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\macro\BuildingData.cpp">
-      <Filter>macro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\macro\BuildingManager.cpp">
       <Filter>macro</Filter>
@@ -41,9 +26,6 @@
       <Filter>macro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\macro\ProductionManager.cpp">
-      <Filter>macro</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\macro\WorkerData.cpp">
       <Filter>macro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\micro\RangedManager.cpp">
@@ -88,14 +70,29 @@
     <ClCompile Include="..\src\util\DistanceMap.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\macro\BaseLocation.cpp">
-      <Filter>macro</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\common\BotAssert.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="..\src\macro\Building.cpp">
       <Filter>macro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\MapTools.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\macro\WorkerManager.cpp">
+      <Filter>macro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\BaseLocationManager.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\UnitInfoManager.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\WorkerData.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\BaseLocation.cpp">
+      <Filter>information</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,25 +104,10 @@
     <ClInclude Include="..\src\global\StrategyManager.h">
       <Filter>global</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\global\UnitInfoManager.h">
-      <Filter>global</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\global\WorkerManager.h">
-      <Filter>global</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\global\BaseLocationManager.h">
-      <Filter>global</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\global\BotConfig.h">
       <Filter>global</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\global\MapTools.h">
-      <Filter>global</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\macro\Building.h">
-      <Filter>macro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\macro\BuildingData.h">
       <Filter>macro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\macro\BuildingManager.h">
@@ -141,9 +123,6 @@
       <Filter>macro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\macro\ProductionManager.h">
-      <Filter>macro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\macro\WorkerData.h">
       <Filter>macro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\micro\RangedManager.h">
@@ -191,14 +170,29 @@
     <ClInclude Include="..\src\util\Util.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\macro\BaseLocation.h">
-      <Filter>macro</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\common\BotAssert.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\common\Common.h">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\MapTools.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\macro\WorkerManager.h">
+      <Filter>macro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\BaseLocation.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\BaseLocationManager.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\UnitInfoManager.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\WorkerData.h">
+      <Filter>information</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +213,9 @@
     </Filter>
     <Filter Include="macro">
       <UniqueIdentifier>{fb64eecf-b7bb-4ce5-ba5a-62a0d45b2d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="information">
+      <UniqueIdentifier>{fe0b9a50-fcf1-4a6a-9b41-18beec6378d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

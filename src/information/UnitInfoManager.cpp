@@ -3,7 +3,7 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
 #include "common/BotAssert.h"
-#include "global/UnitInfoManager.h"
+#include "information/UnitInfoManager.h"
 #include "util/Util.h"
 
 UnitInfoManager::UnitInfoManager(ByunJRBot & bot)

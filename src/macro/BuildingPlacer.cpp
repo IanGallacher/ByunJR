@@ -1,7 +1,6 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
 #include "macro/BuildingPlacer.h"
-#include "macro/Building.h"
 #include "util/Util.h"
 
 BuildingPlacer::BuildingPlacer(ByunJRBot & bot)

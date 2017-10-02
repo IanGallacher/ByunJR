@@ -12,7 +12,6 @@ void Micro::SmartStop(const sc2::Tag & attacker, ByunJRBot & bot)
 
 void Micro::SmartAttackUnit(const sc2::Tag & attacker, const sc2::Tag & target, ByunJRBot & bot)
 {
-
 	//UAB_ASSERT(attacker, "SmartAttackUnit: Attacker not valid");
 	//UAB_ASSERT(target, "SmartAttackUnit: Target not valid");
 

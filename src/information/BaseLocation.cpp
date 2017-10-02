@@ -2,7 +2,7 @@
 
 #include "ByunJRBot.h"
 #include "common/Common.h"
-#include "macro/BaseLocation.h"
+#include "information/BaseLocation.h"
 #include "util/Util.h"
 
 const int NearBaseLocationTileDistance = 20;

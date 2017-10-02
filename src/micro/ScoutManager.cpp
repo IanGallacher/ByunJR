@@ -60,6 +60,14 @@ void ScoutManager::moveScouts()
 
     float scoutHP = workerScout->health + workerScout->shield;
 
+    if(scoutHP <= 10)
+    {
+        Micro::SmartMove(m_scoutUnitTag, m_bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition(), m_bot);
+        m_bot.Workers().finishedWithWorker(m_scoutUnitTag);
+        m_scoutUnitTag = -1;
+        return;
+    }
+
     // get the enemy base location, if we have one
     const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
 
@@ -129,7 +137,7 @@ void ScoutManager::moveScouts()
 
     }
 
-    // for each start location in the levelz
+    // for each start location on the map
     if (!enemyBaseLocation)
     {
         m_scoutStatus = "Enemy base unknown, exploring";

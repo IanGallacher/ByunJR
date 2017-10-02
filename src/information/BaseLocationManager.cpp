@@ -1,6 +1,6 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
-#include "global/BaseLocationManager.h"
+#include "information/BaseLocationManager.h"
 #include "util/Util.h"
  
 BaseLocationManager::BaseLocationManager(ByunJRBot & bot)

@@ -1,5 +1,5 @@
 #pragma once
-#include "macro/BuildingData.h"
+#include "macro/Building.h"
 
 class Building;
 class ByunJRBot;

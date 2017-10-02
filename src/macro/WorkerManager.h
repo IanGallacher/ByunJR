@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "macro/WorkerData.h"
+#include "information/WorkerData.h"
 
 class Building;
 class ByunJRBot;

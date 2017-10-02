@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "macro/BaseLocation.h"
+#include "information/BaseLocation.h"
 
 class ByunJRBot;
 

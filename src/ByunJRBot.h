@@ -3,13 +3,13 @@
 #include <sc2api/sc2_api.h>
 
 #include "GameCommander.h"
-#include "global/BaseLocationManager.h"
 #include "global/BotConfig.h"
-#include "global/MapTools.h"
 #include "global/StrategyManager.h"
-#include "global/UnitInfoManager.h"
-#include "global/WorkerManager.h"
 #include "macro/BuildingManager.h"
+#include "macro/WorkerManager.h"
+#include "information/BaseLocationManager.h"
+#include "information/UnitInfoManager.h"
+#include "util/MapTools.h"
 
 class ByunJRBot : public sc2::Agent 
 {

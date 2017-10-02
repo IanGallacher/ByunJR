@@ -2,7 +2,7 @@
 
 #include "ByunJRBot.h"
 #include "common/Common.h"
-#include "macro/WorkerData.h"
+#include "information//WorkerData.h"
 #include "micro/Micro.h"
 #include "util/Util.h"
 

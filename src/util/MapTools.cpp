@@ -4,7 +4,7 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
 #include "common/BotAssert.h"
-#include "global/MapTools.h"
+#include "util/MapTools.h"
 #include "util/Util.h"
 
 const size_t LegalActions = 4;
