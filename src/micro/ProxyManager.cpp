@@ -70,8 +70,8 @@ sc2::Point2D ProxyTrainingData::getBestProxyLocation()
     }
     else
     {
-        bestProxyX = (m_arena_height - m_best_proxy_x) + m_playable_min.x;
-        bestProxyY = (m_arena_width - m_best_proxy_y) + m_playable_min.y;
+        bestProxyX = (m_arena_width - m_best_proxy_x) + m_playable_min.x;
+        bestProxyY = (m_arena_height - m_best_proxy_y) + m_playable_min.y;
     }
     const sc2::Point2D proxyLocation((float) bestProxyX, (float) bestProxyY);
 
