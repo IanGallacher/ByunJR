@@ -23,6 +23,8 @@ class ProxyTrainingData
 {
     int m_proxy_x;
     int m_proxy_y;
+    int m_best_proxy_x;
+    int m_best_proxy_y;
     ByunJRBot* m_bot;
 
     sc2::Point2D m_playable_min;
@@ -41,13 +43,13 @@ class ProxyTrainingData
         LocationWithoutResultValue = 0
     };
 
-    // There is a subtle difference between result and ViableLocations.
+    // There is a subtle difference between m_result and m_viableLocations.
     // Result is a vector of vectors that represent ALL points on the map. 
-    // ViableLocations is an UNINDEXED list that does not include places that get scouted easily or are impossible to build on.
-    // When picking a random proxy location, ViableLocations is used to make sure that the location we pick is always viable. 
-    std::vector<ProxyLocation> ViableLocations;
+    // m_viableLocations is an UNINDEXED list that does not include places that get scouted easily or are impossible to build on.
+    // When picking a random proxy location, m_viableLocations is used to make sure that the location we pick is always viable. 
+    std::vector<ProxyLocation> m_viableLocations;
 
-    // Using <MapDataValue> was considered, but results (the distance from the reaper spawn point to the enemy base)
+    // Using <MapDataValue> for m_result was considered, but results (the distance from the reaper spawn point to the enemy base)
     // do not implicity cast to MapDataValue. There is no MapDataValue that represents 149 tiles worth of distance for example. 
     // <int> is used instead to avoid strange typecasts, but please use a MapDataValue to store data whenever possible. 
     std::vector<std::vector<int>> m_result;  // stored in the format result[y][x]
@@ -59,10 +61,11 @@ class ProxyTrainingData
     bool            loadProxyTrainingData();
     void            testAllPointsOnMap();
     void            reduceSearchSpace(int reductionFactor);
-    bool            setupProxyLocation();
 
 public:
-    void InitAllValues(ByunJRBot & bot);
+    void            InitAllValues(ByunJRBot & bot);
+    bool            setupProxyLocation();
+    bool            proxyLocationReady();
 
     // Proxy training
     void            upadateViableLocationsList();
@@ -71,6 +74,10 @@ public:
     void            writeAllTrainingData(std::string filename);
 
     sc2::Point2D    getProxyLocation();
+    sc2::Point2D    getBestProxyLocation();
+    int             getReward();
+    sc2::Point2D    getNearestUntestedProxyLocation(int x, int y);
+    sc2::Point2D    getRandomViableProxyLocation();
 };
 
 class ProxyManager
@@ -91,5 +98,6 @@ public:
     void onUnitEnterVision(const sc2::Unit & unit);
     bool proxyBuildingAtChosenRandomLocation();
 
-    sc2::Point2D    getProxyLocation();
+    sc2::Point2D getProxyLocation();
+    ProxyTrainingData& getProxyTrainingData();
 };

@@ -15,6 +15,7 @@ BotConfig::BotConfig()
     MapName                             = "InterloperLE.SC2Map";
     ReadDir                             = "read/";
     WriteDir                            = "write/";
+    TrainingMode                        = false;
     UseEnemySpecificStrategy            = false;
     FoundEnemySpecificStrategy          = false;
     UsingAutoObserver                   = false;
@@ -46,6 +47,9 @@ BotConfig::BotConfig()
     WorkersPerRefinery                  = 3;
     BuildingSpacing                     = 1;
     PylonSpacing                        = 3;
+
+    ProxyLocationX                      = 0;
+    ProxyLocationY                      = 0;
 }
 
 void BotConfig::readConfigFile()
@@ -106,6 +110,7 @@ void BotConfig::readConfigFile()
     if (doc.HasMember("Macro") && doc["Macro"].IsObject())
     {
         const rapidjson::Value & macro = doc["Macro"];
+        JSONTools::ReadBool("TrainingMode", macro, TrainingMode);
         JSONTools::ReadInt("BuildingSpacing", macro, BuildingSpacing);
         JSONTools::ReadInt("PylongSpacing", macro, PylonSpacing);
         JSONTools::ReadInt("WorkersPerRefinery", macro, WorkersPerRefinery);
@@ -165,4 +170,10 @@ sc2::Race BotConfig::GetRace(const std::string & raceName)
 
     BOT_ASSERT(false, "Race not found: %s", raceName.c_str());
     return sc2::Race::Random;
+}
+
+void BotConfig::setProxyLocation(const int x, const int y)
+{
+    ProxyLocationX = x;
+    ProxyLocationY = y;
 }

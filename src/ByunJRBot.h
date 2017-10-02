@@ -38,13 +38,13 @@ public:
     void OnBuildingConstructionComplete(const sc2::Unit*) override;
     bool IsWillingToFight();
     void Resign();
-    sc2::Point2D GetProxyLocation();
 
           BotConfig & Config();
           WorkerManager & Workers();
     const BaseLocationManager & Bases() const;
     const MapTools & Map() const;
     const UnitInfoManager & UnitInfo() const;
+    GameCommander & GameCommander();
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(int player) const;
     sc2::Point2D GetStartLocation() const;

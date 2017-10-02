@@ -6,17 +6,13 @@
 
 #include <iostream>
 #include <string>
-#include <random>
-#include <cmath>
 
 #include "ByunJRBot.h"
+#include "GeneticAlgorithm.h"
 
-//#include <conio.h>
 
-
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
-
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -58,47 +54,89 @@ int main(int argc, char* argv[])
     std::cout << "GLHF" << std::endl;
     // Step forward the game simulation.
 
+    GeneticAlgorithm ga = GeneticAlgorithm();
+    bool geneticAlgorithmSetup = false;
+
     while (true) {
-        sc2::Coordinator coordinator;
-        if (!coordinator.LoadSettings(argc, argv))
+        // Test all 10 Candidates inside the population
+        for (int i = 0; i < 10; i++)
         {
-            std::cout << "Unable to find or parse settings." << std::endl;
-            return 1;
+            sc2::Coordinator coordinator;
+            if (!coordinator.LoadSettings(argc, argv))
+            {
+                std::cout << "Unable to find or parse settings." << std::endl;
+                return 1;
+            }
+
+            coordinator.SetRealtime(false);
+
+            // WARNING: Bot logic has not been thorougly tested on step sizes > 1
+            //          Setting this = N means the bot's onFrame gets called once every N frames
+            //          The bot may crash or do unexpected things if its logic is not called every frame
+            coordinator.SetStepSize(2);
+
+            // Add the custom bot, it will control the players.
+            ByunJRBot bot;
+
+            coordinator.SetParticipants({
+                CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
+                CreateComputer(Util::GetRaceFromString(enemyRaceString))
+            });
+
+            // Start the game.
+            coordinator.LaunchStarcraft();
+            coordinator.StartGame(mapString);
+
+            bool alreadyInit = false;
+            while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
+            {
+                coordinator.Update();
+
+                if (geneticAlgorithmSetup == false)
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        Population* pop = ga.getPopulation();
+                        // grab proxy training data once
+                        sc2::Point2D point = bot.GameCommander().GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        std::vector<int> genes = std::vector<int>();
+                        genes.resize(2);
+                        genes[0] = point.x;
+                        genes[1] = point.y;
+                        Candidate can = Candidate(genes);
+                        pop->setCanidate(i, can);
+                    }
+                    geneticAlgorithmSetup = true;
+                }
+
+
+                if (alreadyInit == false)
+                {
+                    Candidate c = ga.getPopulation()->getCandidate(i);
+                    bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
+                    bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
+                    alreadyInit = true;
+                }
+            }
+
+            if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
+            {
+                std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay" << std::endl;
+            }
+            else
+            {
+                std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
+            }
+            coordinator.LeaveGame();
+            ga.setReward(i, bot.GameCommander().GetProxyManager().getProxyTrainingData().getReward());
+            if(i==9)
+            {
+                ga.evolvePopulation(bot.GameCommander().GetProxyManager().getProxyTrainingData());
+                std::cout << "MUTATING" << std::endl;
+            }
         }
 
-        coordinator.SetRealtime(false);
-
-        // WARNING: Bot logic has not been thorougly tested on step sizes > 1
-        //          Setting this = N means the bot's onFrame gets called once every N frames
-        //          The bot may crash or do unexpected things if its logic is not called every frame
-        coordinator.SetStepSize(2);
-
-        // Add the custom bot, it will control the players.
-        ByunJRBot bot;
-
-        coordinator.SetParticipants({
-                                            CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-                                            CreateComputer(Util::GetRaceFromString(enemyRaceString))
-                                    });
-
-        // Start the game.
-        coordinator.LaunchStarcraft();
-        coordinator.StartGame(mapString);
-        while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
-        {
-            coordinator.Update();
-        }
-        if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
-        {
-            std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay";
-        }
-        else
-        {
-            std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay";
-        }
-        coordinator.LeaveGame();
-
-
+        //ga.evolvePopulation();
     }
 
 

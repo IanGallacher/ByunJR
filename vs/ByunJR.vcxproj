@@ -292,6 +292,7 @@
     <ClCompile Include="..\src\CombatCommander.cpp" />
     <ClCompile Include="..\src\DistanceMap.cpp" />
     <ClCompile Include="..\src\GameCommander.cpp" />
+    <ClCompile Include="..\src\GeneticAlgorithm.cpp" />
     <ClCompile Include="..\src\JSONTools.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\MapTools.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="..\src\BotConfig.h" />
     <ClInclude Include="..\src\DistanceMap.h" />
     <ClInclude Include="..\src\GameCommander.h" />
+    <ClInclude Include="..\src\GeneticAlgorithm.h" />
     <ClInclude Include="..\src\JSONTools.h" />
     <ClInclude Include="..\src\MapTools.h" />
     <ClInclude Include="..\src\MeleeManager.h" />

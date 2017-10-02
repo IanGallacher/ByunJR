@@ -24,6 +24,7 @@ public:
     std::string StrategyName;
     std::string ReadDir;
     std::string WriteDir;
+    bool TrainingMode;
     bool UseEnemySpecificStrategy;
     bool FoundEnemySpecificStrategy;
     
@@ -55,8 +56,11 @@ public:
     int WorkersPerRefinery;
     int BuildingSpacing;
     int PylonSpacing;
+    int ProxyLocationX;
+    int ProxyLocationY;
  
     BotConfig();
 
     void readConfigFile();
+    void setProxyLocation(const int x, const int y);
 };

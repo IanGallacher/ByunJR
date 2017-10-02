@@ -114,6 +114,11 @@ const UnitInfoManager & ByunJRBot::UnitInfo() const
     return m_unitInfo;
 }
 
+GameCommander & ByunJRBot::GameCommander()
+{
+    return m_gameCommander;
+}
+
 WorkerManager & ByunJRBot::Workers()
 {
     return m_workers;
@@ -127,11 +132,6 @@ const sc2::Unit * ByunJRBot::GetUnit(const UnitTag & tag) const
 sc2::Point2D ByunJRBot::GetStartLocation() const
 {
     return Observation()->GetStartLocation();
-}
-
-sc2::Point2D ByunJRBot::GetProxyLocation()
-{
-    return m_gameCommander.GetProxyLocation();
 }
 
 void ByunJRBot::OnError(const std::vector<sc2::ClientError> & client_errors, const std::vector<std::string> & protocol_errors)
