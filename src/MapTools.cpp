@@ -388,7 +388,7 @@ const std::vector<sc2::Point2D> & MapTools::getClosestTilesTo(const sc2::Point2D
 }
 
 
-void MapTools::drawBoxAroundUnit(const UnitTag & unitTag, sc2::Color color) const
+void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, sc2::Color color) const
 {
     const sc2::Unit * unit = m_bot.GetUnit(unitTag);
 
@@ -407,7 +407,7 @@ void MapTools::drawBoxAroundUnit(const UnitTag & unitTag, sc2::Color color) cons
     drawSquare(unit->pos.x - 2.0f, unit->pos.y - 2.0f, unit->pos.x + 2.0f, unit->pos.y + 2.0f, color);
 }
 
-void MapTools::drawSphereAroundUnit(const UnitTag & unitTag, sc2::Color color) const
+void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, sc2::Color color) const
 {
     const sc2::Unit * unit = m_bot.GetUnit(unitTag);
 

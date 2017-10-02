@@ -83,7 +83,7 @@ public:
 class ProxyManager
 {
     ByunJRBot &     m_bot;
-    UnitTag         m_proxyUnitTag;
+    sc2::Tag         m_proxyUnitTag;
     bool            m_proxyUnderAttack;
     bool            m_firstReaperCreated;
     ProxyTrainingData        m_ptd;

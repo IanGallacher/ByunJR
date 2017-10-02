@@ -7,7 +7,7 @@ MicroManager::MicroManager(ByunJRBot & bot)
 {
 }
 
-void MicroManager::setUnits(const std::vector<UnitTag> & u)
+void MicroManager::setUnits(const std::vector<sc2::Tag> & u)
 {
     m_units = u;
 }
@@ -23,7 +23,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     order = inputOrder;
 
     // Discover enemies within region of interest
-    std::set<UnitTag> nearbyEnemies;
+    std::set<sc2::Tag> nearbyEnemies;
 
     // if the order is to defend, we only care about units in the radius of the defense
     if (order.getType() == SquadOrderTypes::Defend)
@@ -62,7 +62,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
         }
     }
 
-    std::vector<UnitTag> targetUnitTags;
+    std::vector<sc2::Tag> targetUnitTags;
     std::copy(nearbyEnemies.begin(), nearbyEnemies.end(), std::back_inserter(targetUnitTags));
 
     // the following block of code attacks all units on the way to the order position
@@ -79,7 +79,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
         else
         {
             // if this is the an attack squad
-            std::vector<UnitTag> workersRemoved;
+            std::vector<sc2::Tag> workersRemoved;
             for (auto & enemyUnitTag : targetUnitTags)
             {
                 auto enemyUnit = m_bot.GetUnit(enemyUnitTag);
@@ -110,7 +110,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     }
 }
 
-const std::vector<UnitTag> & MicroManager::getUnits() const
+const std::vector<sc2::Tag> & MicroManager::getUnits() const
 {
     return m_units;
 }
@@ -145,7 +145,7 @@ void MicroManager::regroup(const sc2::Point2D & regroupPosition) const
     }
 }
 
-void MicroManager::trainSubUnits(const UnitTag & unit) const
+void MicroManager::trainSubUnits(const sc2::Tag & unit) const
 {
     // TODO: something here
 }

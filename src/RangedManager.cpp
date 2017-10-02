@@ -8,17 +8,17 @@ RangedManager::RangedManager(ByunJRBot & bot)
 
 }
 
-void RangedManager::executeMicro(const std::vector<UnitTag> & targets)
+void RangedManager::executeMicro(const std::vector<sc2::Tag> & targets)
 {
     assignTargets(targets);
 }
 
-void RangedManager::assignTargets(const std::vector<UnitTag> & targets)
+void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
 {
-    const std::vector<UnitTag> & rangedUnits = getUnits();
+    const std::vector<sc2::Tag> & rangedUnits = getUnits();
 
     // figure out targets
-    std::vector<UnitTag> rangedUnitTargets;
+    std::vector<sc2::Tag> rangedUnitTargets;
     for (auto & targetTag : targets)
     {
         auto target = m_bot.GetUnit(targetTag);
@@ -42,7 +42,7 @@ void RangedManager::assignTargets(const std::vector<UnitTag> & targets)
             if (!rangedUnitTargets.empty())
             {
                 // find the best target for this meleeUnit
-                UnitTag targetTag = getTarget(rangedUnitTag, rangedUnitTargets);
+                sc2::Tag targetTag = getTarget(rangedUnitTag, rangedUnitTargets);
 
                 // attack it
                 if (m_bot.Config().KiteWithRangedUnits)
@@ -75,14 +75,14 @@ void RangedManager::assignTargets(const std::vector<UnitTag> & targets)
 
 // get a target for the ranged unit to attack
 // TODO: this is the melee targeting code, replace it with something better for ranged units
-UnitTag RangedManager::getTarget(const UnitTag & meleeUnitTag, const std::vector<UnitTag> & targets)
+sc2::Tag RangedManager::getTarget(const sc2::Tag & meleeUnitTag, const std::vector<sc2::Tag> & targets)
 {
     auto meleeUnit = m_bot.GetUnit(meleeUnitTag);
     BOT_ASSERT(meleeUnit, "null melee unit in getTarget");
 
     int highPriority = 0;
     double closestDist = std::numeric_limits<double>::max();
-    UnitTag closestTarget = 0;
+    sc2::Tag closestTarget = 0;
 
     // for each target possiblity
     for (auto & targetTag : targets)
@@ -106,7 +106,7 @@ UnitTag RangedManager::getTarget(const UnitTag & meleeUnitTag, const std::vector
 }
 
 // get the attack priority of a type in relation to a zergling
-int RangedManager::getAttackPriority(const UnitTag & attacker, const UnitTag & unitTag)
+int RangedManager::getAttackPriority(const sc2::Tag & attacker, const sc2::Tag & unitTag)
 {
     auto unit = m_bot.GetUnit(unitTag);
     BOT_ASSERT(unit, "null unit in getAttackPriority");

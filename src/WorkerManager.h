@@ -10,7 +10,7 @@ class WorkerManager
     ByunJRBot & m_bot;
 
     mutable WorkerData  m_workerData;
-    UnitTag     m_previousClosestWorker;
+    sc2::Tag     m_previousClosestWorker;
 
     void        setMineralWorker(const sc2::Unit & unit);
     
@@ -25,12 +25,12 @@ public:
     void        onStart();
     void        onFrame();
 
-    void        finishedWithWorker(const UnitTag & tag);
+    void        finishedWithWorker(const sc2::Tag & tag);
     void        drawResourceDebugInfo();
     void        drawWorkerInformation();
-    void        setScoutWorker(const UnitTag & worker);
-    void        setCombatWorker(const UnitTag & worker);
-    void        setProxyWorker(const UnitTag & workerTag);
+    void        setScoutWorker(const sc2::Tag & worker);
+    void        setCombatWorker(const sc2::Tag & worker);
+    void        setProxyWorker(const sc2::Tag & workerTag);
     void        setBuildingWorker(const sc2::Unit & worker, Building & b);
     void        setRepairWorker(const sc2::Unit & worker,const sc2::Unit & unitToRepair);
     void        stopRepairing(const sc2::Unit & worker);
@@ -41,9 +41,9 @@ public:
     bool        isFree(const sc2::Unit & worker) const;
     bool        isBuilder(const sc2::Unit & worker) const;
 
-    UnitTag     getBuilder(Building & b,bool setJobAsBuilder = true) const;
-    UnitTag     getClosestDepot(const sc2::Unit & worker) const;
-    UnitTag     getGasWorker(const sc2::Unit & refinery) const;
-    UnitTag     getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
+    sc2::Tag     getBuilder(Building & b,bool setJobAsBuilder = true) const;
+    sc2::Tag     getClosestDepot(const sc2::Unit & worker) const;
+    sc2::Tag     getGasWorker(const sc2::Unit & refinery) const;
+    sc2::Tag     getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
 };
 

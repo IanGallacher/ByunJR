@@ -12,32 +12,32 @@ class WorkerData
 {
     ByunJRBot & m_bot;
 
-    std::set<UnitTag>           m_workers;
-    std::set<UnitTag>           m_depots;
+    std::set<sc2::Tag>           m_workers;
+    std::set<sc2::Tag>           m_depots;
     std::map<int, int>          m_workerJobCount;
-    std::map<UnitTag, int>      m_workerJobMap;
-    std::map<UnitTag, int>      m_refineryWorkerCount;
-    std::map<UnitTag, int>      m_depotWorkerCount;
-    std::map<UnitTag, UnitTag>  m_workerRefineryMap;
-    std::map<UnitTag, UnitTag>  m_workerDepotMap;
+    std::map<sc2::Tag, int>      m_workerJobMap;
+    std::map<sc2::Tag, int>      m_refineryWorkerCount;
+    std::map<sc2::Tag, int>      m_depotWorkerCount;
+    std::map<sc2::Tag, sc2::Tag>  m_workerRefineryMap;
+    std::map<sc2::Tag, sc2::Tag>  m_workerDepotMap;
 
-    void clearPreviousJob(const UnitTag & unit);
+    void clearPreviousJob(const sc2::Tag & unit);
 
 public:
 
     WorkerData(ByunJRBot & bot);
 
-    void    workerDestroyed(const UnitTag & unit);
+    void    workerDestroyed(const sc2::Tag & unit);
     void    updateAllWorkerData();
-    void    updateWorker(const UnitTag & unit);
-    void    setWorkerJob(const UnitTag & unit, int job, UnitTag jobUnitTag = 0);
+    void    updateWorker(const sc2::Tag & unit);
+    void    setWorkerJob(const sc2::Tag & unit, int job, sc2::Tag jobUnitTag = 0);
     void    drawDepotDebugInfo();
     size_t  getNumWorkers() const;
     int     getWorkerJobCount(int job) const;
-    int     getNumAssignedWorkers(const UnitTag & unit);
-    int     getWorkerJob(const UnitTag & unit) const;
-    UnitTag getMineralToMine(const UnitTag & unit) const;
-    UnitTag getWorkerDepot(const UnitTag & unit) const;
-    const char * getJobCode(const UnitTag & unit);
-    const std::set<UnitTag> & getWorkers() const;
+    int     getNumAssignedWorkers(const sc2::Tag & unit);
+    int     getWorkerJob(const sc2::Tag & unit) const;
+    sc2::Tag getMineralToMine(const sc2::Tag & unit) const;
+    sc2::Tag getWorkerDepot(const sc2::Tag & unit) const;
+    const char * getJobCode(const sc2::Tag & unit);
+    const std::set<sc2::Tag> & getWorkers() const;
 };

@@ -532,9 +532,9 @@ sc2::UnitTypeID Util::GetUnitTypeIDFromName(const sc2::ObservationInterface * ob
     return 0;
 }
 
-UnitTag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationInterface * obs)
+sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationInterface * obs)
 {
-    UnitTag closestTag = 0;
+    sc2::Tag closestTag = 0;
 	double closestDist = std::numeric_limits<double>::max();
 
 	for (auto & unit : obs->GetUnits())

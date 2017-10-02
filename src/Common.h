@@ -10,8 +10,6 @@
 #include <streambuf>
 #include <string>
 
-typedef uint64_t UnitTag;
-
 namespace Players
 {
     enum {Self = 0, Enemy = 1};

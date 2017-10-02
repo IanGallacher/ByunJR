@@ -73,7 +73,7 @@ void ProductionManager::manageBuildOrderQueue()
     while (!m_queue.isEmpty())
     {
         // this is the unit which can produce the currentItem
-        UnitTag producer = getProducer(currentItem.type);
+        sc2::Tag producer = getProducer(currentItem.type);
 
         // check to see if we can make it right now
         bool canMake = canMakeNow(producer, currentItem.type);
@@ -134,13 +134,13 @@ int ProductionManager::productionCapacity() {
     return (int) (commandCenters + barracks) * 2;
 }
 
-UnitTag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo)
+sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo)
 {
     // TODO: get the type of unit that builds this
     sc2::UnitTypeID producerType = Util::WhatBuilds(t);
 
     // make a set of all candidate producers
-    std::vector<UnitTag> candidateProducers;
+    std::vector<sc2::Tag> candidateProducers;
     for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
     {
         // reasons a unit can not train the desired type
@@ -160,7 +160,7 @@ UnitTag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo
     return getClosestUnitToPosition(candidateProducers, closestTo);
 }
 
-UnitTag ProductionManager::getClosestUnitToPosition(const std::vector<UnitTag> & units, sc2::Point2D closestTo)
+sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag> & units, sc2::Point2D closestTo)
 {
     if (units.size() == 0)
     {
@@ -173,7 +173,7 @@ UnitTag ProductionManager::getClosestUnitToPosition(const std::vector<UnitTag> &
         return units[0];
     }
 
-    UnitTag closestUnit = 0;
+    sc2::Tag closestUnit = 0;
     double minDist = std::numeric_limits<double>::max();
 
     for (auto & unit : units)
@@ -190,7 +190,7 @@ UnitTag ProductionManager::getClosestUnitToPosition(const std::vector<UnitTag> &
 }
 
 // this function will check to see if all preconditions are met and then create a unit
-void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
+void ProductionManager::create(sc2::Tag producer, BuildOrderItem & item)
 {
     if (!producer)
     {
@@ -221,7 +221,7 @@ void ProductionManager::create(UnitTag producer, BuildOrderItem & item)
     }
 }
 
-bool ProductionManager::canMakeNow(UnitTag producerTag, sc2::UnitTypeID type)
+bool ProductionManager::canMakeNow(sc2::Tag producerTag, sc2::UnitTypeID type)
 {
     if (!meetsReservedResources(type))
     {

@@ -6,13 +6,13 @@
 
 struct AirThreat
 {
-    UnitTag	unit;
+    sc2::Tag unit;
     double weight;
 };
 
 struct GroundThreat
 {
-    UnitTag	unit;
+    sc2::Tag unit;
     double weight;
 };
 
@@ -20,24 +20,24 @@ class ByunJRBot;
 
 class MicroManager
 {
-    std::vector<UnitTag> m_units;
+    std::vector<sc2::Tag> m_units;
 
 protected:
 
     ByunJRBot & m_bot;
     SquadOrder order;
 
-    virtual void executeMicro(const std::vector<UnitTag> & targets) = 0;
-    void trainSubUnits(const UnitTag & unit) const;
+    virtual void executeMicro(const std::vector<sc2::Tag> & targets) = 0;
+    void trainSubUnits(const sc2::Tag & unit) const;
 
 
 public:
 
     MicroManager(ByunJRBot & bot);
 
-    const std::vector<UnitTag> & getUnits() const;
+    const std::vector<sc2::Tag> & getUnits() const;
 
-    void setUnits(const std::vector<UnitTag> & u);
+    void setUnits(const std::vector<sc2::Tag> & u);
     void execute(const SquadOrder & order);
     void regroup(const sc2::Point2D & regroupPosition) const;
 

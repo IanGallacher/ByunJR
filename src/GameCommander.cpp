@@ -81,7 +81,7 @@ void GameCommander::handleUnitAssignments()
     setCombatUnits();
 }
 
-bool GameCommander::isAssigned(const UnitTag & unit) const
+bool GameCommander::isAssigned(const sc2::Tag & unit) const
 {
     return     (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
         || (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end());
@@ -106,7 +106,7 @@ void GameCommander::setScoutUnits()
         if (shouldSendInitialScout())
         {
             // grab the closest worker to the supply provider to send to scout
-            UnitTag workerScoutTag = m_bot.Workers().getClosestMineralWorkerTo(m_bot.GetStartLocation());
+            sc2::Tag workerScoutTag = m_bot.Workers().getClosestMineralWorkerTo(m_bot.GetStartLocation());
             const sc2::Unit * workerScout = m_bot.GetUnit(workerScoutTag);
 
             // if we find a worker (which we should) add it to the scout units
@@ -154,7 +154,7 @@ void GameCommander::setCombatUnits()
     }
 }
 
-void GameCommander::assignUnit(const UnitTag & unit, std::vector<UnitTag> & units)
+void GameCommander::assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units)
 {
     if (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end())
     {

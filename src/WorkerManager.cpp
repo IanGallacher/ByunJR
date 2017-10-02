@@ -54,7 +54,7 @@ void WorkerManager::handleGasWorkers()
             // if it's less than we want it to be, fill 'er up
             for (int i=0; i<(3-numAssigned); ++i)
             {
-                UnitTag gasWorker = getGasWorker(unit);
+                sc2::Tag gasWorker = getGasWorker(unit);
                 if (gasWorker)
                 {
                     m_workerData.setWorkerJob(gasWorker, WorkerJobs::Gas, unit.tag);
@@ -98,9 +98,9 @@ void WorkerManager::handleRepairWorkers()
     // TODO
 }
 
-UnitTag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) const
+sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) const
 {
-    UnitTag closestMineralWorker = 0;
+    sc2::Tag closestMineralWorker = 0;
     double closestDist = std::numeric_limits<double>::max();
 
     // for each of our workers
@@ -130,7 +130,7 @@ UnitTag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) const
 void WorkerManager::setMineralWorker(const sc2::Unit & unit)
 {
     // check if there is a mineral available to send the worker to
-    UnitTag depot = getClosestDepot(unit);
+    sc2::Tag depot = getClosestDepot(unit);
 
     // if there is a valid mineral
     if (depot)
@@ -140,9 +140,9 @@ void WorkerManager::setMineralWorker(const sc2::Unit & unit)
     }
 }
 
-UnitTag WorkerManager::getClosestDepot(const sc2::Unit & worker) const
+sc2::Tag WorkerManager::getClosestDepot(const sc2::Unit & worker) const
 {
-    UnitTag closestDepot = 0;
+    sc2::Tag closestDepot = 0;
     double closestDistance = std::numeric_limits<double>::max();
 
     for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
@@ -165,7 +165,7 @@ UnitTag WorkerManager::getClosestDepot(const sc2::Unit & worker) const
 
 
 // other managers that need workers call this when they're done with a unit
-void WorkerManager::finishedWithWorker(const UnitTag & tag)
+void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
 {
     if (m_workerData.getWorkerJob(tag) != WorkerJobs::Scout)
     {
@@ -173,7 +173,7 @@ void WorkerManager::finishedWithWorker(const UnitTag & tag)
     }
 }
 
-UnitTag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
+sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
 {
     return getClosestMineralWorkerTo(refinery.pos);
 }
@@ -186,9 +186,9 @@ void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
 // gets a builder for BuildingManager to use
 // if setJobAsBuilder is true (default), it will be flagged as a builder unit
 // set 'setJobAsBuilder' to false if we just want to see which worker will build a building
-UnitTag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
+sc2::Tag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 {
-    UnitTag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
+    sc2::Tag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
 
     // if the worker exists (one may not have been found in rare cases)
     if (builderWorker && setJobAsBuilder)
@@ -200,17 +200,17 @@ UnitTag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 }
 
 // sets a worker as a scout
-void WorkerManager::setScoutWorker(const UnitTag & workerTag)
+void WorkerManager::setScoutWorker(const sc2::Tag & workerTag)
 {
     m_workerData.setWorkerJob(workerTag, WorkerJobs::Scout);
 }
 
-void WorkerManager::setCombatWorker(const UnitTag & workerTag)
+void WorkerManager::setCombatWorker(const sc2::Tag & workerTag)
 {
     m_workerData.setWorkerJob(workerTag, WorkerJobs::Combat);
 }
 
-void WorkerManager::setProxyWorker(const UnitTag & workerTag)
+void WorkerManager::setProxyWorker(const sc2::Tag & workerTag)
 {
     m_workerData.setWorkerJob(workerTag, WorkerJobs::Proxy);
 }

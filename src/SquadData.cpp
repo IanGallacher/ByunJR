@@ -120,7 +120,7 @@ void SquadData::drawSquadInformation()
 
 void SquadData::verifySquadUniqueMembership()
 {
-    std::vector<UnitTag> assigned;
+    std::vector<sc2::Tag> assigned;
 
     for (const auto & kv : m_squads)
     {
@@ -136,12 +136,12 @@ void SquadData::verifySquadUniqueMembership()
     }
 }
 
-bool SquadData::unitIsInSquad(const UnitTag & unit) const
+bool SquadData::unitIsInSquad(const sc2::Tag & unit) const
 {
     return getUnitSquad(unit) != nullptr;
 }
 
-const Squad * SquadData::getUnitSquad(const UnitTag & unit) const
+const Squad * SquadData::getUnitSquad(const sc2::Tag & unit) const
 {
     for (const auto & kv : m_squads)
     {
@@ -154,7 +154,7 @@ const Squad * SquadData::getUnitSquad(const UnitTag & unit) const
     return nullptr;
 }
 
-Squad * SquadData::getUnitSquad(const UnitTag & unit)
+Squad * SquadData::getUnitSquad(const sc2::Tag & unit)
 {
     for (auto & kv : m_squads)
     {
@@ -167,7 +167,7 @@ Squad * SquadData::getUnitSquad(const UnitTag & unit)
     return nullptr;
 }
 
-void SquadData::assignUnitToSquad(const UnitTag & unit, Squad & squad)
+void SquadData::assignUnitToSquad(const sc2::Tag & unit, Squad & squad)
 {
     BOT_ASSERT(canAssignUnitToSquad(unit, squad), "We shouldn't be re-assigning this unit!");
 
@@ -181,7 +181,7 @@ void SquadData::assignUnitToSquad(const UnitTag & unit, Squad & squad)
     squad.addUnit(unit);
 }
 
-bool SquadData::canAssignUnitToSquad(const UnitTag & unit, const Squad & squad) const
+bool SquadData::canAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const
 {
     const Squad * unitSquad = getUnitSquad(unit);
 

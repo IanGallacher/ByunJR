@@ -39,7 +39,7 @@ bool CombatCommander::isSquadUpdateFrame()
     return true;
 }
 
-void CombatCommander::onFrame(const std::vector<UnitTag> & combatUnits)
+void CombatCommander::onFrame(const std::vector<sc2::Tag> & combatUnits)
 {
     if (!m_attackStarted)
     {
@@ -119,7 +119,7 @@ void CombatCommander::updateScoutDefenseSquad()
     BOT_ASSERT(myBaseLocation, "null self base location");
 
     // get all of the enemy units in this region
-    std::vector<UnitTag> enemyUnitsInRegion;
+    std::vector<sc2::Tag> enemyUnitsInRegion;
     for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
     {
         if (myBaseLocation->containsPosition(unit.pos))
@@ -135,12 +135,12 @@ void CombatCommander::updateScoutDefenseSquad()
     if (scoutDefenseSquad.isEmpty() && assignScoutDefender)
     {
         // the enemy worker that is attacking us
-        UnitTag enemyWorkerTag = *enemyUnitsInRegion.begin();
+        sc2::Tag enemyWorkerTag = *enemyUnitsInRegion.begin();
         auto enemyWorkerUnit = m_bot.GetUnit(enemyWorkerTag);
         BOT_ASSERT(enemyWorkerUnit, "null enemy worker unit");
 
         // get our worker unit that is mining that is closest to it
-        UnitTag workerDefenderTag = findClosestWorkerTo(m_combatUnits, enemyWorkerUnit->pos);
+        sc2::Tag workerDefenderTag = findClosestWorkerTo(m_combatUnits, enemyWorkerUnit->pos);
 
         if (enemyWorkerTag && workerDefenderTag)
         {
@@ -194,7 +194,7 @@ void CombatCommander::updateDefenseSquads()
         int numDefendersPerEnemyUnit = 2;
 
         // all of the enemy units in this region
-        std::vector<UnitTag> enemyUnitsInRegion;
+        std::vector<sc2::Tag> enemyUnitsInRegion;
         for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
         {
             // if it's an overlord, don't worry about it for defense, we don't care what they see
@@ -330,7 +330,7 @@ void CombatCommander::updateDefenseSquadUnits(Squad & defenseSquad, const size_t
 
     while (defendersNeeded > defendersAdded)
     {
-        UnitTag defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition());
+        sc2::Tag defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition());
 
         if (defenderToAdd)
         {
@@ -344,9 +344,9 @@ void CombatCommander::updateDefenseSquadUnits(Squad & defenseSquad, const size_t
     }
 }
 
-UnitTag CombatCommander::findClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos)
+sc2::Tag CombatCommander::findClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos)
 {
-    UnitTag closestDefender = 0;
+    sc2::Tag closestDefender = 0;
     float minDistance = std::numeric_limits<float>::max();
 
     // TODO: add back special case of zergling rush defense
@@ -429,9 +429,9 @@ sc2::Point2D CombatCommander::getMainAttackLocation()
     return m_bot.Map().getLeastRecentlySeenPosition();
 }
 
-UnitTag CombatCommander::findClosestWorkerTo(std::vector<UnitTag> & unitsToAssign, const sc2::Point2D & target)
+sc2::Tag CombatCommander::findClosestWorkerTo(std::vector<sc2::Tag> & unitsToAssign, const sc2::Point2D & target)
 {
-    UnitTag closestMineralWorker = 0;
+    sc2::Tag closestMineralWorker = 0;
     float closestDist = std::numeric_limits<float>::max();
 
     // for each of our workers

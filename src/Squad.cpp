@@ -79,7 +79,7 @@ void Squad::updateUnits()
 void Squad::setAllUnits()
 {
     // clean up the _units vector just in case one of them died
-    std::set<UnitTag> goodUnits;
+    std::set<sc2::Tag> goodUnits;
     for (auto & unitTag : m_units)
     {
         const sc2::Unit * unit = m_bot.GetUnit(unitTag);
@@ -107,11 +107,11 @@ void Squad::setNearEnemyUnits()
 
 void Squad::addUnitsToMicroManagers()
 {
-    std::vector<UnitTag> meleeUnits;
-    std::vector<UnitTag> rangedUnits;
-    std::vector<UnitTag> detectorUnits;
-    std::vector<UnitTag> transportUnits;
-    std::vector<UnitTag> tankUnits;
+    std::vector<sc2::Tag> meleeUnits;
+    std::vector<sc2::Tag> rangedUnits;
+    std::vector<sc2::Tag> detectorUnits;
+    std::vector<sc2::Tag> transportUnits;
+    std::vector<sc2::Tag> tankUnits;
 
     // add _units to micro managers
     for (auto & unitTag : m_units)
@@ -158,7 +158,7 @@ void Squad::setSquadOrder(const SquadOrder & so)
     m_order = so;
 }
 
-bool Squad::containsUnit(const UnitTag & u) const
+bool Squad::containsUnit(const sc2::Tag & u) const
 {
     return std::find(m_units.begin(), m_units.end(),u) != m_units.end();
 }
@@ -179,7 +179,7 @@ void Squad::clear()
     m_units.clear();
 }
 
-bool Squad::isUnitNearEnemy(const UnitTag & unitTag) const
+bool Squad::isUnitNearEnemy(const sc2::Tag & unitTag) const
 {
     auto unit = m_bot.GetUnit(unitTag);
     BOT_ASSERT(unit, "null unit in squad");
@@ -245,9 +245,9 @@ sc2::Point2D Squad::calcRegroupPosition() const
     }
 }
 
-UnitTag Squad::unitClosestToEnemy() const
+sc2::Tag Squad::unitClosestToEnemy() const
 {
-    UnitTag closest = 0;
+    sc2::Tag closest = 0;
     float closestDist = std::numeric_limits<float>::max();
 
     for (auto & unitTag : m_units)
@@ -286,7 +286,7 @@ int Squad::squadUnitsNear(const sc2::Point2D & p) const
     return numUnits;
 }
 
-const std::set<UnitTag> & Squad::getUnits() const
+const std::set<sc2::Tag> & Squad::getUnits() const
 {
     return m_units;
 }
@@ -296,12 +296,12 @@ const SquadOrder & Squad::getSquadOrder()	const
     return m_order;
 }
 
-void Squad::addUnit(const UnitTag & u)
+void Squad::addUnit(const sc2::Tag & u)
 {
     m_units.insert(u);
 }
 
-void Squad::removeUnit(const UnitTag & u)
+void Squad::removeUnit(const sc2::Tag & u)
 {
     m_units.erase(u);
 }

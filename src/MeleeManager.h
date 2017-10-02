@@ -11,9 +11,9 @@ class MeleeManager: public MicroManager
 public:
 
     MeleeManager(ByunJRBot & bot);
-    void    executeMicro(const std::vector<UnitTag> & targets);
-    void    assignTargets(const std::vector<UnitTag> & targets);
-    int     getAttackPriority(const UnitTag & attacker, const UnitTag & unit);
-    UnitTag getTarget(const UnitTag & meleeUnit, const std::vector<UnitTag> & targets);
-    bool    meleeUnitShouldRetreat(const UnitTag & meleeUnit, const std::vector<UnitTag> & targets);
+    void    executeMicro(const std::vector<sc2::Tag> & targets);
+    void    assignTargets(const std::vector<sc2::Tag> & targets);
+    int     getAttackPriority(const sc2::Tag & attacker, const sc2::Tag & unit);
+    sc2::Tag getTarget(const sc2::Tag & meleeUnit, const std::vector<sc2::Tag> & targets);
+    bool    meleeUnitShouldRetreat(const sc2::Tag & meleeUnit, const std::vector<sc2::Tag> & targets);
 };

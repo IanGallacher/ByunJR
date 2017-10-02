@@ -7,14 +7,14 @@ class ByunJRBot;
 
 namespace Micro
 {   
-    void SmartStop      (const UnitTag & attacker,  ByunJRBot & bot);
-    void SmartAttackUnit(const UnitTag & attacker,  const UnitTag & target, ByunJRBot & bot);
-    void SmartAttackMove(const UnitTag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);
-    void SmartMove      (const UnitTag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);
-    void SmartRightClick(const UnitTag & unit,      const UnitTag & target, ByunJRBot & bot);
-    void SmartRepair    (const UnitTag & unit,      const UnitTag & target, ByunJRBot & bot);
-    void SmartKiteTarget(const UnitTag & rangedUnit,const UnitTag & target, ByunJRBot & bot);
-    void SmartBuild     (const UnitTag & builder,   const sc2::UnitTypeID & buildingType, sc2::Point2D pos, ByunJRBot & bot);
-    void SmartBuildTag  (const UnitTag & builder,   const sc2::UnitTypeID & buildingType, UnitTag targetTag, ByunJRBot & bot);
-    void SmartTrain     (const UnitTag & builder,   const sc2::UnitTypeID & buildingType, ByunJRBot & bot);
+    void SmartStop      (const sc2::Tag & attacker,  ByunJRBot & bot);
+    void SmartAttackUnit(const sc2::Tag & attacker,  const sc2::Tag & target, ByunJRBot & bot);
+    void SmartAttackMove(const sc2::Tag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);
+    void SmartMove      (const sc2::Tag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);
+    void SmartRightClick(const sc2::Tag & unit,      const sc2::Tag & target, ByunJRBot & bot);
+    void SmartRepair    (const sc2::Tag & unit,      const sc2::Tag & target, ByunJRBot & bot);
+    void SmartKiteTarget(const sc2::Tag & rangedUnit,const sc2::Tag & target, ByunJRBot & bot);
+    void SmartBuild     (const sc2::Tag & builder,   const sc2::UnitTypeID & buildingType, sc2::Point2D pos, ByunJRBot & bot);
+    void SmartBuildTag  (const sc2::Tag & builder,   const sc2::UnitTypeID & buildingType, sc2::Tag targetTag, ByunJRBot & bot);
+    void SmartTrain     (const sc2::Tag & builder,   const sc2::UnitTypeID & buildingType, ByunJRBot & bot);
 };

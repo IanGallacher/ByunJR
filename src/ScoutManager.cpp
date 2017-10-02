@@ -24,7 +24,7 @@ void ScoutManager::onFrame()
     drawScoutInformation();
 }
 
-void ScoutManager::setWorkerScout(const UnitTag & tag)
+void ScoutManager::setWorkerScout(const sc2::Tag & tag)
 {
     // if we have a previous worker scout, release it back to the worker manager
     if (m_scoutUnitTag)
@@ -152,7 +152,7 @@ const sc2::Unit * ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) c
 
     if (!ourScout) { return nullptr; }
 
-    UnitTag enemyWorkerTag = 0;
+    sc2::Tag enemyWorkerTag = 0;
     float minDist = std::numeric_limits<float>::max();
 
     // for each enemy worker

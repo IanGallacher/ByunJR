@@ -19,14 +19,14 @@ class GameCommander
     ProxyManager            m_proxyManager;
     CombatCommander         m_combatCommander;
 
-    std::vector<UnitTag>    m_validUnits;
-    std::vector<UnitTag>    m_combatUnits;
-    std::vector<UnitTag>    m_scoutUnits;
+    std::vector<sc2::Tag>    m_validUnits;
+    std::vector<sc2::Tag>    m_combatUnits;
+    std::vector<sc2::Tag>    m_scoutUnits;
 
     bool                    m_initialScoutSet;
 
-    void assignUnit(const UnitTag & unit, std::vector<UnitTag> & units);
-    bool isAssigned(const UnitTag & unit) const;
+    void assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units);
+    bool isAssigned(const sc2::Tag & unit) const;
 
 public:
 

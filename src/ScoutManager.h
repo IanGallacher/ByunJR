@@ -8,7 +8,7 @@ class ScoutManager
 {
     ByunJRBot &   m_bot;
 
-    UnitTag         m_scoutUnitTag;
+    sc2::Tag         m_scoutUnitTag;
     std::string     m_scoutStatus;
     int             m_numScouts;
     bool            m_scoutUnderAttack;
@@ -26,5 +26,5 @@ public:
 
     void onStart();
     void onFrame();
-    void setWorkerScout(const UnitTag & tag);
+    void setWorkerScout(const sc2::Tag & tag);
 };

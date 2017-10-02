@@ -124,7 +124,7 @@ WorkerManager & ByunJRBot::Workers()
     return m_workers;
 }
 
-const sc2::Unit * ByunJRBot::GetUnit(const UnitTag & tag) const
+const sc2::Unit * ByunJRBot::GetUnit(const sc2::Tag & tag) const
 {
     return Observation()->GetUnit(tag);
 }

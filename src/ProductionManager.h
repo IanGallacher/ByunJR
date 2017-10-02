@@ -17,12 +17,12 @@ class ProductionManager
     int m_planned_supply_depots; // don't spend all our money on depots if capped. 
 
 
-    UnitTag getClosestUnitToPosition(const std::vector<UnitTag> & units, sc2::Point2D closestTo);
+    sc2::Tag getClosestUnitToPosition(const std::vector<sc2::Tag> & units, sc2::Point2D closestTo);
     bool    meetsReservedResources(sc2::UnitTypeID type);
-    bool    canMakeNow(UnitTag producer, sc2::UnitTypeID t);
+    bool    canMakeNow(sc2::Tag producer, sc2::UnitTypeID t);
     bool    detectBuildOrderDeadlock();
     void    setBuildOrder(const BuildOrder & buildOrder);
-    void    create(UnitTag producer, BuildOrderItem & item);
+    void    create(sc2::Tag producer, BuildOrderItem & item);
     void    manageBuildOrderQueue();
     void    preventSupplyBlock();
     int     productionCapacity();
@@ -39,5 +39,5 @@ public:
     void    onUnitDestroy(const sc2::Unit & unit);
     void    drawProductionInformation();
 
-    UnitTag getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo = sc2::Point2D(0, 0));
+    sc2::Tag getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo = sc2::Point2D(0, 0));
 };

@@ -48,5 +48,5 @@ public:
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(int player) const;
     sc2::Point2D GetStartLocation() const;
-    const sc2::Unit * GetUnit(const UnitTag & tag) const;
+    const sc2::Unit * GetUnit(const sc2::Tag & tag) const;
 };

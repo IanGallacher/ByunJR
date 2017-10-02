@@ -109,7 +109,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         b.finalPosition = testLocation;
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        UnitTag builderUnitTag = m_bot.Workers().getBuilder(b);
+        sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
         b.builderUnitTag = builderUnitTag;
         if (!b.builderUnitTag)
         {
@@ -180,7 +180,7 @@ void BuildingManager::constructAssignedBuildings()
                 if (Util::IsRefineryType(b.type))
                 {
                     // first we find the geyser at the desired location
-                    UnitTag geyserTag = 0;
+                    sc2::Tag geyserTag = 0;
                     for (auto & unit : m_bot.Observation()->GetUnits())
                     {
                         if (Util::IsGeyser(*unit) && Util::Dist(b.finalPosition, unit->pos) < 3)
