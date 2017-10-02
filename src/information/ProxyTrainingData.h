@@ -1,5 +1,8 @@
 #pragma once
 #include <sc2api/sc2_api.h>
+
+#include "common/Common.h"
+
 class ByunJRBot;
 
 class ProxyLocation {
@@ -17,10 +20,8 @@ public:
 // ProxyTrainingData is for a specific map ONLY.
 class ProxyTrainingData
 {
-    int m_proxy_x;
-    int m_proxy_y;
-    int m_best_proxy_x;
-    int m_best_proxy_y;
+    TilePos m_proxy_loc;
+    TilePos m_best_proxy_loc;
     ByunJRBot* m_bot;
 
     sc2::Point2D m_playable_min;
@@ -49,7 +50,8 @@ class ProxyTrainingData
     // do not implicity cast to MapDataValue. There is no MapDataValue that represents 149 tiles worth of distance for example. 
     // <int> is used instead to avoid strange typecasts, but please use a MapDataValue to store data whenever possible. 
     std::vector<std::vector<int>> m_result;  // stored in the format result[y][x]
-
+    
+    TilePos ProxyTrainingData::flipCoordinatesIfNecessary(int x, int y);
 
     std::string     getTrainingDataFileName();
     bool            loadProxyTrainingData();

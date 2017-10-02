@@ -2,7 +2,6 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "common/Common.h"
 #include "common/BotAssert.h"
 #include "information/ProxyTrainingData.h"
 
@@ -39,11 +38,27 @@ std::string ProxyTrainingData::getTrainingDataFileName()
     return m_bot->Config().MapName + "TrainingData";
 }
 
+TilePos ProxyTrainingData::flipCoordinatesIfNecessary(const int x, const int y)
+{
+    TilePos returnVal;
+    if (m_playerStart_y < m_enemyStart_y)
+    {
+        returnVal.x = x;
+        returnVal.y = y;
+    }
+    else
+    {
+        returnVal.x = (m_arena_width - x);
+        returnVal.y = (m_arena_height - y);
+    }
+    return returnVal;
+}
+
 // Returns the proxy location in "True Map Space"
 sc2::Point2D ProxyTrainingData::getProxyLocation()
 {
-    BOT_ASSERT(m_proxy_x != 0 || m_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
-    sc2::Point2D proxyLocation((float)m_proxy_x + m_playable_min.x, (float)m_proxy_y + m_playable_min.y);
+    BOT_ASSERT(m_proxy_loc.x != 0 || m_proxy_loc.y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    sc2::Point2D proxyLocation((float)m_proxy_loc.x + m_playable_min.x, (float)m_proxy_loc.y + m_playable_min.y);
 
     if (m_bot->Config().TrainingMode)
         return proxyLocation;
@@ -54,33 +69,20 @@ sc2::Point2D ProxyTrainingData::getProxyLocation()
 // Returns the best proxy location in "True Map Space"
 sc2::Point2D ProxyTrainingData::getBestProxyLocation()
 {
-    BOT_ASSERT(m_best_proxy_x != 0 || m_best_proxy_y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    BOT_ASSERT(m_best_proxy_loc.x != 0 || m_best_proxy_loc.y != 0, "Please setup the proxy location values before trying to retrieve them.");
 
+    const TilePos bestLoc = flipCoordinatesIfNecessary(m_best_proxy_loc.x, m_best_proxy_loc.y);
 
-    int bestProxyX = -1;
-    int bestProxyY = -1;
-    if (m_playerStart_y < m_enemyStart_y)
-    {
-        bestProxyX = (m_best_proxy_x + m_playable_min.x);
-        bestProxyY = (m_best_proxy_y + m_playable_min.y);
-    }
-    else
-    {
-        bestProxyX = (m_arena_width - m_best_proxy_x) + m_playable_min.x;
-        bestProxyY = (m_arena_height - m_best_proxy_y) + m_playable_min.y;
-    }
-    const sc2::Point2D proxyLocation((float)bestProxyX, (float)bestProxyY);
+    const sc2::Point2D proxyLocation((float) (bestLoc.x + m_playable_min.x), (float) (bestLoc.y + m_playable_min.y) );
 
     return proxyLocation;
 }
 
 int ProxyTrainingData::getReward()
 {
-    if (m_playerStart_y < m_enemyStart_y)
-        return m_result[m_proxy_y][m_proxy_x];
-    else
-        return m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x];
+    const TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
 
+    return m_result[actualProxyLoc.y][actualProxyLoc.x];
 }
 
 sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
@@ -103,7 +105,7 @@ sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
 // Is the proxy location ready to go? Has it been setup yet?
 bool ProxyTrainingData::proxyLocationReady()
 {
-    if (m_proxy_x == 0 || m_proxy_y == 0)
+    if (m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
         return false;
     else
         return true;
@@ -199,8 +201,8 @@ void ProxyTrainingData::upadateViableLocationsList()
             }
             else if (m_result[y][x] > 0 && m_result[y][x] < best_reward)
             {
-                m_best_proxy_x = x;
-                m_best_proxy_y = y;
+                m_best_proxy_loc.x = x;
+                m_best_proxy_loc.y = y;
                 best_reward = m_result[y][x];
             }
         }
@@ -209,10 +211,9 @@ void ProxyTrainingData::upadateViableLocationsList()
 
 void ProxyTrainingData::recordResult(int fitness)
 {
-    if (m_playerStart_y < m_enemyStart_y)
-        m_result[m_proxy_y][m_proxy_x] = fitness;
-    else
-        m_result[m_arena_height - m_proxy_y][m_arena_width - m_proxy_x] = fitness;
+    TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
+    
+    m_result[actualProxyLoc.y][actualProxyLoc.x] = fitness;
 
     std::cout << fitness << "fitness" << std::endl;
     writeAllTrainingData(getTrainingDataFileName());
@@ -287,10 +288,10 @@ bool ProxyTrainingData::setupProxyLocation()
     // m_proxy_x is stored in "Training Space."
     // m_proxy_x = (int) (m_viableLocations[index].m_loc.x);
     // m_proxy_y = (int) (m_viableLocations[index].m_loc.y);
-    m_proxy_x = m_bot->Config().ProxyLocationX;
-    m_proxy_y = m_bot->Config().ProxyLocationY;
+    m_proxy_loc.x = m_bot->Config().ProxyLocationX;
+    m_proxy_loc.y = m_bot->Config().ProxyLocationY;
 
-    sc2::Vector2D myVec((float)m_proxy_x, (float)m_proxy_y);
+    sc2::Vector2D myVec((float)m_proxy_loc.x, (float)m_proxy_loc.y);
     std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
     return true;
 }
