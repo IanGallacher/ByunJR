@@ -59,7 +59,7 @@ void MapTools::onStart()
 
 void MapTools::onFrame()
 {
-    m_frame++;
+ /*   m_frame++;
 
     for (int x=0; x<m_width; ++x)
     {
@@ -72,7 +72,7 @@ void MapTools::onFrame()
         }
     }
 
-    draw();
+    draw();*/
 }
 
 void MapTools::computeConnectivity()

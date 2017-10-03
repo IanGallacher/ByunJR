@@ -428,9 +428,10 @@ sc2::Point2D CombatCommander::getMainAttackLocation()
             return enemyUnit.pos;
         }
     }
+    return sc2::Point2D(0,0);
 
     // Fourth choice: We can't see anything so explore the map attacking along the way
-    return m_bot.Map().getLeastRecentlySeenPosition();
+    //return m_bot.Map().getLeastRecentlySeenPosition();
 }
 
 sc2::Tag CombatCommander::findClosestWorkerTo(std::vector<sc2::Tag> & unitsToAssign, const sc2::Point2D & target)
