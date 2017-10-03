@@ -132,7 +132,7 @@ sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) cons
 void WorkerManager::setMineralWorker(const sc2::Unit & unit)
 {
     // check if there is a mineral available to send the worker to
-    sc2::Tag depot = getClosestDepot(unit);
+    sc2::Tag depot = getClosestCC(unit);
 
     // if there is a valid mineral
     if (depot)
@@ -142,7 +142,7 @@ void WorkerManager::setMineralWorker(const sc2::Unit & unit)
     }
 }
 
-sc2::Tag WorkerManager::getClosestDepot(const sc2::Unit & worker) const
+sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
 {
     sc2::Tag closestDepot = 0;
     double closestDistance = std::numeric_limits<double>::max();
@@ -169,10 +169,7 @@ sc2::Tag WorkerManager::getClosestDepot(const sc2::Unit & worker) const
 // other managers that need workers call this when they're done with a unit
 void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
 {
-    if (m_workerData.getWorkerJob(tag) != WorkerJobs::Scout)
-    {
-        m_workerData.setWorkerJob(tag, WorkerJobs::Idle);
-    }
+    m_workerData.setWorkerJob(tag, WorkerJobs::Idle);
 }
 
 sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const

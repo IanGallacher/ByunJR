@@ -43,7 +43,7 @@ public:
     bool        isBuilder(const sc2::Unit & worker) const;
 
     sc2::Tag     getBuilder(Building & b,bool setJobAsBuilder = true) const;
-    sc2::Tag     getClosestDepot(const sc2::Unit & worker) const;
+    sc2::Tag     getClosestCC(const sc2::Unit & worker) const;
     sc2::Tag     getGasWorker(const sc2::Unit & refinery) const;
     sc2::Tag     getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
 };

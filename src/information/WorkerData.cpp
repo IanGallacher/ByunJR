@@ -97,7 +97,8 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, int job, sc2::Tag jobUnitTa
         m_depotWorkerCount[jobUnitTag]++;
 
         // find the mineral to mine and mine it
-        sc2::Tag mineralToMine = getMineralToMine(unit);
+        sc2::Tag cc = m_bot.Workers().getClosestCC(*m_bot.GetUnit(unit));
+        sc2::Tag mineralToMine = getMineralToMine(cc);
         Micro::SmartRightClick(unit, mineralToMine, m_bot);
     }
     else if (job == WorkerJobs::Gas)
@@ -276,6 +277,7 @@ void WorkerData::drawDepotDebugInfo()
     {
         auto depot = m_bot.GetUnit(depotTag);
 
+        if (!depot) continue;
         std::stringstream ss;
         ss << "Workers: " << getNumAssignedWorkers(depot->tag);
 

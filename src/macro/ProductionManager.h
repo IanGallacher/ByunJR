@@ -9,7 +9,7 @@ class ByunJRBot;
 
 class ProductionManager
 {
-    ByunJRBot &       m_bot;
+    ByunJRBot &     m_bot;
 
     BuildingManager m_buildingManager;
     BuildOrderQueue m_queue;
