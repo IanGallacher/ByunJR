@@ -7,7 +7,6 @@
 #include "micro/ProxyManager.h"
 #include "micro/Micro.h"
 
-#pragma region ProxyManagerMemberFunctions
 ProxyManager::ProxyManager(ByunJRBot & bot)
     : m_bot(bot)
     , m_proxyUnitTag(0)
@@ -92,6 +91,3 @@ ProxyTrainingData & ProxyManager::getProxyTrainingData()
 {
     return m_ptd;
 }
-
-
-#pragma endregion ProxyManagerMemberFunctions
