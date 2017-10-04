@@ -64,8 +64,6 @@ void CombatCommander::onFrame(const std::vector<sc2::Tag> & combatUnits)
 
 bool CombatCommander::shouldWeStartAttacking()
 {
-    // TODO: make this more clever
-    // For now: start attacking when we have more than 10 combat units
     return m_combatUnits.size() >= m_bot.Config().CombatUnitsForAttack;
 }
 
@@ -82,6 +80,7 @@ void CombatCommander::updateIdleSquad()
     }
 }
 
+// Called every frame.
 void CombatCommander::updateAttackSquads()
 {
     if (!m_attackStarted)
@@ -97,13 +96,13 @@ void CombatCommander::updateAttackSquads()
         BOT_ASSERT(unit, "null unit in combat units");
 
         // get every unit of a lower priority and put it into the attack squad
-        if (!Util::IsWorker(*unit) && !(unit->unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
+        if (!Util::IsWorker(*unit) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
         {
             m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
         }
     }
 
-    SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 25, "Attack Enemy Base");
+    const SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 25, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
 }
 
@@ -138,12 +137,12 @@ void CombatCommander::updateScoutDefenseSquad()
     if (scoutDefenseSquad.isEmpty() && assignScoutDefender)
     {
         // the enemy worker that is attacking us
-        sc2::Tag enemyWorkerTag = *enemyUnitsInRegion.begin();
+        const sc2::Tag enemyWorkerTag = *enemyUnitsInRegion.begin();
         auto enemyWorkerUnit = m_bot.GetUnit(enemyWorkerTag);
         BOT_ASSERT(enemyWorkerUnit, "null enemy worker unit");
 
         // get our worker unit that is mining that is closest to it
-        sc2::Tag workerDefenderTag = findClosestWorkerTo(m_combatUnits, enemyWorkerUnit->pos);
+        const sc2::Tag workerDefenderTag = findClosestWorkerTo(m_combatUnits, enemyWorkerUnit->pos);
 
         if (enemyWorkerTag && workerDefenderTag)
         {
@@ -163,7 +162,6 @@ void CombatCommander::updateScoutDefenseSquad()
             auto unit = m_bot.GetUnit(unitTag);
             BOT_ASSERT(unit, "null unit in scoutDefenseSquad");
 
-            Micro::SmartStop(unitTag, m_bot);
             if (Util::IsWorker(*unit))
             {
                 m_bot.Workers().finishedWithWorker(unitTag);
@@ -191,10 +189,10 @@ void CombatCommander::updateDefenseSquads()
             continue;
         }
 
-        sc2::Point2D basePosition = myBaseLocation->getPosition();
+        const sc2::Point2D basePosition = myBaseLocation->getPosition();
 
         // start off assuming all enemy units in region are just workers
-        int numDefendersPerEnemyUnit = 2;
+        const int numDefendersPerEnemyUnit = 2;
 
         // all of the enemy units in this region
         std::vector<sc2::Tag> enemyUnitsInRegion;
@@ -275,8 +273,8 @@ void CombatCommander::updateDefenseSquads()
             Squad & defenseSquad = m_squadData.getSquad(squadName.str());
 
             // figure out how many units we need on defense
-            int flyingDefendersNeeded = numDefendersPerEnemyUnit * numEnemyFlyingInRegion;
-            int groundDefensersNeeded = numDefendersPerEnemyUnit * numEnemyGroundInRegion;
+            const int flyingDefendersNeeded = numDefendersPerEnemyUnit * numEnemyFlyingInRegion;
+            const int groundDefensersNeeded = numDefendersPerEnemyUnit * numEnemyGroundInRegion;
 
             updateDefenseSquadUnits(defenseSquad, flyingDefendersNeeded, groundDefensersNeeded);
         }

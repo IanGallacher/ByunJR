@@ -91,8 +91,8 @@ sc2::Tag RangedManager::getTarget(const sc2::Tag & meleeUnitTag, const std::vect
         auto targetUnit = m_bot.GetUnit(targetTag);
         BOT_ASSERT(targetUnit, "null target unit in getTarget");
 
-        int priority = getAttackPriority(meleeUnitTag, targetTag);
-        float distance = Util::Dist(meleeUnit->pos, targetUnit->pos);
+        const int priority = getAttackPriority(meleeUnitTag, targetTag);
+        const float distance = Util::Dist(meleeUnit->pos, targetUnit->pos);
 
         // if it's a higher priority, or it's closer, set it
         if (!closestTarget || (priority > highPriority) || (priority == highPriority && distance < closestDist))
