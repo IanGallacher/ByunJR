@@ -5,11 +5,6 @@
 
 const float dotRadius = 0.1f;
 
-void Micro::SmartStop(const sc2::Tag & attacker, ByunJRBot & bot)
-{
-    //bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::STOP);
-}
-
 void Micro::SmartAttackUnit(const sc2::Tag & attacker, const sc2::Tag & target, ByunJRBot & bot)
 {
 	//UAB_ASSERT(attacker, "SmartAttackUnit: Attacker not valid");

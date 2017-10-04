@@ -4,7 +4,6 @@
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/CombatCommander.h"
-#include "micro/Micro.h"
 #include "util/Util.h"
 
 const size_t IdlePriority = 0;

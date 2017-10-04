@@ -5,7 +5,6 @@ class ByunJRBot;
 
 namespace Micro
 {   
-    void SmartStop      (const sc2::Tag & attacker,  ByunJRBot & bot);
     void SmartAttackUnit(const sc2::Tag & attacker,  const sc2::Tag & target, ByunJRBot & bot);
     void SmartAttackMove(const sc2::Tag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);
     void SmartMove      (const sc2::Tag & attacker,  const sc2::Point2D & targetPosition, ByunJRBot & bot);

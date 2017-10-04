@@ -71,44 +71,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     // we want to do this if the order is attack, defend, or harass
     if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
     {
-        // if this is a defense squad then we care about all units in the area
-        if (order.getType() == SquadOrderTypes::Defend)
-        {
-            executeMicro(targetUnitTags);
-        }
-        // otherwise we only care about workers if they are in their own region
-        // this is because their scout can run around and drag our units around the map
-        else
-        {
-            // if this is the an attack squad
-            std::vector<sc2::Tag> workersRemoved;
-            for (auto & enemyUnitTag : targetUnitTags)
-            {
-                auto enemyUnit = m_bot.GetUnit(enemyUnitTag);
-                BOT_ASSERT(enemyUnit, "null enemy unit target");
-
-                // if its not a worker add it to the targets
-                if (!Util::IsWorker(*enemyUnit))
-                {
-                    workersRemoved.push_back(enemyUnitTag);
-                }
-                // if it is a worker
-                else
-                {
-                    for (const BaseLocation * enemyBaseLocation : m_bot.Bases().getOccupiedBaseLocations(Players::Enemy))
-                    {
-                        // only add it if it's in their region
-                        if (enemyBaseLocation->containsPosition(enemyUnit->pos))
-                        {
-                            workersRemoved.push_back(enemyUnitTag);
-                        }
-                    }
-                }
-            }
-
-            // Allow micromanager to handle enemies
-            executeMicro(workersRemoved);
-        }
+        executeMicro(targetUnitTags);
     }
 }
 
@@ -145,9 +108,4 @@ void MicroManager::regroup(const sc2::Point2D & regroupPosition) const
             Micro::SmartAttackMove(unitTag, unit->pos, m_bot);
         }
     }
-}
-
-void MicroManager::trainSubUnits(const sc2::Tag & unit) const
-{
-    // TODO: something here
 }

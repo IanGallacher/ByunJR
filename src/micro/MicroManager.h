@@ -26,8 +26,6 @@ protected:
     SquadOrder order;
 
     virtual void executeMicro(const std::vector<sc2::Tag> & targets) = 0;
-    void trainSubUnits(const sc2::Tag & unit) const;
-
 
 public:
 

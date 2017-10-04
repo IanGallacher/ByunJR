@@ -3,7 +3,7 @@
 #include "ByunJRBot.h"
 #include "common/Common.h"
 #include "information//WorkerData.h"
-#include "micro/Micro.h"
+//#include "micro/Micro.h"
 #include "util/Util.h"
 
 WorkerData::WorkerData(ByunJRBot & bot)
