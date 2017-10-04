@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
             coordinator.SetParticipants({
                 CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-                CreateComputer(Util::GetRaceFromString(enemyRaceString))
+                CreateComputer(Util::GetRaceFromString(enemyRaceString), sc2::Difficulty::VeryHard)
             });
 
             // Start the game.
