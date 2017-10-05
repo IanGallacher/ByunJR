@@ -72,7 +72,7 @@ void ByunJRBot::OnStep()
 
     m_debug.drawAllUnitInformation();
 
-    drawDebugInterface();
+    m_debug.drawDebugInterface();
 
     Debug()->SendDebug();
 }
@@ -92,23 +92,6 @@ void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
     m_productionManager.onBuildingConstructionComplete(*unit);
-}
-
-
-
-
-void ByunJRBot::drawDebugInterface()
-{
-    drawGameInformation(4, 1);
-}
-
-void ByunJRBot::drawGameInformation(int x, int y)
-{
-    std::stringstream ss;
-    ss << "Players: " << std::endl;
-    ss << "Strategy: " << m_config.StrategyName << std::endl;
-    ss << "Map Name: " << std::endl;
-    ss << "Time: " << std::endl;
 }
 
 // Returns true if the bot thinks it still has a chance.

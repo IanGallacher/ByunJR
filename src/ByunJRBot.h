@@ -41,9 +41,6 @@ class ByunJRBot : public sc2::Agent
     void OnError(const std::vector<sc2::ClientError> & client_errors,
                  const std::vector<std::string> & protocol_errors = {});
 
-    void drawDebugInterface();
-    void drawGameInformation(int x, int y);
-
 public:
 
     ByunJRBot();

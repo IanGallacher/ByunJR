@@ -8,4 +8,6 @@ class DebugManager
 public:
     DebugManager(ByunJRBot & bot);
     void drawAllUnitInformation() const;
+    void drawDebugInterface() const;
+    void drawGameInformation() const;
 };
