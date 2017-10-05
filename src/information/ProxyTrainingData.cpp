@@ -88,22 +88,23 @@ int ProxyTrainingData::getReward()
 sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
 {
     sc2::Point2D closestPoint;
-    int dist = 99999;
+    int dist = std::numeric_limits<int>::max();
     for (int i = 0; i < m_viableLocations.size(); ++i)
     {
-        int deltaX = (m_viableLocations[i].m_loc.x - x);
-        int deltaY = (m_viableLocations[i].m_loc.y - y);
-        int newDist = (deltaX * deltaX) + (deltaY * deltaY);
+        const int deltaX = (m_viableLocations[i].m_loc.x - x);
+        const int deltaY = (m_viableLocations[i].m_loc.y - y);
+        const int newDist = (deltaX * deltaX) + (deltaY * deltaY);
         if (newDist < dist)
         {
             closestPoint = sc2::Point2D(x, y);
+            dist = newDist;
         }
     }
     return closestPoint;
 }
 
 // Is the proxy location ready to go? Has it been setup yet?
-bool ProxyTrainingData::proxyLocationReady()
+bool ProxyTrainingData::proxyLocationReady() const
 {
     if (m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
         return false;
@@ -209,7 +210,7 @@ void ProxyTrainingData::upadateViableLocationsList()
     }
 }
 
-void ProxyTrainingData::recordResult(int fitness)
+void ProxyTrainingData::recordResult(const int fitness)
 {
     TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
     
@@ -221,7 +222,7 @@ void ProxyTrainingData::recordResult(int fitness)
 
 // If we can't build at the chosen location, update that information in our data structure.
 // This function takes the parameters in "True Map Space"
-bool ProxyTrainingData::isProxyLocationValid(int x, int y)
+bool ProxyTrainingData::isProxyLocationValid(int x, int y) const
 {
     if (m_bot->Map().canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;

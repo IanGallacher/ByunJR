@@ -41,7 +41,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
 void ProxyManager::onUnitEnterVision(const sc2::Unit& enemyUnit)
 {
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit.tag == m_proxyUnitTag)
         {

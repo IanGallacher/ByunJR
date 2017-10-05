@@ -95,6 +95,9 @@
     </ClCompile>
     <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\StrategyManager.cpp" />
+    <ClCompile Include="..\src\global\Debug.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ByunJRBot.h" />
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
+    <ClInclude Include="..\src\global\Debug.h">
+      <Filter>global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">

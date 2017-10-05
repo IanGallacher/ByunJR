@@ -30,7 +30,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     // if the order is to defend, we only care about units in the radius of the defense
     if (order.getType() == SquadOrderTypes::Defend)
     {
-        for (auto & enemyUnit : m_bot.UnitInfo().getUnits(Players::Enemy))
+        for (auto & enemyUnit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
         {
             if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
             {
@@ -41,7 +41,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     } // otherwise we want to see everything on the way as well
     else if (order.getType() == SquadOrderTypes::Attack)
     {
-        for (auto & enemyUnit : m_bot.UnitInfo().getUnits(Players::Enemy))
+        for (auto & enemyUnit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
         {
             if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
             {
@@ -54,7 +54,7 @@ void MicroManager::execute(const SquadOrder & inputOrder)
             auto unit = m_bot.GetUnit(unitTag);
             BOT_ASSERT(unit, "null unit in attack");
 
-            for (auto & enemyUnit : m_bot.UnitInfo().getUnits(Players::Enemy))
+            for (auto & enemyUnit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
             {
                 if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
                 {

@@ -32,7 +32,7 @@ public:
 
     }
 
-    const char getJobCode(const sc2::Tag & unit)
+    char getJobCode() const
     {
         const UnitMission j = mission;
 
@@ -50,17 +50,17 @@ public:
         return 'X';
     }
 
-    const bool operator == (sc2::Unit & unit) const
+    bool operator == (sc2::Unit & unit) const
     {
         return tag == unit.tag;
     }
 
-    const bool operator == (const UnitInfo & rhs) const
+    bool operator == (const UnitInfo & rhs) const
     {
         return (tag == rhs.tag);
     }
 
-    const bool operator < (const UnitInfo & rhs) const
+    bool operator < (const UnitInfo & rhs) const
     {
         return (tag < rhs.tag);
     }

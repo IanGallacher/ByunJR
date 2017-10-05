@@ -5,6 +5,7 @@
 #include "macro/Building.h"
 #include "macro/WorkerManager.h"
 #include "util/Util.h"
+#include "common/BotAssert.h"
 
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : m_bot         (bot)
@@ -25,7 +26,6 @@ void WorkerManager::onFrame()
     handleIdleWorkers();
 
     drawResourceDebugInfo();
-    drawWorkerInformation();
 
     m_workerData.drawDepotDebugInfo();
 
@@ -45,7 +45,7 @@ void WorkerManager::stopRepairing(const sc2::Unit & worker)
 void WorkerManager::handleGasWorkers()
 {
     // for each unit we have
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         // if that unit is a refinery
         if (Util::IsRefinery(unit) && Util::IsCompleted(unit))
@@ -127,6 +127,29 @@ sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) cons
     return closestMineralWorker;
 }
 
+sc2::Tag WorkerManager::findClosestWorkerTo(const sc2::Point2D & target) const
+{
+    sc2::Tag closestMineralWorker = 0;
+    float closestDist = std::numeric_limits<float>::max();
+
+
+    // for each of our workers
+    for (auto & workerTag : m_workerData.getWorkers())
+    {
+        if (!m_bot.GetUnit(workerTag)) { continue; }
+
+        double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, target);
+
+        if (!closestMineralWorker || dist < closestDist)
+        {
+            closestMineralWorker = workerTag;
+            closestDist = dist;
+        }
+    }
+
+    return closestMineralWorker;
+}
+
 
 // set a worker to mine minerals
 void WorkerManager::setMineralWorker(const sc2::Unit & unit)
@@ -147,7 +170,7 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
     sc2::Tag closestDepot = 0;
     double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         //if (!m_bot.GetUnit(unit.tag)) { continue; }
 
@@ -164,7 +187,6 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
 
     return closestDepot;
 }
-
 
 // other managers that need workers call this when they're done with a unit
 void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
@@ -233,26 +255,6 @@ void WorkerManager::drawResourceDebugInfo()
     //        m_bot.Map().drawLine(m_bot.GetUnit(workerTag)->pos, depot->pos);
     //    }
     //}
-}
-
-void WorkerManager::drawWorkerInformation()
-{
- /*   if (!m_bot.Config().DrawWorkerInfo)
-    {
-        return;
-    }
-
-    std::stringstream ss;
-    ss << "Workers: " << m_workerData.getWorkers().size() << "\n";
-
-    int yspace = 0;
-
-    for (auto & workerTag : m_workerData.getWorkers())
-    {
-        ss << m_workerData.getJobCode(workerTag) << " " << workerTag << "\n";
-    }
-
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());*/
 }
 
 bool WorkerManager::isFree(const sc2::Unit & worker) const

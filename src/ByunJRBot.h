@@ -4,6 +4,7 @@
 
 #include "InformationManager.h"
 #include "global/BotConfig.h"
+#include "global/Debug.h"
 #include "StrategyManager.h"
 #include "macro/BuildingManager.h"
 #include "macro/ProductionManager.h"
@@ -33,6 +34,7 @@ class ByunJRBot : public sc2::Agent
     ProductionManager        m_productionManager;
     ScoutManager             m_scoutManager;
     ProxyManager             m_proxyManager;
+    DebugManager             m_debug;
 
     bool                     m_isWillingToFight;
 
@@ -59,7 +61,7 @@ public:
     ScoutManager & Scout();
     InformationManager & InformationManager();
     const MapTools & Map() const;
-    const UnitInfoManager & UnitInfo() const;
+    const UnitInfoManager & UnitInfoManager() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(int player) const;

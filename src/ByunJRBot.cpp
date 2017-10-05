@@ -15,8 +15,9 @@ ByunJRBot::ByunJRBot()
     , m_proxyManager(*this)
     , m_combatCommander(*this)
     , m_strategy(*this)
-    , m_informationManager(*this),
-    m_isWillingToFight(true)
+    , m_informationManager(*this)
+    , m_debug(*this)
+    , m_isWillingToFight(true)
 {
     
 }
@@ -67,6 +68,9 @@ void ByunJRBot::OnStep()
     m_scoutManager.onFrame();
     m_proxyManager.onFrame();
     m_combatCommander.onFrame(m_informationManager.GetCombatUnits());
+
+
+    m_debug.drawAllUnitInformation();
 
     drawDebugInterface();
 
@@ -156,7 +160,7 @@ ScoutManager & ByunJRBot::Scout()
     return m_scoutManager;
 }
 
-const UnitInfoManager & ByunJRBot::UnitInfo() const
+const UnitInfoManager & ByunJRBot::UnitInfoManager() const
 {
     return m_unitInfo;
 }

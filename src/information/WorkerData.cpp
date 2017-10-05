@@ -15,7 +15,7 @@ WorkerData::WorkerData(ByunJRBot & bot)
 void WorkerData::updateAllWorkerData()
 {
     // check all our units and add new workers if we find them
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         if (Util::IsWorker(unit))
         {

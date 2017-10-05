@@ -28,7 +28,6 @@ public:
 
     void        finishedWithWorker(const sc2::Tag & tag);
     void        drawResourceDebugInfo();
-    void        drawWorkerInformation();
     void        setScoutWorker(const sc2::Tag & worker);
     void        setCombatWorker(const sc2::Tag & worker);
     void        setProxyWorker(const sc2::Tag & workerTag);
@@ -41,8 +40,9 @@ public:
     bool        isBuilder(const sc2::Unit & worker) const;
 
     sc2::Tag     getBuilder(Building & b,bool setJobAsBuilder = true) const;
-    sc2::Tag     getClosestCC(const sc2::Unit & worker) const;
     sc2::Tag     getGasWorker(const sc2::Unit & refinery) const;
+    sc2::Tag     getClosestCC(const sc2::Unit & worker) const;
+    sc2::Tag     findClosestWorkerTo(const sc2::Point2D& target) const;
     sc2::Tag     getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
 };
 

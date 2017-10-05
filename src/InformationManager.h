@@ -18,7 +18,7 @@ class InformationManager
 
 public:
     InformationManager(ByunJRBot & bot);
-    sc2::Point2D GetProxyLocation();
+    sc2::Point2D GetProxyLocation() const;
 
 
     void setValidUnits();
@@ -26,5 +26,5 @@ public:
     void setCombatUnits();
 
     void handleUnitAssignments();
-    const std::vector<sc2::Tag> GetCombatUnits() const;
+    std::vector<sc2::Tag> GetCombatUnits() const;
 };

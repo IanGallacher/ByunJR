@@ -168,7 +168,7 @@ const sc2::Unit * ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) c
     float minDist = std::numeric_limits<float>::max();
 
     // for each enemy worker
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
     {
         if (Util::IsWorker(unit))
         {
@@ -186,7 +186,7 @@ const sc2::Unit * ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) c
 }
 bool ScoutManager::enemyWorkerInRadiusOf(const sc2::Point2D & pos) const
 {
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
     {
         if (Util::IsWorker(unit) && Util::Dist(unit.pos, pos) < 10)
         {

@@ -26,7 +26,7 @@ void BuildingManager::onStart()
 // gets called every frame from GameCommander
 void BuildingManager::onFrame()
 {
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         // filter out units which aren't buildings under construction
         if (Util::IsBuilding(unit.unit_type))
@@ -220,7 +220,7 @@ void BuildingManager::constructAssignedBuildings()
 void BuildingManager::checkForStartedConstruction()
 {
     // for each building unit which is being constructed
-    for (auto & buildingStarted : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & buildingStarted : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         // filter out units which aren't buildings under construction
         if (!Util::IsBuilding(buildingStarted.unit_type) || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
@@ -420,7 +420,7 @@ std::vector<sc2::UnitTypeID> BuildingManager::buildingsQueued() const
 
 sc2::Point2D BuildingManager::getBuildingLocation(const Building & b)
 {
-    size_t numPylons = m_bot.UnitInfo().getUnitTypeCount(Players::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(Players::Self)), true);
+    size_t numPylons = m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(Players::Self)), true);
 
     // TODO: if requires psi and we have no pylons return 0
 

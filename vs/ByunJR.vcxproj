@@ -282,6 +282,7 @@
     <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\common\BotAssert.cpp" />
     <ClCompile Include="..\src\global\BotConfig.cpp" />
+    <ClCompile Include="..\src\global\Debug.cpp" />
     <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\information\BaseLocation.cpp" />
     <ClCompile Include="..\src\information\BaseLocationManager.cpp" />
@@ -319,6 +320,7 @@
     <ClInclude Include="..\src\common\BotAssert.h" />
     <ClInclude Include="..\src\common\Common.h" />
     <ClInclude Include="..\src\global\BotConfig.h" />
+    <ClInclude Include="..\src\global\Debug.h" />
     <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\information\BaseLocation.h" />
     <ClInclude Include="..\src\information\BaseLocationManager.h" />

@@ -44,7 +44,7 @@ bool InformationManager::isAssigned(const sc2::Tag & unit) const
 void InformationManager::setValidUnits()
 {
     // make sure the unit is completed and alive and usable
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
     {
         m_validUnits.push_back(unit.tag);
     }
@@ -91,6 +91,27 @@ void InformationManager::setCombatUnits()
             assignUnit(unitTag, m_combatUnits);
         }
     }
+   /* if (!m_attackStarted)
+    {
+        return;
+    }*/
+    
+    //Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
+    //
+    //for (auto & unitTag : m_combatUnits)
+    //{
+    //    auto unit = m_bot.GetUnit(unitTag);
+    //    BOT_ASSERT(unit, "null unit in combat units");
+    //
+    //    // get every unit of a lower priority and put it into the attack squad
+    //    if (!Util::IsWorker(*unit) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
+    //    {
+    //        m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
+    //    }
+    //}
+    //
+    //const SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 25, "Attack Enemy Base");
+    //mainAttackSquad.setSquadOrder(mainAttackOrder);
 }
 
 void InformationManager::handleUnitAssignments()
