@@ -286,6 +286,7 @@
     <ClCompile Include="..\src\global\StrategyManager.cpp" />
     <ClCompile Include="..\src\information\BaseLocation.cpp" />
     <ClCompile Include="..\src\information\BaseLocationManager.cpp" />
+    <ClCompile Include="..\src\information\ProxyTrainingData.cpp" />
     <ClCompile Include="..\src\information\UnitInfoManager.cpp" />
     <ClCompile Include="..\src\information\WorkerData.cpp" />
     <ClCompile Include="..\src\macro\Building.cpp" />
@@ -322,6 +323,7 @@
     <ClInclude Include="..\src\global\StrategyManager.h" />
     <ClInclude Include="..\src\information\BaseLocation.h" />
     <ClInclude Include="..\src\information\BaseLocationManager.h" />
+    <ClInclude Include="..\src\information\ProxyTrainingData.h" />
     <ClInclude Include="..\src\information\UnitInfoManager.h" />
     <ClInclude Include="..\src\information\WorkerData.h" />
     <ClInclude Include="..\src\macro\Building.h" />

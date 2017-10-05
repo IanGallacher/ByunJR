@@ -94,6 +94,9 @@
     <ClCompile Include="..\src\information\BaseLocation.cpp">
       <Filter>information</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\information\ProxyTrainingData.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\GameCommander.h" />
@@ -192,6 +195,9 @@
       <Filter>information</Filter>
     </ClInclude>
     <ClInclude Include="..\src\information\WorkerData.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\ProxyTrainingData.h">
       <Filter>information</Filter>
     </ClInclude>
   </ItemGroup>
