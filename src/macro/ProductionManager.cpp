@@ -293,7 +293,7 @@ void ProductionManager::drawProductionInformation()
     {
         if (unit.build_progress < 1.0f)
         {
-            //ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << "\n";
+            //ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << std::endl;
         }
     }
 

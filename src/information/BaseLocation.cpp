@@ -182,10 +182,10 @@ void BaseLocation::draw()
     m_bot.Map().drawSphere(m_centerOfResources, 1.0f, sc2::Colors::Yellow);
 
     std::stringstream ss;
-    ss << "BaseLocation: " << m_baseID << "\n";
-    ss << "Start Loc:    " << (isStartLocation() ? "true" : "false") << "\n";
-    ss << "Minerals:     " << m_mineralPositions.size() << "\n";
-    ss << "Geysers:      " << m_geyserPositions.size() << "\n";
+    ss << "BaseLocation: " << m_baseID << std::endl;
+    ss << "Start Loc:    " << (isStartLocation() ? "true" : "false") << std::endl;
+    ss << "Minerals:     " << m_mineralPositions.size() << std::endl;
+    ss << "Geysers:      " << m_geyserPositions.size() << std::endl;
     ss << "Occupied By:  ";
 
     if (isOccupiedByPlayer(Players::Self))

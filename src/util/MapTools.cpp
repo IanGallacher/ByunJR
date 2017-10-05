@@ -336,7 +336,7 @@ void MapTools::printMap()
             ss << isWalkable(x, y);
         }
 
-        ss << "\n";
+        ss << std::endl;
     }
 
     std::ofstream out("map.txt");

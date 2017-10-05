@@ -161,7 +161,7 @@ std::string BuildOrderQueue::getQueueInformation() const
     for (size_t i(0); i<reps; i++)
     {
         const sc2::UnitTypeID & type = m_queue[m_queue.size() - 1 - i].type;
-        ss << sc2::UnitTypeToName(type) << "\n";
+        ss << sc2::UnitTypeToName(type) << std::endl;
     }
 
     return ss.str();

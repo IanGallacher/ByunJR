@@ -214,7 +214,7 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
         // if there exist units in the vector
         if (numUnits > 0)
         {
-            ss << numUnits << "   " << numDeadUnits << "   " << sc2::UnitTypeToName(t) << "\n";
+            ss << numUnits << "   " << numDeadUnits << "   " << sc2::UnitTypeToName(t) << std::endl;
         }
     }
     

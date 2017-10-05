@@ -367,12 +367,12 @@ void BuildingManager::drawBuildingInformation()
 
         if (b.builderUnitTag)
         {
-            dss << "\n\nBuilder: " << b.builderUnitTag << "\n";
+            dss << "\n\nBuilder: " << b.builderUnitTag << std::endl;
         }
 
         if (b.buildingUnitTag)
         {
-            dss << "Building: " << b.buildingUnitTag << "\n" << m_bot.GetUnit(b.buildingUnitTag)->build_progress;
+            dss << "Building: " << b.buildingUnitTag << std::endl << m_bot.GetUnit(b.buildingUnitTag)->build_progress;
             m_bot.Map().drawText(m_bot.GetUnit(b.buildingUnitTag)->pos, dss.str());
         }
 
@@ -380,7 +380,7 @@ void BuildingManager::drawBuildingInformation()
 
         if (b.status == BuildingStatus::Unassigned)
         {
-            ss << "Unassigned " << sc2::UnitTypeToName(b.type) << "    " << getBuildingWorkerCode(b) << "\n";
+            ss << "Unassigned " << sc2::UnitTypeToName(b.type) << "    " << getBuildingWorkerCode(b) << std::endl;
         }
         else if (b.status == BuildingStatus::Assigned)
         {
@@ -396,7 +396,7 @@ void BuildingManager::drawBuildingInformation()
         }
         else if (b.status == BuildingStatus::UnderConstruction)
         {
-            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << b.buildingUnitTag << " " << getBuildingWorkerCode(b) << "\n";
+            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << b.buildingUnitTag << " " << getBuildingWorkerCode(b) << std::endl;
         }
     }
 

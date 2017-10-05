@@ -67,7 +67,7 @@ void BotConfig::readConfigFile()
     if (RawConfigString.length() == 0)
     {
         std::cerr << "Error: Config File Not Found or is Empty\n";
-        std::cerr << "Config Filename: " << ConfigFileLocation << "\n";
+        std::cerr << "Config Filename: " << ConfigFileLocation << std::endl;
         std::cerr << "The bot will not run without its configuration file\n";
         std::cerr << "Please check that the file exists and is not empty. Incomplete paths are relative to the bot .exe file\n";
         std::cerr << "You can change the config file location in Config::ConfigFile::ConfigFileLocation\n";
@@ -79,7 +79,7 @@ void BotConfig::readConfigFile()
     if (parsingFailed)
     {
         std::cerr << "Error: Config File Found, but could not be parsed\n";
-        std::cerr << "Config Filename: " << ConfigFileLocation << "\n";
+        std::cerr << "Config Filename: " << ConfigFileLocation << std::endl;
         std::cerr << "The bot will not run without its configuration file\n";
         std::cerr << "Please check that the file exists, is not empty, and is valid JSON. Incomplete paths are relative to the bot .exe file\n";
         std::cerr << "You can change the config file location in Config::ConfigFile::ConfigFileLocation\n";

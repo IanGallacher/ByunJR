@@ -105,10 +105,10 @@ void ByunJRBot::drawDebugInterface()
 void ByunJRBot::drawGameInformation(int x, int y)
 {
     std::stringstream ss;
-    ss << "Players: " << "\n";
-    ss << "Strategy: " << m_config.StrategyName << "\n";
-    ss << "Map Name: " << "\n";
-    ss << "Time: " << "\n";
+    ss << "Players: " << std::endl;
+    ss << "Strategy: " << m_config.StrategyName << std::endl;
+    ss << "Map Name: " << std::endl;
+    ss << "Time: " << std::endl;
 }
 
 // Returns true if the bot thinks it still has a chance.

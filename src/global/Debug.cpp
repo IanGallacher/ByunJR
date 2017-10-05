@@ -21,7 +21,7 @@ void DebugManager::drawAllUnitInformation() const
 
     for (auto const & workerTag : ui )
     {
-        ss << workerTag.second.getJobCode() << " " << workerTag.first << "\n";
+        ss << workerTag.second.getJobCode() << " " << workerTag.first << std::endl;
     }
 
     m_bot.Map().drawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());

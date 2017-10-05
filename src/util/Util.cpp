@@ -530,7 +530,7 @@ sc2::UnitTypeID Util::GetUnitTypeIDFromName(const sc2::ObservationInterface * ob
         }
     }
 
-    std::cerr << "Unit Type Not Found: " << name << "\n";
+    std::cerr << "Unit Type Not Found: " << name << std::endl;
     return 0;
 }
 
