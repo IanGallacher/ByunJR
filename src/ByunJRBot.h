@@ -64,7 +64,7 @@ public:
     const UnitInfoManager & UnitInfoManager() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
-    const sc2::Race & GetPlayerRace(int player) const;
+    const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
     sc2::Point2D GetStartLocation() const;
     const sc2::Unit * GetUnit(const sc2::Tag & tag) const;
 };

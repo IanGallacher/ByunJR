@@ -18,7 +18,7 @@ void BuildingPlacer::onStart()
 bool BuildingPlacer::isInResourceBox(int x, int y) const
 {
     return false;
-    return m_bot.Bases().getPlayerStartingBaseLocation(Players::Self)->isInResourceBox(x, y);
+    return m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->isInResourceBox(x, y);
 }
 
 // makes final checks to see if a building can be built at a certain location
@@ -149,8 +149,8 @@ bool BuildingPlacer::tileOverlapsBaseLocation(int x, int y, sc2::UnitTypeID type
         // dimensions of the base location
         int bx1 = (int)base->getDepotPosition().x;
         int by1 = (int)base->getDepotPosition().y;
-        int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(m_bot.GetPlayerRace(Players::Self)), m_bot);
-        int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(m_bot.GetPlayerRace(Players::Self)), m_bot);
+        int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(m_bot.GetPlayerRace(PlayerArrayIndex::Self)), m_bot);
+        int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(m_bot.GetPlayerRace(PlayerArrayIndex::Self)), m_bot);
 
         // conditions for non-overlap are easy
         bool noOverlap = (tx2 < bx1) || (tx1 > bx2) || (ty2 < by1) || (ty1 > by2);
@@ -250,7 +250,7 @@ sc2::Point2D BuildingPlacer::getRefineryPosition()
 
         // check to see if it's next to one of our depots
         bool nearDepot = false;
-        for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+        for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
         {
             if (Util::IsTownHall(unit) && Util::Dist(unit.pos, geyserPos) < 10)
             {

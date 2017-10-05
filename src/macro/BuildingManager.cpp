@@ -26,7 +26,7 @@ void BuildingManager::onStart()
 // gets called every frame from GameCommander
 void BuildingManager::onFrame()
 {
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
         if (Util::IsBuilding(unit.unit_type))
@@ -150,7 +150,7 @@ void BuildingManager::constructAssignedBuildings()
         bool isConstructing = false;
 
         // if we're zerg and the builder unit is null, we assume it morphed into the building
-        if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Zerg)
+        if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
         {
             if (!builderUnit)
             {
@@ -220,7 +220,7 @@ void BuildingManager::constructAssignedBuildings()
 void BuildingManager::checkForStartedConstruction()
 {
     // for each building unit which is being constructed
-    for (auto & buildingStarted : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & buildingStarted : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
         if (!Util::IsBuilding(buildingStarted.unit_type) || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
@@ -257,11 +257,11 @@ void BuildingManager::checkForStartedConstruction()
                 b.buildingUnitTag = buildingStarted.tag;
 
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
-                if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Zerg)
+                if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
                 {
                     b.builderUnitTag = 0;
                 }
-                else if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Protoss)
+                else if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
                     m_bot.Workers().finishedWithWorker(b.builderUnitTag);
                     b.builderUnitTag = 0;
@@ -300,7 +300,7 @@ void BuildingManager::checkForCompletedBuildings()
         if (m_bot.GetUnit(b.buildingUnitTag)->build_progress == 1.0f)
         {
             // if we are terran, give the worker back to worker manager
-            if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Terran)
+            if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
                 m_bot.Workers().finishedWithWorker(b.builderUnitTag);
             }
@@ -420,7 +420,7 @@ std::vector<sc2::UnitTypeID> BuildingManager::buildingsQueued() const
 
 sc2::Point2D BuildingManager::getBuildingLocation(const Building & b)
 {
-    size_t numPylons = m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(Players::Self)), true);
+    size_t numPylons = m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(PlayerArrayIndex::Self)), true);
 
     // TODO: if requires psi and we have no pylons return 0
 

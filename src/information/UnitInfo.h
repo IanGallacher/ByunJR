@@ -1,6 +1,8 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
+#include "common/Common.h"
+
 
 
 enum class UnitMission { Idle, Wait, Move, Minerals, Gas, Build, Attack, Defend, Harass, Repair, Scout, Proxy };
@@ -11,20 +13,20 @@ class UnitInfo
     // can't reference it from the unit pointer
 
 public:
-    int             tag;
-    float           lastHealth;
-    float           lastShields;
-    int             player;
-    sc2::Unit       unit;
-    sc2::Point3D    lastPosition;
-    sc2::UnitTypeID type;
-    float           progress;
-    UnitMission     mission;
+    int              tag;
+    float            lastHealth;
+    float            lastShields;
+    PlayerArrayIndex player;
+    sc2::Unit        unit;
+    sc2::Point3D     lastPosition;
+    sc2::UnitTypeID  type;
+    float            progress;
+    UnitMission      mission;
 
     UnitInfo()
         : tag(0)
         , lastHealth(0)
-        , player(-1)
+        , player(PlayerArrayIndex::Error)
         , lastPosition(sc2::Point3D(0, 0, 0))
         , type(0)
         , progress(1.0)

@@ -129,11 +129,11 @@ void ProductionManager::preventSupplyBlock() {
 
 int ProductionManager::productionCapacity() {
     // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
-    size_t commandCenters = m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                          + m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                          + m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    size_t commandCenters = m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                          + m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                          + m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
-    size_t barracks = m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    size_t barracks = m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     return (int) (commandCenters + barracks) * 2;
 }
 
@@ -144,7 +144,7 @@ sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestT
 
     // make a set of all candidate producers
     std::vector<sc2::Tag> candidateProducers;
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
         if (unit.unit_type != producerType) { continue; }
@@ -289,7 +289,7 @@ void ProductionManager::drawProductionInformation()
     std::stringstream ss;
     ss << "Production Information\n\n";
 
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         if (unit.build_progress < 1.0f)
         {

@@ -417,7 +417,7 @@ sc2::Point2D MapTools::getLeastRecentlySeenPosition() const
 {
     int minSeen = std::numeric_limits<int>::max();
     sc2::Point2D leastSeen(0.0f, 0.0f);
-    const BaseLocation * baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Self);
+    const BaseLocation * baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self);
 
     for (auto & tile : baseLocation->getClosestTiles())
     {

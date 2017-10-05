@@ -44,7 +44,7 @@ bool InformationManager::isAssigned(const sc2::Tag & unit) const
 void InformationManager::setValidUnits()
 {
     // make sure the unit is completed and alive and usable
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         m_validUnits.push_back(unit.tag);
     }

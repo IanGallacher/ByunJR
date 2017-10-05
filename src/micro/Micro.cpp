@@ -121,7 +121,7 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     {
         //std::cout << Util::EnemyDPSInRange(bot.GetUnit(rangedUnit)->pos, bot) << std::endl;
         kite = true;
-        fleePosition = bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition();
+        fleePosition = bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition();
     }
     else
     {

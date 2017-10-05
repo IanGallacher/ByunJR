@@ -13,7 +13,7 @@ DebugManager::DebugManager(ByunJRBot & bot)
 void DebugManager::drawAllUnitInformation() const
 {
     std::stringstream ss;
-    std::map<int, UnitInfo> ui = m_bot.UnitInfoManager().getUnitInfoMap(Players::Self);
+    std::map<int, UnitInfo> ui = m_bot.UnitInfoManager().getUnitInfoMap(PlayerArrayIndex::Self);
 
     ss << "Workers: " << ui.size() << std::endl;
 

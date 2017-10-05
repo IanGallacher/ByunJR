@@ -214,24 +214,24 @@ bool Util::IsDetectorType(const sc2::UnitTypeID & type)
     return false;
 }
 
-int Util::GetPlayer(const sc2::Unit & unit)
+PlayerArrayIndex Util::GetPlayer(const sc2::Unit & unit)
 {
     if (unit.alliance == sc2::Unit::Alliance::Self)
     {
-        return 0;
+        return PlayerArrayIndex::Self;
     }
 
-    if (unit.alliance == sc2::Unit::Alliance::Enemy)
+    else if (unit.alliance == sc2::Unit::Alliance::Enemy)
     {
-        return 1;
+        return PlayerArrayIndex::Enemy;
     }
 
-    if (unit.alliance == sc2::Unit::Alliance::Neutral)
+    else if (unit.alliance == sc2::Unit::Alliance::Neutral)
     {
-        return 2;
+        return PlayerArrayIndex::Neutral;
     }
 
-    return -1;
+    return PlayerArrayIndex::Error;
 }
 
 bool Util::IsCombatUnitType(const sc2::UnitTypeID type)

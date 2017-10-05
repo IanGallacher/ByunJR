@@ -47,11 +47,11 @@ const bool StrategyManager::shouldSendInitialScout() const
 {
     return true;
 
-    switch (m_bot.GetPlayerRace(Players::Self))
+    switch (m_bot.GetPlayerRace(PlayerArrayIndex::Self))
     {
-    case sc2::Race::Terran:  return m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
-    case sc2::Race::Protoss: return m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
-    case sc2::Race::Zerg:    return m_bot.UnitInfoManager().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+    case sc2::Race::Terran:  return m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+    case sc2::Race::Protoss: return m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+    case sc2::Race::Zerg:    return m_bot.UnitInfoManager().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
     default: return false;
     }
 }
@@ -110,7 +110,7 @@ void StrategyManager::onEnd(const bool isWinner)
 
 void StrategyManager::readStrategyFile(const std::string & filename)
 {
-    sc2::Race race = m_bot.GetPlayerRace(Players::Self);
+    sc2::Race race = m_bot.GetPlayerRace(PlayerArrayIndex::Self);
     std::string ourRace = Util::GetStringFromRace(race);
     std::string config = m_bot.Config().RawConfigString;
     rapidjson::Document doc;

@@ -26,12 +26,12 @@ void UnitInfoManager::onFrame()
 
 void UnitInfoManager::updateUnitInfo()
 {
-    m_units[Players::Self].clear();
-    m_units[Players::Enemy].clear();
+    m_units[PlayerArrayIndex::Self].clear();
+    m_units[PlayerArrayIndex::Enemy].clear();
 
     for (auto & unit : m_bot.Observation()->GetUnits())
     {
-        if (Util::GetPlayer(*unit) == Players::Self || Util::GetPlayer(*unit) == Players::Enemy)
+        if (Util::GetPlayer(*unit) == PlayerArrayIndex::Self || Util::GetPlayer(*unit) == PlayerArrayIndex::Enemy)
         {
             updateUnit(*unit);
             m_units[Util::GetPlayer(*unit)].push_back(*unit);
@@ -39,16 +39,16 @@ void UnitInfoManager::updateUnitInfo()
     }
 
     // remove bad enemy units
-    m_unitData[Players::Self].removeBadUnits();
-    m_unitData[Players::Enemy].removeBadUnits();
+    m_unitData[PlayerArrayIndex::Self].removeBadUnits();
+    m_unitData[PlayerArrayIndex::Enemy].removeBadUnits();
 }
 
-const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(int player) const
+const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(PlayerArrayIndex player) const
 {
     return getUnitData(player).getUnitInfoMap();
 }
 
-const std::vector<sc2::Unit> & UnitInfoManager::getUnits(int player) const
+const std::vector<sc2::Unit> & UnitInfoManager::getUnits(PlayerArrayIndex player) const
 {
     BOT_ASSERT(m_units.find(player) != m_units.end(), "Couldn't find player units: %d", player);
 
@@ -177,11 +177,10 @@ void UnitInfoManager::drawSelectedUnitDebugInfo()
         debug->DebugSphereOut(target, 1.25f, sc2::Colors::Blue);
         debug->DebugTextOut(target_info, p1, sc2::Colors::Yellow);
     }
-    
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::getUnitTypeCount(int player, sc2::UnitTypeID type, bool completed) const
+size_t UnitInfoManager::getUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed) const
 {
     size_t count = 0;
 
@@ -208,8 +207,8 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     // for each unit in the queue
     for (int t(0); t < 255; t++)
     {
-        int numUnits =      m_unitData.at(Players::Self).getNumUnits(t);
-        int numDeadUnits =  m_unitData.at(Players::Enemy).getNumDeadUnits(t);
+        int numUnits =      m_unitData.at(PlayerArrayIndex::Self).getNumUnits(t);
+        int numDeadUnits =  m_unitData.at(PlayerArrayIndex::Enemy).getNumDeadUnits(t);
 
         // if there exist units in the vector
         if (numUnits > 0)
@@ -218,7 +217,7 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
         }
     }
     
-    for (auto & kv : getUnitData(Players::Enemy).getUnitInfoMap())
+    for (auto & kv : getUnitData(PlayerArrayIndex::Enemy).getUnitInfoMap())
     {
         m_bot.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
         m_bot.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
@@ -227,7 +226,7 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
 
 void UnitInfoManager::updateUnit(const sc2::Unit & unit)
 {
-    if (!(Util::GetPlayer(unit) == Players::Self || Util::GetPlayer(unit) == Players::Enemy))
+    if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
     {
         return;
     }
@@ -239,7 +238,7 @@ void UnitInfoManager::updateUnit(const sc2::Unit & unit)
 bool UnitInfoManager::isValidUnit(const sc2::Unit & unit)
 {
     // we only care about our units and enemy units
-    if (!(Util::GetPlayer(unit) == Players::Self || Util::GetPlayer(unit) == Players::Enemy))
+    if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
     {
         return false;
     }
@@ -260,7 +259,7 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit & unit)
     return true;
 }
 
-void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Point2D p,int player, float radius) const
+void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Point2D p, PlayerArrayIndex player, float radius) const
 {
     bool hasBunker = false;
     // for each unit we know about for that player
@@ -278,7 +277,7 @@ void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Poin
     }
 }
 
-const UnitData & UnitInfoManager::getUnitData(int player) const
+const UnitData & UnitInfoManager::getUnitData(PlayerArrayIndex player) const
 {
     return m_unitData.find(player)->second;
 }

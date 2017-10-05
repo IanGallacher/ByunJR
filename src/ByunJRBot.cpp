@@ -32,11 +32,11 @@ void ByunJRBot::OnGameStart()
     {
         if (playerInfo.player_id == playerID)
         {
-            m_playerRace[Players::Self] = playerInfo.race_actual;
+            m_playerRace[(int)PlayerArrayIndex::Self] = playerInfo.race_actual;
         }
         else
         {
-            m_playerRace[Players::Enemy] = playerInfo.race_requested;
+            m_playerRace[(int)PlayerArrayIndex::Enemy] = playerInfo.race_requested;
         }
     }
 
@@ -124,10 +124,10 @@ void ByunJRBot::Resign()
 }
 
 // TODO: Figure out my race
-const sc2::Race & ByunJRBot::GetPlayerRace(int player) const
+const sc2::Race & ByunJRBot::GetPlayerRace(PlayerArrayIndex player) const
 {
-    BOT_ASSERT(player == Players::Self || player == Players::Enemy, "invalid player for GetPlayerRace");
-    return m_playerRace[player];
+    BOT_ASSERT(player == PlayerArrayIndex::Self || player == PlayerArrayIndex::Enemy, "invalid player for GetPlayerRace");
+    return m_playerRace[(int) player];
 }
 
 BotConfig & ByunJRBot::Config()

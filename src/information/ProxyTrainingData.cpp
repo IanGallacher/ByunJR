@@ -16,7 +16,7 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     m_bot = &bot;
 
-    m_playerStart_y = (int)bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
+    m_playerStart_y = (int)bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition().y;
     // This won't work for four player maps.
     m_enemyStart_y = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 

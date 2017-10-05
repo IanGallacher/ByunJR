@@ -45,7 +45,7 @@ void WorkerManager::stopRepairing(const sc2::Unit & worker)
 void WorkerManager::handleGasWorkers()
 {
     // for each unit we have
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         // if that unit is a refinery
         if (Util::IsRefinery(unit) && Util::IsCompleted(unit))
@@ -170,7 +170,7 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
     sc2::Tag closestDepot = 0;
     double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Self))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
     {
         //if (!m_bot.GetUnit(unit.tag)) { continue; }
 

@@ -62,14 +62,14 @@ void ScoutManager::moveScouts()
 
     if(scoutHP <= 10)
     {
-        Micro::SmartMove(m_scoutUnitTag, m_bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition(), m_bot);
+        Micro::SmartMove(m_scoutUnitTag, m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition(), m_bot);
         m_bot.Workers().finishedWithWorker(m_scoutUnitTag);
         m_scoutUnitTag = -1;
         return;
     }
 
     // get the enemy base location, if we have one
-    const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+    const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
     int scoutDistanceThreshold = 20;
 
@@ -168,7 +168,7 @@ const sc2::Unit * ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) c
     float minDist = std::numeric_limits<float>::max();
 
     // for each enemy worker
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Enemy))
     {
         if (Util::IsWorker(unit))
         {
@@ -186,7 +186,7 @@ const sc2::Unit * ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) c
 }
 bool ScoutManager::enemyWorkerInRadiusOf(const sc2::Point2D & pos) const
 {
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(Players::Enemy))
+    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Enemy))
     {
         if (Util::IsWorker(unit) && Util::Dist(unit.pos, pos) < 10)
         {
