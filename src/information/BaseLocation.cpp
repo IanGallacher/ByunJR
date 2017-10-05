@@ -157,14 +157,14 @@ const std::vector<sc2::Unit> & BaseLocation::getMinerals() const
 
 const sc2::Point2D & BaseLocation::getPosition() const
 {
-    return m_depotPosition;
+    //return m_depotPosition;
     return m_centerOfResources;
 }
 
 int BaseLocation::getGroundDistance(const sc2::Point2D & pos) const
 {
-    //return Util::Dist(pos, m_centerOfResources);
-    return m_distanceMap.getDistance(pos);
+    return Util::Dist(pos, m_centerOfResources);
+    //return m_distanceMap.getDistance(pos);
 }
 
 bool BaseLocation::isStartLocation() const
