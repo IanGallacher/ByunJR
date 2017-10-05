@@ -13,10 +13,9 @@ InformationManager::InformationManager(ByunJRBot & bot)
 
 }
 
-sc2::Point2D InformationManager::GetProxyLocation()
+sc2::Point2D InformationManager::GetProxyLocation() const
 {
     return m_bot.GetProxyManager().getProxyLocation();
-    //    return sc2::Point2D(150, 100);
 }
 
 void InformationManager::assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units)
@@ -107,7 +106,7 @@ void InformationManager::handleUnitAssignments()
     setCombatUnits();
 }
 
-const std::vector<sc2::Tag> InformationManager::GetCombatUnits() const
+std::vector<sc2::Tag> InformationManager::GetCombatUnits() const
 {
     return m_combatUnits;
 }
