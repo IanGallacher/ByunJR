@@ -4,10 +4,13 @@
 #include "global/BotConfig.h"
 #include "rapidjson/document.h"
 #include "util/JSONTools.h"
+#include "util/Util.h"
+#include "StrategyManager.h"
 
 
 BotConfig::BotConfig()
 {
+    RawConfigString                     = "";
     ConfigFileFound                     = true;
     ConfigFileParsed                    = true;
     ConfigFileLocation                  = "BotConfig.txt";
@@ -23,6 +26,12 @@ BotConfig::BotConfig()
     FoundEnemySpecificStrategy          = false;
     UsingAutoObserver                   = false;
 
+    // Micro
+    KiteWithRangedUnits = true;
+    ScoutHarassEnemy = true;
+    CombatUnitsForAttack = 12;
+
+    // Debug 
     DrawGameInfo                        = true;
     DrawProductionInfo                  = true;
     DrawTileInfo                        = false;
@@ -38,18 +47,12 @@ BotConfig::BotConfig()
     DrawUnitTargetInfo                  = false;
     DrawSquadInfo                       = false;
 
-    KiteWithRangedUnits                 = true;
-    ScoutHarassEnemy                    = true;
-    CombatUnitsForAttack                = 12;
-
     ColorLineTarget                     = sc2::Colors::White;
     ColorLineMineral                    = sc2::Colors::Teal;
     ColorUnitNearEnemy                  = sc2::Colors::Red;
     ColorUnitNotNearEnemy               = sc2::Colors::Green;
     
-    WorkersPerRefinery                  = 3;
     BuildingSpacing                     = 1;
-    PylonSpacing                        = 3;
 
     ProxyLocationX                      = 0;
     ProxyLocationY                      = 0;
@@ -59,9 +62,9 @@ void BotConfig::readConfigFile()
 {
     rapidjson::Document doc;
 
-    std::string config = JSONTools::ReadFile(ConfigFileLocation);
+    RawConfigString = JSONTools::ReadFile(ConfigFileLocation);
 
-    if (config.length() == 0)
+    if (RawConfigString.length() == 0)
     {
         std::cerr << "Error: Config File Not Found or is Empty\n";
         std::cerr << "Config Filename: " << ConfigFileLocation << "\n";
@@ -72,7 +75,7 @@ void BotConfig::readConfigFile()
         return;
     }
 
-    bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
+    const bool parsingFailed = doc.Parse(RawConfigString.c_str()).HasParseError();
     if (parsingFailed)
     {
         std::cerr << "Error: Config File Found, but could not be parsed\n";
@@ -109,16 +112,6 @@ void BotConfig::readConfigFile()
         JSONTools::ReadInt("CombatUnitsForAttack", micro, CombatUnitsForAttack);
     }
 
-    // Parse the Macro Options
-    if (doc.HasMember("Macro") && doc["Macro"].IsObject())
-    {
-        const rapidjson::Value & macro = doc["Macro"];
-        JSONTools::ReadBool("TrainingMode", macro, TrainingMode);
-        JSONTools::ReadInt("BuildingSpacing", macro, BuildingSpacing);
-        JSONTools::ReadInt("PylongSpacing", macro, PylonSpacing);
-        JSONTools::ReadInt("WorkersPerRefinery", macro, WorkersPerRefinery);
-    }
-
     // Parse the Debug Options
     if (doc.HasMember("Debug") && doc["Debug"].IsObject())
     {
@@ -147,32 +140,57 @@ void BotConfig::readConfigFile()
 
         JSONTools::ReadBool("UseAutoObserver", module, UsingAutoObserver);
     }
-}
 
-sc2::Race BotConfig::GetRace(const std::string & raceName)
-{
-    if (raceName == "Protoss")
+
+    // Yes, the playerRace was already parsed in main.cpp.
+    // This data does not need to be stored in the config object.
+    // We still need to parse it again so that we can get the strategy from the config text file. 
+    std::string playerRace;
+    if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
     {
-        return sc2::Race::Protoss;
+        const rapidjson::Value & info = doc["Game Info"];
+        JSONTools::ReadString("BotRace", info, playerRace);
     }
 
-    if (raceName == "Terran")
+    // Parse the Strategy Options
+    if (doc.HasMember("Strategy") && doc["Strategy"].IsObject())
     {
-        return sc2::Race::Terran;
-    }
+        const rapidjson::Value & strategy = doc["Strategy"];
 
-    if (raceName == "Zerg")
-    {
-        return sc2::Race::Zerg;
-    }
+        // read in the various strategic elements
+        JSONTools::ReadBool("ScoutHarassEnemy", strategy, ScoutHarassEnemy);
+        JSONTools::ReadString("ReadDirectory", strategy, ReadDir);
+        JSONTools::ReadString("WriteDirectory", strategy, WriteDir);
 
-    if (raceName == "Random")
-    {
-        return sc2::Race::Random;
-    }
+        // if we have set a strategy for the current race, use it
+        if (strategy.HasMember(playerRace.c_str()) && strategy[playerRace.c_str()].IsString())
+        {
+            StrategyName = strategy[playerRace.c_str()].GetString();
+        }
 
-    BOT_ASSERT(false, "Race not found: %s", raceName.c_str());
-    return sc2::Race::Random;
+        // check if we are using an enemy specific strategy
+        JSONTools::ReadBool("UseEnemySpecificStrategy", strategy, UseEnemySpecificStrategy);
+
+        if (UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
+        {
+            // TODO: Figure out enemy name
+            const std::string enemyName = "ENEMY NAME";
+            const rapidjson::Value & specific = strategy["EnemySpecificStrategy"];
+
+            // check to see if our current enemy name is listed anywhere in the specific strategies
+            if (specific.HasMember(enemyName.c_str()) && specific[enemyName.c_str()].IsObject())
+            {
+                const rapidjson::Value & enemyStrategies = specific[enemyName.c_str()];
+
+                // if that enemy has a strategy listed for our current race, use it
+                if (enemyStrategies.HasMember(playerRace.c_str()) && enemyStrategies[playerRace.c_str()].IsString())
+                {
+                    StrategyName = enemyStrategies[playerRace.c_str()].GetString();
+                    FoundEnemySpecificStrategy = true;
+                }
+            }
+        }
+    }
 }
 
 void BotConfig::setProxyLocation(const int x, const int y)

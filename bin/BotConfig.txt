@@ -20,14 +20,6 @@
         "CombatUnitsForAttack"      : 1
     },
 
-    "Macro" :
-    {
-        "TrainingMode"              : true,
-        "WorkersPerRefinery"        : 3,
-        "BuildingSpacing"           : 0,
-        "PylonSpacing"              : 3
-    },
-
     "Debug" :
     {
         "DrawGameInfo"              : true,
@@ -53,11 +45,9 @@
 
     "Strategy" :
     {
-        "Protoss"                   : "Protoss_ZealotRush",
-        "Terran"                    : "Terran_ReaperRush",
-        "Zerg"                      : "Zerg_2HatchRoach",
-
+        "TrainingMode"              : true,
         "ScoutHarassEnemy"          : true,
+        "Terran"                    : "Terran_ReaperRush",
 
         "Strategies" :
         {

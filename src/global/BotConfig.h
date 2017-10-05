@@ -1,11 +1,12 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
+#include "util/JSONTools.h"
+
 class BotConfig
 {
-    sc2::Race GetRace(const std::string & raceName);
-
 public:
+    std::string RawConfigString;
 
     bool ConfigFileFound;
     bool ConfigFileParsed;
@@ -24,7 +25,7 @@ public:
     std::string WriteDir;
     bool TrainingMode;
     bool UseEnemySpecificStrategy;
-    bool FoundEnemySpecificStrategy;
+    bool FoundEnemySpecificStrategy; 
     
     bool DrawGameInfo;
     bool DrawTileInfo;
@@ -51,9 +52,7 @@ public:
     bool ScoutHarassEnemy;
     int CombatUnitsForAttack;
     
-    int WorkersPerRefinery;
     int BuildingSpacing;
-    int PylonSpacing;
     int ProxyLocationX;
     int ProxyLocationY;
  

@@ -112,7 +112,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
 {
     sc2::Race race = m_bot.GetPlayerRace(Players::Self);
     std::string ourRace = Util::GetStringFromRace(race);
-    std::string config = JSONTools::ReadFile(filename);
+    std::string config = m_bot.Config().RawConfigString;
     rapidjson::Document doc;
     bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
