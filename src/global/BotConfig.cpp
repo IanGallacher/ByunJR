@@ -158,6 +158,7 @@ void BotConfig::readConfigFile()
         const rapidjson::Value & strategy = doc["Strategy"];
 
         // read in the various strategic elements
+        JSONTools::ReadBool("TrainingMode", strategy, TrainingMode);
         JSONTools::ReadBool("ScoutHarassEnemy", strategy, ScoutHarassEnemy);
         JSONTools::ReadString("ReadDirectory", strategy, ReadDir);
         JSONTools::ReadString("WriteDirectory", strategy, WriteDir);
