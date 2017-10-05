@@ -208,10 +208,18 @@ float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
     return maxDamage;
 }
 
-// TODO: implement
 bool Util::IsDetectorType(const sc2::UnitTypeID & type)
 {
-    return false;
+    switch (type.ToType())
+    {
+    case sc2::UNIT_TYPEID::PROTOSS_OBSERVER: return true;
+    case sc2::UNIT_TYPEID::TERRAN_RAVEN: return true;
+    case sc2::UNIT_TYPEID::ZERG_OVERSEER: return true;
+    case sc2::UNIT_TYPEID::TERRAN_MISSILETURRET: return true;
+    case sc2::UNIT_TYPEID::ZERG_SPORECRAWLER: return true;
+    case sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON: return true;
+    default: return false;
+    }
 }
 
 PlayerArrayIndex Util::GetPlayer(const sc2::Unit & unit)
@@ -352,17 +360,12 @@ void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInter
 
 std::string Util::GetStringFromRace(const sc2::Race & race)
 {
-    if (race == sc2::Race::Terran)
+    switch ( race )
     {
-        return "Terran";
-    }
-    else if (race == sc2::Race::Protoss)
-    {
-        return "Protoss";
-    }
-    else
-    {
-        return "Zerg";
+        case sc2::Race::Terran: return "Terran";
+        case sc2::Race::Protoss: return "Protoss";
+        case sc2::Race::Zerg: return "Zerg";
+        default: return "Random";
     }
 }
 
