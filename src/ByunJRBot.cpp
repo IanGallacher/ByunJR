@@ -1,3 +1,4 @@
+#include <sstream>
 #include <sc2api/sc2_api.h>
 
 #include "ByunJRBot.h"
@@ -9,8 +10,12 @@ ByunJRBot::ByunJRBot()
     , m_bases(*this)
     , m_unitInfo(*this)
     , m_workers(*this)
-    , m_gameCommander(*this)
-    , m_strategy(*this),
+    , m_productionManager(*this)
+    , m_scoutManager(*this)
+    , m_proxyManager(*this)
+    , m_combatCommander(*this)
+    , m_strategy(*this)
+    , m_informationManager(*this),
     m_isWillingToFight(true)
 {
     
@@ -40,7 +45,10 @@ void ByunJRBot::OnGameStart()
     m_bases.onStart();
     m_workers.onStart();
 
-    m_gameCommander.onStart();
+    m_productionManager.onStart();
+    m_scoutManager.onStart();
+    m_proxyManager.onStart();
+    m_combatCommander.onStart();
 }
 
 void ByunJRBot::OnStep()
@@ -53,21 +61,50 @@ void ByunJRBot::OnStep()
     m_workers.onFrame();
     m_strategy.onFrame();
 
-    m_gameCommander.onFrame();
+    m_strategy.handleUnitAssignments();
+
+    m_productionManager.onFrame();
+    m_scoutManager.onFrame();
+    m_proxyManager.onFrame();
+    m_combatCommander.onFrame(m_informationManager.GetCombatUnits());
+
+    drawDebugInterface();
 
     Debug()->SendDebug();
 }
 
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
-    m_gameCommander.onUnitCreated(*unit);
+    m_proxyManager.onUnitCreated(*unit);
 }
 
+//void ByunJRBot::onUnitDestroy(const sc2::Unit & unit)
+//{
+//    //_productionManager.onUnitDestroy(unit);
+//}
+
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
-    m_gameCommander.onUnitEnterVision(*unit);
+    m_proxyManager.onUnitEnterVision(*unit);
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    m_gameCommander.onBuildingConstructionComplete(*unit);
+    m_productionManager.onBuildingConstructionComplete(*unit);
+}
+
+
+
+
+void ByunJRBot::drawDebugInterface()
+{
+    drawGameInformation(4, 1);
+}
+
+void ByunJRBot::drawGameInformation(int x, int y)
+{
+    std::stringstream ss;
+    ss << "Players: " << "\n";
+    ss << "Strategy: " << m_config.StrategyName << "\n";
+    ss << "Map Name: " << "\n";
+    ss << "Time: " << "\n";
 }
 
 // Returns true if the bot thinks it still has a chance.
@@ -81,7 +118,6 @@ void ByunJRBot::Resign()
 {
     m_isWillingToFight = false;
 }
-
 
 // TODO: Figure out my race
 const sc2::Race & ByunJRBot::GetPlayerRace(int player) const
@@ -105,9 +141,19 @@ const StrategyManager & ByunJRBot::Strategy() const
     return m_strategy;
 }
 
+InformationManager & ByunJRBot::InformationManager()
+{
+    return m_informationManager;
+}
+
 const BaseLocationManager & ByunJRBot::Bases() const
 {
     return m_bases;
+}
+
+ScoutManager & ByunJRBot::Scout()
+{
+    return m_scoutManager;
 }
 
 const UnitInfoManager & ByunJRBot::UnitInfo() const
@@ -115,14 +161,13 @@ const UnitInfoManager & ByunJRBot::UnitInfo() const
     return m_unitInfo;
 }
 
-GameCommander & ByunJRBot::GameCommander()
-{
-    return m_gameCommander;
-}
-
 WorkerManager & ByunJRBot::Workers()
 {
     return m_workers;
+}
+
+ProxyManager & ByunJRBot::GetProxyManager() {
+    return m_proxyManager;
 }
 
 const sc2::Unit * ByunJRBot::GetUnit(const sc2::Tag & tag) const

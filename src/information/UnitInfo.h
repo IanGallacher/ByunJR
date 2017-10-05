@@ -1,11 +1,16 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-struct UnitInfo
+
+
+enum class UnitMission { Idle, Wait, Move, Minerals, Gas, Build, Attack, Defend, Harass, Repair, Scout, Proxy };
+
+class UnitInfo
 {
     // we need to store all of this data because if the unit is not visible, we
     // can't reference it from the unit pointer
 
+public:
     int             tag;
     float           lastHealth;
     float           lastShields;
@@ -14,6 +19,7 @@ struct UnitInfo
     sc2::Point3D    lastPosition;
     sc2::UnitTypeID type;
     float           progress;
+    UnitMission     mission;
 
     UnitInfo()
         : tag(0)
@@ -24,6 +30,24 @@ struct UnitInfo
         , progress(1.0)
     {
 
+    }
+
+    const char getJobCode(const sc2::Tag & unit)
+    {
+        const UnitMission j = mission;
+
+        if (j == UnitMission::Build)     return 'B';
+        if (j == UnitMission::Attack)    return 'A';
+        if (j == UnitMission::Attack)    return 'D';
+        if (j == UnitMission::Wait)      return 'W';
+        if (j == UnitMission::Gas)       return 'G';
+        if (j == UnitMission::Idle)      return 'I';
+        if (j == UnitMission::Minerals)  return 'M';
+        if (j == UnitMission::Repair)    return 'R';
+        if (j == UnitMission::Move)      return 'O';
+        if (j == UnitMission::Scout)     return 'S';
+        if (j == UnitMission::Proxy)     return 'P';
+        return 'X';
     }
 
     const bool operator == (sc2::Unit & unit) const
@@ -40,31 +64,4 @@ struct UnitInfo
     {
         return (tag < rhs.tag);
     }
-};
-
-typedef std::vector<UnitInfo> UnitInfoVector;
-
-class UnitData
-{
-    std::map<int, UnitInfo> m_unitMap;
-    std::vector<int>        m_numDeadUnits;
-    std::vector<int>        m_numUnits;
-    int                     m_mineralsLost;
-    int	                    m_gasLost;
-
-    const bool badUnitInfo(const UnitInfo & ui) const;
-
-public:
-
-    UnitData();
-
-    void	updateUnit(const sc2::Unit & unit);
-    void	killUnit(const sc2::Unit & unit);
-    void	removeBadUnits();
-
-    int		getGasLost()                                const;
-    int		getMineralsLost()                           const;
-    int		getNumUnits(sc2::UnitTypeID t)              const;
-    int		getNumDeadUnits(sc2::UnitTypeID t)          const;
-    const	std::map<int, UnitInfo> & getUnitInfoMap()  const;
 };

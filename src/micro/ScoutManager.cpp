@@ -141,14 +141,15 @@ void ScoutManager::moveScouts()
     if (!enemyBaseLocation)
     {
         m_scoutStatus = "Enemy base unknown, exploring";
-
-        for (const BaseLocation * startLocation : m_bot.Bases().getStartingBaseLocations())
+        
+        //for (const BaseLocation * startLocation : m_bot.Bases().getStartingBaseLocations())
+        for (const sc2::Point2D startLocation : m_bot.Observation()->GetGameInfo().enemy_start_locations)
         {
             // if we haven't explored it yet then scout it out
             // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
-            if (!m_bot.Map().isExplored(startLocation->getPosition()))
+            if (!m_bot.Map().isExplored(startLocation))
             {
-                Micro::SmartMove(m_scoutUnitTag, startLocation->getPosition(), m_bot);
+                Micro::SmartMove(m_scoutUnitTag, startLocation, m_bot);
                 return;
             }
         }

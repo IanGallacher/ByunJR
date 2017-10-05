@@ -22,8 +22,8 @@ class StrategyManager
 {
     ByunJRBot & m_bot;
 
-    sc2::Race					    m_selfRace;
-    sc2::Race					    m_enemyRace;
+    sc2::Race                       m_selfRace;
+    sc2::Race                       m_enemyRace;
     std::map<std::string, Strategy> m_strategies;
     int                             m_totalGamesPlayed;
     const BuildOrder                m_emptyBuildOrder;
@@ -44,4 +44,9 @@ public:
     const UnitPairVector getBuildOrderGoal() const;
     const BuildOrder & getOpeningBookBuildOrder() const;
     void readStrategyFile(const std::string & str);
+
+
+    void handleUnitAssignments();
+
+    const bool shouldSendInitialScout() const;
 };

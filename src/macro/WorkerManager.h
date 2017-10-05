@@ -36,8 +36,6 @@ public:
     void        setRepairWorker(const sc2::Unit & worker,const sc2::Unit & unitToRepair);
     void        stopRepairing(const sc2::Unit & worker);
 
-    int         getNumMineralWorkers();
-    int         getNumGasWorkers();
     bool        isWorkerScout(const sc2::Unit & worker) const;
     bool        isFree(const sc2::Unit & worker) const;
     bool        isBuilder(const sc2::Unit & worker) const;

@@ -157,6 +157,7 @@ const std::vector<sc2::Unit> & BaseLocation::getMinerals() const
 
 const sc2::Point2D & BaseLocation::getPosition() const
 {
+    return m_depotPosition;
     return m_centerOfResources;
 }
 

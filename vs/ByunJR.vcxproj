@@ -281,11 +281,12 @@
     <ClCompile Include="..\src\ai\GeneticAlgorithm.cpp" />
     <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\common\BotAssert.cpp" />
-    <ClCompile Include="..\src\GameCommander.cpp" />
     <ClCompile Include="..\src\global\BotConfig.cpp" />
-    <ClCompile Include="..\src\global\StrategyManager.cpp" />
+    <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\information\BaseLocation.cpp" />
     <ClCompile Include="..\src\information\BaseLocationManager.cpp" />
+    <ClCompile Include="..\src\information\ProxyTrainingData.cpp" />
+    <ClCompile Include="..\src\information\UnitData.cpp" />
     <ClCompile Include="..\src\information\UnitInfoManager.cpp" />
     <ClCompile Include="..\src\information\WorkerData.cpp" />
     <ClCompile Include="..\src\macro\Building.cpp" />
@@ -306,10 +307,10 @@
     <ClCompile Include="..\src\micro\Squad.cpp" />
     <ClCompile Include="..\src\micro\SquadData.cpp" />
     <ClCompile Include="..\src\micro\SquadOrder.cpp" />
+    <ClCompile Include="..\src\StrategyManager.cpp" />
     <ClCompile Include="..\src\util\DistanceMap.cpp" />
     <ClCompile Include="..\src\util\JSONTools.cpp" />
     <ClCompile Include="..\src\util\MapTools.cpp" />
-    <ClCompile Include="..\src\util\UnitData.cpp" />
     <ClCompile Include="..\src\util\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -317,11 +318,13 @@
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\common\BotAssert.h" />
     <ClInclude Include="..\src\common\Common.h" />
-    <ClInclude Include="..\src\GameCommander.h" />
     <ClInclude Include="..\src\global\BotConfig.h" />
-    <ClInclude Include="..\src\global\StrategyManager.h" />
+    <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\information\BaseLocation.h" />
     <ClInclude Include="..\src\information\BaseLocationManager.h" />
+    <ClInclude Include="..\src\information\ProxyTrainingData.h" />
+    <ClInclude Include="..\src\information\UnitData.h" />
+    <ClInclude Include="..\src\information\UnitInfo.h" />
     <ClInclude Include="..\src\information\UnitInfoManager.h" />
     <ClInclude Include="..\src\information\WorkerData.h" />
     <ClInclude Include="..\src\macro\Building.h" />
@@ -341,11 +344,11 @@
     <ClInclude Include="..\src\micro\Squad.h" />
     <ClInclude Include="..\src\micro\SquadData.h" />
     <ClInclude Include="..\src\micro\SquadOrder.h" />
+    <ClInclude Include="..\src\StrategyManager.h" />
     <ClInclude Include="..\src\util\DistanceMap.h" />
     <ClInclude Include="..\src\util\JSONTools.h" />
     <ClInclude Include="..\src\util\MapTools.h" />
     <ClInclude Include="..\src\util\Timer.hpp" />
-    <ClInclude Include="..\src\util\UnitData.h" />
     <ClInclude Include="..\src\util\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

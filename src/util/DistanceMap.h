@@ -5,7 +5,7 @@ class DistanceMap
     int m_height;
     sc2::Point2D m_startTile;
 
-    std::vector<std::vector<int>> m_dist;
+    vvi m_dist;
     std::vector<sc2::Point2D> m_sortedTilePositions;
     
 public:

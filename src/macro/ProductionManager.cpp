@@ -209,7 +209,7 @@ void ProductionManager::create(sc2::Tag producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            sc2::Point2D proxyLocation = m_bot.GameCommander().GetProxyLocation();
+            sc2::Point2D proxyLocation = m_bot.InformationManager().GetProxyLocation();
             m_buildingManager.addBuildingTask(t, proxyLocation);
         }
         else

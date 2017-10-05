@@ -2,13 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\GameCommander.cpp" />
     <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\ai\GeneticAlgorithm.cpp">
       <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\global\StrategyManager.cpp">
-      <Filter>global</Filter>
     </ClCompile>
     <ClCompile Include="..\src\global\BotConfig.cpp">
       <Filter>global</Filter>
@@ -61,9 +57,6 @@
     <ClCompile Include="..\src\util\JSONTools.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\util\UnitData.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\util\Util.cpp">
       <Filter>util</Filter>
     </ClCompile>
@@ -94,15 +87,19 @@
     <ClCompile Include="..\src\information\BaseLocation.cpp">
       <Filter>information</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\information\UnitData.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\ProxyTrainingData.cpp">
+      <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\InformationManager.cpp" />
+    <ClCompile Include="..\src\StrategyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\GameCommander.h" />
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\ai\GeneticAlgorithm.h">
       <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\global\StrategyManager.h">
-      <Filter>global</Filter>
     </ClInclude>
     <ClInclude Include="..\src\global\BotConfig.h">
       <Filter>global</Filter>
@@ -164,9 +161,6 @@
     <ClInclude Include="..\src\util\Timer.hpp">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\UnitData.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\util\Util.h">
       <Filter>util</Filter>
     </ClInclude>
@@ -194,6 +188,17 @@
     <ClInclude Include="..\src\information\WorkerData.h">
       <Filter>information</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\information\UnitData.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\UnitInfo.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\ProxyTrainingData.h">
+      <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\InformationManager.h" />
+    <ClInclude Include="..\src\StrategyManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">

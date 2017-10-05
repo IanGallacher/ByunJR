@@ -11,10 +11,6 @@ const size_t LegalActions = 4;
 const int actionX[LegalActions] ={1, -1, 0, 0};
 const int actionY[LegalActions] ={0, 0, 1, -1};
 
-typedef std::vector<std::vector<bool>> vvb;
-typedef std::vector<std::vector<int>>  vvi;
-typedef std::vector<std::vector<float>>  vvf;
-
 // constructor for MapTools
 MapTools::MapTools(ByunJRBot & bot)
     : m_bot     (bot)

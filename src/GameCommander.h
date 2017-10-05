@@ -12,11 +12,6 @@ class GameCommander
     ByunJRBot &              m_bot;
     Timer                    m_timer;
 
-    ProductionManager        m_productionManager;
-    ScoutManager             m_scoutManager;
-    ProxyManager             m_proxyManager;
-    CombatCommander          m_combatCommander;
-
     std::vector<sc2::Tag>    m_validUnits;
     std::vector<sc2::Tag>    m_combatUnits;
     std::vector<sc2::Tag>    m_scoutUnits;

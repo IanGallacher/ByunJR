@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
                     {
                         Population* pop = ga.getPopulation();
                         // grab proxy training data once
-                        sc2::Point2D point = bot.GameCommander().GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        sc2::Point2D point = bot.GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
                         std::vector<int> genes = std::vector<int>();
                         genes.resize(2);
                         genes[0] = point.x;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
                 {
                     Candidate c = ga.getPopulation()->getCandidate(i);
                     bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
-                    bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
+                    bot.GetProxyManager().getProxyTrainingData().setupProxyLocation();
                     alreadyInit = true;
                 }
             }
@@ -128,10 +128,10 @@ int main(int argc, char* argv[])
                 std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
             }
             coordinator.LeaveGame();
-            ga.setReward(i, bot.GameCommander().GetProxyManager().getProxyTrainingData().getReward());
+            ga.setReward(i, bot.GetProxyManager().getProxyTrainingData().getReward());
             if(i==9)
             {
-                ga.evolvePopulation(bot.GameCommander().GetProxyManager().getProxyTrainingData());
+                ga.evolvePopulation(bot.GetProxyManager().getProxyTrainingData());
                 std::cout << "MUTATING" << std::endl;
             }
         }

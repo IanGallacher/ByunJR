@@ -1,4 +1,4 @@
-#include "util/UnitData.h"
+#include "information/UnitData.h"
 #include "util/Util.h"
 
 UnitData::UnitData()
@@ -13,14 +13,14 @@ UnitData::UnitData()
 void UnitData::updateUnit(const sc2::Unit & unit)
 {
     bool firstSeen = false;
-    const auto & it = m_unitMap.find((int)unit.tag);
-    if (it == m_unitMap.end())
+    const auto & it = m_unitInfoMap.find((int)unit.tag);
+    if (it == m_unitInfoMap.end())
     {
         firstSeen = true;
-        m_unitMap[(int)unit.tag] = UnitInfo();
+        m_unitInfoMap[(int)unit.tag] = UnitInfo();
     }
 
-    UnitInfo & ui   = m_unitMap[(int)unit.tag];
+    UnitInfo & ui   = m_unitInfoMap[(int)unit.tag];
     ui.unit         = unit;
     ui.player       = Util::GetPlayer(unit);
     ui.lastPosition = unit.pos;
@@ -43,17 +43,17 @@ void UnitData::killUnit(const sc2::Unit & unit)
     m_numUnits[unit.unit_type]--;
     m_numDeadUnits[unit.unit_type]++;
 
-    m_unitMap.erase((int)unit.tag);
+    m_unitInfoMap.erase((int)unit.tag);
 }
 
 void UnitData::removeBadUnits()
 {
-    for (auto iter = m_unitMap.begin(); iter != m_unitMap.end();)
+    for (auto iter = m_unitInfoMap.begin(); iter != m_unitInfoMap.end();)
     {
         if (badUnitInfo(iter->second))
         {
             m_numUnits[iter->second.type]--;
-            iter = m_unitMap.erase(iter);
+            iter = m_unitInfoMap.erase(iter);
         }
         else
         {
@@ -89,5 +89,5 @@ int UnitData::getNumDeadUnits(sc2::UnitTypeID t) const
 
 const std::map<int, UnitInfo> & UnitData::getUnitInfoMap() const
 {
-    return m_unitMap;
+    return m_unitInfoMap;
 }

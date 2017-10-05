@@ -37,7 +37,7 @@ void DistanceMap::computeDistanceMap(ByunJRBot & m_bot, const sc2::Point2D & sta
     m_startTile = startTile;
     m_width = m_bot.Map().width();
     m_height = m_bot.Map().height();
-    m_dist = std::vector<std::vector<int>>(m_width, std::vector<int>(m_height, -1));
+    m_dist = vvi (m_width, std::vector<int>(m_height, -1));
     m_sortedTilePositions.reserve(m_width * m_height);
 
     // the fringe for the BFS we will perform to calculate distances

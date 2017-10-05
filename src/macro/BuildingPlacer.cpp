@@ -2,6 +2,7 @@
 #include "common/Common.h"
 #include "macro/BuildingPlacer.h"
 #include "util/Util.h"
+#include "util/Timer.hpp"
 
 BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
     : m_bot(bot)

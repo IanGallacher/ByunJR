@@ -10,7 +10,7 @@
     {
         "BotRace"                   : "Terran",
         "EnemyRace"                 : "Zerg",
-        "MapName"                   : "InterloperLE"
+        "MapName"                   : "BloodBoilLE"
     },
 
     "Micro" :
@@ -61,7 +61,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] } 
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] }
         }
     }
 }

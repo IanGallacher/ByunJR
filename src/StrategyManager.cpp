@@ -1,7 +1,7 @@
 #include "ByunJRBot.h"
 #include "common/BotAssert.h"
 #include "common/Common.h"
-#include "global/StrategyManager.h"
+#include "StrategyManager.h"
 #include "util/JSONTools.h"
 #include "util/Util.h"
 
@@ -35,6 +35,25 @@ void StrategyManager::onStart()
 void StrategyManager::onFrame()
 {
 
+}
+
+// assigns units to various managers
+void StrategyManager::handleUnitAssignments()
+{
+    m_bot.InformationManager().handleUnitAssignments();
+}
+
+const bool StrategyManager::shouldSendInitialScout() const
+{
+    return true;
+
+    switch (m_bot.GetPlayerRace(Players::Self))
+    {
+    case sc2::Race::Terran:  return m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+    case sc2::Race::Protoss: return m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+    case sc2::Race::Zerg:    return m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+    default: return false;
+    }
 }
 
 const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const

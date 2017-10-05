@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "util/UnitData.h"
+#include "information/UnitData.h"
 
 class ByunJRBot;
 class UnitInfoManager 
