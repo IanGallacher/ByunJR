@@ -44,20 +44,26 @@ sc2::Point2D InformationManager::GetProxyLocation() const
     return m_bot.GetProxyManager().getProxyLocation();
 }
 
-void InformationManager::assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units)
+void InformationManager::assignUnit(const sc2::Tag & unit, UnitMission job)
 {
     if (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end())
     {
-        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Scout);
         m_scoutUnits.erase(std::remove(m_scoutUnits.begin(), m_scoutUnits.end(), unit), m_scoutUnits.end());
     }
     else if (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
     {
-        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Attack);
         m_combatUnits.erase(std::remove(m_combatUnits.begin(), m_combatUnits.end(), unit), m_combatUnits.end());
     }
-
-    units.push_back(unit);
+    if(job == UnitMission::Attack)
+    {
+        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Attack);
+        m_combatUnits.push_back(unit);
+    }
+    if (job == UnitMission::Scout)
+    {
+        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Scout);
+        m_scoutUnits.push_back(unit);
+    }
 }
 
 bool InformationManager::isAssigned(const sc2::Tag & unit) const
@@ -95,7 +101,7 @@ void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
             {
                 m_bot.Scout().setWorkerScout(workerScoutTag);
 
-                assignUnit(workerScoutTag, m_scoutUnits);
+                assignUnit(workerScoutTag, UnitMission::Scout);
                 m_initialScoutSet = true;
             }
             else
@@ -116,7 +122,7 @@ void InformationManager::setCombatUnits()
 
         if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type))
         {
-            assignUnit(unitTag, m_combatUnits);
+            assignUnit(unitTag, UnitMission::Attack);
         }
     }
    /* if (!m_attackStarted)

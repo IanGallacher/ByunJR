@@ -16,7 +16,7 @@ class InformationManager
 
     bool                     m_initialScoutSet;
 
-    void assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag> & units);
+    void assignUnit(const sc2::Tag & unit, UnitMission job);
     bool isAssigned(const sc2::Tag & unit) const;
 
 public:
