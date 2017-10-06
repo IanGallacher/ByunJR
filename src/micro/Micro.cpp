@@ -83,7 +83,7 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     //	return;
     //}
 
-    float range = Util::GetAttackRange(bot.GetUnit(rangedUnit)->unit_type, bot);
+    const float range = Util::GetAttackRange(bot.GetUnit(rangedUnit)->unit_type, bot);
 
     //// determine whether the target can be kited
     //bool kiteLonger = Config::Micro::KiteLongerRangedUnits.find(rangedUnit->getType()) != Config::Micro::KiteLongerRangedUnits.end();
@@ -95,8 +95,8 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     //}
 
     bool kite(true);
-    double dist(bot.Map().getGroundDistance(bot.GetUnit(rangedUnit)->pos, bot.GetUnit(target)->pos));
-    double speed(bot.Observation()->GetUnitTypeData()[bot.GetUnit(rangedUnit)->unit_type].movement_speed);
+    const double dist(bot.Map().getGroundDistance(bot.GetUnit(rangedUnit)->pos, bot.GetUnit(target)->pos));
+    const double speed(bot.Observation()->GetUnitTypeData()[bot.GetUnit(rangedUnit)->unit_type].movement_speed);
 
 
     //// if the unit can't attack back don't kite
@@ -105,7 +105,7 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     //	//kite = false;
     //}
 
-    double timeToEnter = (dist - range) / speed;
+    const double timeToEnter = (dist - range) / speed;
     // If we start moving back to attack, will our weapon be off cooldown?
     if ((timeToEnter >= bot.GetUnit(rangedUnit)->weapon_cooldown))
     {

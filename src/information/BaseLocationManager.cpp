@@ -39,7 +39,7 @@ void BaseLocationManager::onStart()
             if (dist < clusterDistance)
             {
                 // now do a more expensive ground distance check
-                float groundDist = dist; //m_bot.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
+                const float groundDist = dist; //m_bot.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
                 if (groundDist >= 0 && groundDist < clusterDistance)
                 {
                     cluster.push_back(*mineral);
@@ -67,7 +67,7 @@ void BaseLocationManager::onStart()
         for (auto & cluster : resourceClusters)
         {
             //int groundDist = m_bot.Map().getGroundDistance(geyser.pos, Util::CalcCenter(cluster));
-            float groundDist = Util::Dist(geyser->pos, Util::CalcCenter(cluster));
+            const float groundDist = Util::Dist(geyser->pos, Util::CalcCenter(cluster));
 
             if (groundDist >= 0 && groundDist < clusterDistance)
             {
@@ -198,7 +198,7 @@ void BaseLocationManager::onFrame()
     // 2. we've explored every other start location and haven't seen the enemy yet
     if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
     {
-        int numStartLocations = (int)getStartingBaseLocations().size();
+        const int numStartLocations = (int)getStartingBaseLocations().size();
         int numExploredLocations = 0;
         BaseLocation * unexplored = nullptr;
 
@@ -267,7 +267,7 @@ void BaseLocationManager::drawBaseLocations()
     }
 
     // draw a purple sphere at the next expansion location
-    sc2::Point2D nextExpansionPosition = getNextExpansion(PlayerArrayIndex::Self);
+    const sc2::Point2D nextExpansionPosition = getNextExpansion(PlayerArrayIndex::Self);
 
     m_bot.Map().drawSphere(nextExpansionPosition, 1, sc2::Colors::Purple);
     m_bot.Map().drawText(nextExpansionPosition, "Next Expansion Location", sc2::Colors::Purple);
@@ -283,18 +283,18 @@ const std::vector<const BaseLocation *> & BaseLocationManager::getStartingBaseLo
     return m_startingBaseLocations;
 }
 
-const BaseLocation * BaseLocationManager::getPlayerStartingBaseLocation(PlayerArrayIndex player) const
+const BaseLocation * BaseLocationManager::getPlayerStartingBaseLocation(const PlayerArrayIndex player) const
 {
     return m_playerStartingBaseLocations.at(player);
 }
 
-const std::set<const BaseLocation *> & BaseLocationManager::getOccupiedBaseLocations(PlayerArrayIndex player) const
+const std::set<const BaseLocation *> & BaseLocationManager::getOccupiedBaseLocations(const PlayerArrayIndex player) const
 {
     return m_occupiedBaseLocations.at(player);
 }
 
 
-sc2::Point2D BaseLocationManager::getNextExpansion(PlayerArrayIndex player) const
+sc2::Point2D BaseLocationManager::getNextExpansion(const PlayerArrayIndex player) const
 {
     const BaseLocation * homeBase = getPlayerStartingBaseLocation(player);
     const BaseLocation * closestBase = nullptr;
@@ -311,9 +311,9 @@ sc2::Point2D BaseLocationManager::getNextExpansion(PlayerArrayIndex player) cons
         }
 
         // get the tile position of the base
-        auto tile = base->getDepotPosition();
+        const auto tile = base->getDepotPosition();
         
-        bool buildingInTheWay = false; // TODO: check if there are any units on the tile
+        const bool buildingInTheWay = false; // TODO: check if there are any units on the tile
 
         if (buildingInTheWay)
         {
@@ -321,7 +321,7 @@ sc2::Point2D BaseLocationManager::getNextExpansion(PlayerArrayIndex player) cons
         }
 
         // the base's distance from our main nexus
-        int distanceFromHome = homeBase->getGroundDistance(tile);
+        const int distanceFromHome = homeBase->getGroundDistance(tile);
 
         // if it is not connected, continue
         if (distanceFromHome < 0)

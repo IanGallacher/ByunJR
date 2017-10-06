@@ -78,7 +78,7 @@ void InformationManager::setValidUnits()
     }
 }
 
-void InformationManager::setScoutUnits(bool shouldSendInitialScout)
+void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
 {
     // if we haven't set a scout unit, do it
     if (m_scoutUnits.empty() && !m_initialScoutSet)

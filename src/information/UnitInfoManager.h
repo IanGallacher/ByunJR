@@ -18,7 +18,7 @@ class UnitInfoManager
     
     const UnitData &        getUnitData(PlayerArrayIndex player) const;
 
-    void drawSelectedUnitDebugInfo();
+    void drawSelectedUnitDebugInfo() const;
 
 public:
 

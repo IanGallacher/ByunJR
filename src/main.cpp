@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
+    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
     {
         std::cerr << "Config file could not be parsed, and is required for starting the bot\n";
@@ -97,12 +97,12 @@ int main(int argc, char* argv[])
                     {
                         Population* pop = ga.getPopulation();
                         // grab proxy training data once
-                        sc2::Point2D point = bot.GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        const sc2::Point2D point = bot.GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
                         std::vector<int> genes = std::vector<int>();
                         genes.resize(2);
                         genes[0] = point.x;
                         genes[1] = point.y;
-                        Candidate can = Candidate(genes);
+                        const Candidate can = Candidate(genes);
                         pop->setCanidate(i, can);
                     }
                     geneticAlgorithmSetup = true;

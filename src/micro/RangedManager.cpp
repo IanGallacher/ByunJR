@@ -22,7 +22,7 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
     std::vector<sc2::Tag> rangedUnitTargets;
     for (auto & targetTag : targets)
     {
-        auto target = m_bot.GetUnit(targetTag);
+        const auto target = m_bot.GetUnit(targetTag);
 
         if (!target) { continue; }
         if (target->unit_type == sc2::UNIT_TYPEID::ZERG_EGG) { continue; }

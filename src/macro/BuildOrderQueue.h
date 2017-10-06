@@ -35,9 +35,9 @@ public:
     void removeHighestPriorityItem();								// removes the highest priority item
     void removeCurrentHighestPriorityItem();
 
-    size_t size();													// returns the size of the queue
+    size_t size() const;													// returns the size of the queue
 
-    bool isEmpty();
+    bool isEmpty() const;
 
     BuildOrderItem & getHighestPriorityItem();	// returns the highest priority item
     BuildOrderItem & getNextHighestPriorityItem();	// returns the highest priority item

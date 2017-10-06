@@ -26,7 +26,7 @@ void WorkerData::updateAllWorkerData()
     // for each of our Workers
     for (auto & workerTag : getWorkers())
     {
-        auto worker = m_bot.GetUnit(workerTag);
+        const auto worker = m_bot.GetUnit(workerTag);
         if (worker == nullptr) { continue; }
 
         // TODO: If it's a gas worker whose refinery has been destroyed, set to minerals
@@ -89,7 +89,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
 
         // find the mineral to mine and mine it
         sc2::Tag cc = m_bot.Workers().getClosestCC(*m_bot.GetUnit(unit));
-        sc2::Tag mineralToMine = getMineralToMine(cc);
+        const sc2::Tag mineralToMine = getMineralToMine(cc);
         Micro::SmartRightClick(unit, mineralToMine, m_bot);
     }
     else if (job == UnitMission::Gas)
@@ -210,7 +210,7 @@ int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
 {
     if (Util::IsTownHall(*m_bot.GetUnit(unit)))
     {
-        auto it = m_depotWorkerCount.find(unit);
+        const auto it = m_depotWorkerCount.find(unit);
 
         // if there is an entry, return it
         if (it != m_depotWorkerCount.end())
@@ -220,7 +220,7 @@ int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
     }
     else if (Util::IsRefinery(*m_bot.GetUnit(unit)))
     {
-        auto it = m_refineryWorkerCount.find(unit);
+        const auto it = m_refineryWorkerCount.find(unit);
 
         // if there is an entry, return it
         if (it != m_refineryWorkerCount.end())
@@ -244,7 +244,7 @@ void WorkerData::drawDepotDebugInfo()
 {
     for (auto & depotTag : m_depots)
     {
-        auto depot = m_bot.GetUnit(depotTag);
+        const auto depot = m_bot.GetUnit(depotTag);
 
         if (!depot) continue;
         std::stringstream ss;

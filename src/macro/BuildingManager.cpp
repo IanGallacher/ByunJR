@@ -76,7 +76,7 @@ void BuildingManager::validateWorkersAndBuildings()
             continue;
         }
 
-        auto buildingUnit = m_bot.GetUnit(b.buildingUnitTag);
+        const auto buildingUnit = m_bot.GetUnit(b.buildingUnitTag);
 
         // TODO: || !b.buildingUnit->getType().isBuilding()
         if (!buildingUnit || (buildingUnit->health <= 0))
@@ -104,7 +104,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         if (m_debugMode) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab a worker unit from WorkerManager which is closest to this final position
-        sc2::Point2D testLocation = getBuildingLocation(b);
+        const sc2::Point2D testLocation = getBuildingLocation(b);
         if (!m_bot.Map().isOnMap(testLocation))
         {
             continue;
@@ -113,7 +113,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         b.finalPosition = testLocation;
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
         b.builderUnitTag = builderUnitTag;
         if (!b.builderUnitTag)
         {
@@ -125,7 +125,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            sc2::Point2D proxyLocation = b.desiredPosition;
+            const sc2::Point2D proxyLocation = b.desiredPosition;
             std::cout << "finalplacementlocation" << proxyLocation.x << "x " << proxyLocation.y << "y " << std::endl;
         }
 
@@ -144,7 +144,7 @@ void BuildingManager::constructAssignedBuildings()
         }
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
-        sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
+        const sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
         const sc2::Unit * builderUnit = m_bot.GetUnit(b.builderUnitTag);
 
         bool isConstructing = false;
@@ -238,8 +238,8 @@ void BuildingManager::checkForStartedConstruction()
             }
 
             // check if the positions match
-            float dx = b.finalPosition.x - buildingStarted.pos.x;
-            float dy = b.finalPosition.y - buildingStarted.pos.y;
+            const float dx = b.finalPosition.x - buildingStarted.pos.x;
+            const float dy = b.finalPosition.y - buildingStarted.pos.y;
 
             if (dx*dx + dy*dy < 1)
             {
@@ -337,12 +337,12 @@ char BuildingManager::getBuildingWorkerCode(const Building & b) const
     return b.builderUnitTag == 0 ? 'X' : 'W';
 }
 
-int BuildingManager::getReservedMinerals()
+int BuildingManager::getReservedMinerals() const
 {
     return m_reservedMinerals;
 }
 
-int BuildingManager::getReservedGas()
+int BuildingManager::getReservedGas() const
 {
     return m_reservedGas;
 }
@@ -386,10 +386,10 @@ void BuildingManager::drawBuildingInformation()
         {
             ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << getBuildingWorkerCode(b) << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
-            float x1 = b.finalPosition.x;
-            float y1 = b.finalPosition.y;
-            float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, m_bot);
-            float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, m_bot);
+            const float x1 = b.finalPosition.x;
+            const float y1 = b.finalPosition.y;
+            const float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, m_bot);
+            const float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, m_bot);
 
             m_bot.Map().drawSquare(x1, y1, x2, y2, sc2::Colors::Red);
             //m_bot.Map().drawLine(b.finalPosition, m_bot.GetUnit(b.builderUnitTag)->pos, sc2::Colors::Yellow);
@@ -418,7 +418,7 @@ std::vector<sc2::UnitTypeID> BuildingManager::buildingsQueued() const
     return buildingsQueued;
 }
 
-sc2::Point2D BuildingManager::getBuildingLocation(const Building & b)
+sc2::Point2D BuildingManager::getBuildingLocation(const Building & b) const
 {
     size_t numPylons = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(PlayerArrayIndex::Self)), true);
 

@@ -30,7 +30,7 @@ class MapTools
     int getSectorNumber(int x, int y) const;
     int getSectorNumber(const sc2::Point2D & pos) const;
         
-    void printMap();
+    void printMap() const;
 
 public:
 

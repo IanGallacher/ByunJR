@@ -286,51 +286,51 @@ float Util::Dist(const sc2::Point2D & p1, const sc2::Point2D & p2)
 
 float Util::DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2)
 {
-    float dx = p1.x - p2.x;
-    float dy = p1.y - p2.y;
+    const float dx = p1.x - p2.x;
+    const float dy = p1.y - p2.y;
 
     return dx*dx + dy*dy;
 }
 
 bool Util::Pathable(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    sc2::Point2DI pointI((int)point.x, (int)point.y);
+    const sc2::Point2DI pointI((int)point.x, (int)point.y);
     if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
     {
         return false;
     }
 
     assert(info.pathing_grid.data.size() == info.width * info.height);
-    unsigned char encodedPlacement = info.pathing_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    bool decodedPlacement = encodedPlacement == 255 ? false : true;
+    const unsigned char encodedPlacement = info.pathing_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
+    const bool decodedPlacement = encodedPlacement == 255 ? false : true;
     return decodedPlacement;
 }
 
 bool Util::Placement(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    sc2::Point2DI pointI((int)point.x, (int)point.y);
+    const sc2::Point2DI pointI((int)point.x, (int)point.y);
     if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
     {
         return false;
     }
 
     assert(info.placement_grid.data.size() == info.width * info.height);
-    unsigned char encodedPlacement = info.placement_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    bool decodedPlacement = encodedPlacement == 255 ? true : false;
+    const unsigned char encodedPlacement = info.placement_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
+    const bool decodedPlacement = encodedPlacement == 255 ? true : false;
     return decodedPlacement;
 }
 
 float Util::TerainHeight(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    sc2::Point2DI pointI((int)point.x, (int)point.y);
+    const sc2::Point2DI pointI((int)point.x, (int)point.y);
     if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
     {
         return 0.0f;
     }
 
     assert(info.terrain_height.data.size() == info.width * info.height);
-    unsigned char encodedHeight = info.terrain_height.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    float decodedHeight = -100.0f + 200.0f * float(encodedHeight) / 255.0f;
+    const unsigned char encodedHeight = info.terrain_height.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
+    const float decodedHeight = -100.0f + 200.0f * float(encodedHeight) / 255.0f;
     return decodedHeight;
 }
 
@@ -338,19 +338,19 @@ void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInter
 {
     const sc2::GameInfo& info = obs->GetGameInfo();
 
-    sc2::Point2D camera = obs->GetCameraPos();
+    const sc2::Point2D camera = obs->GetCameraPos();
     for (float x = camera.x - 8.0f; x < camera.x + 8.0f; ++x) 
     {
         for (float y = camera.y - 8.0f; y < camera.y + 8.0f; ++y) 
         {
             // Draw in the center of each 1x1 cell
-            sc2::Point2D point(x + 0.5f, y + 0.5f);
+            const  sc2::Point2D point(x + 0.5f, y + 0.5f);
 
-            float height = TerainHeight(info, sc2::Point2D(x, y));
-            bool placable = Placement(info, sc2::Point2D(x, y));
+            const float height = TerainHeight(info, sc2::Point2D(x, y));
+            const bool placable = Placement(info, sc2::Point2D(x, y));
             //bool pathable = Pathable(info, sc2::Point2D(x, y));
 
-            sc2::Color color = placable ? sc2::Colors::Green : sc2::Colors::Red;
+            const sc2::Color color = placable ? sc2::Colors::Green : sc2::Colors::Red;
             debug->DebugSphereOut(sc2::Point3D(point.x, point.y, height + 0.5f), 0.4f, color);
         }
     }
@@ -544,7 +544,7 @@ sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::Observation
 
 	for (auto & unit : obs->GetUnits())
 	{
-		double dist = Util::DistSq(unit->pos, ourUnit.pos);
+        const double dist = Util::DistSq(unit->pos, ourUnit.pos);
 
 		if (!closestTag || (dist < closestDist))
 		{
@@ -1203,7 +1203,7 @@ bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & t
     else 
     {
         // check to see if one of the unit's available abilities matches the build ability type
-        sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
+        const sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
         for (const sc2::AvailableAbility & available_ability : available_abilities.abilities) 
         {
             if (available_ability.ability_id == buildTypeAbility)

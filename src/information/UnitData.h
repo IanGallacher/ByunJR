@@ -13,7 +13,7 @@ class UnitData
     int                     m_mineralsLost;
     int                     m_gasLost;
 
-    const bool badUnitInfo(const UnitInfo & ui) const;
+    bool badUnitInfo(const UnitInfo & ui) const;
 
 public:
 

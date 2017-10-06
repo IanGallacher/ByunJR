@@ -47,8 +47,8 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::U
         }
 
         // set the limits of the base location bounding box
-        float resWidth = 1;
-        float resHeight = 0.5;
+        const float resWidth = 1;
+        const float resHeight = 0.5;
 
         m_left   = std::min(m_left,   resource.pos.x - resWidth);
         m_right  = std::max(m_right,  resource.pos.x + resWidth);
@@ -229,10 +229,10 @@ void BaseLocation::draw()
         m_bot.Map().drawSphere(m_depotPosition, 1.0f, sc2::Colors::Red);
     }
     
-    float ccWidth = 5;
-    float ccHeight = 4;
-    sc2::Point2D boxtl = m_depotPosition - sc2::Point2D(ccWidth/2, -ccHeight/2);
-    sc2::Point2D boxbr = m_depotPosition + sc2::Point2D(ccWidth/2, -ccHeight/2);
+    const float ccWidth = 5;
+    const float ccHeight = 4;
+    const sc2::Point2D boxtl = m_depotPosition - sc2::Point2D(ccWidth/2, -ccHeight/2);
+    const sc2::Point2D boxbr = m_depotPosition + sc2::Point2D(ccWidth/2, -ccHeight/2);
 
     m_bot.Map().drawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
 

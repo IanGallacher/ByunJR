@@ -51,7 +51,7 @@ void UnitInfoManager::updateUnitInfo()
     m_unitData[PlayerArrayIndex::Enemy].removeBadUnits();
 }
 
-const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(PlayerArrayIndex player) const
+const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(const PlayerArrayIndex player) const
 {
     return getUnitData(player).getUnitInfoMap();
 }
@@ -63,7 +63,7 @@ const std::vector<sc2::Unit> & UnitInfoManager::getUnits(PlayerArrayIndex player
     return m_units.at(player);
 }
 
-static std::string GetAbilityText(sc2::AbilityID ability_id) {
+static std::string GetAbilityText(const sc2::AbilityID ability_id) {
     std::string str;
     str += sc2::AbilityTypeToName(ability_id);
     str += " (";
@@ -72,7 +72,7 @@ static std::string GetAbilityText(sc2::AbilityID ability_id) {
     return str;
 }
 
-void UnitInfoManager::drawSelectedUnitDebugInfo()
+void UnitInfoManager::drawSelectedUnitDebugInfo() const
 {
     const sc2::Unit * unit = nullptr;
     for (const sc2::Unit * u : m_bot.Observation()->GetUnits())
@@ -89,8 +89,7 @@ void UnitInfoManager::drawSelectedUnitDebugInfo()
     auto query = m_bot.Query();
     auto abilities = m_bot.Observation()->GetAbilityData();
 
-    std::string debug_txt;
-    debug_txt = UnitTypeToName(unit->unit_type);
+    std::string debug_txt = UnitTypeToName(unit->unit_type);
     if (debug_txt.length() < 1) 
     {
         debug_txt = "(Unknown name)";
@@ -215,8 +214,8 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     // for each unit in the queue
     for (int t(0); t < 255; t++)
     {
-        int numUnits =      m_unitData.at(PlayerArrayIndex::Self).getNumUnits(t);
-        int numDeadUnits =  m_unitData.at(PlayerArrayIndex::Enemy).getNumDeadUnits(t);
+        const int numUnits =      m_unitData.at(PlayerArrayIndex::Self).getNumUnits(t);
+        const int numDeadUnits =  m_unitData.at(PlayerArrayIndex::Enemy).getNumDeadUnits(t);
 
         // if there exist units in the vector
         if (numUnits > 0)

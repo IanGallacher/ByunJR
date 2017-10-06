@@ -74,9 +74,9 @@ void DistanceMap::draw(ByunJRBot & bot) const
     for (size_t i(0); i < tilesToDraw; ++i)
     {
         auto & tile = m_sortedTilePositions[i];
-        int dist = getDistance(tile);
+        const int dist = getDistance(tile);
 
-        sc2::Point2D textPos(tile.x + 0.5f, tile.y + 0.5f);
+        const sc2::Point2D textPos(tile.x + 0.5f, tile.y + 0.5f);
         std::stringstream ss;
         ss << dist;
 

@@ -49,7 +49,7 @@ void WorkerManager::handleGasWorkers()
         if (Util::IsRefinery(unit) && Util::IsCompleted(unit))
         {
             // get the number of workers currently assigned to it
-            int numAssigned = m_workerData.getNumAssignedWorkers(unit.tag);
+            const int numAssigned = m_workerData.getNumAssignedWorkers(unit.tag);
 
             // if it's less than we want it to be, fill 'er up
             for (int i=0; i<(3-numAssigned); ++i)
@@ -69,7 +69,7 @@ void WorkerManager::handleIdleWorkers()
     // for each of our workers
     for (auto & workerTag : m_workerData.getWorkers())
     {
-        auto worker = m_bot.GetUnit(workerTag);
+        const auto worker = m_bot.GetUnit(workerTag);
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
@@ -136,7 +136,7 @@ sc2::Tag WorkerManager::findClosestWorkerTo(const sc2::Point2D & target) const
     {
         if (!m_bot.GetUnit(workerTag)) { continue; }
 
-        double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, target);
+        const double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, target);
 
         if (!closestMineralWorker || dist < closestDist)
         {
@@ -174,7 +174,7 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
 
         if (Util::IsTownHall(unit) && Util::IsCompleted(unit))
         {
-            double distance = Util::DistSq(unit.pos, worker.pos);
+            const double distance = Util::DistSq(unit.pos, worker.pos);
             if (!closestDepot || distance < closestDistance)
             {
                 closestDepot = unit.tag;
@@ -207,7 +207,7 @@ void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
 // set 'setJobAsBuilder' to false if we just want to see which worker will build a building
 sc2::Tag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 {
-    sc2::Tag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
+    const sc2::Tag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
 
     // if the worker exists (one may not have been found in rare cases)
     if (builderWorker && setJobAsBuilder)

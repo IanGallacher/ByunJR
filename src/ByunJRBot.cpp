@@ -26,7 +26,7 @@ void ByunJRBot::OnGameStart()
     m_config.readConfigFile();
 
     // get my race
-    auto playerID = Observation()->GetPlayerID();
+    const auto playerID = Observation()->GetPlayerID();
     for (auto & playerInfo : Observation()->GetGameInfo().player_info)
     {
         if (playerInfo.player_id == playerID)

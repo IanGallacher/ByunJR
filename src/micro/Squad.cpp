@@ -16,7 +16,7 @@ Squad::Squad(ByunJRBot & bot)
 
 }
 
-Squad::Squad(const std::string & name, const SquadOrder & order, size_t priority, ByunJRBot & bot)
+Squad::Squad(const std::string & name, const SquadOrder & order, const size_t priority, ByunJRBot & bot)
     : m_bot(bot)
     , m_name(name)
     , m_order(order)
@@ -34,12 +34,12 @@ void Squad::onFrame()
     updateUnits();
 
     // determine whether or not we should regroup
-    bool needToRegroup = needsToRegroup();
+    const bool needToRegroup = needsToRegroup();
     
     // if we do need to regroup, do it
     if (needToRegroup)
     {
-        sc2::Point2D regroupPosition = calcRegroupPosition();
+        const sc2::Point2D regroupPosition = calcRegroupPosition();
 
         m_bot.Map().drawSphere(regroupPosition, 3, sc2::Colors::Purple);
 

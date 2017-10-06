@@ -43,7 +43,7 @@ void StrategyManager::handleUnitAssignments()
     m_bot.InformationManager().handleUnitAssignments();
 }
 
-const bool StrategyManager::shouldSendInitialScout() const
+bool StrategyManager::shouldSendInitialScout() const
 {
     return true;
 
@@ -58,7 +58,7 @@ const bool StrategyManager::shouldSendInitialScout() const
 
 const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
 {
-    auto buildOrderIt = m_strategies.find(m_bot.Config().StrategyName);
+    const auto buildOrderIt = m_strategies.find(m_bot.Config().StrategyName);
 
     // look for the build order in the build order map
     if (buildOrderIt != std::end(m_strategies))
@@ -72,7 +72,7 @@ const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
     }
 }
 
-const bool StrategyManager::shouldExpandNow() const
+bool StrategyManager::shouldExpandNow() const
 {
     return false;
 }
@@ -82,22 +82,22 @@ void StrategyManager::addStrategy(const std::string & name, const Strategy & str
     m_strategies[name] = strategy;
 }
 
-const UnitPairVector StrategyManager::getBuildOrderGoal() const
+UnitPairVector StrategyManager::getBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getProtossBuildOrderGoal() const
+UnitPairVector StrategyManager::getProtossBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getTerranBuildOrderGoal() const
+UnitPairVector StrategyManager::getTerranBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getZergBuildOrderGoal() const
+UnitPairVector StrategyManager::getZergBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
@@ -114,7 +114,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
     std::string ourRace = Util::GetStringFromRace(race);
     std::string config = m_bot.Config().RawConfigString;
     rapidjson::Document doc;
-    bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
+    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
     {
         std::cerr << "ParseStrategy could not find file: " << filename << ", shutting down.\n";
@@ -188,7 +188,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     {
                         if (build[b].IsString())
                         {
-                            sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
+                            const sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
 
                             buildOrder.add(typeID);
                         }
