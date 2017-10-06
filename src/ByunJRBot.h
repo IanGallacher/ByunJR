@@ -11,10 +11,8 @@
 #include "micro/ProxyManager.h"
 #include "macro/WorkerManager.h"
 #include "micro/ScoutManager.h"
-#include "InformationManager.h"
 #include "micro/CombatCommander.h"
 #include "information/BaseLocationManager.h"
-#include "information/UnitInfoManager.h"
 #include "util/MapTools.h"
 
 class ByunJRBot : public sc2::Agent 
@@ -26,7 +24,6 @@ class ByunJRBot : public sc2::Agent
 
     MapTools                 m_map;
     BaseLocationManager      m_bases;
-    UnitInfoManager          m_unitInfo;
     WorkerManager            m_workers;
     StrategyManager          m_strategy;
     BotConfig                m_config;
@@ -47,6 +44,7 @@ public:
     void OnGameStart() override;
     void OnStep() override;
     void OnUnitCreated(const sc2::Unit*) override;
+    void OnUnitDestroyed(const sc2::Unit*) override;
     void OnUnitEnterVision(const sc2::Unit*) override;
     void OnBuildingConstructionComplete(const sc2::Unit*) override;
     bool IsWillingToFight();
@@ -58,7 +56,6 @@ public:
     ScoutManager & Scout();
     InformationManager & InformationManager();
     const MapTools & Map() const;
-    UnitInfoManager & UnitInfoManager();
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;

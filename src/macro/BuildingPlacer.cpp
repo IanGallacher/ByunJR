@@ -250,7 +250,7 @@ sc2::Point2D BuildingPlacer::getRefineryPosition()
 
         // check to see if it's next to one of our depots
         bool nearDepot = false;
-        for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
+        for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
         {
             if (Util::IsTownHall(unit) && Util::Dist(unit.pos, geyserPos) < 10)
             {

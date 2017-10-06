@@ -14,7 +14,7 @@ DebugManager::DebugManager(ByunJRBot & bot)
 void DebugManager::drawResourceDebugInfo()
 {
 
-    const std::map<int, UnitInfo> ui = m_bot.UnitInfoManager().getUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<int, UnitInfo> ui = m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self);
 
     for (auto const & unitInfo : ui)
     {
@@ -32,7 +32,7 @@ void DebugManager::drawResourceDebugInfo()
 void DebugManager::drawAllUnitInformation() const
 {
     std::stringstream ss;
-    const std::map<int, UnitInfo> ui = m_bot.UnitInfoManager().getUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<int, UnitInfo> ui = m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self);
 
     ss << "Workers: " << ui.size() << std::endl;
 

@@ -15,7 +15,7 @@ WorkerData::WorkerData(ByunJRBot & bot)
 void WorkerData::updateAllWorkerData()
 {
     // check all our units and add new workers if we find them
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         if (Util::IsWorker(unit))
         {
@@ -70,7 +70,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
 {
     clearPreviousJob(unit);
     m_workerJobMap[unit] = job;
-    m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), job);
+    m_bot.InformationManager().UnitInfo().setJob(*m_bot.GetUnit(unit), job);
 
     if (job == UnitMission::Minerals)
     {

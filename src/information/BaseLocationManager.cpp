@@ -163,7 +163,7 @@ void BaseLocationManager::onFrame()
     }
 
     // update enemy base occupations
-    for (const auto & kv : m_bot.UnitInfoManager().getUnitInfoMap(PlayerArrayIndex::Enemy))
+    for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
     {
         const UnitInfo & ui = kv.second;
 

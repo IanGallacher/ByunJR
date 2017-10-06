@@ -7,10 +7,35 @@
 #include "util/Util.h"
 
 InformationManager::InformationManager(ByunJRBot & bot)
-    : m_bot(bot),
-    m_initialScoutSet(false)
+    : m_bot(bot)
+    , m_unitInfo(bot)
+    , m_initialScoutSet(false)
 {
 
+}
+
+void InformationManager::onStart()
+{
+    m_unitInfo.onStart();
+}
+
+void InformationManager::onUnitCreated(const sc2::Unit& unit)
+{
+}
+
+void InformationManager::onUnitDestroyed(const sc2::Unit& unit)
+{
+}
+
+void InformationManager::onFrame()
+{
+    m_unitInfo.onFrame();
+}
+
+
+UnitInfoManager & InformationManager::UnitInfo()
+{
+    return m_unitInfo;
 }
 
 sc2::Point2D InformationManager::GetProxyLocation() const
@@ -22,12 +47,12 @@ void InformationManager::assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag>
 {
     if (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end())
     {
-        m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), UnitMission::Scout);
+        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Scout);
         m_scoutUnits.erase(std::remove(m_scoutUnits.begin(), m_scoutUnits.end(), unit), m_scoutUnits.end());
     }
     else if (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
     {
-        m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), UnitMission::Attack);
+        m_unitInfo.setJob(*m_bot.GetUnit(unit), UnitMission::Attack);
         m_combatUnits.erase(std::remove(m_combatUnits.begin(), m_combatUnits.end(), unit), m_combatUnits.end());
     }
 
@@ -46,7 +71,7 @@ bool InformationManager::isAssigned(const sc2::Tag & unit) const
 void InformationManager::setValidUnits()
 {
     // make sure the unit is completed and alive and usable
-    for (auto & unit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Self))
+    for (auto & unit : m_unitInfo.getUnits(PlayerArrayIndex::Self))
     {
         m_validUnits.push_back(unit.tag);
     }

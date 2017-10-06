@@ -408,7 +408,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
         else
         {
             // if it has been explored, go there if there are any visible enemy units there
-            for (auto & enemyUnit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Enemy))
+            for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
             {
                 if (Util::Dist(enemyUnit.pos, enemyBasePosition) < 25)
                 {
@@ -419,7 +419,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
     }
 
     // Second choice: Attack known enemy buildings
-    for (const auto & kv : m_bot.UnitInfoManager().getUnitInfoMap(PlayerArrayIndex::Enemy))
+    for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
     {
         const UnitInfo & ui = kv.second;
 
@@ -430,7 +430,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
     }
 
     // Third choice: Attack visible enemy units that aren't overlords
-    for (auto & enemyUnit : m_bot.UnitInfoManager().getUnits(PlayerArrayIndex::Enemy))
+    for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
     {
         if (enemyUnit.unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
         {

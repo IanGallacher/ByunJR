@@ -8,7 +8,6 @@
 ByunJRBot::ByunJRBot()
     : m_map(*this)
     , m_bases(*this)
-    , m_unitInfo(*this)
     , m_workers(*this)
     , m_productionManager(*this)
     , m_scoutManager(*this)
@@ -42,7 +41,7 @@ void ByunJRBot::OnGameStart()
 
     m_strategy.onStart();
     m_map.onStart();
-    m_unitInfo.onStart();
+    m_informationManager.onStart();
     m_bases.onStart();
     m_workers.onStart();
 
@@ -57,7 +56,7 @@ void ByunJRBot::OnStep()
     Control()->GetObservation();
 
     m_map.onFrame();
-    m_unitInfo.onFrame();
+    m_informationManager.onFrame();
     m_bases.onFrame();
     m_workers.onFrame();
     m_strategy.onFrame();
@@ -79,6 +78,12 @@ void ByunJRBot::OnStep()
 
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
     m_proxyManager.onUnitCreated(*unit);
+    m_informationManager.onUnitCreated(*unit);
+}
+
+void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
+{
+    m_informationManager.onUnitDestroyed(*unit);
 }
 
 //void ByunJRBot::onUnitDestroy(const sc2::Unit & unit)
@@ -141,11 +146,6 @@ const BaseLocationManager & ByunJRBot::Bases() const
 ScoutManager & ByunJRBot::Scout()
 {
     return m_scoutManager;
-}
-
-UnitInfoManager & ByunJRBot::UnitInfoManager()
-{
-    return m_unitInfo;
 }
 
 WorkerManager & ByunJRBot::Workers()
