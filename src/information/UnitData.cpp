@@ -91,3 +91,9 @@ const std::map<int, UnitInfo> & UnitData::getUnitInfoMap() const
 {
     return m_unitInfoMap;
 }
+
+void UnitData::setJob(const sc2::Unit& unit, UnitMission job)
+{
+    UnitInfo & ui = m_unitInfoMap[(int)unit.tag];
+    ui.mission = job;
+}

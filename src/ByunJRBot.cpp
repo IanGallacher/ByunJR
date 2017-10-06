@@ -71,7 +71,7 @@ void ByunJRBot::OnStep()
 
 
     m_debug.drawAllUnitInformation();
-
+    m_debug.drawResourceDebugInfo();
     m_debug.drawDebugInterface();
 
     Debug()->SendDebug();
@@ -143,7 +143,7 @@ ScoutManager & ByunJRBot::Scout()
     return m_scoutManager;
 }
 
-const UnitInfoManager & ByunJRBot::UnitInfoManager() const
+UnitInfoManager & ByunJRBot::UnitInfoManager()
 {
     return m_unitInfo;
 }

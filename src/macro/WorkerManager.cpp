@@ -25,8 +25,6 @@ void WorkerManager::onFrame()
     handleGasWorkers();
     handleIdleWorkers();
 
-    drawResourceDebugInfo();
-
     m_workerData.drawDepotDebugInfo();
 
     handleRepairWorkers();
@@ -234,27 +232,6 @@ void WorkerManager::setCombatWorker(const sc2::Tag & workerTag)
 void WorkerManager::setProxyWorker(const sc2::Tag & workerTag)
 {
     m_workerData.setWorkerJob(workerTag, UnitMission::Proxy);
-}
-
-void WorkerManager::drawResourceDebugInfo()
-{
-    //if (!m_bot.Config().DrawResourceInfo)
-    //{
-    //    return;
-    //}
-
-    //for (auto & workerTag : m_workerData.getWorkers())
-    //{
-    //    if (!m_bot.GetUnit(workerTag)) { continue; }
-
-    //    m_bot.Map().drawText(m_bot.GetUnit(workerTag)->pos, m_workerData.getJobCode(workerTag));
-
-    //    auto depot = m_bot.GetUnit(m_workerData.getWorkerDepot(workerTag));
-    //    if (depot)
-    //    {
-    //        m_bot.Map().drawLine(m_bot.GetUnit(workerTag)->pos, depot->pos);
-    //    }
-    //}
 }
 
 bool WorkerManager::isFree(const sc2::Unit & worker) const

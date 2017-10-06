@@ -70,6 +70,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
 {
     clearPreviousJob(unit);
     m_workerJobMap[unit] = job;
+    m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), job);
 
     if (job == UnitMission::Minerals)
     {

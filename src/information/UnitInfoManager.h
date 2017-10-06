@@ -37,5 +37,5 @@ public:
 
     //bool                  enemyHasCloakedUnits() const;
     void                    drawUnitInformation(float x, float y) const;
-
+    void                    setJob(const sc2::Unit & unit, UnitMission job);
 };

@@ -27,7 +27,6 @@ public:
     void        onFrame();
 
     void        finishedWithWorker(const sc2::Tag & tag);
-    void        drawResourceDebugInfo();
     void        setScoutWorker(const sc2::Tag & worker);
     void        setCombatWorker(const sc2::Tag & worker);
     void        setProxyWorker(const sc2::Tag & workerTag);

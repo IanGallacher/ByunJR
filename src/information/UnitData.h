@@ -28,4 +28,5 @@ public:
     int getNumUnits(sc2::UnitTypeID t)              const;
     int getNumDeadUnits(sc2::UnitTypeID t)          const;
     const std::map<int, UnitInfo> & getUnitInfoMap()  const;
+    void setJob(const sc2::Unit& unit, UnitMission job);
 };

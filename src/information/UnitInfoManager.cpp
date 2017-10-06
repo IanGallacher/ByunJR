@@ -224,6 +224,11 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     }
 }
 
+void UnitInfoManager::setJob(const sc2::Unit & unit, UnitMission job)
+{
+    m_unitData[Util::GetPlayer(unit)].setJob(unit, job);
+}
+
 void UnitInfoManager::updateUnit(const sc2::Unit & unit)
 {
     if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))

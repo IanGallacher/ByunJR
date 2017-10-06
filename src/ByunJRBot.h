@@ -58,7 +58,7 @@ public:
     ScoutManager & Scout();
     InformationManager & InformationManager();
     const MapTools & Map() const;
-    const UnitInfoManager & UnitInfoManager() const;
+    UnitInfoManager & UnitInfoManager();
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;

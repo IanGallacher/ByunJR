@@ -34,22 +34,22 @@ public:
 
     }
 
-    char getJobCode() const
+    std::string getJobCode() const
     {
         const UnitMission j = mission;
 
-        if (j == UnitMission::Build)     return 'B';
-        if (j == UnitMission::Attack)    return 'A';
-        if (j == UnitMission::Attack)    return 'D';
-        if (j == UnitMission::Wait)      return 'W';
-        if (j == UnitMission::Gas)       return 'G';
-        if (j == UnitMission::Idle)      return 'I';
-        if (j == UnitMission::Minerals)  return 'M';
-        if (j == UnitMission::Repair)    return 'R';
-        if (j == UnitMission::Move)      return 'O';
-        if (j == UnitMission::Scout)     return 'S';
-        if (j == UnitMission::Proxy)     return 'P';
-        return 'X';
+        if (j == UnitMission::Build)     return "B";
+        if (j == UnitMission::Attack)    return "A";
+        if (j == UnitMission::Attack)    return "D";
+        if (j == UnitMission::Wait)      return "W";
+        if (j == UnitMission::Gas)       return "G";
+        if (j == UnitMission::Idle)      return "I";
+        if (j == UnitMission::Minerals)  return "M";
+        if (j == UnitMission::Repair)    return "R";
+        if (j == UnitMission::Move)      return "O";
+        if (j == UnitMission::Scout)     return "S";
+        if (j == UnitMission::Proxy)     return "P";
+        return "X";
     }
 
     bool operator == (sc2::Unit & unit) const

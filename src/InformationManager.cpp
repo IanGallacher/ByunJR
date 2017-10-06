@@ -22,10 +22,12 @@ void InformationManager::assignUnit(const sc2::Tag & unit, std::vector<sc2::Tag>
 {
     if (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end())
     {
+        m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), UnitMission::Scout);
         m_scoutUnits.erase(std::remove(m_scoutUnits.begin(), m_scoutUnits.end(), unit), m_scoutUnits.end());
     }
     else if (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
     {
+        m_bot.UnitInfoManager().setJob(*m_bot.GetUnit(unit), UnitMission::Attack);
         m_combatUnits.erase(std::remove(m_combatUnits.begin(), m_combatUnits.end(), unit), m_combatUnits.end());
     }
 
