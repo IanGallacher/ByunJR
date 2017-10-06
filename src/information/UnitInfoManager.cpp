@@ -24,6 +24,12 @@ void UnitInfoManager::onFrame()
     drawSelectedUnitDebugInfo();
 }
 
+void UnitInfoManager::onUnitDestroyed(const sc2::Unit& unit)
+{
+    m_unitData[Util::GetPlayer(unit)].killUnit(unit);
+}
+
+
 void UnitInfoManager::updateUnitInfo()
 {
     m_units[PlayerArrayIndex::Self].clear();

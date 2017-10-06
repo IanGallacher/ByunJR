@@ -25,6 +25,7 @@ void InformationManager::onUnitCreated(const sc2::Unit& unit)
 
 void InformationManager::onUnitDestroyed(const sc2::Unit& unit)
 {
+    m_unitInfo.onUnitDestroyed(unit);
 }
 
 void InformationManager::onFrame()

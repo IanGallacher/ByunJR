@@ -24,8 +24,9 @@ public:
 
     UnitInfoManager(ByunJRBot & bot);
 
-    void                    onFrame();
     void                    onStart();
+    void                    onFrame();
+    void                    onUnitDestroyed(const sc2::Unit& unit);
 
     const std::vector<sc2::Unit> & getUnits(PlayerArrayIndex player) const;
 
