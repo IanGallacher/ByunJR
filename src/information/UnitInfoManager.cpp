@@ -19,11 +19,13 @@ void UnitInfoManager::onStart()
 
 void UnitInfoManager::onFrame()
 {
+    // If units are created or modified, update the unitInfo object.
     updateUnitInfo();
     drawUnitInformation(100, 100);
     drawSelectedUnitDebugInfo();
 }
 
+// If units die, update the unitInfo object.
 void UnitInfoManager::onUnitDestroyed(const sc2::Unit& unit)
 {
     m_unitData[Util::GetPlayer(unit)].killUnit(unit);
