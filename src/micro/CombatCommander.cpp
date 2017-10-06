@@ -163,7 +163,6 @@ void CombatCommander::updateScoutDefenseSquad()
             auto unit = m_bot.GetUnit(unitTag);
             BOT_ASSERT(unit, "null unit in scoutDefenseSquad");
 
-            Micro::SmartStop(unitTag, m_bot);
             if (Util::IsWorker(*unit))
             {
                 m_bot.Workers().finishedWithWorker(unitTag);
