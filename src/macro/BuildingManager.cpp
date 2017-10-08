@@ -39,9 +39,9 @@ void BuildingManager::onFrame()
 
     validateWorkersAndBuildings();          // check to see if assigned workers have died en route or while constructing
     assignWorkersToUnassignedBuildings();   // assign workers to the unassigned buildings and label them 'planned'    
+    checkForDeadTerranBuilders();           // if we are terran and a building is under construction without a worker, assign a new one    
     constructAssignedBuildings();           // for each planned building, if the worker isn't constructing, send the command    
     checkForStartedConstruction();          // check to see if any buildings have started construction and update data structures    
-    checkForDeadTerranBuilders();           // if we are terran and a building is under construction without a worker, assign a new one    
     checkForCompletedBuildings();           // check to see if any buildings have completed and update data structures
 
     drawBuildingInformation();
@@ -133,7 +133,25 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
     }
 }
 
-// STEP 3: ISSUE CONSTRUCTION ORDERS TO ASSIGN BUILDINGS AS NEEDED
+// STEP 3: IF OUR WORKERS DIED, ASSIGN THEM AGAIN.
+void BuildingManager::checkForDeadTerranBuilders()
+{   // for each building that doesn't have a builder, assign one
+    for (Building & b : m_buildings)
+    {
+        if (b.status != BuildingStatus::Unassigned || m_bot.GetUnit(b.builderUnitTag))
+        {
+            continue;
+        }
+
+        if (m_debugMode) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
+
+        // grab the worker unit from WorkerManager which is closest to this final position
+        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        b.builderUnitTag = builderUnitTag;
+    }
+}
+
+// STEP 4: ISSUE CONSTRUCTION ORDERS TO ASSIGN BUILDINGS AS NEEDED
 void BuildingManager::constructAssignedBuildings()
 {
     for (auto & b : m_buildings)
@@ -216,7 +234,7 @@ void BuildingManager::constructAssignedBuildings()
     }
 }
 
-// STEP 4: UPDATE DATA STRUCTURES FOR BUILDINGS STARTING CONSTRUCTION
+// STEP 5: UPDATE DATA STRUCTURES FOR BUILDINGS STARTING CONSTRUCTION
 void BuildingManager::checkForStartedConstruction()
 {
     // for each building unit which is being constructed
@@ -279,9 +297,6 @@ void BuildingManager::checkForStartedConstruction()
         }
     }
 }
-
-// STEP 5: IF WE ARE TERRAN, THIS MATTERS, SO: LOL
-void BuildingManager::checkForDeadTerranBuilders() {}
 
 // STEP 6: CHECK FOR COMPLETED BUILDINGS
 void BuildingManager::checkForCompletedBuildings()
