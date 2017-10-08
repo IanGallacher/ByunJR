@@ -34,8 +34,8 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
     // for each meleeUnit
     for (auto & rangedUnitTag : rangedUnits)
     {
-        auto meleeUnit = m_bot.GetUnit(rangedUnitTag);
-        BOT_ASSERT(meleeUnit, "melee unit is null");
+        auto rangedUnit = m_bot.GetUnit(rangedUnitTag);
+        BOT_ASSERT(rangedUnit, "melee unit is null");
 
         // if the order is to attack or defend
         if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
@@ -59,7 +59,7 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
             else
             {
                 // if we're not near the order position
-                if (Util::Dist(meleeUnit->pos, order.getPosition()) > 4)
+                if (Util::Dist(rangedUnit->pos, order.getPosition()) > 4)
                 {
                     // move to it
                     Micro::SmartMove(rangedUnitTag, order.getPosition(), m_bot);
@@ -76,10 +76,10 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
 
 // get a target for the ranged unit to attack
 // TODO: this is the melee targeting code, replace it with something better for ranged units
-sc2::Tag RangedManager::getTarget(const sc2::Tag & meleeUnitTag, const std::vector<sc2::Tag> & targets)
+sc2::Tag RangedManager::getTarget(const sc2::Tag & rangedUnitTag, const std::vector<sc2::Tag> & targets)
 {
-    auto meleeUnit = m_bot.GetUnit(meleeUnitTag);
-    BOT_ASSERT(meleeUnit, "null melee unit in getTarget");
+    auto rangedUnit = m_bot.GetUnit(rangedUnitTag);
+    BOT_ASSERT(rangedUnit, "null ranged unit in getTarget");
 
     int highPriority = 0;
     double closestDist = std::numeric_limits<double>::max();
@@ -91,8 +91,8 @@ sc2::Tag RangedManager::getTarget(const sc2::Tag & meleeUnitTag, const std::vect
         auto targetUnit = m_bot.GetUnit(targetTag);
         BOT_ASSERT(targetUnit, "null target unit in getTarget");
 
-        const int priority = getAttackPriority(meleeUnitTag, targetTag);
-        const float distance = Util::Dist(meleeUnit->pos, targetUnit->pos);
+        const int priority = getAttackPriority(rangedUnitTag, targetTag);
+        const float distance = Util::Dist(rangedUnit->pos, targetUnit->pos);
 
         // if it's a higher priority, or it's closer, set it
         if (!closestTarget || (priority > highPriority) || (priority == highPriority && distance < closestDist))
