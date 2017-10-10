@@ -99,10 +99,10 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     const double speed(bot.Observation()->GetUnitTypeData()[bot.GetUnit(rangedUnit)->unit_type].movement_speed);
 
 
-    //// if the unit can't attack back don't kite
-    //if ((rangedUnit->isFlying() && !UnitUtil::CanAttackAir(target)) || (!rangedUnit->isFlying() && !UnitUtil::CanAttackGround(target)))
+    // if the unit can't attack back don't kite
+    //if (bot.GetUnit(target)->is_flying /*&& !UnitUtil::CanAttackAir(target)) || (!rangedUnit->isFlying() && !UnitUtil::CanAttackGround(target))*/)
     //{
-    //	//kite = false;
+    //	kite = false;
     //}
 
     const double timeToEnter = (dist - range) / speed;
@@ -116,6 +116,7 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     {
         kite = false;
     }
+
     sc2::Point2D fleePosition;
     if (bot.GetUnit(rangedUnit)->health < Util::EnemyDPSInRange(bot.GetUnit(rangedUnit)->pos, bot) + 5.0)
     {
@@ -132,8 +133,8 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnit, const sc2::Tag & target
     //// if we can't shoot, run away
     if (kite)
     {
-        sc2::Point2D fleePosition(bot.GetUnit(rangedUnit)->pos - bot.GetUnit(target)->pos + bot.GetUnit(rangedUnit)->pos);
-        //BWAPI::Broodwar->drawLineMap(rangedUnit->getPosition(), fleePosition, BWAPI::Colors::Cyan);
+        //fleePosition = bot.GetUnit(rangedUnit)->pos - bot.GetUnit(target)->pos + bot.GetUnit(rangedUnit)->pos;
+        bot.Map().drawLine(bot.GetUnit(rangedUnit)->pos, fleePosition);
         Micro::SmartMove(rangedUnit, fleePosition, bot);
     }
     //// otherwise shoot
