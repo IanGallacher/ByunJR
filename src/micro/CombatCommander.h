@@ -17,7 +17,7 @@ class CombatCommander
     //void             updateDefenseSquads();
     //void             updateAttackSquads();
     //void             updateIdleSquad();
-    bool             isSquadUpdateFrame() const;
+    //bool             isSquadUpdateFrame() const;
 
     sc2::Tag         findClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos);
 

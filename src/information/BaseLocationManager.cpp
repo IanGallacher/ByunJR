@@ -17,23 +17,25 @@ void BaseLocationManager::onStart()
     
     // a BaseLocation will be anything where there are minerals to mine
     // so we will first look over all minerals and cluster them based on some distance
-    const int clusterDistance = 14;
+    const int clusterDistance = 15;
     
-    // stores each cluster of resources based on some ground distance
+    // Stores each cluster of resources based on some ground distance.
+    // These will be used to identify base locations.
     std::vector<std::vector<sc2::Unit>> resourceClusters;
-    for (auto & mineral : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
+
+    // For every mineral field and gas geyser out there, add it to a resource cluster.
+    for (auto & resource : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
     {
         // skip minerals that don't have more than 100 starting minerals
-        // these are probably stupid map-blocking minerals to confuse us
-        if (!Util::IsMineral(*mineral))
-        {
-            continue;
-        }
+        // these are probably stupid map-blocking minerals to confuse us.
+
+        // Skip any unit that is not a gas geyser or mineral field.
+        if (!Util::IsMineral(*resource) && !Util::IsGeyser(*resource)) continue;
 
         bool foundCluster = false;
         for (auto & cluster : resourceClusters)
         {
-            float dist = Util::Dist(mineral->pos, Util::CalcCenter(cluster));
+            const float dist = Util::Dist(resource->pos, Util::CalcCenter(cluster));
             
             // quick initial air distance check to eliminate most resources
             if (dist < clusterDistance)
@@ -42,7 +44,7 @@ void BaseLocationManager::onStart()
                 const float groundDist = dist; //m_bot.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
                 if (groundDist >= 0 && groundDist < clusterDistance)
                 {
-                    cluster.push_back(*mineral);
+                    cluster.push_back(*resource);
                     foundCluster = true;
                     break;
                 }
@@ -52,28 +54,7 @@ void BaseLocationManager::onStart()
         if (!foundCluster)
         {
             resourceClusters.push_back(std::vector<sc2::Unit>());
-            resourceClusters.back().push_back(*mineral);
-        }
-    }
-
-    // add geysers only to existing resource clusters
-    for (auto & geyser : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
-    {
-        if (!Util::IsGeyser(*geyser))
-        {
-            continue;
-        }
-
-        for (auto & cluster : resourceClusters)
-        {
-            //int groundDist = m_bot.Map().getGroundDistance(geyser.pos, Util::CalcCenter(cluster));
-            const float groundDist = Util::Dist(geyser->pos, Util::CalcCenter(cluster));
-
-            if (groundDist >= 0 && groundDist < clusterDistance)
-            {
-                cluster.push_back(*geyser);
-                break;
-            }
+            resourceClusters.back().push_back(*resource);
         }
     }
 
