@@ -1,7 +1,7 @@
 #include "ByunJRBot.h"
 #include "common/BotAssert.h"
 #include "common/Common.h"
-#include "global/StrategyManager.h"
+#include "StrategyManager.h"
 #include "util/JSONTools.h"
 #include "util/Util.h"
 
@@ -37,9 +37,28 @@ void StrategyManager::onFrame()
 
 }
 
+// assigns units to various managers
+void StrategyManager::handleUnitAssignments()
+{
+    m_bot.InformationManager().handleUnitAssignments();
+}
+
+bool StrategyManager::shouldSendInitialScout() const
+{
+    return true;
+
+    switch (m_bot.GetPlayerRace(PlayerArrayIndex::Self))
+    {
+    case sc2::Race::Terran:  return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+    case sc2::Race::Protoss: return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+    case sc2::Race::Zerg:    return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+    default: return false;
+    }
+}
+
 const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
 {
-    auto buildOrderIt = m_strategies.find(m_bot.Config().StrategyName);
+    const auto buildOrderIt = m_strategies.find(m_bot.Config().StrategyName);
 
     // look for the build order in the build order map
     if (buildOrderIt != std::end(m_strategies))
@@ -53,7 +72,7 @@ const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
     }
 }
 
-const bool StrategyManager::shouldExpandNow() const
+bool StrategyManager::shouldExpandNow() const
 {
     return false;
 }
@@ -63,22 +82,22 @@ void StrategyManager::addStrategy(const std::string & name, const Strategy & str
     m_strategies[name] = strategy;
 }
 
-const UnitPairVector StrategyManager::getBuildOrderGoal() const
+UnitPairVector StrategyManager::getBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getProtossBuildOrderGoal() const
+UnitPairVector StrategyManager::getProtossBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getTerranBuildOrderGoal() const
+UnitPairVector StrategyManager::getTerranBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-const UnitPairVector StrategyManager::getZergBuildOrderGoal() const
+UnitPairVector StrategyManager::getZergBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
@@ -91,11 +110,11 @@ void StrategyManager::onEnd(const bool isWinner)
 
 void StrategyManager::readStrategyFile(const std::string & filename)
 {
-    sc2::Race race = m_bot.GetPlayerRace(Players::Self);
+    sc2::Race race = m_bot.GetPlayerRace(PlayerArrayIndex::Self);
     std::string ourRace = Util::GetStringFromRace(race);
-    std::string config = JSONTools::ReadFile(filename);
+    std::string config = m_bot.Config().RawConfigString;
     rapidjson::Document doc;
-    bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
+    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
     {
         std::cerr << "ParseStrategy could not find file: " << filename << ", shutting down.\n";
@@ -169,7 +188,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     {
                         if (build[b].IsString())
                         {
-                            sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
+                            const sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
 
                             buildOrder.add(typeID);
                         }

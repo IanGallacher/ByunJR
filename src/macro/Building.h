@@ -1,10 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-namespace BuildingStatus
-{
-    enum { Unassigned = 0, Assigned = 1, UnderConstruction = 2, Size = 3 };
-}
+enum class BuildingStatus { Unassigned = 0, Assigned = 1, UnderConstruction = 2, Size = 3 };
 
 class Building
 {
@@ -16,7 +13,7 @@ public:
     sc2::UnitTypeID type;
     sc2::Tag        buildingUnitTag;
     sc2::Tag        builderUnitTag;
-    size_t          status;
+    BuildingStatus  status;
     int             lastOrderFrame;
     bool            buildCommandGiven;
     bool            underConstruction;

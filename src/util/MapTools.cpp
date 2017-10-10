@@ -11,10 +11,6 @@ const size_t LegalActions = 4;
 const int actionX[LegalActions] ={1, -1, 0, 0};
 const int actionY[LegalActions] ={0, 0, 1, -1};
 
-typedef std::vector<std::vector<bool>> vvb;
-typedef std::vector<std::vector<int>>  vvi;
-typedef std::vector<std::vector<float>>  vvf;
-
 // constructor for MapTools
 MapTools::MapTools(ByunJRBot & bot)
     : m_bot     (bot)
@@ -299,8 +295,8 @@ bool MapTools::isConnected(int x1, int y1, int x2, int y2) const
         return false;
     }
 
-    int s1 = getSectorNumber(x1, y1);
-    int s2 = getSectorNumber(x2, y2);
+    const int s1 = getSectorNumber(x1, y1);
+    const int s2 = getSectorNumber(x2, y2);
 
     return s1 != 0 && (s1 == s2);
 }
@@ -320,7 +316,7 @@ bool MapTools::isBuildable(int x, int y) const
     return m_buildable[x][y];
 }
 
-bool MapTools::canBuildTypeAtPosition(int x, int y, sc2::UnitTypeID type) const
+bool MapTools::canBuildTypeAtPosition(const int x, const int y, const sc2::UnitTypeID type) const
 {
     return m_bot.Query()->Placement(Util::UnitTypeIDToAbilityID(type), sc2::Point2D((float)x, (float)y));
 }
@@ -330,7 +326,7 @@ bool MapTools::isBuildable(const sc2::Point2D & tile) const
     return isBuildable((int)tile.x, (int)tile.y);
 }
 
-void MapTools::printMap()
+void MapTools::printMap() const
 {
     std::stringstream ss;
     for (int y(0); y < m_height; ++y)
@@ -340,7 +336,7 @@ void MapTools::printMap()
             ss << isWalkable(x, y);
         }
 
-        ss << "\n";
+        ss << std::endl;
     }
 
     std::ofstream out("map.txt");
@@ -389,7 +385,7 @@ const std::vector<sc2::Point2D> & MapTools::getClosestTilesTo(const sc2::Point2D
 }
 
 
-void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, sc2::Color color) const
+void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
 {
     const sc2::Unit * unit = m_bot.GetUnit(unitTag);
 
@@ -408,7 +404,7 @@ void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, sc2::Color color) con
     drawSquare(unit->pos.x - 2.0f, unit->pos.y - 2.0f, unit->pos.x + 2.0f, unit->pos.y + 2.0f, color);
 }
 
-void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, sc2::Color color) const
+void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
 {
     const sc2::Unit * unit = m_bot.GetUnit(unitTag);
 
@@ -421,13 +417,13 @@ sc2::Point2D MapTools::getLeastRecentlySeenPosition() const
 {
     int minSeen = std::numeric_limits<int>::max();
     sc2::Point2D leastSeen(0.0f, 0.0f);
-    const BaseLocation * baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Self);
+    const BaseLocation * baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self);
 
     for (auto & tile : baseLocation->getClosestTiles())
     {
         BOT_ASSERT(isOnMap(tile), "How is this tile not valid?");
 
-        int lastSeen = m_lastSeen[(int)tile.x][(int)tile.y];
+        const int lastSeen = m_lastSeen[(int)tile.x][(int)tile.y];
         if (lastSeen < minSeen)
         {
             minSeen = lastSeen;

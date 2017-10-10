@@ -7,10 +7,10 @@ class ByunJRBot;
 
 class Squad
 {
-    ByunJRBot &             m_bot;
+    ByunJRBot &         m_bot;
 
     std::string         m_name;
-    std::set<sc2::Tag>   m_units;
+    std::set<sc2::Tag>  m_units;
     std::string         m_regroupStatus;
     int                 m_lastRetreatSwitch;
     bool                m_lastRetreatSwitchVal;

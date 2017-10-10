@@ -36,10 +36,10 @@ public:
     void                onFrame();
     void                addBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2D & desiredPosition);
     void                drawBuildingInformation();
-    sc2::Point2D        getBuildingLocation(const Building & b);
+    sc2::Point2D        getBuildingLocation(const Building & b) const;
 
-    int                 getReservedMinerals();
-    int                 getReservedGas();
+    int                 getReservedMinerals() const;
+    int                 getReservedGas() const;
 
     bool                isBeingBuilt(sc2::UnitTypeID type);
 

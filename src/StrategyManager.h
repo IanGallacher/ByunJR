@@ -22,16 +22,16 @@ class StrategyManager
 {
     ByunJRBot & m_bot;
 
-    sc2::Race					    m_selfRace;
-    sc2::Race					    m_enemyRace;
+    sc2::Race                       m_selfRace;
+    sc2::Race                       m_enemyRace;
     std::map<std::string, Strategy> m_strategies;
     int                             m_totalGamesPlayed;
     const BuildOrder                m_emptyBuildOrder;
 
-    const bool  shouldExpandNow() const;
-    const UnitPairVector getProtossBuildOrderGoal() const;
-    const UnitPairVector getTerranBuildOrderGoal() const;
-    const UnitPairVector getZergBuildOrderGoal() const;
+    bool  shouldExpandNow() const;
+    UnitPairVector getProtossBuildOrderGoal() const;
+    UnitPairVector getTerranBuildOrderGoal() const;
+    UnitPairVector getZergBuildOrderGoal() const;
 
 public:
 
@@ -41,7 +41,12 @@ public:
     void onFrame();
     void onEnd(const bool isWinner);
     void addStrategy(const std::string & name, const Strategy & strategy);
-    const UnitPairVector getBuildOrderGoal() const;
+    UnitPairVector getBuildOrderGoal() const;
     const BuildOrder & getOpeningBookBuildOrder() const;
     void readStrategyFile(const std::string & str);
+
+
+    void handleUnitAssignments();
+
+    bool shouldSendInitialScout() const;
 };

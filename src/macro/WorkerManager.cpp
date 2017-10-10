@@ -5,6 +5,7 @@
 #include "macro/Building.h"
 #include "macro/WorkerManager.h"
 #include "util/Util.h"
+#include "common/BotAssert.h"
 
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : m_bot         (bot)
@@ -24,9 +25,6 @@ void WorkerManager::onFrame()
     handleGasWorkers();
     handleIdleWorkers();
 
-    drawResourceDebugInfo();
-    drawWorkerInformation();
-
     m_workerData.drawDepotDebugInfo();
 
     handleRepairWorkers();
@@ -34,24 +32,24 @@ void WorkerManager::onFrame()
 
 void WorkerManager::setRepairWorker(const sc2::Unit & worker, const sc2::Unit & unitToRepair)
 {
-    m_workerData.setWorkerJob(worker.tag, WorkerJobs::Repair, unitToRepair.tag);
+    m_workerData.setWorkerJob(worker.tag, UnitMission::Repair, unitToRepair.tag);
 }
 
 void WorkerManager::stopRepairing(const sc2::Unit & worker)
 {
-    m_workerData.setWorkerJob(worker.tag, WorkerJobs::Idle);
+    m_workerData.setWorkerJob(worker.tag, UnitMission::Idle);
 }
 
 void WorkerManager::handleGasWorkers()
 {
     // for each unit we have
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // if that unit is a refinery
         if (Util::IsRefinery(unit) && Util::IsCompleted(unit))
         {
             // get the number of workers currently assigned to it
-            int numAssigned = m_workerData.getNumAssignedWorkers(unit.tag);
+            const int numAssigned = m_workerData.getNumAssignedWorkers(unit.tag);
 
             // if it's less than we want it to be, fill 'er up
             for (int i=0; i<(3-numAssigned); ++i)
@@ -59,7 +57,7 @@ void WorkerManager::handleGasWorkers()
                 sc2::Tag gasWorker = getGasWorker(unit);
                 if (gasWorker)
                 {
-                    m_workerData.setWorkerJob(gasWorker, WorkerJobs::Gas, unit.tag);
+                    m_workerData.setWorkerJob(gasWorker, UnitMission::Gas, unit.tag);
                 }
             }
         }
@@ -71,18 +69,18 @@ void WorkerManager::handleIdleWorkers()
     // for each of our workers
     for (auto & workerTag : m_workerData.getWorkers())
     {
-        auto worker = m_bot.GetUnit(workerTag);
+        const auto worker = m_bot.GetUnit(workerTag);
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
-        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Scout
-        ||  m_workerData.getWorkerJob(workerTag) == WorkerJobs::Proxy)
+        if (m_workerData.getWorkerJob(workerTag) == UnitMission::Scout
+        ||  m_workerData.getWorkerJob(workerTag) == UnitMission::Proxy)
         {
             continue;
         }
 
         // if it is idle
-        if (Util::IsIdle(*worker) || m_workerData.getWorkerJob(workerTag) == WorkerJobs::Idle)
+        if (Util::IsIdle(*worker) || m_workerData.getWorkerJob(workerTag) == UnitMission::Idle)
         {
             const sc2::Unit * workerUnit = m_bot.GetUnit(workerTag);
 
@@ -111,8 +109,8 @@ sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) cons
         if (!m_bot.GetUnit(workerTag)) { continue; }
 
         // if it is a mineral worker
-        if (m_workerData.getWorkerJob(workerTag) == WorkerJobs::Minerals
-          || m_workerData.getWorkerJob(workerTag) == WorkerJobs::Proxy)
+        if (m_workerData.getWorkerJob(workerTag) == UnitMission::Minerals
+          || m_workerData.getWorkerJob(workerTag) == UnitMission::Proxy)
         {
             double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, pos);
 
@@ -121,6 +119,29 @@ sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) cons
                 closestMineralWorker = workerTag;
                 closestDist = dist;
             }
+        }
+    }
+
+    return closestMineralWorker;
+}
+
+sc2::Tag WorkerManager::findClosestWorkerTo(const sc2::Point2D & target) const
+{
+    sc2::Tag closestMineralWorker = 0;
+    float closestDist = std::numeric_limits<float>::max();
+
+
+    // for each of our workers
+    for (auto & workerTag : m_workerData.getWorkers())
+    {
+        if (!m_bot.GetUnit(workerTag)) { continue; }
+
+        const double dist = Util::DistSq(m_bot.GetUnit(workerTag)->pos, target);
+
+        if (!closestMineralWorker || dist < closestDist)
+        {
+            closestMineralWorker = workerTag;
+            closestDist = dist;
         }
     }
 
@@ -138,7 +159,7 @@ void WorkerManager::setMineralWorker(const sc2::Unit & unit)
     if (depot)
     {
         // update m_workerData with the new job
-        m_workerData.setWorkerJob(unit.tag, WorkerJobs::Minerals, depot);
+        m_workerData.setWorkerJob(unit.tag, UnitMission::Minerals, depot);
     }
 }
 
@@ -147,13 +168,13 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
     sc2::Tag closestDepot = 0;
     double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         //if (!m_bot.GetUnit(unit.tag)) { continue; }
 
         if (Util::IsTownHall(unit) && Util::IsCompleted(unit))
         {
-            double distance = Util::DistSq(unit.pos, worker.pos);
+            const double distance = Util::DistSq(unit.pos, worker.pos);
             if (!closestDepot || distance < closestDistance)
             {
                 closestDepot = unit.tag;
@@ -165,11 +186,10 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
     return closestDepot;
 }
 
-
 // other managers that need workers call this when they're done with a unit
 void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
 {
-    m_workerData.setWorkerJob(tag, WorkerJobs::Idle);
+    m_workerData.setWorkerJob(tag, UnitMission::Idle);
 }
 
 sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
@@ -179,7 +199,7 @@ sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
 
 void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
 {
-    m_workerData.setWorkerJob(worker.tag, WorkerJobs::Build, b.type);
+    m_workerData.setWorkerJob(worker.tag, UnitMission::Build, b.type);
 }
 
 // gets a builder for BuildingManager to use
@@ -187,12 +207,12 @@ void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
 // set 'setJobAsBuilder' to false if we just want to see which worker will build a building
 sc2::Tag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 {
-    sc2::Tag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
+    const sc2::Tag builderWorker = getClosestMineralWorkerTo(b.finalPosition);
 
     // if the worker exists (one may not have been found in rare cases)
     if (builderWorker && setJobAsBuilder)
     {
-        m_workerData.setWorkerJob(builderWorker, WorkerJobs::Build, b.type);
+        m_workerData.setWorkerJob(builderWorker, UnitMission::Build, b.type);
     }
 
     return builderWorker;
@@ -201,82 +221,30 @@ sc2::Tag WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 // sets a worker as a scout
 void WorkerManager::setScoutWorker(const sc2::Tag & workerTag)
 {
-    m_workerData.setWorkerJob(workerTag, WorkerJobs::Scout);
+    m_workerData.setWorkerJob(workerTag, UnitMission::Scout);
 }
 
 void WorkerManager::setCombatWorker(const sc2::Tag & workerTag)
 {
-    m_workerData.setWorkerJob(workerTag, WorkerJobs::Combat);
+    m_workerData.setWorkerJob(workerTag, UnitMission::Attack);
 }
 
 void WorkerManager::setProxyWorker(const sc2::Tag & workerTag)
 {
-    m_workerData.setWorkerJob(workerTag, WorkerJobs::Proxy);
-}
-
-void WorkerManager::drawResourceDebugInfo()
-{
-    if (!m_bot.Config().DrawResourceInfo)
-    {
-        return;
-    }
-
-    for (auto & workerTag : m_workerData.getWorkers())
-    {
-        if (!m_bot.GetUnit(workerTag)) { continue; }
-
-        m_bot.Map().drawText(m_bot.GetUnit(workerTag)->pos, m_workerData.getJobCode(workerTag));
-
-        auto depot = m_bot.GetUnit(m_workerData.getWorkerDepot(workerTag));
-        if (depot)
-        {
-            m_bot.Map().drawLine(m_bot.GetUnit(workerTag)->pos, depot->pos);
-        }
-    }
-}
-
-void WorkerManager::drawWorkerInformation()
-{
-    if (!m_bot.Config().DrawWorkerInfo)
-    {
-        return;
-    }
-
-    std::stringstream ss;
-    ss << "Workers: " << m_workerData.getWorkers().size() << "\n";
-
-    int yspace = 0;
-
-    for (auto & workerTag : m_workerData.getWorkers())
-    {
-        ss << m_workerData.getJobCode(workerTag) << " " << workerTag << "\n";
-    }
-
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
+    m_workerData.setWorkerJob(workerTag, UnitMission::Proxy);
 }
 
 bool WorkerManager::isFree(const sc2::Unit & worker) const
 {
-    return m_workerData.getWorkerJob(worker.tag) == WorkerJobs::Minerals || m_workerData.getWorkerJob(worker.tag) == WorkerJobs::Idle;
+    return m_workerData.getWorkerJob(worker.tag) == UnitMission::Minerals || m_workerData.getWorkerJob(worker.tag) == UnitMission::Idle;
 }
 
 bool WorkerManager::isWorkerScout(const sc2::Unit & worker) const
 {
-    return (m_workerData.getWorkerJob(worker.tag) == WorkerJobs::Scout);
+    return (m_workerData.getWorkerJob(worker.tag) == UnitMission::Scout);
 }
 
 bool WorkerManager::isBuilder(const sc2::Unit & worker) const
 {
-    return (m_workerData.getWorkerJob(worker.tag) == WorkerJobs::Build);
-}
-
-int WorkerManager::getNumMineralWorkers()
-{
-    return m_workerData.getWorkerJobCount(WorkerJobs::Minerals);
-}
-
-int WorkerManager::getNumGasWorkers()
-{
-    return m_workerData.getWorkerJobCount(WorkerJobs::Gas);
-
+    return (m_workerData.getWorkerJob(worker.tag) == UnitMission::Build);
 }

@@ -76,10 +76,10 @@ void ProductionManager::manageBuildOrderQueue()
     while (!m_queue.isEmpty())
     {
         // this is the unit which can produce the currentItem
-        sc2::Tag producer = getProducer(currentItem.type);
+        const sc2::Tag producer = getProducer(currentItem.type);
 
         // check to see if we can make it right now
-        bool canMake = canMakeNow(producer, currentItem.type);
+        const bool canMake = canMakeNow(producer, currentItem.type);
 
         // TODO: if it's a building and we can't make it yet, predict the worker movement to the location
 
@@ -127,24 +127,25 @@ void ProductionManager::preventSupplyBlock() {
     }
 }
 
-int ProductionManager::productionCapacity() {
+int ProductionManager::productionCapacity() const
+{
     // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
-    size_t commandCenters = m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                          + m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                          + m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const  size_t commandCenters = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                                 + m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                                 + m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
-    size_t barracks = m_bot.UnitInfo().getUnitTypeCount(Players::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    const size_t barracks = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     return (int) (commandCenters + barracks) * 2;
 }
 
 sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo)
 {
     // TODO: get the type of unit that builds this
-    sc2::UnitTypeID producerType = Util::WhatBuilds(t);
+    const sc2::UnitTypeID producerType = Util::WhatBuilds(t);
 
     // make a set of all candidate producers
     std::vector<sc2::Tag> candidateProducers;
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
         if (unit.unit_type != producerType) { continue; }
@@ -163,7 +164,7 @@ sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestT
     return getClosestUnitToPosition(candidateProducers, closestTo);
 }
 
-sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag> & units, sc2::Point2D closestTo)
+sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag> & units, const sc2::Point2D closestTo) const
 {
     if (units.size() == 0)
     {
@@ -181,7 +182,7 @@ sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag>
 
     for (auto & unit : units)
     {
-        double distance = Util::Dist(m_bot.GetUnit(unit)->pos, closestTo);
+        const double distance = Util::Dist(m_bot.GetUnit(unit)->pos, closestTo);
         if (!closestUnit || distance < minDist)
         {
             closestUnit = unit;
@@ -193,7 +194,7 @@ sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag>
 }
 
 // this function will check to see if all preconditions are met and then create a unit
-void ProductionManager::create(sc2::Tag producer, BuildOrderItem & item)
+void ProductionManager::create(const sc2::Tag producer, BuildOrderItem & item)
 {
     if (!producer)
     {
@@ -209,7 +210,7 @@ void ProductionManager::create(sc2::Tag producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            sc2::Point2D proxyLocation = m_bot.GameCommander().GetProxyLocation();
+            const sc2::Point2D proxyLocation = m_bot.InformationManager().GetProxyLocation();
             m_buildingManager.addBuildingTask(t, proxyLocation);
         }
         else
@@ -224,7 +225,7 @@ void ProductionManager::create(sc2::Tag producer, BuildOrderItem & item)
     }
 }
 
-bool ProductionManager::canMakeNow(sc2::Tag producerTag, sc2::UnitTypeID type)
+bool ProductionManager::canMakeNow(const sc2::Tag producerTag, const sc2::UnitTypeID type)
 {
     if (!meetsReservedResources(type))
     {
@@ -243,7 +244,7 @@ bool ProductionManager::canMakeNow(sc2::Tag producerTag, sc2::UnitTypeID type)
     else
     {
         // check to see if one of the unit's available abilities matches the build ability type
-        sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
+        const sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
         for (const sc2::AvailableAbility & available_ability : available_abilities.abilities)
         {
             if (available_ability.ability_id == buildTypeAbility)
@@ -256,7 +257,7 @@ bool ProductionManager::canMakeNow(sc2::Tag producerTag, sc2::UnitTypeID type)
     return false;
 }
 
-bool ProductionManager::detectBuildOrderDeadlock()
+bool ProductionManager::detectBuildOrderDeadlock() const
 {
     // TODO: detect build order deadlocks here
     return false;
@@ -279,7 +280,7 @@ bool ProductionManager::meetsReservedResources(sc2::UnitTypeID type)
     return (Util::GetUnitTypeMineralPrice(type, m_bot) <= getFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, m_bot) <= getFreeGas());
 }
 
-void ProductionManager::drawProductionInformation()
+void ProductionManager::drawProductionInformation() const
 {
     if (!m_bot.Config().DrawProductionInfo)
     {
@@ -289,11 +290,11 @@ void ProductionManager::drawProductionInformation()
     std::stringstream ss;
     ss << "Production Information\n\n";
 
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         if (unit.build_progress < 1.0f)
         {
-            //ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << "\n";
+            //ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << std::endl;
         }
     }
 

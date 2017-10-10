@@ -35,5 +35,5 @@ public:
 
     void			reserveTiles(int x, int y, int width, int height);
     void			freeTiles(int x, int y, int width, int height);
-    sc2::Point2D	getRefineryPosition();
+    sc2::Point2D	getRefineryPosition() const;
 };

@@ -100,7 +100,7 @@ void BuildOrderQueue::queueItem(BuildOrderItem b)
 void BuildOrderQueue::queueAsHighestPriority(sc2::UnitTypeID m, bool blocking)
 {
     // the new priority will be higher
-    int newPriority = m_highestPriority + m_defaultPrioritySpacing;
+    const int newPriority = m_highestPriority + m_defaultPrioritySpacing;
 
     // queue the item
     queueItem(BuildOrderItem(m, newPriority, blocking));
@@ -109,7 +109,7 @@ void BuildOrderQueue::queueAsHighestPriority(sc2::UnitTypeID m, bool blocking)
 void BuildOrderQueue::queueAsLowestPriority(sc2::UnitTypeID m, bool blocking)
 {
     // the new priority will be higher
-    int newPriority = m_lowestPriority - m_defaultPrioritySpacing;
+    const int newPriority = m_lowestPriority - m_defaultPrioritySpacing;
 
     // queue the item
     queueItem(BuildOrderItem(m, newPriority, blocking));
@@ -137,12 +137,12 @@ void BuildOrderQueue::removeCurrentHighestPriorityItem()
     m_lowestPriority  = m_queue.empty() ? 0 : m_lowestPriority;
 }
 
-size_t BuildOrderQueue::size()
+size_t BuildOrderQueue::size() const
 {
     return m_queue.size();
 }
 
-bool BuildOrderQueue::isEmpty()
+bool BuildOrderQueue::isEmpty() const
 {
     return (m_queue.size() == 0);
 }
@@ -154,14 +154,14 @@ BuildOrderItem BuildOrderQueue::operator [] (int i)
 
 std::string BuildOrderQueue::getQueueInformation() const
 {
-    size_t reps = m_queue.size() < 30 ? m_queue.size() : 30;
+    const size_t reps = m_queue.size() < 30 ? m_queue.size() : 30;
     std::stringstream ss;
 
     // for each unit in the queue
     for (size_t i(0); i<reps; i++)
     {
         const sc2::UnitTypeID & type = m_queue[m_queue.size() - 1 - i].type;
-        ss << sc2::UnitTypeToName(type) << "\n";
+        ss << sc2::UnitTypeToName(type) << std::endl;
     }
 
     return ss.str();

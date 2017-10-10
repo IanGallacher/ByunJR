@@ -16,7 +16,7 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     m_bot = &bot;
 
-    m_playerStart_y = (int)bot.Bases().getPlayerStartingBaseLocation(Players::Self)->getPosition().y;
+    m_playerStart_y = (int)bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition().y;
     // This won't work for four player maps.
     m_enemyStart_y = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
@@ -58,7 +58,7 @@ TilePos ProxyTrainingData::flipCoordinatesIfNecessary(const int x, const int y)
 sc2::Point2D ProxyTrainingData::getProxyLocation()
 {
     BOT_ASSERT(m_proxy_loc.x != 0 || m_proxy_loc.y != 0, "Please setup the proxy location values before trying to retrieve them.");
-    sc2::Point2D proxyLocation((float)m_proxy_loc.x + m_playable_min.x, (float)m_proxy_loc.y + m_playable_min.y);
+    const sc2::Point2D proxyLocation((float)m_proxy_loc.x + m_playable_min.x, (float)m_proxy_loc.y + m_playable_min.y);
 
     if (m_bot->Config().TrainingMode)
         return proxyLocation;
@@ -88,22 +88,23 @@ int ProxyTrainingData::getReward()
 sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
 {
     sc2::Point2D closestPoint;
-    int dist = 99999;
+    int dist = std::numeric_limits<int>::max();
     for (int i = 0; i < m_viableLocations.size(); ++i)
     {
-        int deltaX = (m_viableLocations[i].m_loc.x - x);
-        int deltaY = (m_viableLocations[i].m_loc.y - y);
-        int newDist = (deltaX * deltaX) + (deltaY * deltaY);
+        const int deltaX = (m_viableLocations[i].m_loc.x - x);
+        const int deltaY = (m_viableLocations[i].m_loc.y - y);
+        const int newDist = (deltaX * deltaX) + (deltaY * deltaY);
         if (newDist < dist)
         {
             closestPoint = sc2::Point2D(x, y);
+            dist = newDist;
         }
     }
     return closestPoint;
 }
 
 // Is the proxy location ready to go? Has it been setup yet?
-bool ProxyTrainingData::proxyLocationReady()
+bool ProxyTrainingData::proxyLocationReady() const
 {
     if (m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
         return false;
@@ -195,7 +196,7 @@ void ProxyTrainingData::upadateViableLocationsList()
         {
             if (m_result[y][x] == MapDataValue::LocationWithoutResultValue)
             {
-                sc2::Point2D point((float)x, (float)y);
+                const sc2::Point2D point((float)x, (float)y);
                 ProxyLocation pl = { point, m_result[y][x] };
                 m_viableLocations.push_back(pl);
             }
@@ -209,9 +210,9 @@ void ProxyTrainingData::upadateViableLocationsList()
     }
 }
 
-void ProxyTrainingData::recordResult(int fitness)
+void ProxyTrainingData::recordResult(const int fitness)
 {
-    TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
+    const TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
     
     m_result[actualProxyLoc.y][actualProxyLoc.x] = fitness;
 
@@ -221,7 +222,7 @@ void ProxyTrainingData::recordResult(int fitness)
 
 // If we can't build at the chosen location, update that information in our data structure.
 // This function takes the parameters in "True Map Space"
-bool ProxyTrainingData::isProxyLocationValid(int x, int y)
+bool ProxyTrainingData::isProxyLocationValid(int x, int y) const
 {
     if (m_bot->Map().canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;
@@ -291,7 +292,7 @@ bool ProxyTrainingData::setupProxyLocation()
     m_proxy_loc.x = m_bot->Config().ProxyLocationX;
     m_proxy_loc.y = m_bot->Config().ProxyLocationY;
 
-    sc2::Vector2D myVec((float)m_proxy_loc.x, (float)m_proxy_loc.y);
+    const sc2::Vector2D myVec((float)m_proxy_loc.x, (float)m_proxy_loc.y);
     std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
     return true;
 }

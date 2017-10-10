@@ -1,6 +1,8 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
+#include "common/Common.h"
+
 class ByunJRBot;
 
 namespace Util
@@ -13,7 +15,7 @@ namespace Util
         bool operator()(const sc2::Unit& unit, const sc2::ObservationInterface*);
     };
 
-    int GetPlayer(const sc2::Unit & unit);
+    PlayerArrayIndex GetPlayer(const sc2::Unit & unit);
     bool IsCombatUnit(const sc2::Unit & unit);
     bool IsCombatUnitType(const sc2::UnitTypeID type);
     bool IsSupplyProvider(const sc2::Unit & unit);

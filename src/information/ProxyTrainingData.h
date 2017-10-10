@@ -61,11 +61,11 @@ class ProxyTrainingData
 public:
     void            InitAllValues(ByunJRBot & bot);
     bool            setupProxyLocation();
-    bool            proxyLocationReady();
+    bool            proxyLocationReady() const;
 
     // Proxy training
     void            upadateViableLocationsList();
-    bool            isProxyLocationValid(int x, int y);
+    bool            isProxyLocationValid(int x, int y) const;
     void            recordResult(int fitness);
     void            writeAllTrainingData(std::string filename);
 

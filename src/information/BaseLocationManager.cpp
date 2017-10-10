@@ -12,37 +12,39 @@ BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
 void BaseLocationManager::onStart()
 {
     m_tileBaseLocations = std::vector<std::vector<BaseLocation *>>(m_bot.Map().width(), std::vector<BaseLocation *>(m_bot.Map().height(), nullptr));
-    m_playerStartingBaseLocations[Players::Self]  = nullptr;
-    m_playerStartingBaseLocations[Players::Enemy] = nullptr; 
+    m_playerStartingBaseLocations[PlayerArrayIndex::Self]  = nullptr;
+    m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = nullptr; 
     
     // a BaseLocation will be anything where there are minerals to mine
     // so we will first look over all minerals and cluster them based on some distance
-    const int clusterDistance = 14;
+    const int clusterDistance = 15;
     
-    // stores each cluster of resources based on some ground distance
+    // Stores each cluster of resources based on some ground distance.
+    // These will be used to identify base locations.
     std::vector<std::vector<sc2::Unit>> resourceClusters;
-    for (auto & mineral : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
+
+    // For every mineral field and gas geyser out there, add it to a resource cluster.
+    for (auto & resource : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
     {
         // skip minerals that don't have more than 100 starting minerals
-        // these are probably stupid map-blocking minerals to confuse us
-        if (!Util::IsMineral(*mineral))
-        {
-            continue;
-        }
+        // these are probably stupid map-blocking minerals to confuse us.
+
+        // Skip any unit that is not a gas geyser or mineral field.
+        if (!Util::IsMineral(*resource) && !Util::IsGeyser(*resource)) continue;
 
         bool foundCluster = false;
         for (auto & cluster : resourceClusters)
         {
-            float dist = Util::Dist(mineral->pos, Util::CalcCenter(cluster));
+            const float dist = Util::Dist(resource->pos, Util::CalcCenter(cluster));
             
             // quick initial air distance check to eliminate most resources
             if (dist < clusterDistance)
             {
                 // now do a more expensive ground distance check
-                float groundDist = dist; //m_bot.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
+                const float groundDist = dist; //m_bot.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
                 if (groundDist >= 0 && groundDist < clusterDistance)
                 {
-                    cluster.push_back(*mineral);
+                    cluster.push_back(*resource);
                     foundCluster = true;
                     break;
                 }
@@ -52,28 +54,7 @@ void BaseLocationManager::onStart()
         if (!foundCluster)
         {
             resourceClusters.push_back(std::vector<sc2::Unit>());
-            resourceClusters.back().push_back(*mineral);
-        }
-    }
-
-    // add geysers only to existing resource clusters
-    for (auto & geyser : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
-    {
-        if (!Util::IsGeyser(*geyser))
-        {
-            continue;
-        }
-
-        for (auto & cluster : resourceClusters)
-        {
-            //int groundDist = m_bot.Map().getGroundDistance(geyser.pos, Util::CalcCenter(cluster));
-            float groundDist = Util::Dist(geyser->pos, Util::CalcCenter(cluster));
-
-            if (groundDist >= 0 && groundDist < clusterDistance)
-            {
-                cluster.push_back(*geyser);
-                break;
-            }
+            resourceClusters.back().push_back(*resource);
         }
     }
 
@@ -99,14 +80,14 @@ void BaseLocationManager::onStart()
         }
 
         // if it's our starting location, set the pointer
-        if (baseLocation.isPlayerStartLocation(Players::Self))
+        if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Self))
         {
-            m_playerStartingBaseLocations[Players::Self] = &baseLocation;
+            m_playerStartingBaseLocations[PlayerArrayIndex::Self] = &baseLocation;
         }
 
-        if (baseLocation.isPlayerStartLocation(Players::Enemy))
+        if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Enemy))
         {
-            m_playerStartingBaseLocations[Players::Enemy] = &baseLocation;
+            m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
         }
     }
 
@@ -130,8 +111,8 @@ void BaseLocationManager::onStart()
     }
 
     // construct the sets of occupied base locations
-    m_occupiedBaseLocations[Players::Self] = std::set<const BaseLocation *>();
-    m_occupiedBaseLocations[Players::Enemy] = std::set<const BaseLocation *>();
+    m_occupiedBaseLocations[PlayerArrayIndex::Self] = std::set<const BaseLocation *>();
+    m_occupiedBaseLocations[PlayerArrayIndex::Enemy] = std::set<const BaseLocation *>();
 }
 
 void BaseLocationManager::onFrame()
@@ -141,8 +122,8 @@ void BaseLocationManager::onFrame()
     // reset the player occupation information for each location
     for (auto & baseLocation : m_baseLocationData)
     {
-        baseLocation.setPlayerOccupying(Players::Self, false);
-        baseLocation.setPlayerOccupying(Players::Self, false);
+        baseLocation.setPlayerOccupying(PlayerArrayIndex::Self, false);
+        baseLocation.setPlayerOccupying(PlayerArrayIndex::Enemy, false);
     }
 
     // for each unit on the map, update which base location it may be occupying
@@ -163,7 +144,7 @@ void BaseLocationManager::onFrame()
     }
 
     // update enemy base occupations
-    for (const auto & kv : m_bot.UnitInfo().getUnitInfoMap(Players::Enemy))
+    for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
     {
         const UnitInfo & ui = kv.second;
 
@@ -176,7 +157,7 @@ void BaseLocationManager::onFrame()
 
         if (baseLocation != nullptr)
         {
-            baseLocation->setPlayerOccupying(Players::Enemy, true);
+            baseLocation->setPlayerOccupying(PlayerArrayIndex::Enemy, true);
         }
     }
 
@@ -184,21 +165,21 @@ void BaseLocationManager::onFrame()
     // this will happen one of two ways:
     
     // 1. we've seen the enemy base directly, so the baselocation will know
-    if (m_playerStartingBaseLocations[Players::Enemy] == nullptr)
+    if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
     {
         for (auto & baseLocation : m_baseLocationData)
         {
-            if (baseLocation.isPlayerStartLocation(Players::Enemy))
+            if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Enemy))
             {
-                m_playerStartingBaseLocations[Players::Enemy] = &baseLocation;
+                m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
             }
         }
     }
     
     // 2. we've explored every other start location and haven't seen the enemy yet
-    if (m_playerStartingBaseLocations[Players::Enemy] == nullptr)
+    if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
     {
-        int numStartLocations = (int)getStartingBaseLocations().size();
+        const int numStartLocations = (int)getStartingBaseLocations().size();
         int numExploredLocations = 0;
         BaseLocation * unexplored = nullptr;
 
@@ -222,24 +203,24 @@ void BaseLocationManager::onFrame()
         // if we have explored all but one location, then the unexplored one is the enemy start location
         if (numExploredLocations == numStartLocations - 1 && unexplored != nullptr)
         {
-            m_playerStartingBaseLocations[Players::Enemy] = unexplored;
-            unexplored->setPlayerOccupying(Players::Enemy, true);
+            m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = unexplored;
+            unexplored->setPlayerOccupying(PlayerArrayIndex::Enemy, true);
         }
     }
 
     // update the occupied base locations for each player
-    m_occupiedBaseLocations[Players::Self] = std::set<const BaseLocation *>();
-    m_occupiedBaseLocations[Players::Enemy] = std::set<const BaseLocation *>();
+    m_occupiedBaseLocations[PlayerArrayIndex::Self] = std::set<const BaseLocation *>();
+    m_occupiedBaseLocations[PlayerArrayIndex::Enemy] = std::set<const BaseLocation *>();
     for (auto & baseLocation : m_baseLocationData)
     {
-        if (baseLocation.isOccupiedByPlayer(Players::Self))
+        if (baseLocation.isOccupiedByPlayer(PlayerArrayIndex::Self))
         {
-            m_occupiedBaseLocations[Players::Self].insert(&baseLocation);
+            m_occupiedBaseLocations[PlayerArrayIndex::Self].insert(&baseLocation);
         }
 
-        if (baseLocation.isOccupiedByPlayer(Players::Enemy))
+        if (baseLocation.isOccupiedByPlayer(PlayerArrayIndex::Enemy))
         {
-            m_occupiedBaseLocations[Players::Enemy].insert(&baseLocation);
+            m_occupiedBaseLocations[PlayerArrayIndex::Enemy].insert(&baseLocation);
         }
     }
 
@@ -267,7 +248,7 @@ void BaseLocationManager::drawBaseLocations()
     }
 
     // draw a purple sphere at the next expansion location
-    sc2::Point2D nextExpansionPosition = getNextExpansion(Players::Self);
+    const sc2::Point2D nextExpansionPosition = getNextExpansion(PlayerArrayIndex::Self);
 
     m_bot.Map().drawSphere(nextExpansionPosition, 1, sc2::Colors::Purple);
     m_bot.Map().drawText(nextExpansionPosition, "Next Expansion Location", sc2::Colors::Purple);
@@ -283,18 +264,18 @@ const std::vector<const BaseLocation *> & BaseLocationManager::getStartingBaseLo
     return m_startingBaseLocations;
 }
 
-const BaseLocation * BaseLocationManager::getPlayerStartingBaseLocation(int player) const
+const BaseLocation * BaseLocationManager::getPlayerStartingBaseLocation(const PlayerArrayIndex player) const
 {
     return m_playerStartingBaseLocations.at(player);
 }
 
-const std::set<const BaseLocation *> & BaseLocationManager::getOccupiedBaseLocations(int player) const
+const std::set<const BaseLocation *> & BaseLocationManager::getOccupiedBaseLocations(const PlayerArrayIndex player) const
 {
     return m_occupiedBaseLocations.at(player);
 }
 
 
-sc2::Point2D BaseLocationManager::getNextExpansion(int player) const
+sc2::Point2D BaseLocationManager::getNextExpansion(const PlayerArrayIndex player) const
 {
     const BaseLocation * homeBase = getPlayerStartingBaseLocation(player);
     const BaseLocation * closestBase = nullptr;
@@ -311,9 +292,9 @@ sc2::Point2D BaseLocationManager::getNextExpansion(int player) const
         }
 
         // get the tile position of the base
-        auto tile = base->getDepotPosition();
+        const auto tile = base->getDepotPosition();
         
-        bool buildingInTheWay = false; // TODO: check if there are any units on the tile
+        const bool buildingInTheWay = false; // TODO: check if there are any units on the tile
 
         if (buildingInTheWay)
         {
@@ -321,7 +302,7 @@ sc2::Point2D BaseLocationManager::getNextExpansion(int player) const
         }
 
         // the base's distance from our main nexus
-        int distanceFromHome = homeBase->getGroundDistance(tile);
+        const int distanceFromHome = homeBase->getGroundDistance(tile);
 
         // if it is not connected, continue
         if (distanceFromHome < 0)

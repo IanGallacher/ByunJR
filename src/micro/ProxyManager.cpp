@@ -30,7 +30,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
 {
     if (m_bot.Config().TrainingMode && unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
     {
-        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
         m_bot.Resign();
         m_ptd.recordResult((int)m_bot.Query()->PathingDistance(&unit, enemyBaseLocation->getPosition()));
@@ -41,7 +41,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit& unit)
 void ProxyManager::onUnitEnterVision(const sc2::Unit& enemyUnit)
 {
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit.tag == m_proxyUnitTag)
         {
@@ -71,7 +71,7 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
     //{
     if (m_proxyUnitTag == 0)
     {
-        sc2::Vector2D myVec(m_ptd.getProxyLocation());
+        const sc2::Vector2D myVec(m_ptd.getProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
         m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
         m_bot.Workers().setProxyWorker(m_proxyUnitTag);

@@ -26,7 +26,7 @@ void BuildingManager::onStart()
 // gets called every frame from GameCommander
 void BuildingManager::onFrame()
 {
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
         if (Util::IsBuilding(unit.unit_type))
@@ -39,9 +39,9 @@ void BuildingManager::onFrame()
 
     validateWorkersAndBuildings();          // check to see if assigned workers have died en route or while constructing
     assignWorkersToUnassignedBuildings();   // assign workers to the unassigned buildings and label them 'planned'    
+    checkForDeadTerranBuilders();           // if we are terran and a building is under construction without a worker, assign a new one    
     constructAssignedBuildings();           // for each planned building, if the worker isn't constructing, send the command    
     checkForStartedConstruction();          // check to see if any buildings have started construction and update data structures    
-    checkForDeadTerranBuilders();           // if we are terran and a building is under construction without a worker, assign a new one    
     checkForCompletedBuildings();           // check to see if any buildings have completed and update data structures
 
     drawBuildingInformation();
@@ -76,7 +76,7 @@ void BuildingManager::validateWorkersAndBuildings()
             continue;
         }
 
-        auto buildingUnit = m_bot.GetUnit(b.buildingUnitTag);
+        const auto buildingUnit = m_bot.GetUnit(b.buildingUnitTag);
 
         // TODO: || !b.buildingUnit->getType().isBuilding()
         if (!buildingUnit || (buildingUnit->health <= 0))
@@ -104,7 +104,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         if (m_debugMode) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab a worker unit from WorkerManager which is closest to this final position
-        sc2::Point2D testLocation = getBuildingLocation(b);
+        const sc2::Point2D testLocation = getBuildingLocation(b);
         if (!m_bot.Map().isOnMap(testLocation))
         {
             continue;
@@ -113,7 +113,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         b.finalPosition = testLocation;
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
         b.builderUnitTag = builderUnitTag;
         if (!b.builderUnitTag)
         {
@@ -125,7 +125,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            sc2::Point2D proxyLocation = b.desiredPosition;
+            const sc2::Point2D proxyLocation = b.desiredPosition;
             std::cout << "finalplacementlocation" << proxyLocation.x << "x " << proxyLocation.y << "y " << std::endl;
         }
 
@@ -133,7 +133,25 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
     }
 }
 
-// STEP 3: ISSUE CONSTRUCTION ORDERS TO ASSIGN BUILDINGS AS NEEDED
+// STEP 3: IF OUR WORKERS DIED, ASSIGN THEM AGAIN.
+void BuildingManager::checkForDeadTerranBuilders()
+{   // for each building that doesn't have a builder, assign one
+    for (Building & b : m_buildings)
+    {
+        if (b.status != BuildingStatus::Unassigned || m_bot.GetUnit(b.builderUnitTag))
+        {
+            continue;
+        }
+
+        if (m_debugMode) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
+
+        // grab the worker unit from WorkerManager which is closest to this final position
+        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        b.builderUnitTag = builderUnitTag;
+    }
+}
+
+// STEP 4: ISSUE CONSTRUCTION ORDERS TO ASSIGN BUILDINGS AS NEEDED
 void BuildingManager::constructAssignedBuildings()
 {
     for (auto & b : m_buildings)
@@ -144,13 +162,13 @@ void BuildingManager::constructAssignedBuildings()
         }
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
-        sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
+        const sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
         const sc2::Unit * builderUnit = m_bot.GetUnit(b.builderUnitTag);
 
         bool isConstructing = false;
 
         // if we're zerg and the builder unit is null, we assume it morphed into the building
-        if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Zerg)
+        if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
         {
             if (!builderUnit)
             {
@@ -216,11 +234,11 @@ void BuildingManager::constructAssignedBuildings()
     }
 }
 
-// STEP 4: UPDATE DATA STRUCTURES FOR BUILDINGS STARTING CONSTRUCTION
+// STEP 5: UPDATE DATA STRUCTURES FOR BUILDINGS STARTING CONSTRUCTION
 void BuildingManager::checkForStartedConstruction()
 {
     // for each building unit which is being constructed
-    for (auto & buildingStarted : m_bot.UnitInfo().getUnits(Players::Self))
+    for (auto & buildingStarted : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
         if (!Util::IsBuilding(buildingStarted.unit_type) || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
@@ -238,8 +256,8 @@ void BuildingManager::checkForStartedConstruction()
             }
 
             // check if the positions match
-            float dx = b.finalPosition.x - buildingStarted.pos.x;
-            float dy = b.finalPosition.y - buildingStarted.pos.y;
+            const float dx = b.finalPosition.x - buildingStarted.pos.x;
+            const float dy = b.finalPosition.y - buildingStarted.pos.y;
 
             if (dx*dx + dy*dy < 1)
             {
@@ -257,11 +275,11 @@ void BuildingManager::checkForStartedConstruction()
                 b.buildingUnitTag = buildingStarted.tag;
 
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
-                if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Zerg)
+                if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
                 {
                     b.builderUnitTag = 0;
                 }
-                else if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Protoss)
+                else if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
                     m_bot.Workers().finishedWithWorker(b.builderUnitTag);
                     b.builderUnitTag = 0;
@@ -280,9 +298,6 @@ void BuildingManager::checkForStartedConstruction()
     }
 }
 
-// STEP 5: IF WE ARE TERRAN, THIS MATTERS, SO: LOL
-void BuildingManager::checkForDeadTerranBuilders() {}
-
 // STEP 6: CHECK FOR COMPLETED BUILDINGS
 void BuildingManager::checkForCompletedBuildings()
 {
@@ -300,7 +315,7 @@ void BuildingManager::checkForCompletedBuildings()
         if (m_bot.GetUnit(b.buildingUnitTag)->build_progress == 1.0f)
         {
             // if we are terran, give the worker back to worker manager
-            if (m_bot.GetPlayerRace(Players::Self) == sc2::Race::Terran)
+            if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
                 m_bot.Workers().finishedWithWorker(b.builderUnitTag);
             }
@@ -337,12 +352,12 @@ char BuildingManager::getBuildingWorkerCode(const Building & b) const
     return b.builderUnitTag == 0 ? 'X' : 'W';
 }
 
-int BuildingManager::getReservedMinerals()
+int BuildingManager::getReservedMinerals() const
 {
     return m_reservedMinerals;
 }
 
-int BuildingManager::getReservedGas()
+int BuildingManager::getReservedGas() const
 {
     return m_reservedGas;
 }
@@ -367,12 +382,12 @@ void BuildingManager::drawBuildingInformation()
 
         if (b.builderUnitTag)
         {
-            dss << "\n\nBuilder: " << b.builderUnitTag << "\n";
+            dss << "\n\nBuilder: " << b.builderUnitTag << std::endl;
         }
 
         if (b.buildingUnitTag)
         {
-            dss << "Building: " << b.buildingUnitTag << "\n" << m_bot.GetUnit(b.buildingUnitTag)->build_progress;
+            dss << "Building: " << b.buildingUnitTag << std::endl << m_bot.GetUnit(b.buildingUnitTag)->build_progress;
             m_bot.Map().drawText(m_bot.GetUnit(b.buildingUnitTag)->pos, dss.str());
         }
 
@@ -380,23 +395,23 @@ void BuildingManager::drawBuildingInformation()
 
         if (b.status == BuildingStatus::Unassigned)
         {
-            ss << "Unassigned " << sc2::UnitTypeToName(b.type) << "    " << getBuildingWorkerCode(b) << "\n";
+            ss << "Unassigned " << sc2::UnitTypeToName(b.type) << "    " << getBuildingWorkerCode(b) << std::endl;
         }
         else if (b.status == BuildingStatus::Assigned)
         {
             ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << getBuildingWorkerCode(b) << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
-            float x1 = b.finalPosition.x;
-            float y1 = b.finalPosition.y;
-            float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, m_bot);
-            float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, m_bot);
+            const float x1 = b.finalPosition.x;
+            const float y1 = b.finalPosition.y;
+            const float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, m_bot);
+            const float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, m_bot);
 
             m_bot.Map().drawSquare(x1, y1, x2, y2, sc2::Colors::Red);
             //m_bot.Map().drawLine(b.finalPosition, m_bot.GetUnit(b.builderUnitTag)->pos, sc2::Colors::Yellow);
         }
         else if (b.status == BuildingStatus::UnderConstruction)
         {
-            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << b.buildingUnitTag << " " << getBuildingWorkerCode(b) << "\n";
+            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << b.buildingUnitTag << " " << getBuildingWorkerCode(b) << std::endl;
         }
     }
 
@@ -418,9 +433,9 @@ std::vector<sc2::UnitTypeID> BuildingManager::buildingsQueued() const
     return buildingsQueued;
 }
 
-sc2::Point2D BuildingManager::getBuildingLocation(const Building & b)
+sc2::Point2D BuildingManager::getBuildingLocation(const Building & b) const
 {
-    size_t numPylons = m_bot.UnitInfo().getUnitTypeCount(Players::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(Players::Self)), true);
+    size_t numPylons = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, Util::GetSupplyProvider(m_bot.GetPlayerRace(PlayerArrayIndex::Self)), true);
 
     // TODO: if requires psi and we have no pylons return 0
 

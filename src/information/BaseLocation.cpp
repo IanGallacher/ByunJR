@@ -16,10 +16,10 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::U
     , m_top                  (std::numeric_limits<float>::lowest())
     , m_bottom               (std::numeric_limits<float>::max())
 {
-    m_isPlayerStartLocation[0] = false;
-    m_isPlayerStartLocation[1] = false;
-    m_isPlayerOccupying[0] = false;
-    m_isPlayerOccupying[1] = false;
+    m_isPlayerStartLocation[PlayerArrayIndex::Self] = false;
+    m_isPlayerStartLocation[PlayerArrayIndex::Enemy] = false;
+    m_isPlayerOccupying[PlayerArrayIndex::Self] = false;
+    m_isPlayerOccupying[PlayerArrayIndex::Enemy] = false;
 
     float resourceCenterX = 0;
     float resourceCenterY = 0;
@@ -47,8 +47,8 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::U
         }
 
         // set the limits of the base location bounding box
-        float resWidth = 1;
-        float resHeight = 0.5;
+        const float resWidth = 1;
+        const float resHeight = 0.5;
 
         m_left   = std::min(m_left,   resource.pos.x - resWidth);
         m_right  = std::max(m_right,  resource.pos.x + resWidth);
@@ -78,11 +78,11 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<sc2::U
     // if this base location position is near our own resource depot, it's our start location
     for (auto & unit : m_bot.Observation()->GetUnits())
     {
-        if (Util::GetPlayer(*unit) == Players::Self && Util::IsTownHall(*unit) && containsPosition(unit->pos))
+        if (Util::GetPlayer(*unit) == PlayerArrayIndex::Self && Util::IsTownHall(*unit) && containsPosition(unit->pos))
         {
-            m_isPlayerStartLocation[Players::Self] = true;
+            m_isPlayerStartLocation[PlayerArrayIndex::Self] = true;
             m_isStartLocation = true;
-            m_isPlayerOccupying[Players::Self] = true;
+            m_isPlayerOccupying[PlayerArrayIndex::Self] = true;
             break;
         }
     }
@@ -104,12 +104,12 @@ const sc2::Point2D & BaseLocation::getDepotPosition() const
     return getPosition();
 }
 
-void BaseLocation::setPlayerOccupying(int player, bool occupying)
+void BaseLocation::setPlayerOccupying(PlayerArrayIndex player, bool occupying)
 {
     m_isPlayerOccupying[player] = occupying;
 
     // if this base is a start location that's occupied by the enemy, it's that enemy's start location
-    if (occupying && player == Players::Enemy && isStartLocation() && m_isPlayerStartLocation[player] == false)
+    if (occupying && player == PlayerArrayIndex::Enemy && isStartLocation() && m_isPlayerStartLocation[player] == false)
     {
         m_isPlayerStartLocation[player] = true;
     }
@@ -120,7 +120,7 @@ bool BaseLocation::isInResourceBox(int x, int y) const
     return x >= m_left && x < m_right && y < m_top && y >= m_bottom;
 }
 
-bool BaseLocation::isOccupiedByPlayer(int player) const
+bool BaseLocation::isOccupiedByPlayer(PlayerArrayIndex player) const
 {
     return m_isPlayerOccupying.at(player);
 }
@@ -130,7 +130,7 @@ bool BaseLocation::isExplored() const
     return false;
 }
 
-bool BaseLocation::isPlayerStartLocation(int player) const
+bool BaseLocation::isPlayerStartLocation(PlayerArrayIndex player) const
 {
     return m_isPlayerStartLocation.at(player);
 }
@@ -157,13 +157,14 @@ const std::vector<sc2::Unit> & BaseLocation::getMinerals() const
 
 const sc2::Point2D & BaseLocation::getPosition() const
 {
+    //return m_depotPosition;
     return m_centerOfResources;
 }
 
 int BaseLocation::getGroundDistance(const sc2::Point2D & pos) const
 {
-    //return Util::Dist(pos, m_centerOfResources);
-    return m_distanceMap.getDistance(pos);
+    return Util::Dist(pos, m_centerOfResources);
+    //return m_distanceMap.getDistance(pos);
 }
 
 bool BaseLocation::isStartLocation() const
@@ -181,18 +182,18 @@ void BaseLocation::draw()
     m_bot.Map().drawSphere(m_centerOfResources, 1.0f, sc2::Colors::Yellow);
 
     std::stringstream ss;
-    ss << "BaseLocation: " << m_baseID << "\n";
-    ss << "Start Loc:    " << (isStartLocation() ? "true" : "false") << "\n";
-    ss << "Minerals:     " << m_mineralPositions.size() << "\n";
-    ss << "Geysers:      " << m_geyserPositions.size() << "\n";
+    ss << "BaseLocation: " << m_baseID << std::endl;
+    ss << "Start Loc:    " << (isStartLocation() ? "true" : "false") << std::endl;
+    ss << "Minerals:     " << m_mineralPositions.size() << std::endl;
+    ss << "Geysers:      " << m_geyserPositions.size() << std::endl;
     ss << "Occupied By:  ";
 
-    if (isOccupiedByPlayer(Players::Self))
+    if (isOccupiedByPlayer(PlayerArrayIndex::Self))
     {
         ss << "Self ";
     }
 
-    if (isOccupiedByPlayer(Players::Enemy))
+    if (isOccupiedByPlayer(PlayerArrayIndex::Enemy))
     {
         ss << "Enemy ";
     }
@@ -228,10 +229,10 @@ void BaseLocation::draw()
         m_bot.Map().drawSphere(m_depotPosition, 1.0f, sc2::Colors::Red);
     }
     
-    float ccWidth = 5;
-    float ccHeight = 4;
-    sc2::Point2D boxtl = m_depotPosition - sc2::Point2D(ccWidth/2, -ccHeight/2);
-    sc2::Point2D boxbr = m_depotPosition + sc2::Point2D(ccWidth/2, -ccHeight/2);
+    const float ccWidth = 5;
+    const float ccHeight = 4;
+    const sc2::Point2D boxtl = m_depotPosition - sc2::Point2D(ccWidth/2, -ccHeight/2);
+    const sc2::Point2D boxbr = m_depotPosition + sc2::Point2D(ccWidth/2, -ccHeight/2);
 
     m_bot.Map().drawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
 

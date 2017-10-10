@@ -10,7 +10,7 @@
     {
         "BotRace"                   : "Terran",
         "EnemyRace"                 : "Zerg",
-        "MapName"                   : "InterloperLE"
+        "MapName"                   : "BloodBoilLE"
     },
 
     "Micro" :
@@ -18,14 +18,6 @@
         "KiteWithRangedUnits"       : true,
         "ScoutHarassEnemy"          : true,
         "CombatUnitsForAttack"      : 1
-    },
-
-    "Macro" :
-    {
-        "TrainingMode"              : true,
-        "WorkersPerRefinery"        : 3,
-        "BuildingSpacing"           : 0,
-        "PylonSpacing"              : 3
     },
 
     "Debug" :
@@ -53,15 +45,13 @@
 
     "Strategy" :
     {
-        "Protoss"                   : "Protoss_ZealotRush",
-        "Terran"                    : "Terran_ReaperRush",
-        "Zerg"                      : "Zerg_2HatchRoach",
-
+        "TrainingMode"              : false,
         "ScoutHarassEnemy"          : true,
+        "Terran"                    : "Terran_ReaperRush",
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] } 
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Refinery", "SCV", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] }
         }
     }
 }

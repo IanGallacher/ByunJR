@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
+    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
     {
         std::cerr << "Config file could not be parsed, and is required for starting the bot\n";
@@ -70,17 +70,16 @@ int main(int argc, char* argv[])
 
             coordinator.SetRealtime(false);
 
-            // WARNING: Bot logic has not been thorougly tested on step sizes > 1
             //          Setting this = N means the bot's onFrame gets called once every N frames
             //          The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(2);
+            coordinator.SetStepSize(1);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;
 
             coordinator.SetParticipants({
                 CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-                CreateComputer(Util::GetRaceFromString(enemyRaceString))
+                CreateComputer(Util::GetRaceFromString(enemyRaceString), sc2::Difficulty::VeryHard)
             });
 
             // Start the game.
@@ -98,12 +97,12 @@ int main(int argc, char* argv[])
                     {
                         Population* pop = ga.getPopulation();
                         // grab proxy training data once
-                        sc2::Point2D point = bot.GameCommander().GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        const sc2::Point2D point = bot.GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
                         std::vector<int> genes = std::vector<int>();
                         genes.resize(2);
                         genes[0] = point.x;
                         genes[1] = point.y;
-                        Candidate can = Candidate(genes);
+                        const Candidate can = Candidate(genes);
                         pop->setCanidate(i, can);
                     }
                     geneticAlgorithmSetup = true;
@@ -114,7 +113,7 @@ int main(int argc, char* argv[])
                 {
                     Candidate c = ga.getPopulation()->getCandidate(i);
                     bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
-                    bot.GameCommander().GetProxyManager().getProxyTrainingData().setupProxyLocation();
+                    bot.GetProxyManager().getProxyTrainingData().setupProxyLocation();
                     alreadyInit = true;
                 }
             }
@@ -128,10 +127,10 @@ int main(int argc, char* argv[])
                 std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
             }
             coordinator.LeaveGame();
-            ga.setReward(i, bot.GameCommander().GetProxyManager().getProxyTrainingData().getReward());
+            ga.setReward(i, bot.GetProxyManager().getProxyTrainingData().getReward());
             if(i==9)
             {
-                ga.evolvePopulation(bot.GameCommander().GetProxyManager().getProxyTrainingData());
+                ga.evolvePopulation(bot.GetProxyManager().getProxyTrainingData());
                 std::cout << "MUTATING" << std::endl;
             }
         }
