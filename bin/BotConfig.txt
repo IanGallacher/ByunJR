@@ -45,7 +45,7 @@
 
     "Strategy" :
     {
-        "TrainingMode"              : true,
+        "TrainingMode"              : false,
         "ScoutHarassEnemy"          : true,
         "Terran"                    : "Terran_ReaperRush",
 
