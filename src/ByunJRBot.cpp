@@ -171,3 +171,19 @@ void ByunJRBot::OnError(const std::vector<sc2::ClientError> & client_errors, con
 {
     
 }
+
+void *CreateNewAgent()
+{
+	return (void *) new ByunJRBot();
+}
+
+int GetAgentRace()
+{
+	return sc2::Race::Terran;
+}
+
+const char *GetAgentName()
+{
+	return "ByunJR";
+
+}

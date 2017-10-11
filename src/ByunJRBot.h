@@ -15,6 +15,8 @@
 #include "information/BaseLocationManager.h"
 #include "util/MapTools.h"
 
+#define DllExport   __declspec( dllexport )  
+
 class ByunJRBot : public sc2::Agent 
 {
     sc2::Race                m_playerRace[2];
@@ -62,3 +64,9 @@ public:
     sc2::Point2D GetStartLocation() const;
     const sc2::Unit * GetUnit(const sc2::Tag & tag) const;
 };
+
+void DllExport *CreateNewAgent();
+
+int DllExport GetAgentRace();
+
+const char DllExport *GetAgentName();
