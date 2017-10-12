@@ -57,7 +57,8 @@ TilePos ProxyTrainingData::flipCoordinatesIfNecessary(const int x, const int y)
 // Returns the proxy location in "True Map Space"
 sc2::Point2D ProxyTrainingData::getProxyLocation()
 {
-    BOT_ASSERT(m_proxy_loc.x != 0 || m_proxy_loc.y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    if(m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
+        std::cout << "Please setup the proxy location values before trying to retrieve them." << std::endl;
     const sc2::Point2D proxyLocation((float)m_proxy_loc.x + m_playable_min.x, (float)m_proxy_loc.y + m_playable_min.y);
 
     if (m_bot->Config().TrainingMode)
@@ -106,8 +107,11 @@ sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
 // Is the proxy location ready to go? Has it been setup yet?
 bool ProxyTrainingData::proxyLocationReady() const
 {
-    if (m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
+    // If we are training the bot with a genetic algorithm, the genetic algorithm may not have setup the proxy location.
+    // If that is the case, the proxyLocation is not ready to be retrieved. 
+    if (m_bot->Config().TrainingMode && (m_proxy_loc.x == 0 || m_proxy_loc.y == 0) )
         return false;
+    // If we are not using a genetic algorithm, the "best coordinates" are ready.
     else
         return true;
 }
@@ -207,6 +211,13 @@ void ProxyTrainingData::upadateViableLocationsList()
                 best_reward = m_result[y][x];
             }
         }
+    }
+
+    if(!m_bot->Config().TrainingMode)
+    {
+        m_bot->Config().setProxyLocation(m_best_proxy_loc.x, m_best_proxy_loc.y);
+        m_proxy_loc.x = m_best_proxy_loc.x;
+        m_proxy_loc.y = m_best_proxy_loc.y;
     }
 }
 

@@ -24,6 +24,9 @@ ByunJRBot::ByunJRBot()
 void ByunJRBot::OnGameStart() 
 {
     m_config.readConfigFile();
+    m_config.MapName = Observation()->GetGameInfo().map_name;
+    // The map_name is not the same as the filename. Remove all the spaces to ensure compatability.
+    m_config.MapName.erase(std::remove(m_config.MapName.begin(), m_config.MapName.end(), ' '), m_config.MapName.end());
 
     // get my race
     const auto playerID = Observation()->GetPlayerID();

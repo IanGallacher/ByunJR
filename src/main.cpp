@@ -85,7 +85,6 @@ int main(int argc, char* argv[])
             // Start the game.
             coordinator.LaunchStarcraft();
             coordinator.StartGame(mapString);
-
             bool alreadyInit = false;
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {
