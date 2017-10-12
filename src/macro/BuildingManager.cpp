@@ -334,7 +334,7 @@ void BuildingManager::addBuildingTask(const sc2::UnitTypeID & type, const sc2::P
     m_reservedMinerals  += Util::GetUnitTypeMineralPrice(type, m_bot);
     m_reservedGas	    += Util::GetUnitTypeGasPrice(type, m_bot);
 
-    Building b(type, desiredPosition);
+    Building b(type, sc2::Point2D(desiredPosition.x, desiredPosition.y));
     b.status = BuildingStatus::Unassigned;
 
     m_buildings.push_back(b);
