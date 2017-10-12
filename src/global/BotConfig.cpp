@@ -18,7 +18,7 @@ BotConfig::BotConfig()
     Authors                             = "Ian Gallacher & David Churchill";
     PrintInfoOnStart                    = false;
     StrategyName                        = "Terran_ReaperRush";
-    MapName                             = "InterloperLE.SC2Map";
+    MapName                             = "InterloperLE";
     ReadDir                             = "read/";
     WriteDir                            = "write/";
     TrainingMode                        = false;
