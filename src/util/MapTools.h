@@ -49,6 +49,7 @@ public:
     void    drawSquare(float x1, float y1, float x2, float y2, const sc2::Color & color = sc2::Colors::White) const;
     void    drawBox(float x1, float y1, float x2, float y2, const sc2::Color & color = sc2::Colors::White) const;
     void    drawBox(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color = sc2::Colors::White) const;
+    void    drawBox(const sc2::Point3D& min, const sc2::Point3D max, const sc2::Color& color) const;
     void    drawSphere(float x1, float x2, float radius, const sc2::Color & color = sc2::Colors::White) const;
     void    drawSphere(const sc2::Point2D & pos, float radius, const sc2::Color & color = sc2::Colors::White) const;
     void    drawText(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color = sc2::Colors::White) const;

@@ -137,11 +137,13 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnitTag, const sc2::Tag & tar
     {
         //std::cout << Util::EnemyDPSInRange(rangedUnit->pos, bot) << std::endl;
         kite = true;
+        bot.Map().drawBoxAroundUnit(rangedUnitTag, sc2::Colors::Red);
         fleePosition = bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition();
     }
     else
     {
         // kite if we are not close to death.
+        bot.Map().drawBoxAroundUnit(rangedUnitTag, sc2::Colors::Green);
         fleePosition = rangedUnit->pos - target->pos + rangedUnit->pos;
     }
 
@@ -156,6 +158,7 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnitTag, const sc2::Tag & tar
     else
     {
         //bot.Actions()->UnitCommand(rangedUnit, sc2::ABILITY_ID::EFFECT_KD8CHARGE, target);
+        bot.Map().drawLine(rangedUnit->pos, target->pos, sc2::Colors::Red);
         SmartAttackUnit(rangedUnit->tag, target->tag, bot);
     }
 }

@@ -268,6 +268,11 @@ void MapTools::drawBox(const sc2::Point2D & min, const sc2::Point2D max, const s
     m_bot.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, m_maxZ + 2.0f), sc2::Point3D(max.x, max.y, m_maxZ-5.0f), color);
 }
 
+void MapTools::drawBox(const sc2::Point3D & min, const sc2::Point3D max, const sc2::Color & color) const
+{
+    m_bot.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, min.z), sc2::Point3D(max.x, max.y, max.z), color);
+}
+
 void MapTools::drawSphere(const sc2::Point2D & pos, float radius, const sc2::Color & color) const
 {
     m_bot.Debug()->DebugSphereOut(sc2::Point3D(pos.x, pos.y, m_maxZ), radius, color);
@@ -392,16 +397,16 @@ void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, const sc2::Color colo
     if (!unit) { return; }
 
     sc2::Point3D p_min = unit->pos;
-    p_min.x -= 2.0f;
-    p_min.y -= 2.0f;
-    p_min.z -= 2.0f;
+    p_min.x -= unit->radius;
+    p_min.y -= unit->radius;
+    p_min.z -= unit->radius;
 
     sc2::Point3D p_max = unit->pos;
-    p_max.x += 2.0f;
-    p_max.y += 2.0f;
-    p_max.z += 2.0f;
+    p_max.x += unit->radius;
+    p_max.y += unit->radius;
+    p_max.z += unit->radius;
 
-    drawSquare(unit->pos.x - 2.0f, unit->pos.y - 2.0f, unit->pos.x + 2.0f, unit->pos.y + 2.0f, color);
+    drawBox(p_min, p_max, color);
 }
 
 void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
