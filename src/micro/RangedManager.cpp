@@ -20,6 +20,9 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
 
     // figure out targets
     std::vector<sc2::Tag> rangedUnitTargets;
+
+
+    // Zerg eggs are a pain in the butt to kill. Don't bother.
     for (auto & targetTag : targets)
     {
         const auto target = m_bot.GetUnit(targetTag);
