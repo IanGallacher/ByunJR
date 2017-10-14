@@ -186,15 +186,15 @@ sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
     return closestDepot;
 }
 
+sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
+{
+    return getClosestMineralWorkerTo(refinery.pos);
+}
+
 // other managers that need workers call this when they're done with a unit
 void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
 {
     m_workerData.setWorkerJob(tag, UnitMission::Idle);
-}
-
-sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
-{
-    return getClosestMineralWorkerTo(refinery.pos);
 }
 
 void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
