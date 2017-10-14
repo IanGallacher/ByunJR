@@ -94,7 +94,12 @@ sc2::Tag RangedManager::getTarget(const sc2::Tag & rangedUnitTag, const std::vec
         const int priority = getAttackPriority(rangedUnitTag, targetTag);
         const float distance = Util::Dist(rangedUnit->pos, targetUnit->pos);
 
-        // if it's a higher priority, or it's closer, set it
+        // Don't bother attacking units that we can not hit. 
+        if (targetUnit->is_flying && !Util::CanAttackAir(m_bot.Observation()->GetUnitTypeData()[rangedUnit->unit_type].weapons))
+        {
+            continue;
+        }
+
         if (!closestTarget || (priority > highPriority) || (priority == highPriority && distance < closestDist))
         {
             closestDist = distance;
