@@ -27,42 +27,31 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     // Discover enemies within region of interest
     std::set<sc2::Tag> nearbyEnemies;
 
-    // if the order is to defend, we only care about units in the radius of the defense
-    if (order.getType() == SquadOrderTypes::Defend)
+    // Get all relavant units that are close to our combat unit.
+    for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
     {
-        for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+        if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
         {
-            if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
-            {
-                nearbyEnemies.insert(enemyUnit.tag);
-            }
-        }
-
-    } // otherwise we want to see everything on the way as well
-    else if (order.getType() == SquadOrderTypes::Attack)
-    {
-        for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-        {
-            if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
-            {
-                nearbyEnemies.insert(enemyUnit.tag);
-            }
-        }
-
-        for (auto & unitTag : m_units)
-        {
-            auto unit = m_bot.GetUnit(unitTag);
-            BOT_ASSERT(unit, "null unit in attack");
-
-            for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-            {
-                if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
-                {
-                    nearbyEnemies.insert(enemyUnit.tag);
-                }
-            }
+            nearbyEnemies.insert(enemyUnit.tag);
         }
     }
+    // otherwise we want to see everything on the way as well
+    //if (order.getType() == SquadOrderTypes::Attack)
+    //{
+    //    for (auto & unitTag : m_units)
+    //    {
+    //        auto unit = m_bot.GetUnit(unitTag);
+    //        BOT_ASSERT(unit, "null unit in attack");
+
+    //        for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+    //        {
+    //            if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
+    //            {
+    //                nearbyEnemies.insert(enemyUnit.tag);
+    //            }
+    //        }
+    //    }
+    //}
 
     std::vector<sc2::Tag> targetUnitTags;
     std::copy(nearbyEnemies.begin(), nearbyEnemies.end(), std::back_inserter(targetUnitTags));
