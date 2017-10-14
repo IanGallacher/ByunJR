@@ -12,7 +12,6 @@ namespace Util
         sc2::UNIT_TYPEID m_type;
 
         IsUnit(sc2::UNIT_TYPEID type);
-        bool operator()(const sc2::Unit& unit, const sc2::ObservationInterface*);
     };
 
     PlayerArrayIndex GetPlayer(const sc2::Unit & unit);
@@ -48,7 +47,6 @@ namespace Util
     sc2::Race GetRaceFromString(const std::string & race);
     sc2::Point2D CalcCenter(const std::vector<sc2::Unit> & units);
     sc2::UnitTypeID GetUnitTypeIDFromName(const sc2::ObservationInterface * obs, const std::string & name);
-    const sc2::Unit & GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationInterface * obs);
 
     float Dist(const sc2::Point2D & p1, const sc2::Point2D & p2);
     float DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2);
@@ -58,13 +56,10 @@ namespace Util
     float   TerainHeight(const sc2::GameInfo& info, const sc2::Point2D& point);
     bool    Placement(const sc2::GameInfo& info, const sc2::Point2D& point);
     bool    Pathable(const sc2::GameInfo& info, const sc2::Point2D& point);
-
-    bool    IsResearchAbility(const sc2::ABILITY_ID & ability);
-    bool    IsBuildCommand(const sc2::ABILITY_ID & ability);
+    
     bool    IsBuilding(const sc2::UnitTypeID & type);
     bool    IsMorphCommand(const sc2::AbilityID & ability);
-    sc2::UnitTypeID AbilityIDToUnitTypeID(const sc2::AbilityID & ability);
-    sc2::UpgradeID  AbilityIDToUpgradeID(const sc2::AbilityID & ability);
     sc2::UnitTypeID GetEquivalentUnitTypeID(const sc2::UnitTypeID & id);
     sc2::AbilityID  UnitTypeIDToAbilityID(const sc2::UnitTypeID & id);
+    bool CanAttackAir(std::vector<sc2::Weapon> weapons);
 };
