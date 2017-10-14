@@ -138,7 +138,7 @@ void BuildingManager::checkForDeadTerranBuilders()
 {   // for each building that doesn't have a builder, assign one
     for (Building & b : m_buildings)
     {
-        if (b.status != BuildingStatus::Unassigned || m_bot.GetUnit(b.builderUnitTag))
+        if (b.status != BuildingStatus::Unassigned && m_bot.GetUnit(b.builderUnitTag))
         {
             continue;
         }
