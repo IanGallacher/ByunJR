@@ -113,7 +113,7 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
         b.finalPosition = testLocation;
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        const sc2::Tag builderUnitTag = m_bot.InformationManager().getBuilder(b);
         b.builderUnitTag = builderUnitTag;
         if (!b.builderUnitTag)
         {
@@ -146,7 +146,7 @@ void BuildingManager::checkForDeadTerranBuilders()
         if (m_debugMode) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        const sc2::Tag builderUnitTag = m_bot.Workers().getBuilder(b);
+        const sc2::Tag builderUnitTag = m_bot.InformationManager().getBuilder(b);
         b.builderUnitTag = builderUnitTag;
     }
 }
@@ -281,7 +281,7 @@ void BuildingManager::checkForStartedConstruction()
                 }
                 else if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
-                    m_bot.Workers().finishedWithWorker(b.builderUnitTag);
+                    m_bot.InformationManager().finishedWithUnit(b.builderUnitTag);
                     b.builderUnitTag = 0;
                 }
 
@@ -317,7 +317,7 @@ void BuildingManager::checkForCompletedBuildings()
             // if we are terran, give the worker back to worker manager
             if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
-                m_bot.Workers().finishedWithWorker(b.builderUnitTag);
+                m_bot.InformationManager().finishedWithUnit(b.builderUnitTag);
             }
 
             // remove this unit from the under construction vector

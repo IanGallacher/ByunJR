@@ -73,8 +73,8 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
     {
         const sc2::Vector2D myVec(m_ptd.getProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
-        m_proxyUnitTag = m_bot.Workers().getBuilder(b, false);
-        m_bot.Workers().setProxyWorker(m_proxyUnitTag);
+        m_proxyUnitTag = m_bot.InformationManager().getBuilder(b, false);
+        m_bot.InformationManager().assignUnit(m_proxyUnitTag, UnitMission::Proxy);
         Micro::SmartMove(m_proxyUnitTag, myVec, m_bot);
     }
     //}

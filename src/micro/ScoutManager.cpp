@@ -32,11 +32,11 @@ void ScoutManager::setWorkerScout(const sc2::Tag & tag)
     // if we have a previous worker scout, release it back to the worker manager
     if (m_scoutUnitTag)
     {
-        m_bot.Workers().finishedWithWorker(m_scoutUnitTag);
+        m_bot.InformationManager().finishedWithUnit(m_scoutUnitTag);
     }
 
     m_scoutUnitTag = tag;
-    m_bot.Workers().setScoutWorker(m_scoutUnitTag);
+    m_bot.InformationManager().assignUnit(m_scoutUnitTag, UnitMission::Scout);
 }
 
 void ScoutManager::drawScoutInformation()
@@ -63,7 +63,7 @@ void ScoutManager::moveScouts()
     if(scoutHP <= 10)
     {
         Micro::SmartMove(m_scoutUnitTag, m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition(), m_bot);
-        m_bot.Workers().finishedWithWorker(m_scoutUnitTag);
+        m_bot.InformationManager().finishedWithUnit(m_scoutUnitTag);
         m_scoutUnitTag = -1;
         return;
     }

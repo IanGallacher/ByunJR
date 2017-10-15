@@ -73,8 +73,8 @@ void WorkerManager::handleIdleWorkers()
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
-        if (m_workerData.getWorkerJob(workerTag) == UnitMission::Scout
-        ||  m_workerData.getWorkerJob(workerTag) == UnitMission::Proxy)
+        if (m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self).at(workerTag).mission == UnitMission::Scout
+        ||  m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self).at(workerTag).mission == UnitMission::Proxy)
         {
             continue;
         }
@@ -153,7 +153,7 @@ sc2::Tag WorkerManager::findClosestWorkerTo(const sc2::Point2D & target) const
 void WorkerManager::setMineralWorker(const sc2::Unit & unit)
 {
     // check if there is a mineral available to send the worker to
-    sc2::Tag depot = getClosestCC(unit);
+    sc2::Tag depot = m_bot.InformationManager().getClosestUnitOfType(&unit, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER).tag;
 
     // if there is a valid mineral
     if (depot)
@@ -163,38 +163,9 @@ void WorkerManager::setMineralWorker(const sc2::Unit & unit)
     }
 }
 
-sc2::Tag WorkerManager::getClosestCC(const sc2::Unit & worker) const
-{
-    sc2::Tag closestDepot = 0;
-    double closestDistance = std::numeric_limits<double>::max();
-
-    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
-    {
-        //if (!m_bot.GetUnit(unit.tag)) { continue; }
-
-        if (Util::IsTownHall(unit) && Util::IsCompleted(unit))
-        {
-            const double distance = Util::DistSq(unit.pos, worker.pos);
-            if (!closestDepot || distance < closestDistance)
-            {
-                closestDepot = unit.tag;
-                closestDistance = distance;
-            }
-        }
-    }
-
-    return closestDepot;
-}
-
 sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
 {
     return getClosestMineralWorkerTo(refinery.pos);
-}
-
-// other managers that need workers call this when they're done with a unit
-void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
-{
-    m_workerData.setWorkerJob(tag, UnitMission::Idle);
 }
 
 void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)

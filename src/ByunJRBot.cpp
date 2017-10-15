@@ -8,7 +8,6 @@
 ByunJRBot::ByunJRBot()
     : m_map(*this)
     , m_bases(*this)
-    , m_workers(*this)
     , m_productionManager(*this)
     , m_scoutManager(*this)
     , m_proxyManager(*this)
@@ -46,7 +45,6 @@ void ByunJRBot::OnGameStart()
     m_map.onStart();
     m_informationManager.onStart();
     m_bases.onStart();
-    m_workers.onStart();
 
     m_productionManager.onStart();
     m_scoutManager.onStart();
@@ -61,7 +59,6 @@ void ByunJRBot::OnStep()
     m_map.onFrame();
     m_informationManager.onFrame();
     m_bases.onFrame();
-    m_workers.onFrame();
     m_strategy.onFrame();
 
     m_strategy.handleUnitAssignments();
@@ -149,11 +146,6 @@ const BaseLocationManager & ByunJRBot::Bases() const
 ScoutManager & ByunJRBot::Scout()
 {
     return m_scoutManager;
-}
-
-WorkerManager & ByunJRBot::Workers()
-{
-    return m_workers;
 }
 
 ProxyManager & ByunJRBot::GetProxyManager() {

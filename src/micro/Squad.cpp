@@ -174,7 +174,7 @@ void Squad::clear()
 
         if (Util::IsWorker(*unit))
         {
-            m_bot.Workers().finishedWithWorker(unitTag);
+            m_bot.InformationManager().finishedWithUnit(unitTag);
         }
     }
 

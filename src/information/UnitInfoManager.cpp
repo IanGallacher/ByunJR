@@ -8,19 +8,22 @@
 
 UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
     : m_bot(bot)
+    , m_workers(bot)
 {
 
 }
 
 void UnitInfoManager::onStart()
 {
-
+    m_workers.onStart();
 }
 
 void UnitInfoManager::onFrame()
 {
     // If units are created or modified, update the unitInfo object.
     updateUnitInfo();
+
+	m_workers.onFrame();
     drawUnitInformation(100, 100);
     drawSelectedUnitDebugInfo();
 }

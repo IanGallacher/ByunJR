@@ -193,7 +193,7 @@ bool ProxyTrainingData::loadProxyTrainingData()
 // Iterate through the result (training data) data structure and update the m_viableLocations vector.
 void ProxyTrainingData::upadateViableLocationsList()
 {
-    int best_reward = 99999;
+    int best_reward = std::numeric_limits<int>::max();
     for (int y = 0; y < m_result.size(); ++y)
     {
         for (int x = 0; x < m_result[y].size(); ++x)

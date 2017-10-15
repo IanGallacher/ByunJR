@@ -59,7 +59,6 @@ namespace Util
     
     bool    IsBuilding(const sc2::UnitTypeID & type);
     bool    IsMorphCommand(const sc2::AbilityID & ability);
-    sc2::UnitTypeID GetEquivalentUnitTypeID(const sc2::UnitTypeID & id);
     sc2::AbilityID  UnitTypeIDToAbilityID(const sc2::UnitTypeID & id);
     bool CanAttackAir(std::vector<sc2::Weapon> weapons);
 };

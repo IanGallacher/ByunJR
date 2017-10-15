@@ -16,8 +16,7 @@ class InformationManager
 
     bool                     m_initialScoutSet;
 
-    void assignUnit(const sc2::Tag & unit, UnitMission job);
-    bool isAssigned(const sc2::Tag & unit) const;
+	bool isAssigned(const sc2::Tag & unit) const;
 
 public:
     InformationManager(ByunJRBot & bot);
@@ -33,6 +32,14 @@ public:
     void setValidUnits();
     void setScoutUnits(bool shouldSendInitialScout);
     void setCombatUnits();
+	sc2::Tag getBuilder(Building& b, bool setJobAsBuilder = true);
+
+	void assignUnit(const sc2::Tag & unit, UnitMission job);
+	void finishedWithUnit(const sc2::Tag& unit);
+
+	const sc2::Unit getClosestUnitOfType(const sc2::Unit* unit, sc2::UnitTypeID) const;
+	const sc2::Unit getClosestUnitWithJob(const sc2::Unit* referenceUnit, UnitMission mission) const;
+	const sc2::Tag getClosestUnitWithJob(const sc2::Point2D point, const UnitMission mission) const;
 
     void handleUnitAssignments();
     std::vector<sc2::Tag> GetCombatUnits() const;

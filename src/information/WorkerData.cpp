@@ -88,7 +88,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
         m_depotWorkerCount[jobUnitTag]++;
 
         // find the mineral to mine and mine it
-        sc2::Tag cc = m_bot.Workers().getClosestCC(*m_bot.GetUnit(unit));
+        sc2::Tag cc = m_bot.InformationManager().getClosestUnitOfType(m_bot.GetUnit(unit), sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER).tag;
         const sc2::Tag mineralToMine = getMineralToMine(cc);
         Micro::SmartRightClick(unit, mineralToMine, m_bot);
     }

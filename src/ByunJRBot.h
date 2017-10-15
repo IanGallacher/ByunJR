@@ -26,7 +26,6 @@ class ByunJRBot : public sc2::Agent
 
     MapTools                 m_map;
     BaseLocationManager      m_bases;
-    WorkerManager            m_workers;
     StrategyManager          m_strategy;
     BotConfig                m_config;
 
@@ -53,10 +52,9 @@ public:
     void Resign();
 
           BotConfig & Config();
-          WorkerManager & Workers();
     const BaseLocationManager & Bases() const;
     ScoutManager & Scout();
-    InformationManager & InformationManager();
+	InformationManager & InformationManager();
     const MapTools & Map() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;

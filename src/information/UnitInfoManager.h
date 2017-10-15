@@ -1,12 +1,14 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
+#include "macro/WorkerManager.h"
 #include "information/UnitData.h"
 
 class ByunJRBot;
 class UnitInfoManager 
 {
-    ByunJRBot &           m_bot;
+    ByunJRBot &              m_bot;
+    WorkerManager            m_workers;
 
     std::map<PlayerArrayIndex, UnitData> m_unitData;
 

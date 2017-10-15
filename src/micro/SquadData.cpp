@@ -31,7 +31,7 @@ void SquadData::clearSquadData()
 
             if (Util::IsWorker(*unit))
             {
-                m_bot.Workers().finishedWithWorker(unitTag);
+                m_bot.InformationManager().finishedWithUnit(unitTag);
             }
         }
     }
@@ -56,7 +56,7 @@ void SquadData::removeSquad(const std::string & squadName)
 
         if (Util::IsWorker(*unit))
         {
-            m_bot.Workers().finishedWithWorker(unitTag);
+            m_bot.InformationManager().finishedWithUnit(unitTag);
         }
     }
 
