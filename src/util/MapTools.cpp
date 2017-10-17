@@ -392,7 +392,7 @@ const std::vector<sc2::Point2D> & MapTools::getClosestTilesTo(const sc2::Point2D
 
 void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
 {
-    const sc2::Unit * unit = m_bot.GetUnit(unitTag);
+    const sc2::Unit* unit = m_bot.GetUnit(unitTag);
 
     if (!unit) { return; }
 
@@ -411,7 +411,7 @@ void MapTools::drawBoxAroundUnit(const sc2::Tag & unitTag, const sc2::Color colo
 
 void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
 {
-    const sc2::Unit * unit = m_bot.GetUnit(unitTag);
+    const sc2::Unit* unit = m_bot.GetUnit(unitTag);
 
     if (!unit) { return; }
 
@@ -422,7 +422,7 @@ sc2::Point2D MapTools::getLeastRecentlySeenPosition() const
 {
     int minSeen = std::numeric_limits<int>::max();
     sc2::Point2D leastSeen(0.0f, 0.0f);
-    const BaseLocation * baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self);
+    const BaseLocation* baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self);
 
     for (auto & tile : baseLocation->getClosestTiles())
     {

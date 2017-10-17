@@ -30,14 +30,14 @@ void WorkerManager::onFrame()
     handleRepairWorkers();
 }
 
-void WorkerManager::setRepairWorker(const sc2::Unit & worker, const sc2::Unit & unitToRepair)
+void WorkerManager::setRepairWorker(const sc2::Unit* worker, const sc2::Unit* unitToRepair)
 {
-    m_workerData.setWorkerJob(worker.tag, UnitMission::Repair, unitToRepair.tag);
+    m_workerData.setWorkerJob(worker->tag, UnitMission::Repair, unitToRepair->tag);
 }
 
-void WorkerManager::stopRepairing(const sc2::Unit & worker)
+void WorkerManager::stopRepairing(const sc2::Unit* worker)
 {
-    m_workerData.setWorkerJob(worker.tag, UnitMission::Idle);
+    m_workerData.setWorkerJob(worker->tag, UnitMission::Idle);
 }
 
 void WorkerManager::handleGasWorkers()
@@ -49,7 +49,7 @@ void WorkerManager::handleGasWorkers()
         if (Util::IsRefinery(unit) && Util::IsCompleted(unit))
         {
             // get the number of workers currently assigned to it
-            const int numAssigned = m_workerData.getNumAssignedWorkers(unit.tag);
+            const int numAssigned = m_workerData.getNumAssignedWorkers(unit->tag);
 
             // if it's less than we want it to be, fill 'er up
             for (int i=0; i<(3-numAssigned); ++i)
@@ -57,7 +57,7 @@ void WorkerManager::handleGasWorkers()
                 sc2::Tag gasWorker = getGasWorker(unit);
                 if (gasWorker)
                 {
-                    m_workerData.setWorkerJob(gasWorker, UnitMission::Gas, unit.tag);
+                    m_workerData.setWorkerJob(gasWorker, UnitMission::Gas, unit->tag);
                 }
             }
         }
@@ -80,14 +80,14 @@ void WorkerManager::handleIdleWorkers()
         }
 
         // if it is idle
-        if (Util::IsIdle(*worker) || m_workerData.getWorkerJob(workerTag) == UnitMission::Idle)
+        if (Util::IsIdle(worker) || m_workerData.getWorkerJob(workerTag) == UnitMission::Idle)
         {
-            const sc2::Unit * workerUnit = m_bot.GetUnit(workerTag);
+            const sc2::Unit* workerUnit = m_bot.GetUnit(workerTag);
 
             // send it to the nearest mineral patch
             if (workerUnit)
             {
-                setMineralWorker(*workerUnit);
+                setMineralWorker(workerUnit);
             }
         }
     }
@@ -150,27 +150,33 @@ sc2::Tag WorkerManager::findClosestWorkerTo(const sc2::Point2D & target) const
 
 
 // set a worker to mine minerals
-void WorkerManager::setMineralWorker(const sc2::Unit & unit)
+void WorkerManager::setMineralWorker(const sc2::Unit* unit)
 {
     // check if there is a mineral available to send the worker to
-    sc2::Tag depot = m_bot.InformationManager().getClosestUnitOfType(&unit, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER).tag;
+    sc2::Tag depot = m_bot.InformationManager().getClosestBase(unit)->tag; // was getclosestcc
 
     // if there is a valid mineral
     if (depot)
     {
         // update m_workerData with the new job
-        m_workerData.setWorkerJob(unit.tag, UnitMission::Minerals, depot);
+        m_workerData.setWorkerJob(unit->tag, UnitMission::Minerals, depot);
     }
 }
 
-sc2::Tag WorkerManager::getGasWorker(const sc2::Unit & refinery) const
+sc2::Tag WorkerManager::getGasWorker(const sc2::Unit* refinery) const
 {
-    return getClosestMineralWorkerTo(refinery.pos);
+    return getClosestMineralWorkerTo(refinery->pos);
 }
 
-void WorkerManager::setBuildingWorker(const sc2::Unit & worker, Building & b)
+// other managers that need workers call this when they're done with a unit
+void WorkerManager::finishedWithWorker(const sc2::Tag & tag)
 {
-    m_workerData.setWorkerJob(worker.tag, UnitMission::Build, b.type);
+    m_workerData.setWorkerJob(tag, UnitMission::Idle);
+}
+
+void WorkerManager::setBuildingWorker(const sc2::Unit* worker, Building & b)
+{
+    m_workerData.setWorkerJob(worker->tag, UnitMission::Build, b.type);
 }
 
 // gets a builder for BuildingManager to use
@@ -205,17 +211,17 @@ void WorkerManager::setProxyWorker(const sc2::Tag & workerTag)
     m_workerData.setWorkerJob(workerTag, UnitMission::Proxy);
 }
 
-bool WorkerManager::isFree(const sc2::Unit & worker) const
+bool WorkerManager::isFree(const sc2::Unit* worker) const
 {
-    return m_workerData.getWorkerJob(worker.tag) == UnitMission::Minerals || m_workerData.getWorkerJob(worker.tag) == UnitMission::Idle;
+    return m_workerData.getWorkerJob(worker->tag) == UnitMission::Minerals || m_workerData.getWorkerJob(worker->tag) == UnitMission::Idle;
 }
 
-bool WorkerManager::isWorkerScout(const sc2::Unit & worker) const
+bool WorkerManager::isWorkerScout(const sc2::Unit* worker) const
 {
-    return (m_workerData.getWorkerJob(worker.tag) == UnitMission::Scout);
+    return (m_workerData.getWorkerJob(worker->tag) == UnitMission::Scout);
 }
 
-bool WorkerManager::isBuilder(const sc2::Unit & worker) const
+bool WorkerManager::isBuilder(const sc2::Unit* worker) const
 {
-    return (m_workerData.getWorkerJob(worker.tag) == UnitMission::Build);
+    return (m_workerData.getWorkerJob(worker->tag) == UnitMission::Build);
 }

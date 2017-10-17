@@ -17,7 +17,7 @@
     {
         "KiteWithRangedUnits"       : true,
         "ScoutHarassEnemy"          : true,
-        "CombatUnitsForAttack"      : 1
+        "CombatUnitsForAttack"      : 2
     },
 
     "Debug" :

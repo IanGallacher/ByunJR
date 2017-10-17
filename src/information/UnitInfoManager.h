@@ -12,11 +12,11 @@ class UnitInfoManager
 
     std::map<PlayerArrayIndex, UnitData> m_unitData;
 
-    std::map<PlayerArrayIndex, std::vector<sc2::Unit>> m_units;
+    std::map<PlayerArrayIndex, std::vector<const sc2::Unit*>> m_units;
 
-    void                    updateUnit(const sc2::Unit & unit);
+    void                    updateUnit(const sc2::Unit* unit);
     void                    updateUnitInfo();
-    bool                    isValidUnit(const sc2::Unit & unit);
+    bool                    isValidUnit(const sc2::Unit* unit);
     
     const UnitData &        getUnitData(PlayerArrayIndex player) const;
 
@@ -28,9 +28,9 @@ public:
 
     void                    onStart();
     void                    onFrame();
-    void                    onUnitDestroyed(const sc2::Unit& unit);
+    void                    onUnitDestroyed(const sc2::Unit* unit);
 
-    const std::vector<sc2::Unit> & getUnits(PlayerArrayIndex player) const;
+	const std::vector<const sc2::Unit*>& getUnits(PlayerArrayIndex player) const;
 
     size_t                  getUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed = true) const;
 
@@ -40,5 +40,5 @@ public:
 
     //bool                  enemyHasCloakedUnits() const;
     void                    drawUnitInformation(float x, float y) const;
-    void                    setJob(const sc2::Unit & unit, UnitMission job);
+    void                    setJob(const sc2::Unit* unit, UnitMission job);
 };

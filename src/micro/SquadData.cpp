@@ -29,7 +29,7 @@ void SquadData::clearSquadData()
             auto unit = m_bot.GetUnit(unitTag);
             BOT_ASSERT(unit, "null unit");
 
-            if (Util::IsWorker(*unit))
+            if (Util::IsWorker(unit))
             {
                 m_bot.InformationManager().finishedWithUnit(unitTag);
             }
@@ -54,7 +54,7 @@ void SquadData::removeSquad(const std::string & squadName)
         auto unit = m_bot.GetUnit(unitTag);
         BOT_ASSERT(unit, "null unit");
 
-        if (Util::IsWorker(*unit))
+        if (Util::IsWorker(unit))
         {
             m_bot.InformationManager().finishedWithUnit(unitTag);
         }

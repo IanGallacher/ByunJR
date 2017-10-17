@@ -10,25 +10,25 @@ UnitData::UnitData()
     m_numUnits		    = std::vector<int>(maxTypeID + 1, 0);
 }
 
-void UnitData::updateUnit(const sc2::Unit & unit)
+void UnitData::updateUnit(const sc2::Unit* unit)
 {
     bool firstSeen = false;
-    const auto & it = m_unitInfoMap.find((int)unit.tag);
+    const auto & it = m_unitInfoMap.find((int)unit->tag);
     if (it == m_unitInfoMap.end())
     {
         firstSeen = true;
-        m_unitInfoMap[(int)unit.tag] = UnitInfo();
+        m_unitInfoMap[(int)unit->tag] = UnitInfo();
     }
 
-    UnitInfo & ui   = m_unitInfoMap[(int)unit.tag];
+    UnitInfo & ui   = m_unitInfoMap[(int)unit->tag];
     ui.unit         = unit;
     ui.player       = Util::GetPlayer(unit);
-    ui.lastPosition = unit.pos;
-    ui.lastHealth   = unit.health;
-    ui.lastShields  = unit.shield;
-    ui.tag          = (int)unit.tag;
-    ui.type         = unit.unit_type;
-    ui.progress     = unit.build_progress;
+    ui.lastPosition = unit->pos;
+    ui.lastHealth   = unit->health;
+    ui.lastShields  = unit->shield;
+    ui.tag          = (int)unit->tag;
+    ui.type         = unit->unit_type;
+    ui.progress     = unit->build_progress;
 
     if (firstSeen)
     {
@@ -36,14 +36,14 @@ void UnitData::updateUnit(const sc2::Unit & unit)
     }
 }
 
-void UnitData::killUnit(const sc2::Unit & unit)
+void UnitData::killUnit(const sc2::Unit* unit)
 {
     //_mineralsLost += unit->getType().mineralPrice();
     //_gasLost += unit->getType().gasPrice();
-    m_numUnits[unit.unit_type]--;
-    m_numDeadUnits[unit.unit_type]++;
+    m_numUnits[unit->unit_type]--;
+    m_numDeadUnits[unit->unit_type]++;
 
-    m_unitInfoMap.erase((int)unit.tag);
+    m_unitInfoMap.erase((int)unit->tag);
 }
 
 void UnitData::removeBadUnits()
@@ -92,8 +92,8 @@ const std::map<int, UnitInfo> & UnitData::getUnitInfoMap() const
     return m_unitInfoMap;
 }
 
-void UnitData::setJob(const sc2::Unit& unit, UnitMission job)
+void UnitData::setJob(const sc2::Unit* unit, UnitMission job)
 {
-    UnitInfo & ui = m_unitInfoMap[(int)unit.tag];
+    UnitInfo & ui = m_unitInfoMap[(int)unit->tag];
     ui.mission = job;
 }

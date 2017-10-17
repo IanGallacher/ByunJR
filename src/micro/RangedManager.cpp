@@ -120,12 +120,12 @@ int RangedManager::getAttackPriority(const sc2::Tag & attacker, const sc2::Tag &
     auto unit = m_bot.GetUnit(unitTag);
     BOT_ASSERT(unit, "null unit in getAttackPriority");
 
-    if (Util::IsCombatUnit(*unit))
+    if (Util::IsCombatUnit(unit))
     {
         return 10;
     }
 
-    if (Util::IsWorker(*unit))
+    if (Util::IsWorker(unit))
     {
         return 9;
     }

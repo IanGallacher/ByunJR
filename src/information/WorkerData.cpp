@@ -19,7 +19,7 @@ void WorkerData::updateAllWorkerData()
     {
         if (Util::IsWorker(unit))
         {
-            updateWorker(unit.tag);
+            updateWorker(unit->tag);
         }
     }
 
@@ -36,7 +36,7 @@ void WorkerData::updateAllWorkerData()
     std::vector<sc2::Tag> workersDestroyed;
     for (auto & workerTag : getWorkers())
     {
-        const sc2::Unit * worker = m_bot.GetUnit(workerTag);
+        const sc2::Unit* worker = m_bot.GetUnit(workerTag);
 
         // TODO: for now skip gas workers because they disappear inside refineries, this is annoying
         if (!worker && (getWorkerJob(workerTag) != UnitMission::Gas))
@@ -70,7 +70,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
 {
     clearPreviousJob(unit);
     m_workerJobMap[unit] = job;
-    m_bot.InformationManager().UnitInfo().setJob(*m_bot.GetUnit(unit), job);
+    m_bot.InformationManager().UnitInfo().setJob(m_bot.GetUnit(unit), job);
 
     if (job == UnitMission::Minerals)
     {
@@ -88,7 +88,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
         m_depotWorkerCount[jobUnitTag]++;
 
         // find the mineral to mine and mine it
-        sc2::Tag cc = m_bot.InformationManager().getClosestUnitOfType(m_bot.GetUnit(unit), sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER).tag;
+        sc2::Tag cc = m_bot.InformationManager().getClosestUnitOfType(m_bot.GetUnit(unit), sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)->tag;
         const sc2::Tag mineralToMine = getMineralToMine(cc);
         Micro::SmartRightClick(unit, mineralToMine, m_bot);
     }
@@ -180,7 +180,7 @@ sc2::Tag WorkerData::getMineralToMine(const sc2::Tag & unit) const
 
     for (auto & mineral : m_bot.Observation()->GetUnits())
     {
-        if (!Util::IsMineral(*mineral)) continue;
+        if (!Util::IsMineral(mineral)) continue;
 
         double dist = Util::Dist(mineral->pos, m_bot.GetUnit(unit)->pos);
 
@@ -208,7 +208,7 @@ sc2::Tag WorkerData::getWorkerDepot(const sc2::Tag & unit) const
 
 int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
 {
-    if (Util::IsTownHall(*m_bot.GetUnit(unit)))
+    if (Util::IsTownHall(m_bot.GetUnit(unit)))
     {
         const auto it = m_depotWorkerCount.find(unit);
 
@@ -218,7 +218,7 @@ int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
             return it->second;
         }
     }
-    else if (Util::IsRefinery(*m_bot.GetUnit(unit)))
+    else if (Util::IsRefinery(m_bot.GetUnit(unit)))
     {
         const auto it = m_refineryWorkerCount.find(unit);
 

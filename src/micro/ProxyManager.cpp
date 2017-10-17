@@ -26,26 +26,27 @@ void ProxyManager::onFrame()
     proxyBuildingAtChosenRandomLocation();
 }
 
-void ProxyManager::onUnitCreated(const sc2::Unit& unit)
+void ProxyManager::onUnitCreated(const sc2::Unit* unit)
 {
-    if (m_bot.Config().TrainingMode && unit.unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
+    if (m_bot.Config().TrainingMode && unit->unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
     {
-        const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+        const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
         m_bot.Resign();
-        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(&unit, enemyBaseLocation->getPosition()));
+        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(unit, enemyBaseLocation->getPosition()));
         m_firstReaperCreated = true;
     }
 }
 
-void ProxyManager::onUnitEnterVision(const sc2::Unit& enemyUnit)
+void ProxyManager::onUnitEnterVision(const sc2::Unit* enemyUnit)
 {
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
-        if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit.tag == m_proxyUnitTag)
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == m_proxyUnitTag)
         {
-            const double dist(sqrt((enemyUnit.pos.x - unit.pos.x)*(enemyUnit.pos.x - unit.pos.x) + (enemyUnit.pos.y - unit.pos.y)*(enemyUnit.pos.y - unit.pos.y)));
+            const double dist(sqrt((enemyUnit->pos.x - unit->pos.x)*(enemyUnit->pos.x - unit
+				->pos.x) + (enemyUnit->pos.y - unit->pos.y)*(enemyUnit->pos.y - unit->pos.y)));
 
             if (m_bot.Config().TrainingMode && dist < 10 && !m_firstReaperCreated)
             {

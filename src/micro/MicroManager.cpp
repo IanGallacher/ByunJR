@@ -30,9 +30,9 @@ void MicroManager::execute(const SquadOrder & inputOrder)
     // Get all relavant units that are close to our combat unit.
     for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
     {
-        if (Util::Dist(enemyUnit.pos, order.getPosition()) < order.getRadius())
+        if (Util::Dist(enemyUnit->pos, order.getPosition()) < order.getRadius())
         {
-            nearbyEnemies.insert(enemyUnit.tag);
+            nearbyEnemies.insert(enemyUnit->tag);
         }
     }
     // otherwise we want to see everything on the way as well

@@ -27,14 +27,14 @@ bool Util::IsTownHallType(const sc2::UnitTypeID & type)
     }
 }
 
-bool Util::IsTownHall(const sc2::Unit & unit)
+bool Util::IsTownHall(const sc2::Unit* unit)
 {
-    return IsTownHallType(unit.unit_type);
+    return IsTownHallType(unit->unit_type);
 }
 
-bool Util::IsRefinery(const sc2::Unit & unit)
+bool Util::IsRefinery(const sc2::Unit* unit)
 {
-    return IsRefineryType(unit.unit_type);
+    return IsRefineryType(unit->unit_type);
 }
 
 bool Util::IsRefineryType(const sc2::UnitTypeID & type)
@@ -48,9 +48,9 @@ bool Util::IsRefineryType(const sc2::UnitTypeID & type)
     }
 }
 
-bool Util::IsGeyser(const sc2::Unit & unit)
+bool Util::IsGeyser(const sc2::Unit* unit)
 {
-    switch (unit.unit_type.ToType()) 
+    switch (unit->unit_type.ToType()) 
     {
         case sc2::UNIT_TYPEID::NEUTRAL_VESPENEGEYSER        : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_PROTOSSVESPENEGEYSER : return true;
@@ -62,9 +62,9 @@ bool Util::IsGeyser(const sc2::Unit & unit)
     }
 }
 
-bool Util::IsMineral(const sc2::Unit & unit)
+bool Util::IsMineral(const sc2::Unit* unit)
 {
-    switch (unit.unit_type.ToType()) 
+    switch (unit->unit_type.ToType()) 
     {
         case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD         : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD750      : return true;
@@ -82,9 +82,9 @@ bool Util::IsMineral(const sc2::Unit & unit)
     }
 }
 
-bool Util::IsWorker(const sc2::Unit & unit)
+bool Util::IsWorker(const sc2::Unit* unit)
 {
-    return IsWorkerType(unit.unit_type);
+    return IsWorkerType(unit->unit_type);
 }
 
 bool Util::IsWorkerType(const sc2::UnitTypeID & unit)
@@ -121,14 +121,14 @@ sc2::UnitTypeID Util::GetTownHall(const sc2::Race & race)
     }
 }
 
-bool Util::IsCompleted(const sc2::Unit & unit)
+bool Util::IsCompleted(const sc2::Unit* unit)
 {
-    return unit.build_progress == 1.0f;
+    return unit->build_progress == 1.0f;
 }
 
-bool Util::IsIdle(const sc2::Unit & unit)
+bool Util::IsIdle(const sc2::Unit* unit)
 {
-    return unit.orders.empty();
+    return unit->orders.empty();
 }
 
 int Util::GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
@@ -152,7 +152,7 @@ int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot)
 }
 
 
-sc2::Point2D Util::CalcCenter(const std::vector<sc2::Unit> & units)
+sc2::Point2D Util::CalcCenter(const std::vector<const sc2::Unit*>& units)
 {
     if (units.empty())
     {
@@ -164,16 +164,16 @@ sc2::Point2D Util::CalcCenter(const std::vector<sc2::Unit> & units)
 
     for (auto & unit : units)
     {
-        cx += unit.pos.x;
-        cy += unit.pos.y;
+        cx += unit->pos.x;
+        cy += unit->pos.y;
     }
 
     return sc2::Point2D(cx / units.size(), cy / units.size());
 }
 
-bool Util::IsDetector(const sc2::Unit & unit)
+bool Util::IsDetector(const sc2::Unit* unit)
 {
-    return IsDetectorType(unit.unit_type);
+    return IsDetectorType(unit->unit_type);
 }
 
 float Util::GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot)
@@ -229,19 +229,19 @@ bool Util::IsDetectorType(const sc2::UnitTypeID & type)
     }
 }
 
-PlayerArrayIndex Util::GetPlayer(const sc2::Unit & unit)
+PlayerArrayIndex Util::GetPlayer(const sc2::Unit* unit)
 {
-    if (unit.alliance == sc2::Unit::Alliance::Self)
+    if (unit->alliance == sc2::Unit::Alliance::Self)
     {
         return PlayerArrayIndex::Self;
     }
 
-    else if (unit.alliance == sc2::Unit::Alliance::Enemy)
+    else if (unit->alliance == sc2::Unit::Alliance::Enemy)
     {
         return PlayerArrayIndex::Enemy;
     }
 
-    else if (unit.alliance == sc2::Unit::Alliance::Neutral)
+    else if (unit->alliance == sc2::Unit::Alliance::Neutral)
     {
         return PlayerArrayIndex::Neutral;
     }
@@ -261,9 +261,9 @@ bool Util::IsCombatUnitType(const sc2::UnitTypeID type)
     return true;
 }
 
-bool Util::IsCombatUnit(const sc2::Unit & unit)
+bool Util::IsCombatUnit(const sc2::Unit* unit)
 {
-    return IsCombatUnitType(unit.unit_type);
+    return IsCombatUnitType(unit->unit_type);
 }
 
 bool Util::IsSupplyProviderType(const sc2::UnitTypeID type)
@@ -281,9 +281,9 @@ bool Util::IsSupplyProviderType(const sc2::UnitTypeID type)
     return true;
 }
 
-bool Util::IsSupplyProvider(const sc2::Unit & unit)
+bool Util::IsSupplyProvider(const sc2::Unit* unit)
 {
-    return IsSupplyProviderType(unit.unit_type);
+    return IsSupplyProviderType(unit->unit_type);
 }
 
 float Util::Dist(const sc2::Point2D & p1, const sc2::Point2D & p2)
@@ -544,18 +544,18 @@ sc2::UnitTypeID Util::GetUnitTypeIDFromName(const sc2::ObservationInterface * ob
     return 0;
 }
 
-sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit & ourUnit, const sc2::ObservationInterface * obs)
+sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit* ourUnit, const sc2::ObservationInterface * obs)
 {
     sc2::Tag closestTag = 0;
 	double closestDist = std::numeric_limits<double>::max();
 
 	for (auto & unit : obs->GetUnits())
 	{
-        const double dist = Util::DistSq(unit->pos, ourUnit.pos);
+        const double dist = Util::DistSq(unit->pos, ourUnit->pos);
 
 		if (!closestTag || (dist < closestDist))
 		{
-			closestTag = unit->tag; // Possibly meant to be unit.tag?
+			closestTag = unit->tag;
 			closestDist = dist;
 		}
 	}
@@ -769,9 +769,9 @@ bool Util::IsBuilding(const sc2::UnitTypeID & type)
 
 // checks where a given unit can make a given unit type now
 // this is done by iterating its legal abilities for the build command to make the unit
-bool Util::UnitCanBuildTypeNow(const sc2::Unit & unit, const sc2::UnitTypeID & type, ByunJRBot & bot)
+bool Util::UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, ByunJRBot & bot)
 {
-    sc2::AvailableAbilities available_abilities = bot.Query()->GetAbilitiesForUnit(&unit);
+    sc2::AvailableAbilities available_abilities = bot.Query()->GetAbilitiesForUnit(unit);
     
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty()) 

@@ -144,7 +144,7 @@ bool BuildingPlacer::tileOverlapsBaseLocation(int x, int y, const sc2::UnitTypeI
     const int ty2 = ty1 + Util::GetUnitTypeHeight(type, m_bot);
 
     // for each base location
-    for (const BaseLocation * base : m_bot.Bases().getBaseLocations())
+    for (const BaseLocation* base : m_bot.Bases().getBaseLocations())
     {
         // dimensions of the base location
         const int bx1 = (int)base->getDepotPosition().x;
@@ -241,7 +241,7 @@ sc2::Point2D BuildingPlacer::getRefineryPosition() const
 
     for (auto & unit : m_bot.Observation()->GetUnits())
     {
-        if (!Util::IsGeyser(*unit))
+        if (!Util::IsGeyser(unit))
         {
             continue;
         }
@@ -252,7 +252,7 @@ sc2::Point2D BuildingPlacer::getRefineryPosition() const
         bool nearDepot = false;
         for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
         {
-            if (Util::IsTownHall(unit) && Util::Dist(unit.pos, geyserPos) < 10)
+            if (Util::IsTownHall(unit) && Util::Dist(unit->pos, geyserPos) < 10)
             {
                 nearDepot = true;
             }

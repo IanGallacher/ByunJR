@@ -19,8 +19,8 @@ public:
 
     UnitData();
 
-    void updateUnit(const sc2::Unit & unit);
-    void killUnit(const sc2::Unit & unit);
+    void updateUnit(const sc2::Unit* unit);
+    void killUnit(const sc2::Unit* unit);
     void removeBadUnits();
 
     int getGasLost()                                const;
@@ -28,5 +28,5 @@ public:
     int getNumUnits(sc2::UnitTypeID t)              const;
     int getNumDeadUnits(sc2::UnitTypeID t)          const;
     const std::map<int, UnitInfo> & getUnitInfoMap()  const;
-    void setJob(const sc2::Unit& unit, UnitMission job);
+    void setJob(const sc2::Unit* unit, UnitMission job);
 };

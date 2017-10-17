@@ -29,7 +29,7 @@ void UnitInfoManager::onFrame()
 }
 
 // If units die, update the unitInfo object.
-void UnitInfoManager::onUnitDestroyed(const sc2::Unit& unit)
+void UnitInfoManager::onUnitDestroyed(const sc2::Unit* unit)
 {
     m_unitData[Util::GetPlayer(unit)].killUnit(unit);
 }
@@ -42,10 +42,10 @@ void UnitInfoManager::updateUnitInfo()
 
     for (auto & unit : m_bot.Observation()->GetUnits())
     {
-        if (Util::GetPlayer(*unit) == PlayerArrayIndex::Self || Util::GetPlayer(*unit) == PlayerArrayIndex::Enemy)
+        if (Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy)
         {
-            updateUnit(*unit);
-            m_units[Util::GetPlayer(*unit)].push_back(*unit);
+            updateUnit(unit);
+            m_units[Util::GetPlayer(unit)].push_back(unit);
         }        
     }
 
@@ -59,7 +59,7 @@ const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(const PlayerArray
     return getUnitData(player).getUnitInfoMap();
 }
 
-const std::vector<sc2::Unit> & UnitInfoManager::getUnits(PlayerArrayIndex player) const
+const std::vector<const sc2::Unit*>& UnitInfoManager::getUnits(PlayerArrayIndex player) const
 {
     BOT_ASSERT(m_units.find(player) != m_units.end(), "Couldn't find player units: %d", player);
 
@@ -77,8 +77,8 @@ static std::string GetAbilityText(const sc2::AbilityID ability_id) {
 
 void UnitInfoManager::drawSelectedUnitDebugInfo() const
 {
-    const sc2::Unit * unit = nullptr;
-    for (const sc2::Unit * u : m_bot.Observation()->GetUnits())
+    const sc2::Unit* unit = nullptr;
+    for (const sc2::Unit* u : m_bot.Observation()->GetUnits())
     {
         if (u->is_selected && u->alliance == sc2::Unit::Self) {
             unit = u;
@@ -196,7 +196,7 @@ size_t UnitInfoManager::getUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeI
 
     for (auto & unit : getUnits(player))
     {
-        if ((!type || type == unit.unit_type) && (!completed || unit.build_progress == 1.0f))
+        if ((!type || type == unit->unit_type) && (!completed || unit->build_progress == 1.0f))
         {
             count++;
         }
@@ -234,12 +234,12 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     }
 }
 
-void UnitInfoManager::setJob(const sc2::Unit & unit, UnitMission job)
+void UnitInfoManager::setJob(const sc2::Unit* unit, UnitMission job)
 {
     m_unitData[Util::GetPlayer(unit)].setJob(unit, job);
 }
 
-void UnitInfoManager::updateUnit(const sc2::Unit & unit)
+void UnitInfoManager::updateUnit(const sc2::Unit* unit)
 {
     if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
     {
@@ -250,7 +250,7 @@ void UnitInfoManager::updateUnit(const sc2::Unit & unit)
 }
 
 // is the unit valid?
-bool UnitInfoManager::isValidUnit(const sc2::Unit & unit)
+bool UnitInfoManager::isValidUnit(const sc2::Unit* unit)
 {
     // we only care about our units and enemy units
     if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
@@ -259,13 +259,13 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit & unit)
     }
 
     // if it's a weird unit, don't bother
-    if (unit.unit_type == sc2::UNIT_TYPEID::ZERG_EGG || unit.unit_type == sc2::UNIT_TYPEID::ZERG_LARVA)
+    if (unit->unit_type == sc2::UNIT_TYPEID::ZERG_EGG || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA)
     {
         return false;
     }
 
     // if the position isn't valid throw it out
-    if (!m_bot.Map().isOnMap(unit.pos))
+    if (!m_bot.Map().isOnMap(unit->pos))
     {
         return false;
     }

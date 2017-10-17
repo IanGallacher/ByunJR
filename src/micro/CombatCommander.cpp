@@ -129,16 +129,16 @@ bool CombatCommander::shouldWeStartAttacking() const
 //    Squad & scoutDefenseSquad = m_squadData.getSquad("ScoutDefense");
 //
 //    // get the region that our base is located in
-//    const BaseLocation * myBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Self);
+//    const BaseLocation* myBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Self);
 //    BOT_ASSERT(myBaseLocation, "null self base location");
 //
 //    // get all of the enemy units in this region
 //    std::vector<sc2::Tag> enemyUnitsInRegion;
 //    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
 //    {
-//        if (myBaseLocation->containsPosition(unit.pos))
+//        if (myBaseLocation->containsPosition(unit->pos))
 //        {
-//            enemyUnitsInRegion.push_back(unit.tag);
+//            enemyUnitsInRegion.push_back(unit->tag);
 //        }
 //    }
 //
@@ -192,8 +192,8 @@ bool CombatCommander::shouldWeStartAttacking() const
 //    }
 //
 //    // for each of our occupied regions
-//    const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
-//    for (const BaseLocation * myBaseLocation : m_bot.Bases().getOccupiedBaseLocations(Players::Self))
+//    const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+//    for (const BaseLocation* myBaseLocation : m_bot.Bases().getOccupiedBaseLocations(Players::Self))
 //    {
 //        // don't defend inside the enemy region, this will end badly when we are stealing gas or cannon rushing
 //        if (myBaseLocation == enemyBaseLocation)
@@ -211,14 +211,14 @@ bool CombatCommander::shouldWeStartAttacking() const
 //        for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
 //        {
 //            // if it's an overlord, don't worry about it for defense, we don't care what they see
-//            if (unit.unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD)
+//            if (unit->unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD)
 //            {
 //                continue;
 //            }
 //
-//            if (myBaseLocation->containsPosition(unit.pos))
+//            if (myBaseLocation->containsPosition(unit->pos))
 //            {
-//                enemyUnitsInRegion.push_back(unit.tag);
+//                enemyUnitsInRegion.push_back(unit->tag);
 //            }
 //        }
 //
@@ -311,7 +311,7 @@ bool CombatCommander::shouldWeStartAttacking() const
 //        bool enemyUnitInRange = false;
 //        for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
 //        {
-//            if (Util::Dist(unit.pos, order.getPosition()) < order.getRadius())
+//            if (Util::Dist(unit->pos, order.getPosition()) < order.getRadius())
 //            {
 //                enemyUnitInRange = true;
 //                break;
@@ -393,7 +393,7 @@ void CombatCommander::drawSquadInformation()
 
 sc2::Point2D CombatCommander::getMainAttackLocation() const
 {
-    const BaseLocation * enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+    const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
     // First choice: Attack an enemy region if we can see units inside it
     if (enemyBaseLocation)
@@ -410,7 +410,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
             // if it has been explored, go there if there are any visible enemy units there
             for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
             {
-                if (Util::Dist(enemyUnit.pos, enemyBasePosition) < 25)
+                if (Util::Dist(enemyUnit->pos, enemyBasePosition) < 25)
                 {
                     return enemyBasePosition;
                 }
@@ -432,9 +432,9 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
     // Third choice: Attack visible enemy units that aren't overlords
     for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
     {
-        if (enemyUnit.unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
+        if (enemyUnit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
         {
-            return enemyUnit.pos;
+            return enemyUnit->pos;
         }
     }
     return sc2::Point2D(0,0);

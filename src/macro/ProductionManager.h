@@ -35,8 +35,8 @@ public:
 
     void    onStart();
     void    onFrame();
-    void    onBuildingConstructionComplete(const sc2::Unit unit);
-    void    onUnitDestroy(const sc2::Unit & unit);
+    void    onBuildingConstructionComplete(const sc2::Unit* unit);
+    void    onUnitDestroy(const sc2::Unit* unit);
     void    drawProductionInformation() const;
 
     sc2::Tag getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo = sc2::Point2D(0, 0));

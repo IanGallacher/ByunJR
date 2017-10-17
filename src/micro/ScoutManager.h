@@ -15,7 +15,7 @@ class ScoutManager
 
     bool            enemyWorkerInRadiusOf(const sc2::Point2D & pos) const;
     sc2::Point2D    getFleePosition() const;
-    const sc2::Unit * closestEnemyWorkerTo(const sc2::Point2D & pos) const;
+    const sc2::Unit* closestEnemyWorkerTo(const sc2::Point2D & pos) const;
     void            moveScouts();
     void            drawScoutInformation();
 

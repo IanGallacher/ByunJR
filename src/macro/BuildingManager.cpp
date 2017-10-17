@@ -29,11 +29,11 @@ void BuildingManager::onFrame()
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
-        if (Util::IsBuilding(unit.unit_type))
+        if (Util::IsBuilding(unit->unit_type))
         {
             std::stringstream ss;
-            ss << unit.tag;
-            m_bot.Map().drawText(unit.pos, ss.str());
+            ss << unit->tag;
+            m_bot.Map().drawText(unit->pos, ss.str());
         }
     }
 
@@ -163,7 +163,7 @@ void BuildingManager::constructAssignedBuildings()
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
         const sc2::AbilityID buildAbility = Util::UnitTypeIDToAbilityID(b.type);
-        const sc2::Unit * builderUnit = m_bot.GetUnit(b.builderUnitTag);
+        const sc2::Unit* builderUnit = m_bot.GetUnit(b.builderUnitTag);
 
         bool isConstructing = false;
 
@@ -205,7 +205,7 @@ void BuildingManager::constructAssignedBuildings()
                     sc2::Tag geyserTag = 0;
                     for (auto & unit : m_bot.Observation()->GetUnits())
                     {
-                        if (Util::IsGeyser(*unit) && Util::Dist(b.finalPosition, unit->pos) < 3)
+                        if (Util::IsGeyser(unit) && Util::Dist(b.finalPosition, unit->pos) < 3)
                         {
                             geyserTag = unit->tag;
                             break;
@@ -241,7 +241,7 @@ void BuildingManager::checkForStartedConstruction()
     for (auto & buildingStarted : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // filter out units which aren't buildings under construction
-        if (!Util::IsBuilding(buildingStarted.unit_type) || buildingStarted.build_progress == 0.0f || buildingStarted.build_progress == 1.0f)
+        if (!Util::IsBuilding(buildingStarted->unit_type) || buildingStarted->build_progress == 0.0f || buildingStarted->build_progress == 1.0f)
         {
             continue;
         }
@@ -256,8 +256,8 @@ void BuildingManager::checkForStartedConstruction()
             }
 
             // check if the positions match
-            const float dx = b.finalPosition.x - buildingStarted.pos.x;
-            const float dy = b.finalPosition.y - buildingStarted.pos.y;
+            const float dx = b.finalPosition.x - buildingStarted->pos.x;
+            const float dy = b.finalPosition.y - buildingStarted->pos.y;
 
             if (dx*dx + dy*dy < 1)
             {
@@ -267,12 +267,12 @@ void BuildingManager::checkForStartedConstruction()
                 }
 
                 // the resources should now be spent, so unreserve them
-                m_reservedMinerals -= Util::GetUnitTypeMineralPrice(buildingStarted.unit_type, m_bot);
-                m_reservedGas      -= Util::GetUnitTypeGasPrice(buildingStarted.unit_type, m_bot);
+                m_reservedMinerals -= Util::GetUnitTypeMineralPrice(buildingStarted->unit_type, m_bot);
+                m_reservedGas      -= Util::GetUnitTypeGasPrice(buildingStarted->unit_type, m_bot);
                 
                 // flag it as started and set the buildingUnit
                 b.underConstruction = true;
-                b.buildingUnitTag = buildingStarted.tag;
+                b.buildingUnitTag = buildingStarted->tag;
 
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
                 if (m_bot.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)

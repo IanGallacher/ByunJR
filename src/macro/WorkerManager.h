@@ -13,7 +13,7 @@ class WorkerManager
     mutable WorkerData  m_workerData;
     sc2::Tag     m_previousClosestWorker;
 
-    void        setMineralWorker(const sc2::Unit & unit);
+    void        setMineralWorker(const sc2::Unit* unit);
     
     void        handleIdleWorkers();
     void        handleGasWorkers();
@@ -30,16 +30,16 @@ public:
     void        setScoutWorker(const sc2::Tag & worker);
     void        setCombatWorker(const sc2::Tag & worker);
     void        setProxyWorker(const sc2::Tag & workerTag);
-    void        setBuildingWorker(const sc2::Unit & worker, Building & b);
-    void        setRepairWorker(const sc2::Unit & worker,const sc2::Unit & unitToRepair);
-    void        stopRepairing(const sc2::Unit & worker);
+    void        setBuildingWorker(const sc2::Unit* worker, Building & b);
+    void        setRepairWorker(const sc2::Unit* worker,const sc2::Unit* unitToRepair);
+    void        stopRepairing(const sc2::Unit* worker);
 
-    bool        isWorkerScout(const sc2::Unit & worker) const;
-    bool        isFree(const sc2::Unit & worker) const;
-    bool        isBuilder(const sc2::Unit & worker) const;
+    bool        isWorkerScout(const sc2::Unit* worker) const;
+    bool        isFree(const sc2::Unit* worker) const;
+    bool        isBuilder(const sc2::Unit* worker) const;
 
     sc2::Tag     getBuilder(Building & b,bool setJobAsBuilder = true) const;
-    sc2::Tag     getGasWorker(const sc2::Unit & refinery) const;
+    sc2::Tag     getGasWorker(const sc2::Unit* refinery) const;
     sc2::Tag     findClosestWorkerTo(const sc2::Point2D& target) const;
     sc2::Tag     getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
 };

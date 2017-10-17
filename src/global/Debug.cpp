@@ -17,8 +17,8 @@ void DebugManager::drawResourceDebugInfo()
 
     for (auto const & unitInfo : ui)
     {
-        if (Util::IsBuilding(unitInfo.second.unit.unit_type)) continue;
-        m_bot.Map().drawText(unitInfo.second.unit.pos, unitInfo.second.getJobCode());
+        if (Util::IsBuilding(unitInfo.second.unit->unit_type)) continue;
+        m_bot.Map().drawText(unitInfo.second.unit->pos, unitInfo.second.getJobCode());
 
         //auto depot = m_bot.GetUnit(m_workerData.getWorkerDepot(workerTag));
         //if (depot)
@@ -39,7 +39,7 @@ void DebugManager::drawAllUnitInformation() const
 
     for (auto const & unitInfo : ui )
     {
-        if (Util::IsBuilding(unitInfo.second.unit.unit_type)) continue;
+        if (Util::IsBuilding(unitInfo.second.unit->unit_type)) continue;
         ss << unitInfo.second.getJobCode() << " " << unitInfo.first << std::endl;
     }
 

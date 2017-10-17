@@ -21,8 +21,8 @@ class InformationManager
 public:
     InformationManager(ByunJRBot & bot);
     void onStart();
-    void onUnitCreated(const sc2::Unit& unit);
-    void onUnitDestroyed(const sc2::Unit& unit);
+    void onUnitCreated(const sc2::Unit* unit);
+    void onUnitDestroyed(const sc2::Unit* unit);
     void onFrame();
 
     sc2::Point2D GetProxyLocation() const;
@@ -37,9 +37,10 @@ public:
 	void assignUnit(const sc2::Tag & unit, UnitMission job);
 	void finishedWithUnit(const sc2::Tag& unit);
 
-	const sc2::Unit getClosestUnitOfType(const sc2::Unit* unit, sc2::UnitTypeID) const;
-	const sc2::Unit getClosestUnitWithJob(const sc2::Unit* referenceUnit, UnitMission mission) const;
-	const sc2::Tag getClosestUnitWithJob(const sc2::Point2D point, const UnitMission mission) const;
+	const sc2::Unit* getClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
+	const sc2::Unit* getClosestBase(const sc2::Unit* referenceUnit) const;
+	const ::UnitInfo* getClosestUnitWithJob(const sc2::Point2D point, const UnitMission) const;
+	const sc2::Tag getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const;
 
     void handleUnitAssignments();
     std::vector<sc2::Tag> GetCombatUnits() const;

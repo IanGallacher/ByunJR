@@ -43,8 +43,8 @@ void Micro::SmartAttackUnit(const sc2::Tag & attackerTag, const sc2::Tag & targe
 
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
     bool sentCommandAlready = false;
-    const sc2::Unit * attacker = bot.GetUnit(attackerTag);
-    const sc2::Unit * target = bot.GetUnit(targetTag);
+    const sc2::Unit* attacker = bot.GetUnit(attackerTag);
+    const sc2::Unit* target = bot.GetUnit(targetTag);
     for (sc2::UnitOrder theOrder : attacker->orders)
     {
         if (theOrder.ability_id == sc2::ABILITY_ID::MOVE && theOrder.target_unit_tag == targetTag)
@@ -65,7 +65,7 @@ void Micro::SmartMove(const sc2::Tag & unitTag, const sc2::Point2D & targetPosit
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
     bool sentCommandAlready = false;
-    const sc2::Unit * unitToMove = bot.GetUnit(unitTag);
+    const sc2::Unit* unitToMove = bot.GetUnit(unitTag);
     for (sc2::UnitOrder theOrder : unitToMove->orders)
     {
         if (theOrder.ability_id == sc2::ABILITY_ID::MOVE && theOrder.target_pos == targetPosition)
@@ -96,8 +96,8 @@ void Micro::SmartKiteTarget(const sc2::Tag & rangedUnitTag, const sc2::Tag & tar
     //{
     //	return;
     //}
-    const sc2::Unit * rangedUnit = bot.GetUnit(rangedUnitTag);
-    const sc2::Unit * target = bot.GetUnit(targetTag);
+    const sc2::Unit* rangedUnit = bot.GetUnit(rangedUnitTag);
+    const sc2::Unit* target = bot.GetUnit(targetTag);
     const float range = Util::GetAttackRange(rangedUnit->unit_type, bot);
 
     //// determine whether the target can be kited

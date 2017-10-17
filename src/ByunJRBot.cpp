@@ -77,26 +77,26 @@ void ByunJRBot::OnStep()
 }
 
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
-    m_proxyManager.onUnitCreated(*unit);
-    m_informationManager.onUnitCreated(*unit);
+    m_proxyManager.onUnitCreated(unit);
+    m_informationManager.onUnitCreated(unit);
 }
 
 void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
 {
-    m_informationManager.onUnitDestroyed(*unit);
+    m_informationManager.onUnitDestroyed(unit);
 }
 
-//void ByunJRBot::onUnitDestroy(const sc2::Unit & unit)
+//void ByunJRBot::onUnitDestroy(const sc2::Unit* unit)
 //{
 //    //_productionManager.onUnitDestroy(unit);
 //}
 
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
-    m_proxyManager.onUnitEnterVision(*unit);
+    m_proxyManager.onUnitEnterVision(unit);
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    m_productionManager.onBuildingConstructionComplete(*unit);
+    m_productionManager.onBuildingConstructionComplete(unit);
 }
 
 // Returns true if the bot thinks it still has a chance.
@@ -152,7 +152,7 @@ ProxyManager & ByunJRBot::GetProxyManager() {
     return m_proxyManager;
 }
 
-const sc2::Unit * ByunJRBot::GetUnit(const sc2::Tag & tag) const
+const sc2::Unit* ByunJRBot::GetUnit(const sc2::Tag & tag) const
 {
     return Observation()->GetUnit(tag);
 }

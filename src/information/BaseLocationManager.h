@@ -10,13 +10,13 @@ class BaseLocationManager
     ByunJRBot & m_bot;
 
     std::vector<BaseLocation>                                    m_baseLocationData;
-    std::vector<const BaseLocation *>                            m_baseLocationPtrs;
-    std::vector<const BaseLocation *>                            m_startingBaseLocations;
-    std::map<PlayerArrayIndex, const BaseLocation *>             m_playerStartingBaseLocations;
-    std::map<PlayerArrayIndex, std::set<const BaseLocation *>>   m_occupiedBaseLocations;
-    std::vector<std::vector<BaseLocation *>>                     m_tileBaseLocations;
+    std::vector<const BaseLocation*>                            m_baseLocationPtrs;
+    std::vector<const BaseLocation*>                            m_startingBaseLocations;
+    std::map<PlayerArrayIndex, const BaseLocation*>             m_playerStartingBaseLocations;
+    std::map<PlayerArrayIndex, std::set<const BaseLocation*>>   m_occupiedBaseLocations;
+    std::vector<std::vector<BaseLocation*>>                     m_tileBaseLocations;
 
-    BaseLocation * getBaseLocation(const sc2::Point2D & pos) const;
+    BaseLocation* getBaseLocation(const sc2::Point2D & pos) const;
 
 public:
 
@@ -26,10 +26,10 @@ public:
     void onFrame();
     void drawBaseLocations();
 
-    const std::vector<const BaseLocation *> & getBaseLocations() const;
-    const std::vector<const BaseLocation *> & getStartingBaseLocations() const;
-    const std::set<const BaseLocation *> & getOccupiedBaseLocations(PlayerArrayIndex player) const;
-    const BaseLocation * getPlayerStartingBaseLocation(PlayerArrayIndex player) const;
+    const std::vector<const BaseLocation*> & getBaseLocations() const;
+    const std::vector<const BaseLocation*> & getStartingBaseLocations() const;
+    const std::set<const BaseLocation*> & getOccupiedBaseLocations(PlayerArrayIndex player) const;
+    const BaseLocation* getPlayerStartingBaseLocation(PlayerArrayIndex player) const;
     
     sc2::Point2D getNextExpansion(PlayerArrayIndex player) const;
 

@@ -84,7 +84,7 @@ void Squad::setAllUnits()
     std::set<sc2::Tag> goodUnits;
     for (auto & unitTag : m_units)
     {
-        const sc2::Unit * unit = m_bot.GetUnit(unitTag);
+        const sc2::Unit* unit = m_bot.GetUnit(unitTag);
         if (!unit) { continue; }
         if (unit->build_progress < 1.0f) { continue; }
         if (unit->health <= 0) { continue; }
@@ -118,7 +118,7 @@ void Squad::addUnitsToMicroManagers()
     // add _units to micro managers
     for (auto & unitTag : m_units)
     {
-        const sc2::Unit * unit = m_bot.GetUnit(unitTag);
+        const sc2::Unit* unit = m_bot.GetUnit(unitTag);
 
         BOT_ASSERT(unit, "null unit in addUnitsToMicroManagers()");
 
@@ -127,7 +127,7 @@ void Squad::addUnitsToMicroManagers()
             tankUnits.push_back(unitTag);
         }
         // TODO: detectors
-        else if (Util::IsDetector(*unit) && !Util::IsBuilding(unit->unit_type))
+        else if (Util::IsDetector(unit) && !Util::IsBuilding(unit->unit_type))
         {
             detectorUnits.push_back(unitTag);
         }
@@ -172,7 +172,7 @@ void Squad::clear()
         auto unit = m_bot.GetUnit(unitTag);
         BOT_ASSERT(unit, "null unit in squad clear");
 
-        if (Util::IsWorker(*unit))
+        if (Util::IsWorker(unit))
         {
             m_bot.InformationManager().finishedWithUnit(unitTag);
         }
@@ -186,9 +186,9 @@ bool Squad::isUnitNearEnemy(const sc2::Tag & unitTag) const
     auto unit = m_bot.GetUnit(unitTag);
     BOT_ASSERT(unit, "null unit in squad");
 
-    for (auto & u : m_bot.Observation()->GetUnits())
+    for (auto & unit : m_bot.Observation()->GetUnits())
     {
-        if ((Util::GetPlayer(*u) == PlayerArrayIndex::Enemy) && (Util::Dist(unit->pos, m_bot.GetUnit(unitTag)->pos) < 20))
+        if ((Util::GetPlayer(unit) == PlayerArrayIndex::Enemy) && (Util::Dist(unit->pos, m_bot.GetUnit(unitTag)->pos) < 20))
         {
             return true;
         }

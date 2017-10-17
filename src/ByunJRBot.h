@@ -60,7 +60,7 @@ public:
     const StrategyManager & Strategy() const;
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
     sc2::Point2D GetStartLocation() const;
-    const sc2::Unit * GetUnit(const sc2::Tag & tag) const;
+    const sc2::Unit* GetUnit(const sc2::Tag & tag) const;
 };
 
 void DllExport *CreateNewAgent();

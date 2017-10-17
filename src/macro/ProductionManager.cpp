@@ -45,15 +45,15 @@ void ProductionManager::onFrame()
     drawProductionInformation();
 }
 
-void ProductionManager::onBuildingConstructionComplete(const sc2::Unit unit) {
-    if (unit.unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+void ProductionManager::onBuildingConstructionComplete(const sc2::Unit* unit) {
+    if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
     {
         m_planned_supply_depots--;
     }
 }
 
 // on unit destroy
-void ProductionManager::onUnitDestroy(const sc2::Unit & unit)
+void ProductionManager::onUnitDestroy(const sc2::Unit* unit)
 {
     // TODO: might have to re-do build order if a vital unit died
 }
@@ -148,17 +148,17 @@ sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestT
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
-        if (unit.unit_type != producerType) { continue; }
-        if (unit.build_progress < 1.0f) { continue; }
-        if (Util::IsBuilding(producerType) && unit.orders.size() > 0) { continue; }
+        if (unit->unit_type != producerType) { continue; }
+        if (unit->build_progress < 1.0f) { continue; }
+        if (Util::IsBuilding(producerType) && unit->orders.size() > 0) { continue; }
         // TODO: if unit is not powered continue
-        if (unit.is_flying) { continue; }
+        if (unit->is_flying) { continue; }
 
         // TODO: if the type is an addon, some special cases
         // TODO: if the type requires an addon and the producer doesn't have one
 
         // if we haven't cut it, add it to the set of candidates
-        candidateProducers.push_back(unit.tag);
+        candidateProducers.push_back(unit->tag);
     }
 
     return getClosestUnitToPosition(candidateProducers, closestTo);
@@ -292,9 +292,9 @@ void ProductionManager::drawProductionInformation() const
 
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
-        if (unit.build_progress < 1.0f)
+        if (unit->build_progress < 1.0f)
         {
-            //ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << std::endl;
+            //ss << sc2::UnitTypeToName(unit->unit_type) << " " << unit->build_progress << std::endl;
         }
     }
 

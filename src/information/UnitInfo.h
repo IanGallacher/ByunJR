@@ -13,15 +13,15 @@ class UnitInfo
     // can't reference it from the unit pointer
 
 public:
-    int              tag;
-    float            lastHealth;
-    float            lastShields;
-    PlayerArrayIndex player;
-    sc2::Unit        unit;
-    sc2::Point3D     lastPosition;
-    sc2::UnitTypeID  type;
-    float            progress;
-    UnitMission      mission;
+    int               tag;
+    float             lastHealth;
+    float             lastShields;
+    PlayerArrayIndex  player;
+    const sc2::Unit* unit;
+    sc2::Point3D      lastPosition;
+    sc2::UnitTypeID   type;
+    float             progress;
+    UnitMission       mission;
 
     UnitInfo()
         : tag(0)
