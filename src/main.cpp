@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 
             //          Setting this = N means the bot's onFrame gets called once every N frames
             //          The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(1);
+            coordinator.SetStepSize(10);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;

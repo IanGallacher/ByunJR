@@ -75,9 +75,9 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
     if (job == UnitMission::Minerals)
     {
         // if we haven't assigned anything to this depot yet, set its worker count to 0
-        if (m_depotWorkerCount.find(jobUnitTag) == m_depotWorkerCount.end())
+        if (m_baseWorkerCount.find(jobUnitTag) == m_baseWorkerCount.end())
         {
-            m_depotWorkerCount[jobUnitTag] = 0;
+            m_baseWorkerCount[jobUnitTag] = 0;
         }
 
         // add the depot to our set of depots
@@ -85,7 +85,7 @@ void WorkerData::setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag j
 
         // increase the worker count of this depot
         m_workerDepotMap[unit] = jobUnitTag;
-        m_depotWorkerCount[jobUnitTag]++;
+        m_baseWorkerCount[jobUnitTag]++;
 
         // find the mineral to mine and mine it
         sc2::Tag cc = m_bot.InformationManager().getClosestUnitOfType(m_bot.GetUnit(unit), sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)->tag;
@@ -132,7 +132,7 @@ void WorkerData::clearPreviousJob(const sc2::Tag & unit)
     if (previousJob == UnitMission::Minerals)
     {
         // remove one worker from the count of the depot this worker was assigned to
-        m_depotWorkerCount[m_workerDepotMap[unit]]--;
+        m_baseWorkerCount[m_workerDepotMap[unit]]--;
         m_workerDepotMap.erase(unit);
     }
     else if (previousJob == UnitMission::Gas)
@@ -206,21 +206,22 @@ sc2::Tag WorkerData::getWorkerDepot(const sc2::Tag & unit) const
     return -1;
 }
 
-int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
+// Depot can be a base or refinery.
+int WorkerData::getNumAssignedWorkers(const sc2::Unit* depot)
 {
-    if (Util::IsTownHall(m_bot.GetUnit(unit)))
+    if (Util::IsTownHall(depot))
     {
-        const auto it = m_depotWorkerCount.find(unit);
+        const auto it = m_baseWorkerCount.find(depot->tag);
 
         // if there is an entry, return it
-        if (it != m_depotWorkerCount.end())
+        if (it != m_baseWorkerCount.end())
         {
             return it->second;
         }
     }
-    else if (Util::IsRefinery(m_bot.GetUnit(unit)))
+    else if (Util::IsRefinery(depot))
     {
-        const auto it = m_refineryWorkerCount.find(unit);
+        const auto it = m_refineryWorkerCount.find(depot->tag);
 
         // if there is an entry, return it
         if (it != m_refineryWorkerCount.end())
@@ -230,7 +231,7 @@ int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
         // otherwise, we are only calling this on completed refineries, so set it
         else
         {
-            m_refineryWorkerCount[unit] = 0;
+            m_refineryWorkerCount[depot->tag] = 0;
         }
     }
 
@@ -242,15 +243,15 @@ int WorkerData::getNumAssignedWorkers(const sc2::Tag & unit)
 
 void WorkerData::drawDepotDebugInfo()
 {
-    for (auto & depotTag : m_depots)
+    for (auto & baseTag : m_depots)
     {
-        const auto depot = m_bot.GetUnit(depotTag);
+        const auto base = m_bot.GetUnit(baseTag);
 
-        if (!depot) continue;
+        if (!base) continue;
         std::stringstream ss;
-        ss << "Workers: " << getNumAssignedWorkers(depot->tag);
+        ss << "Workers: " << getNumAssignedWorkers(base);
 
-        m_bot.Map().drawText(depot->pos, ss.str());
+        m_bot.Map().drawText(base->pos, ss.str());
     }
 }
 

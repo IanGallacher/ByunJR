@@ -41,7 +41,8 @@ public:
 	const sc2::Unit* getClosestBase(const sc2::Unit* referenceUnit) const;
 	const ::UnitInfo* getClosestUnitWithJob(const sc2::Point2D point, const UnitMission) const;
 	const sc2::Tag getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const;
+	const sc2::Tag getClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
 
-    void handleUnitAssignments();
+	void handleUnitAssignments();
     std::vector<sc2::Tag> GetCombatUnits() const;
 };

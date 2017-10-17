@@ -11,7 +11,7 @@ class WorkerData
     std::set<sc2::Tag>            m_depots;
     std::map<sc2::Tag, UnitMission>       m_workerJobMap;
     std::map<sc2::Tag, int>       m_refineryWorkerCount;
-    std::map<sc2::Tag, int>       m_depotWorkerCount;
+    std::map<sc2::Tag, int>       m_baseWorkerCount;
     std::map<sc2::Tag, sc2::Tag>  m_workerRefineryMap;
     std::map<sc2::Tag, sc2::Tag>  m_workerDepotMap;
 
@@ -27,7 +27,7 @@ public:
     void    setWorkerJob(const sc2::Tag & unit, UnitMission job, sc2::Tag jobUnitTag = 0);
     void    drawDepotDebugInfo();
     size_t  getNumWorkers() const;
-    int     getNumAssignedWorkers(const sc2::Tag & unit);
+    int     getNumAssignedWorkers(const sc2::Unit* base);
     UnitMission     getWorkerJob(const sc2::Tag & unit) const;
     sc2::Tag getMineralToMine(const sc2::Tag & unit) const;
     sc2::Tag getWorkerDepot(const sc2::Tag & unit) const;

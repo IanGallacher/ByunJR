@@ -158,7 +158,8 @@ void InformationManager::setCombatUnits()
 
 sc2::Tag InformationManager::getBuilder(Building & b, bool setJobAsBuilder)
 {
-	const sc2::Tag builderWorker = getClosestUnitTagWithJob(b.finalPosition, UnitMission::Minerals);
+	const std::vector<UnitMission> acceptableMissions{ UnitMission::Minerals, UnitMission::Proxy };
+	const sc2::Tag builderWorker = getClosestUnitTagWithJob(b.finalPosition, acceptableMissions );
 
 	// if the worker exists (one may not have been found in rare cases)
 	if (builderWorker && setJobAsBuilder)
@@ -170,7 +171,7 @@ sc2::Tag InformationManager::getBuilder(Building & b, bool setJobAsBuilder)
 }
 
 const sc2::Unit* InformationManager::getClosestUnitOfType(const sc2::Unit* referenceUnit,
-                                                          sc2::UnitTypeID referenceTypeID) const
+                                                          const sc2::UnitTypeID referenceTypeID) const
 {
     const sc2::Unit* closestUnit = nullptr;
     double closestDistance = std::numeric_limits<double>::max();
@@ -249,6 +250,28 @@ const sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D p
 	for (auto & unitInfo : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self))
 	{
 		if (unitInfo.second.mission == mission)
+		{
+			const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
+			if (distance < closestDistance)
+			{
+				closestUnit = unitInfo.second.unit->tag;
+				closestDistance = distance;
+			}
+		}
+	}
+
+	return closestUnit;
+}
+
+
+const sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> missionVector) const
+{
+	sc2::Tag closestUnit;
+	double closestDistance = std::numeric_limits<double>::max();
+
+	for (auto & unitInfo : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self))
+	{
+		if (std::find(missionVector.begin(), missionVector.end(), unitInfo.second.mission) != missionVector.end())
 		{
 			const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
 			if (distance < closestDistance)

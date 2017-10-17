@@ -15,7 +15,7 @@ UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
 
 void UnitInfoManager::onStart()
 {
-    m_workers.onStart();
+
 }
 
 void UnitInfoManager::onFrame()
