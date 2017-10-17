@@ -190,7 +190,7 @@ void UnitInfoManager::drawSelectedUnitDebugInfo() const
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::getUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed) const
+size_t UnitInfoManager::getUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool completed) const
 {
     size_t count = 0;
 
@@ -274,7 +274,7 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit* unit)
     return true;
 }
 
-void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Point2D p, PlayerArrayIndex player, float radius) const
+void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Point2D p, const PlayerArrayIndex player, const float radius) const
 {
     bool hasBunker = false;
     // for each unit we know about for that player
@@ -292,7 +292,7 @@ void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Poin
     }
 }
 
-const UnitData & UnitInfoManager::getUnitData(PlayerArrayIndex player) const
+const UnitData & UnitInfoManager::getUnitData(const PlayerArrayIndex player) const
 {
     return m_unitData.find(player)->second;
 }
