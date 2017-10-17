@@ -17,6 +17,9 @@ class InformationManager
     bool                     m_initialScoutSet;
 
 	bool isAssigned(const sc2::Tag & unit) const;
+	void setScoutUnits(bool shouldSendInitialScout);
+	void setCombatUnits();
+	void setValidUnits();
 
 public:
     InformationManager(ByunJRBot & bot);
@@ -28,12 +31,7 @@ public:
     sc2::Point2D GetProxyLocation() const;
     UnitInfoManager & UnitInfo();
 
-
-    void setValidUnits();
-    void setScoutUnits(bool shouldSendInitialScout);
-    void setCombatUnits();
 	sc2::Tag getBuilder(Building& b, bool setJobAsBuilder = true);
-
 	void assignUnit(const sc2::Tag & unit, UnitMission job);
 	void finishedWithUnit(const sc2::Tag& unit);
 
