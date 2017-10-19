@@ -36,7 +36,8 @@ public:
     
     int getGroundDistance(const sc2::Point2D & pos) const;
     bool isStartLocation() const;
-    bool isPlayerStartLocation(PlayerArrayIndex player) const;
+    bool isPlayerStartLocation() const;
+	bool isPotentialEnemyStartLocation() const;
     bool isMineralOnly() const;
     bool containsPosition(const sc2::Point2D & pos) const;
     const sc2::Point2D & getDepotPosition() const;

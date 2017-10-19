@@ -14,6 +14,11 @@ void BaseLocationManager::onStart()
     m_tileBaseLocations = std::vector<std::vector<BaseLocation*>>(m_bot.Map().width(), std::vector<BaseLocation*>(m_bot.Map().height(), nullptr));
     m_playerStartingBaseLocations[PlayerArrayIndex::Self]  = nullptr;
     m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = nullptr; 
+
+	// construct the sets of occupied base locations
+	m_occupiedBaseLocations[PlayerArrayIndex::Self] = std::set<const BaseLocation*>();
+	m_occupiedBaseLocations[PlayerArrayIndex::Enemy] = std::set<const BaseLocation*>();
+	m_enemyBaseScouted = false;
     
     // a BaseLocation will be anything where there are minerals to mine
     // so we will first look over all minerals and cluster them based on some distance
@@ -72,7 +77,6 @@ void BaseLocationManager::onStart()
     for (auto & baseLocation : m_baseLocationData)
     {
         m_baseLocationPtrs.push_back(&baseLocation);
-
         // if it's a start location, add it to the start locations
         if (baseLocation.isStartLocation())
         {
@@ -80,14 +84,19 @@ void BaseLocationManager::onStart()
         }
 
         // if it's our starting location, set the pointer
-        if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Self))
+        if (baseLocation.isPlayerStartLocation())
         {
             m_playerStartingBaseLocations[PlayerArrayIndex::Self] = &baseLocation;
         }
 
-        if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Enemy))
+		// If there is only one enemy spawn location, we know where the enemy is. 
+		if (m_bot.Observation()->GetGameInfo().enemy_start_locations.size() == 1 
+	     && baseLocation.isPotentialEnemyStartLocation())
         {
-            m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
+			// Make sure that there really only is one enemy base. 
+			assert(m_enemyBaseScouted == false);
+			m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
+			m_enemyBaseScouted = true;
         }
     }
 
@@ -109,10 +118,6 @@ void BaseLocationManager::onStart()
             }
         }
     }
-
-    // construct the sets of occupied base locations
-    m_occupiedBaseLocations[PlayerArrayIndex::Self] = std::set<const BaseLocation*>();
-    m_occupiedBaseLocations[PlayerArrayIndex::Enemy] = std::set<const BaseLocation*>();
 }
 
 void BaseLocationManager::onFrame()
@@ -161,52 +166,56 @@ void BaseLocationManager::onFrame()
         }
     }
 
-    // update the starting locations of the enemy player
-    // this will happen one of two ways:
+	// If we have not yet scouted the enemy base, try to figure out where they started. 
+	// This can happen one of two ways. 
+	if (!m_enemyBaseScouted)
+	{
+		// 1. we've seen the enemy base directly, so the baselocation will know the enemy location.
+		if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
+		{
+			for (auto & baseLocation : m_baseLocationData)
+			{
+				if (baseLocation.isPlayerStartLocation())
+				{
+					 m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
+					 m_enemyBaseScouted = true;
+				}
+			}
+		}
     
-    // 1. we've seen the enemy base directly, so the baselocation will know
-    if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
-    {
-        for (auto & baseLocation : m_baseLocationData)
-        {
-            if (baseLocation.isPlayerStartLocation(PlayerArrayIndex::Enemy))
-            {
-                m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = &baseLocation;
-            }
-        }
-    }
-    
-    // 2. we've explored every other start location and haven't seen the enemy yet
-    if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
-    {
-        const int numStartLocations = (int)getStartingBaseLocations().size();
-        int numExploredLocations = 0;
-        BaseLocation* unexplored = nullptr;
+		// 2. we've explored every other start location and haven't seen the enemy yet
+		if (m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] == nullptr)
+		{
+			const int numStartLocations = (int)getStartingBaseLocations().size();
+			int numExploredLocations = 0;
+			BaseLocation* unexplored = nullptr;
 
-        for (auto & baseLocation : m_baseLocationData)
-        {
-            if (!baseLocation.isStartLocation())
-            {
-                continue;
-            }
+			for (auto & baseLocation : m_baseLocationData)
+			{
+				if (!baseLocation.isStartLocation())
+				{
+					continue;
+				}
 
-            if (baseLocation.isExplored())
-            {
-                numExploredLocations++;
-            }
-            else
-            {
-                unexplored = &baseLocation;
-            }
-        }
+				if (baseLocation.isExplored())
+				{
+					numExploredLocations++;
+				}
+				else
+				{
+					unexplored = &baseLocation;
+				}
+			}
 
-        // if we have explored all but one location, then the unexplored one is the enemy start location
-        if (numExploredLocations == numStartLocations - 1 && unexplored != nullptr)
-        {
-            m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = unexplored;
-            unexplored->setPlayerOccupying(PlayerArrayIndex::Enemy, true);
-        }
-    }
+			// if we have explored all but one location, then the unexplored one is the enemy start location
+			if (numExploredLocations == numStartLocations - 1 && unexplored != nullptr)
+			{
+				m_playerStartingBaseLocations[PlayerArrayIndex::Enemy] = unexplored;
+				unexplored->setPlayerOccupying(PlayerArrayIndex::Enemy, true);
+				m_enemyBaseScouted = true;
+			}
+		}
+	}
 
     // update the occupied base locations for each player
     m_occupiedBaseLocations[PlayerArrayIndex::Self] = std::set<const BaseLocation*>();
@@ -230,7 +239,7 @@ void BaseLocationManager::onFrame()
 
 BaseLocation* BaseLocationManager::getBaseLocation(const sc2::Point2D & pos) const
 {
-    if (!m_bot.Map().isOnMap(pos)) { return nullptr; }
+	if (!m_bot.Map().isOnMap(pos)) { std::cout << "Warning: requeste base location not on map" << std::endl; return nullptr; }
 
     return m_tileBaseLocations[(int)pos.x][(int)pos.y];
 }

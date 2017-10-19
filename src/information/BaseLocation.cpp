@@ -17,6 +17,7 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<const 
     , m_bottom               (std::numeric_limits<float>::max())
 {
     m_isPlayerStartLocation[PlayerArrayIndex::Self] = false;
+	// Enemy start locations are simply POTENTIAL spawn locations.
     m_isPlayerStartLocation[PlayerArrayIndex::Enemy] = false;
     m_isPlayerOccupying[PlayerArrayIndex::Self] = false;
     m_isPlayerOccupying[PlayerArrayIndex::Enemy] = false;
@@ -71,6 +72,7 @@ BaseLocation::BaseLocation(ByunJRBot & bot, int baseID, const std::vector<const 
         if (containsPosition(pos))
         {
             m_isStartLocation = true;
+			m_isPlayerStartLocation[PlayerArrayIndex::Enemy] = true;
             m_depotPosition = pos;
         }
     }
@@ -129,10 +131,21 @@ bool BaseLocation::isExplored() const
 {
     return false;
 }
-
-bool BaseLocation::isPlayerStartLocation(PlayerArrayIndex player) const
+// isPlayerStartLocation returns if you spawned at the given location. 
+// m_isPlayerStartLocation.at(PlayerArrayIndex::Enemy) only gives POTENTIAL enemy spawn locations. 
+// For clarity, there is a seprate function for that. 
+bool BaseLocation::isPlayerStartLocation() const
 {
-    return m_isPlayerStartLocation.at(player);
+    return m_isPlayerStartLocation.at(PlayerArrayIndex::Self);
+}
+bool BaseLocation::isPotentialEnemyStartLocation() const
+{
+	return m_isPlayerStartLocation.at(PlayerArrayIndex::Enemy);
+}
+
+bool BaseLocation::isMineralOnly() const
+{
+	return getGeysers().empty();
 }
 
 bool BaseLocation::containsPosition(const sc2::Point2D & pos) const
@@ -237,9 +250,4 @@ void BaseLocation::draw()
     m_bot.Map().drawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
 
     //m_distanceMap.draw(m_bot);
-}
-
-bool BaseLocation::isMineralOnly() const
-{
-    return getGeysers().empty();
 }

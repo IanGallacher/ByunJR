@@ -16,6 +16,9 @@ class BaseLocationManager
     std::map<PlayerArrayIndex, std::set<const BaseLocation*>>   m_occupiedBaseLocations;
     std::vector<std::vector<BaseLocation*>>                     m_tileBaseLocations;
 
+	// If the enemy base is not yet scouted, the enemy base location will be set to the next unexplored enemy spawn location.
+	bool														m_enemyBaseScouted;
+
     BaseLocation* getBaseLocation(const sc2::Point2D & pos) const;
 
 public:
@@ -32,5 +35,4 @@ public:
     const BaseLocation* getPlayerStartingBaseLocation(PlayerArrayIndex player) const;
     
     sc2::Point2D getNextExpansion(PlayerArrayIndex player) const;
-
 };
