@@ -52,7 +52,6 @@ int main(int argc, char* argv[])
 
 
     std::cout << "GLHF" << std::endl;
-    // Step forward the game simulation.
 
     GeneticAlgorithm ga = GeneticAlgorithm();
     bool geneticAlgorithmSetup = false;
@@ -133,13 +132,7 @@ int main(int argc, char* argv[])
                 std::cout << "MUTATING" << std::endl;
             }
         }
-
-        //ga.evolvePopulation();
     }
-
-
-    std::cout << "Press any key to continue.";
-    //getchar();
 
     return 0;
 }

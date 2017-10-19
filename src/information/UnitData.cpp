@@ -40,6 +40,10 @@ void UnitData::updateUnit(const sc2::Unit* unit)
 	{
 		m_workers.insert(&m_unitInfoMap[unit->tag]);
 	}
+    else if(Util::IsCombatUnit(unit))
+    {
+        m_combatUnits.insert(&m_unitInfoMap[unit->tag]);
+    }
 }
 
 void UnitData::killUnit(const sc2::Unit* unit)
@@ -118,18 +122,7 @@ int UnitData::getNumAssignedWorkers(const sc2::Unit* depot)
 	}
 	else if (Util::IsRefinery(depot))
 	{
-		const auto it = m_refineryWorkerCount.find(depot->tag);
-
-		// if there is an entry, return it
-		if (it != m_refineryWorkerCount.end())
-		{
-			return it->second;
-		}
-		// otherwise, we are only calling this on completed refineries, so set it
-		else
-		{
-			m_refineryWorkerCount[depot->tag] = 0;
-		}
+        return depot->assigned_harvesters;
 	}
 
 	// when all else fails, return 0
@@ -171,14 +164,6 @@ void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
 	}
 	else if (job == UnitMission::Gas)
 	{
-		// if we haven't assigned any workers to this refinery yet set count to 0
-		if (m_refineryWorkerCount.find(jobUnitTag) == m_refineryWorkerCount.end())
-		{
-			m_refineryWorkerCount[jobUnitTag] = 0;
-		}
-
-		// increase the count of workers assigned to this refinery
-		m_refineryWorkerCount[jobUnitTag] += 1;
 		m_workerRefineryMap[unit->tag] = unit;
 		// If the jobUnitTag is actually valid, set the worker depot to that value.
 		if (jobUnitTag != 0)
@@ -212,7 +197,6 @@ void UnitData::clearPreviousJob(const sc2::Unit* unit)
 	}
 	else if (m_unitInfoMap[unit->tag].mission == UnitMission::Gas)
 	{
-		m_refineryWorkerCount[m_workerRefineryMap[unit->tag]->tag]--;
 		m_workerRefineryMap.erase(unit->tag);
 	}
 

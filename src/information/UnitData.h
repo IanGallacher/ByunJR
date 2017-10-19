@@ -16,8 +16,6 @@ class UnitData
 	// Pointers to all the combat units to allow for faster iteration.
 	std::set<const UnitInfo*>              m_combatUnits;
 	std::set<const UnitInfo*>              m_depots;
-	// sc2::Tag is a player's refinery. int is the number of workers at that refinery. 
-	std::map<sc2::Tag, int>                m_refineryWorkerCount;
 	// sc2::Tag is a player's base. int is the number of workers at that base. 
 	std::map<sc2::Tag, int>                m_baseWorkerCount;
 	// sc2::Tag is the refinery. const sc2::Unit* is the workers at that refinery.

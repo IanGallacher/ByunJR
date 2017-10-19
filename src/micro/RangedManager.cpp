@@ -43,7 +43,7 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
         // if the order is to attack or defend
         if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
         {
-            if (!rangedUnitTargets.empty())
+            if (!rangedUnitTargets.empty() && getTarget(rangedUnitTag, rangedUnitTargets) != 0)
             {
                 // find the best target for this meleeUnit
                 const sc2::Unit* target = m_bot.GetUnit(getTarget(rangedUnitTag, rangedUnitTargets));
@@ -99,6 +99,11 @@ sc2::Tag RangedManager::getTarget(const sc2::Tag & rangedUnitTag, const std::vec
 
         // Don't bother attacking units that we can not hit. 
         if (targetUnit->is_flying && !Util::CanAttackAir(m_bot.Observation()->GetUnitTypeData()[rangedUnit->unit_type].weapons))
+        {
+            continue;
+        }
+        // If there are ranged units on high ground we can't see, we can't attack them back.
+        if(!m_bot.Map().isVisible(targetUnit->pos) && Util::IsCombatUnit(targetUnit))
         {
             continue;
         }

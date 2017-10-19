@@ -89,6 +89,7 @@ void WorkerManager::handleWorkers() const
 		{
 			// find the mineral to mine and mine it
 			const sc2::Unit* cc = m_bot.InformationManager().getClosestUnitOfType(workerInfo->unit, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+            if (!cc) { return; }
 			const sc2::Tag mineralToMine = getMineralToMine(cc);
 			Micro::SmartRightClick(workerInfo->unit, m_bot.GetUnit(mineralToMine), m_bot);
 		}

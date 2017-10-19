@@ -231,6 +231,7 @@ bool Util::IsDetectorType(const sc2::UnitTypeID & type)
 
 PlayerArrayIndex Util::GetPlayer(const sc2::Unit* unit)
 {
+    if (!unit) { return PlayerArrayIndex::Error; }
     if (unit->alliance == sc2::Unit::Alliance::Self)
     {
         return PlayerArrayIndex::Self;
