@@ -49,10 +49,11 @@ void UnitData::killUnit(const sc2::Unit* unit)
     m_numUnits[unit->unit_type]--;
     m_numDeadUnits[unit->unit_type]++;
 
-    m_unitInfoMap.erase(unit->tag);
-
 	// If the previous unit was a worker, go ahead and update some stats.
 	clearPreviousJob(unit);
+	m_workers.erase(&m_unitInfoMap[unit->tag]);
+	// Erasing the unit must be last. Cleanup the pointers before deleting the object. 
+    m_unitInfoMap.erase(unit->tag); 
 }
 
 void UnitData::removeBadUnits()
@@ -199,7 +200,7 @@ void UnitData::clearPreviousJob(const sc2::Unit* unit)
 	// Remove the entry from the previous job, if there is one. 
 	if (m_unitInfoMap[unit->tag].mission == UnitMission::Minerals)
 	{
-		// remove one worker from the count of the depot this worker was assigned to
+		// Remove one worker from the count of the depot this worker was assigned to.
 		m_baseWorkerCount[m_workerDepotMap[unit->tag]->tag]--;
 		m_workerDepotMap.erase(unit->tag);
 	}
@@ -210,7 +211,9 @@ void UnitData::clearPreviousJob(const sc2::Unit* unit)
 	}
 
 	m_combatUnits.erase(&m_unitInfoMap[unit->tag]);
-	m_workers.erase(&m_unitInfoMap[unit->tag]);
+	// No need to remove workers. m_workers keep track of scv's and mules.
+	// Workers will always be workers. Only remove them from m_workers when they die. 
+	// m_workers.erase(&m_unitInfoMap[unit->tag]);
 }
 
 std::set<const UnitInfo*> UnitData::getWorkers() const
