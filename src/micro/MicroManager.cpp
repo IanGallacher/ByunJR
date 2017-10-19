@@ -85,16 +85,16 @@ void MicroManager::regroup(const sc2::Point2D & regroupPosition) const
         // if the unit is outside the regroup area
         if (unitDistanceFromBase > regroupDistanceFromBase)
         {
-            Micro::SmartMove(unitTag, ourBasePosition, m_bot);
+            Micro::SmartMove(m_bot.GetUnit(unitTag), ourBasePosition, m_bot);
         }
         else if (Util::Dist(unit->pos, regroupPosition) > 4)
         {
             // regroup it
-            Micro::SmartMove(unitTag, regroupPosition, m_bot);
+            Micro::SmartMove(m_bot.GetUnit(unitTag), regroupPosition, m_bot);
         }
         else
         {
-            Micro::SmartAttackMove(unitTag, unit->pos, m_bot);
+            Micro::SmartAttackMove(m_bot.GetUnit(unitTag), unit->pos, m_bot);
         }
     }
 }

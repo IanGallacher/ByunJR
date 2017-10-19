@@ -187,7 +187,7 @@ void BuildingManager::constructAssignedBuildings()
             // if we haven't explored the build position, go there
             if (!isBuildingPositionExplored(b))
             {
-                Micro::SmartMove(builderUnit->tag, b.finalPosition, m_bot);
+                Micro::SmartMove(builderUnit, b.finalPosition, m_bot);
             }
             // if this is not the first time we've sent this guy to build this
             // it must be the case that something was in the way of building
@@ -202,19 +202,19 @@ void BuildingManager::constructAssignedBuildings()
                 if (Util::IsRefineryType(b.type))
                 {
                     // first we find the geyser at the desired location
-                    sc2::Tag geyserTag = 0;
+                    const sc2::Unit* geyser = 0;
                     for (auto & unit : m_bot.Observation()->GetUnits())
                     {
                         if (Util::IsGeyser(unit) && Util::Dist(b.finalPosition, unit->pos) < 3)
                         {
-                            geyserTag = unit->tag;
+                            geyser = unit;
                             break;
                         }
                     }
-
-                    if (geyserTag)
+					
+                    if (geyser)
                     {
-                        Micro::SmartBuildTag(b.builderUnitTag, b.type, geyserTag, m_bot);
+                        Micro::SmartBuildTag(m_bot.GetUnit(b.builderUnitTag), b.type, geyser, m_bot);
                     }
                     else
                     {
@@ -224,7 +224,7 @@ void BuildingManager::constructAssignedBuildings()
                 // if it's not a refinery, we build right on the position
                 else
                 {
-                    Micro::SmartBuild(b.builderUnitTag, b.type, b.finalPosition, m_bot);
+                    Micro::SmartBuild(m_bot.GetUnit(b.builderUnitTag), b.type, b.finalPosition, m_bot);
                 }
 
                 // set the flag to true

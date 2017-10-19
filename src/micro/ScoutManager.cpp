@@ -62,7 +62,7 @@ void ScoutManager::moveScouts()
 
     if(scoutHP <= 10)
     {
-        Micro::SmartMove(m_scoutUnitTag, m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition(), m_bot);
+        Micro::SmartMove(workerScout, m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition(), m_bot);
         m_bot.InformationManager().finishedWithUnit(m_scoutUnitTag);
         m_scoutUnitTag = -1;
         return;
@@ -104,20 +104,20 @@ void ScoutManager::moveScouts()
                 if (m_bot.Config().ScoutHarassEnemy && closestEnemyWorkerUnit && (Util::Dist(workerScout->pos, closestEnemyWorkerUnit->pos) < 12))
                 {
                     m_scoutStatus = "Harass enemy worker";
-                    Micro::SmartAttackUnit(m_scoutUnitTag, closestEnemyWorkerUnit->tag, m_bot);
+                    Micro::SmartAttackUnit(workerScout, closestEnemyWorkerUnit, m_bot);
                 }
                 // otherwise keep moving to the enemy base location
                 else
                 {
                     m_scoutStatus = "Moving to enemy base location";
-                    Micro::SmartMove(m_scoutUnitTag, enemyBaseLocation->getPosition(), m_bot);
+                    Micro::SmartMove(workerScout, enemyBaseLocation->getPosition(), m_bot);
                 }
             }
             // if the worker scout is under attack
             else
             {
                 m_scoutStatus = "Under attack inside, fleeing";
-                Micro::SmartMove(m_scoutUnitTag, getFleePosition(), m_bot);
+                Micro::SmartMove(workerScout, getFleePosition(), m_bot);
             }
         }
         // if the scout is not in the enemy region
@@ -125,14 +125,14 @@ void ScoutManager::moveScouts()
         {
             m_scoutStatus = "Under attack outside, fleeing";
 
-            Micro::SmartMove(m_scoutUnitTag, getFleePosition(), m_bot);
+            Micro::SmartMove(workerScout, getFleePosition(), m_bot);
         }
         else
         {
             m_scoutStatus = "Enemy region known, going there";
 
             // move to the enemy region
-            Micro::SmartMove(m_scoutUnitTag, enemyBaseLocation->getPosition(), m_bot);
+            Micro::SmartMove(workerScout, enemyBaseLocation->getPosition(), m_bot);
         }
 
     }
@@ -149,7 +149,7 @@ void ScoutManager::moveScouts()
             // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
             if (!m_bot.Map().isExplored(startLocation))
             {
-                Micro::SmartMove(m_scoutUnitTag, startLocation, m_bot);
+                Micro::SmartMove(m_bot.GetUnit(m_scoutUnitTag), startLocation, m_bot);
                 return;
             }
         }

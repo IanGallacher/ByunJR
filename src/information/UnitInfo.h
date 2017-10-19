@@ -13,19 +13,17 @@ class UnitInfo
     // can't reference it from the unit pointer
 
 public:
-    int               tag;
     float             lastHealth;
     float             lastShields;
     PlayerArrayIndex  player;
-    const sc2::Unit* unit;
+    const sc2::Unit*  unit;
     sc2::Point3D      lastPosition;
     sc2::UnitTypeID   type;
     float             progress;
     UnitMission       mission;
 
     UnitInfo()
-        : tag(0)
-        , lastHealth(0)
+        : lastHealth(0)
         , player(PlayerArrayIndex::Error)
         , lastPosition(sc2::Point3D(0, 0, 0))
         , type(0)
@@ -54,16 +52,16 @@ public:
 
     bool operator == (sc2::Unit & unit) const
     {
-        return tag == unit.tag;
+        return this->unit->tag == unit.tag;
     }
 
     bool operator == (const UnitInfo & rhs) const
     {
-        return (tag == rhs.tag);
+        return (this->unit->tag == rhs.unit->tag);
     }
 
     bool operator < (const UnitInfo & rhs) const
     {
-        return (tag < rhs.tag);
+        return (this->unit->tag < rhs.unit->tag);
     }
 };

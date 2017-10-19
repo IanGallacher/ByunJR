@@ -33,6 +33,7 @@ class ByunJRBot : public sc2::Agent
     ScoutManager             m_scoutManager;
     ProxyManager             m_proxyManager;
     DebugManager             m_debug;
+	WorkerManager            m_workers;
 
     bool                     m_isWillingToFight;
 

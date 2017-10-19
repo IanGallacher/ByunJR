@@ -54,7 +54,7 @@ public:
     void    drawSphere(const sc2::Point2D & pos, float radius, const sc2::Color & color = sc2::Colors::White) const;
     void    drawText(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color = sc2::Colors::White) const;
     void    drawTextScreen(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawBoxAroundUnit(const sc2::Tag & uinit, sc2::Color color) const;
+    void    drawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const;
     void    drawSphereAroundUnit(const sc2::Tag & uinit, sc2::Color color) const;
     
     bool    isOnMap(int x, int y) const;

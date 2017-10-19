@@ -5,11 +5,11 @@ class ByunJRBot;
 
 class ProxyManager
 {
-    ByunJRBot &     m_bot;
-    sc2::Tag        m_proxyUnitTag;
-    bool            m_proxyUnderAttack;
-    bool            m_firstReaperCreated;
-    ProxyTrainingData        m_ptd;
+    ByunJRBot &          m_bot;
+    const sc2::Unit*     m_proxyWorker;
+    bool                 m_proxyUnderAttack;
+    bool                 m_firstReaperCreated;
+    ProxyTrainingData    m_ptd;
     // bool            loggedResult;
 
 

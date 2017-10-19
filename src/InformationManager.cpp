@@ -34,7 +34,6 @@ void InformationManager::onFrame()
     m_unitInfo.onFrame();
 }
 
-
 UnitInfoManager & InformationManager::UnitInfo()
 {
     return m_unitInfo;

@@ -11,6 +11,7 @@ ByunJRBot::ByunJRBot()
     , m_productionManager(*this)
     , m_scoutManager(*this)
     , m_proxyManager(*this)
+	, m_workers(*this)
     , m_combatCommander(*this)
     , m_strategy(*this)
     , m_informationManager(*this)
@@ -60,6 +61,7 @@ void ByunJRBot::OnStep()
     m_informationManager.onFrame();
     m_bases.onFrame();
     m_strategy.onFrame();
+	m_workers.onFrame();
 
     m_strategy.handleUnitAssignments();
 

@@ -47,7 +47,7 @@ void MeleeManager::assignTargets(const std::vector<sc2::Tag> & targets)
             {
                 sc2::Point2D fleeTo(m_bot.GetStartLocation());
 
-                Micro::SmartMove(meleeUnitTag, fleeTo, m_bot);
+                Micro::SmartMove(meleeUnit, fleeTo, m_bot);
             }
             // if there are targets
             else if (!meleeUnitTargets.empty())
@@ -56,7 +56,7 @@ void MeleeManager::assignTargets(const std::vector<sc2::Tag> & targets)
                 sc2::Tag targetTag = getTarget(meleeUnitTag, meleeUnitTargets);
 
                 // attack it
-                Micro::SmartAttackUnit(meleeUnitTag, targetTag, m_bot);
+                Micro::SmartAttackUnit(meleeUnit, m_bot.GetUnit(targetTag), m_bot);
             }
             // if there are no targets
             else
@@ -65,7 +65,7 @@ void MeleeManager::assignTargets(const std::vector<sc2::Tag> & targets)
                 if (Util::Dist(meleeUnit->pos, order.getPosition()) > 4)
                 {
                     // move to it
-                    Micro::SmartMove(meleeUnitTag, order.getPosition(), m_bot);
+                    Micro::SmartMove(meleeUnit, order.getPosition(), m_bot);
                 }
             }
         }

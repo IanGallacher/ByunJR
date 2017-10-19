@@ -8,7 +8,6 @@
 
 UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
     : m_bot(bot)
-    , m_workers(bot)
 {
 
 }
@@ -23,7 +22,7 @@ void UnitInfoManager::onFrame()
     // If units are created or modified, update the unitInfo object.
     updateUnitInfo();
 
-	m_workers.onFrame();
+	//m_workers.onFrame();
     drawUnitInformation(100, 100);
     drawSelectedUnitDebugInfo();
 }
@@ -54,7 +53,7 @@ void UnitInfoManager::updateUnitInfo()
     m_unitData[PlayerArrayIndex::Enemy].removeBadUnits();
 }
 
-const std::map<int,UnitInfo> & UnitInfoManager::getUnitInfoMap(const PlayerArrayIndex player) const
+const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::getUnitInfoMap(const PlayerArrayIndex player) const
 {
     return getUnitData(player).getUnitInfoMap();
 }
@@ -234,9 +233,30 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     }
 }
 
-void UnitInfoManager::setJob(const sc2::Unit* unit, UnitMission job)
+int UnitInfoManager::getNumAssignedWorkers(const sc2::Unit* depot)
 {
-    m_unitData[Util::GetPlayer(unit)].setJob(unit, job);
+	return m_unitData[PlayerArrayIndex::Self].getNumAssignedWorkers(depot);
+}
+
+void UnitInfoManager::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag)
+{
+    m_unitData[Util::GetPlayer(unit)].setJob(unit, job, jobUnitTag);
+}
+
+void UnitInfoManager::setBuildingWorker(const sc2::Unit* worker, Building & b)
+{
+	m_unitData[Util::GetPlayer(worker)].setJob(worker, UnitMission::Build, b.type);
+}
+
+// This can only return your workers, not the enemy workers. 
+std::set<const UnitInfo*> UnitInfoManager::getWorkers()
+{
+	return m_unitData[PlayerArrayIndex::Self].getWorkers();
+}
+
+const UnitInfo* UnitInfoManager::getUnitInfo(const sc2::Unit* unit)
+{
+	return &m_unitData[Util::GetPlayer(unit)].getUnitInfoMap().at(unit->tag);
 }
 
 void UnitInfoManager::updateUnit(const sc2::Unit* unit)

@@ -8,7 +8,6 @@ class ByunJRBot;
 class UnitInfoManager 
 {
     ByunJRBot &              m_bot;
-    WorkerManager            m_workers;
 
     std::map<PlayerArrayIndex, UnitData> m_unitData;
 
@@ -36,9 +35,13 @@ public:
 
     void                    getNearbyForce(std::vector<UnitInfo>& unitInfo, sc2::Point2D p, PlayerArrayIndex player, float radius) const;
 
-    const std::map<int, UnitInfo> & getUnitInfoMap(PlayerArrayIndex player) const;
+	const std::map<sc2::Tag, UnitInfo>& getUnitInfoMap(PlayerArrayIndex player) const;
 
     //bool                  enemyHasCloakedUnits() const;
     void                    drawUnitInformation(float x, float y) const;
-    void                    setJob(const sc2::Unit* unit, UnitMission job);
+	int getNumAssignedWorkers(const sc2::Unit* depot);
+	void setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag=0);
+	void setBuildingWorker(const sc2::Unit* worker, Building& b);
+	std::set<const UnitInfo*> getWorkers();
+	const UnitInfo* getUnitInfo(const sc2::Unit* tag);
 };

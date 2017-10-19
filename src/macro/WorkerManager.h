@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "information/WorkerData.h"
+#include "information/UnitInfo.h"
 
 class Building;
 class ByunJRBot;
@@ -9,14 +9,15 @@ class ByunJRBot;
 class WorkerManager
 {
     ByunJRBot & m_bot;
+    const sc2::Unit* m_previousClosestWorker;
 
-    mutable WorkerData  m_workerData;
-    sc2::Tag     m_previousClosestWorker;
 
-    void        setMineralWorker(const sc2::Unit* unit);
-    
-    void        handleIdleWorkers();
-    void        handleGasWorkers();
+    void assignIdleWorkers() const;
+	void assignGasWorkers() const;
+	void handleWorkers() const;
+	sc2::Tag getMineralToMine(const sc2::Unit* unit) const;
+
+	void setMineralWorker(const sc2::Unit* unit) const;
 
 public:
 

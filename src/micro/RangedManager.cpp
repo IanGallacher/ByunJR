@@ -46,16 +46,16 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
             if (!rangedUnitTargets.empty())
             {
                 // find the best target for this meleeUnit
-                sc2::Tag targetTag = getTarget(rangedUnitTag, rangedUnitTargets);
+                const sc2::Unit* target = m_bot.GetUnit(getTarget(rangedUnitTag, rangedUnitTargets));
 
                 // attack it
                 if (m_bot.Config().KiteWithRangedUnits)
                 {
-                    Micro::SmartKiteTarget(rangedUnitTag, targetTag, m_bot);
+                    Micro::SmartKiteTarget(rangedUnit, target, m_bot);
                 }
                 else
                 {
-                    Micro::SmartAttackUnit(rangedUnitTag, targetTag, m_bot);
+                    Micro::SmartAttackUnit(rangedUnit, target, m_bot);
                 }
             }
             // if there are no targets
@@ -65,7 +65,7 @@ void RangedManager::assignTargets(const std::vector<sc2::Tag> & targets)
                 if (Util::Dist(rangedUnit->pos, order.getPosition()) > 4)
                 {
                     // move to it
-                    Micro::SmartMove(rangedUnitTag, order.getPosition(), m_bot);
+                    Micro::SmartMove(rangedUnit, order.getPosition(), m_bot);
                 }
             }
         }

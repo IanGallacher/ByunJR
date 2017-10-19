@@ -81,9 +81,6 @@
     <ClCompile Include="..\src\information\UnitInfoManager.cpp">
       <Filter>information</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\information\WorkerData.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\information\BaseLocation.cpp">
       <Filter>information</Filter>
     </ClCompile>
@@ -186,9 +183,6 @@
       <Filter>information</Filter>
     </ClInclude>
     <ClInclude Include="..\src\information\UnitInfoManager.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\WorkerData.h">
       <Filter>information</Filter>
     </ClInclude>
     <ClInclude Include="..\src\information\UnitData.h">

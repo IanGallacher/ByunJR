@@ -9,7 +9,7 @@
 
 ProxyManager::ProxyManager(ByunJRBot & bot)
     : m_bot(bot)
-    , m_proxyUnitTag(0)
+    , m_proxyWorker(nullptr)
     , m_proxyUnderAttack(false)
 {
 
@@ -43,7 +43,7 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit* enemyUnit)
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == m_proxyUnitTag)
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == m_proxyWorker->tag)
         {
             const double dist(sqrt((enemyUnit->pos.x - unit->pos.x)*(enemyUnit->pos.x - unit
 				->pos.x) + (enemyUnit->pos.y - unit->pos.y)*(enemyUnit->pos.y - unit->pos.y)));
@@ -52,7 +52,7 @@ void ProxyManager::onUnitEnterVision(const sc2::Unit* enemyUnit)
             {
                 m_bot.Resign();
                 m_ptd.recordResult(-9);
-                std::cout << "THERE IS NO POINT IN CONTINUING";
+                std::cout << "THERE IS NO POINT IN CONTINUING" << std::endl;
             }
         }
     }
@@ -64,19 +64,24 @@ bool ProxyManager::proxyBuildingAtChosenRandomLocation()
     if (!m_ptd.proxyLocationReady())
         return false;
 
-    //if (m_bot.GetUnit(m_proxyUnitTag)->pos.x > myVec.x - 1 && m_bot.GetUnit(m_proxyUnitTag)->pos.x < myVec.x + 1)
+    //if (m_proxyWorker->pos.x > myVec.x - 1 && m_proxyWorker->pos.x < myVec.x + 1)
     //{
-    //    m_bot.Workers().finishedWithWorker(m_proxyUnitTag);
+    //    m_bot.Workers().finishedWithWorker(m_proxyWorker);
     //}
     //else
     //{
-    if (m_proxyUnitTag == 0)
+    if (!m_proxyWorker)
     {
         const sc2::Vector2D myVec(m_ptd.getProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
-        m_proxyUnitTag = m_bot.InformationManager().getBuilder(b, false);
-        m_bot.InformationManager().assignUnit(m_proxyUnitTag, UnitMission::Proxy);
-        Micro::SmartMove(m_proxyUnitTag, myVec, m_bot);
+        m_proxyWorker = m_bot.GetUnit(m_bot.InformationManager().getBuilder(b, false));
+		if(!m_proxyWorker)
+		{
+			std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;
+			return false;
+		}
+        m_bot.InformationManager().assignUnit(m_proxyWorker->tag, UnitMission::Proxy);
+        Micro::SmartMove(m_proxyWorker, myVec, m_bot);
     }
     //}
 

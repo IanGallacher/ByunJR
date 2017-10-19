@@ -438,7 +438,6 @@
     <ClCompile Include="..\src\information\ProxyTrainingData.cpp" />
     <ClCompile Include="..\src\information\UnitData.cpp" />
     <ClCompile Include="..\src\information\UnitInfoManager.cpp" />
-    <ClCompile Include="..\src\information\WorkerData.cpp" />
     <ClCompile Include="..\src\macro\Building.cpp" />
     <ClCompile Include="..\src\macro\BuildingManager.cpp" />
     <ClCompile Include="..\src\macro\BuildingPlacer.cpp" />
@@ -477,7 +476,6 @@
     <ClInclude Include="..\src\information\UnitData.h" />
     <ClInclude Include="..\src\information\UnitInfo.h" />
     <ClInclude Include="..\src\information\UnitInfoManager.h" />
-    <ClInclude Include="..\src\information\WorkerData.h" />
     <ClInclude Include="..\src\macro\Building.h" />
     <ClInclude Include="..\src\macro\BuildingManager.h" />
     <ClInclude Include="..\src\macro\BuildingPlacer.h" />

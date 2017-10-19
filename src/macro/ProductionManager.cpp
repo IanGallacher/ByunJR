@@ -215,13 +215,13 @@ void ProductionManager::create(const sc2::Tag producer, BuildOrderItem & item)
         }
         else
         {
-            m_buildingManager.addBuildingTask(t, m_bot.GetStartLocation());
+            m_buildingManager.addBuildingTask(m_bot.GetUnit(producer)->unit_type, m_bot.GetStartLocation());
         }
     }
     // if we're dealing with a non-building unit
     else
     {
-        Micro::SmartTrain(producer, t, m_bot);
+        Micro::SmartTrain(m_bot.GetUnit(producer), t, m_bot);
     }
 }
 
