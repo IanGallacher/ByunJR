@@ -392,7 +392,7 @@ const std::vector<sc2::Point2D> & MapTools::getClosestTilesTo(const sc2::Point2D
 
 void MapTools::drawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const
 {
-	if (!unit) { return; std::cout << "Warning. No unit was given to drawBoxAroundUnit" << std::endl; }
+	if (!unit) { std::cout << "Warning. No unit was given to drawBoxAroundUnit" << std::endl; return; }
 
     sc2::Point3D p_min = unit->pos;
     p_min.x -= unit->radius;

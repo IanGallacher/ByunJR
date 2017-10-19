@@ -118,7 +118,7 @@ sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) cons
     // for each of our workers
     for (auto & workerInfo : m_bot.InformationManager().UnitInfo().getWorkers())
     {
-		if (!workerInfo) { continue; std::cout << "Waringing: a workerInfo pointer is invalid." << std::endl; }
+		if (!workerInfo) { std::cout << "Warning: a workerInfo pointer is invalid." << std::endl; continue; }
 
         // if it is a mineral worker
         if (workerInfo->mission == UnitMission::Minerals
