@@ -44,18 +44,15 @@ void UnitData::updateUnit(const sc2::Unit* unit)
 
 void UnitData::killUnit(const sc2::Unit* unit)
 {
-    //_mineralsLost += unit->getType().mineralPrice();
+    //m_mineralsLost += unit->unit_type.mineralPrice();
     //_gasLost += unit->getType().gasPrice();
     m_numUnits[unit->unit_type]--;
     m_numDeadUnits[unit->unit_type]++;
 
     m_unitInfoMap.erase(unit->tag);
 
-
-
 	// If the previous unit was a worker, go ahead and update some stats.
-	clearPreviousJobStats(unit);
-	m_workers.erase(&m_unitInfoMap[unit->tag]);
+	clearPreviousJob(unit);
 }
 
 void UnitData::removeBadUnits()
@@ -66,6 +63,8 @@ void UnitData::removeBadUnits()
         {
             m_numUnits[iter->second.type]--;
             iter = m_unitInfoMap.erase(iter);
+			m_combatUnits.erase(&iter->second);
+			m_workers.erase(&iter->second);
         }
         else
         {
@@ -83,7 +82,6 @@ size_t UnitData::getNumWorkers() const
 {
 	return m_workers.size();
 }
-
 
 int UnitData::getGasLost() const
 {
@@ -142,10 +140,15 @@ const std::map<sc2::Tag, UnitInfo>& UnitData::getUnitInfoMap() const
     return m_unitInfoMap;
 }
 
+std::set<const UnitInfo*> UnitData::GetCombatUnits() const
+{
+	return m_combatUnits;
+}
+
 // jobUnitTag is optional.
 void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag)
 {
-	clearPreviousJobStats(unit);
+	clearPreviousJob(unit);
 
 	// Update the information about the current job. 
 	if (job == UnitMission::Minerals)
@@ -175,6 +178,10 @@ void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
 		m_refineryWorkerCount[jobUnitTag] += 1;
 		m_workerRefineryMap[unit->tag] = unit;
 	}
+	else if (job == UnitMission::Attack)
+	{
+		m_combatUnits.insert(&m_unitInfoMap[unit->tag]);
+	}
 
     UnitInfo & ui = m_unitInfoMap[unit->tag];
     ui.mission = job;
@@ -187,7 +194,7 @@ void UnitData::setBuildingWorker(const sc2::Unit* worker, Building & b)
 	setJob(worker, UnitMission::Build, b.type);
 }
 
-void UnitData::clearPreviousJobStats(const sc2::Unit* unit)
+void UnitData::clearPreviousJob(const sc2::Unit* unit)
 {
 	// Remove the entry from the previous job, if there is one. 
 	if (m_unitInfoMap[unit->tag].mission == UnitMission::Minerals)
@@ -201,6 +208,9 @@ void UnitData::clearPreviousJobStats(const sc2::Unit* unit)
 		m_refineryWorkerCount[m_workerRefineryMap[unit->tag]->tag]--;
 		m_workerRefineryMap.erase(unit->tag);
 	}
+
+	m_combatUnits.erase(&m_unitInfoMap[unit->tag]);
+	m_workers.erase(&m_unitInfoMap[unit->tag]);
 }
 
 std::set<const UnitInfo*> UnitData::getWorkers() const

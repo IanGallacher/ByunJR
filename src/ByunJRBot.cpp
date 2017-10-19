@@ -68,7 +68,7 @@ void ByunJRBot::OnStep()
     m_productionManager.onFrame();
     m_scoutManager.onFrame();
     m_proxyManager.onFrame();
-    m_combatCommander.onFrame(m_informationManager.GetCombatUnits());
+    m_combatCommander.onFrame(m_informationManager.UnitInfo().getCombatUnits());
 
 
     m_debug.drawAllUnitInformation();

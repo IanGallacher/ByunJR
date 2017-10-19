@@ -9,7 +9,7 @@ class BaseLocationManager
 {
     ByunJRBot & m_bot;
 
-    std::vector<BaseLocation>                                    m_baseLocationData;
+    std::vector<BaseLocation>                                   m_baseLocationData;
     std::vector<const BaseLocation*>                            m_baseLocationPtrs;
     std::vector<const BaseLocation*>                            m_startingBaseLocations;
     std::map<PlayerArrayIndex, const BaseLocation*>             m_playerStartingBaseLocations;

@@ -19,7 +19,7 @@ class UnitInfoManager
     
     const UnitData &        getUnitData(PlayerArrayIndex player) const;
 
-    void drawSelectedUnitDebugInfo() const;
+	void drawSelectedUnitDebugInfo() const;
 
 public:
 
@@ -44,4 +44,5 @@ public:
 	void setBuildingWorker(const sc2::Unit* worker, Building& b);
 	std::set<const UnitInfo*> getWorkers();
 	const UnitInfo* getUnitInfo(const sc2::Unit* tag);
+	std::set<const UnitInfo*> getCombatUnits() const;
 };

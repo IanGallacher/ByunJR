@@ -48,12 +48,7 @@ void InformationManager::assignUnit(const sc2::Tag & unit, UnitMission job)
 {
 	// Remove unit from any existing jobs. 
 	finishedWithUnit(unit);
-    if(job == UnitMission::Attack)
-    {
-        m_unitInfo.setJob(m_bot.GetUnit(unit), UnitMission::Attack);
-        m_combatUnits.push_back(unit);
-    }
-    else if (job == UnitMission::Scout)
+	if (job == UnitMission::Scout)
     {
         m_unitInfo.setJob(m_bot.GetUnit(unit), UnitMission::Scout);
         m_scoutUnits.push_back(unit);
@@ -70,26 +65,6 @@ void InformationManager::finishedWithUnit(const sc2::Tag & unit)
 	{
 		m_scoutUnits.erase(std::remove(m_scoutUnits.begin(), m_scoutUnits.end(), unit), m_scoutUnits.end());
 	}
-	else if (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
-	{
-		m_combatUnits.erase(std::remove(m_combatUnits.begin(), m_combatUnits.end(), unit), m_combatUnits.end());
-	}
-}
-
-bool InformationManager::isAssigned(const sc2::Tag & unit) const
-{
-    return     (std::find(m_combatUnits.begin(), m_combatUnits.end(), unit) != m_combatUnits.end())
-        || (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end());
-}
-
-// validates units as usable for distribution to various managers
-void InformationManager::setValidUnits()
-{
-    // make sure the unit is completed and alive and usable
-    for (auto & unit : m_unitInfo.getUnits(PlayerArrayIndex::Self))
-    {
-        m_validUnits.push_back(unit->tag);
-    }
 }
 
 void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
@@ -121,17 +96,17 @@ void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
 // sets combat units to be passed to CombatCommander
 void InformationManager::setCombatUnits()
 {
-    for (auto & unitTag : m_validUnits)
-    {
-        const sc2::Unit* unit = m_bot.GetUnit(unitTag);
+    //for (auto & unitTag : m_validUnits)
+    //{
+    //    const sc2::Unit* unit = m_bot.GetUnit(unitTag);
 
-        BOT_ASSERT(unit, "Have a null unit in our valid units\n");
+    //    BOT_ASSERT(unit, "Have a null unit in our valid units\n");
 
-        if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type))
-        {
-            assignUnit(unitTag, UnitMission::Attack);
-        }
-    }
+    //    if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type))
+    //    {
+    //        assignUnit(unitTag, UnitMission::Attack);
+    //    }
+    //}
    /* if (!m_attackStarted)
     {
         return;
@@ -241,7 +216,7 @@ const ::UnitInfo * InformationManager::getClosestUnitWithJob(const sc2::Point2D 
 	return closestUnit;
 }
 
-const sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const
+sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const
 {
 	sc2::Tag closestUnit;
 	double closestDistance = std::numeric_limits<double>::max();
@@ -286,19 +261,9 @@ const sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D p
 
 void InformationManager::handleUnitAssignments()
 {
-    m_validUnits.clear();
-    m_combatUnits.clear();
-
-    // filter our units for those which are valid and usable
-    setValidUnits();
+    //m_combatUnits.clear();
 
     // set each type of unit
     setScoutUnits(m_bot.Strategy().shouldSendInitialScout());
     setCombatUnits();
 }
-
-std::vector<sc2::Tag> InformationManager::GetCombatUnits() const
-{
-    return m_combatUnits;
-}
-

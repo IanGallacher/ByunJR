@@ -9,7 +9,7 @@ class CombatCommander
     ByunJRBot &      m_bot;
 
     SquadData        m_squadData;
-    std::vector<sc2::Tag> m_combatUnits;
+    std::set<const UnitInfo*> m_combatUnits;
     bool             m_initialized;
     bool             m_attackStarted;
 
@@ -32,7 +32,7 @@ public:
 
 
     void onStart();
-    void onFrame(const std::vector<sc2::Tag> & combatUnits);
+    void onFrame(const std::set<const UnitInfo*>& combatUnits);
 
     void drawSquadInformation();
 };

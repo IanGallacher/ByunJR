@@ -58,7 +58,7 @@ void ScoutManager::moveScouts()
     const sc2::Unit* workerScout = m_bot.GetUnit(m_scoutUnitTag);
     if (!workerScout || workerScout->health <= 0) { return; }
 
-    float scoutHP = workerScout->health + workerScout->shield;
+    const float scoutHP = workerScout->health + workerScout->shield;
 
     if(scoutHP <= 10)
     {
@@ -77,7 +77,7 @@ void ScoutManager::moveScouts()
     if (enemyBaseLocation)
     {
         int scoutDistanceToEnemy = m_bot.Map().getGroundDistance(workerScout->pos, enemyBaseLocation->getPosition());
-        bool scoutInRangeOfenemy = enemyBaseLocation->containsPosition(workerScout->pos);
+        const bool scoutInRangeOfenemy = enemyBaseLocation->containsPosition(workerScout->pos);
 
         // we only care if the scout is under attack within the enemy region
         // this ignores if their scout worker attacks it on the way to their base
@@ -172,7 +172,7 @@ const sc2::Unit* ScoutManager::closestEnemyWorkerTo(const sc2::Point2D & pos) co
     {
         if (Util::IsWorker(unit))
         {
-            float dist = Util::Dist(unit->pos, ourScout->pos);
+            const float dist = Util::Dist(unit->pos, ourScout->pos);
 
             if (dist < minDist)
             {

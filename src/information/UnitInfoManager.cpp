@@ -312,7 +312,15 @@ void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Poin
     }
 }
 
+// Shorthand for the weird syntax required to get the unit data. This is available only inside this function. 
 const UnitData & UnitInfoManager::getUnitData(const PlayerArrayIndex player) const
 {
     return m_unitData.find(player)->second;
+}
+
+// getCombatUnits only has any meaning for your own units. 
+// unitData does not publicly expose this function to prevent accidental requsting of the set of enemy combat units. 
+std::set<const UnitInfo*> UnitInfoManager::getCombatUnits() const
+{
+	return getUnitData(PlayerArrayIndex::Self).GetCombatUnits();
 }

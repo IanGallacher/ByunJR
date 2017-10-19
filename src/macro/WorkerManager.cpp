@@ -38,6 +38,8 @@ void WorkerManager::assignIdleWorkers() const
 		// if it is idle
 		if (Util::IsIdle(worker) || workerInfo->mission == UnitMission::Idle)
 		{
+		// Uncomment to worker rush. 
+		//	m_bot.InformationManager().assignUnit(workerInfo->unit->tag, UnitMission::Attack);
 			setMineralWorker(workerInfo->unit);
 		}
 	}

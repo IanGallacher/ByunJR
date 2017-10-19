@@ -40,6 +40,7 @@ void ProxyManager::onUnitCreated(const sc2::Unit* unit)
 
 void ProxyManager::onUnitEnterVision(const sc2::Unit* enemyUnit)
 {
+	if (!m_proxyWorker) return;
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
     for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
     {

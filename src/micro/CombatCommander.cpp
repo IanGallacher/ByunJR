@@ -37,7 +37,7 @@ void CombatCommander::onStart()
     m_squadData.addSquad("ScoutDefense", Squad("ScoutDefense", enemyScoutDefense, ScoutDefensePriority, m_bot));
 }
 
-void CombatCommander::onFrame(const std::vector<sc2::Tag> & combatUnits)
+void CombatCommander::onFrame(const std::set<const UnitInfo*> & combatUnits)
 {
     if (!m_attackStarted)
     {
@@ -56,15 +56,15 @@ void CombatCommander::onFrame(const std::vector<sc2::Tag> & combatUnits)
 
     Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
     
-    for (auto & unitTag : m_combatUnits)
+    for (auto & unitInfo : m_combatUnits)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = unitInfo->unit;
         BOT_ASSERT(unit, "null unit in combat units");
     
         // get every unit of a lower priority and put it into the attack squad
-        if (m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
+        if (m_squadData.canAssignUnitToSquad(unit->tag, mainAttackSquad))
         {
-            m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
+            m_squadData.assignUnitToSquad(unit->tag, mainAttackSquad);
         }
     }
     
@@ -78,6 +78,62 @@ bool CombatCommander::shouldWeStartAttacking() const
 {
     return m_combatUnits.size() >= m_bot.Config().CombatUnitsForAttack;
 }
+
+sc2::Point2D CombatCommander::getMainAttackLocation() const
+{
+	const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+
+	// First choice: Attack an enemy region if we can see units inside it
+	if (enemyBaseLocation)
+	{
+		const sc2::Point2D enemyBasePosition = enemyBaseLocation->getPosition();
+		//const sc2::Point2D enemyBasePosition = m_bot.Observation()->GetGameInfo().enemy_start_locations[0];//enemyBaseLocation->getPosition();
+
+		// If the enemy base hasn't been seen yet, go there.
+		if (!m_bot.Map().isExplored(enemyBasePosition))
+		{
+			return enemyBasePosition;
+		}
+
+		// First choice: attack the known enemy base location. 
+		// if it has been explored, go there if there are any visible enemy units there
+		for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+		{
+			if (Util::Dist(enemyUnit->pos, enemyBasePosition) < 25)
+			{
+				return enemyBasePosition;
+			}
+		}
+
+	}
+
+	// Second choice: Attack known enemy buildings
+	for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
+	{
+		const UnitInfo & ui = kv.second;
+
+		if (Util::IsBuilding(ui.type) && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
+		{
+			return ui.lastPosition;
+		}
+	}
+
+	// Third choice: Attack visible enemy units that aren't overlords
+	for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+	{
+		if (enemyUnit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
+		{
+			return enemyUnit->pos;
+		}
+	}
+
+	std::cout << "WARNING: ENEMY BASE LOCATION NOT FOUND, RETURNING 0,0" << std::endl;
+	return sc2::Point2D(0, 0);
+
+	// Fourth choice: We can't see anything so explore the map attacking along the way
+	//return m_bot.Map().getLeastRecentlySeenPosition();
+}
+
 //
 //void CombatCommander::updateIdleSquad()
 //{
@@ -364,20 +420,20 @@ sc2::Tag CombatCommander::findClosestDefender(const Squad & defenseSquad, const 
 
     // TODO: add back special case of zergling rush defense
 
-    for (auto & unitTag : m_combatUnits)
+    for (auto & unitInfo : m_combatUnits)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = unitInfo->unit;
         BOT_ASSERT(unit, "null combat unit");
 
-        if (!m_squadData.canAssignUnitToSquad(unitTag, defenseSquad))
+        if (!m_squadData.canAssignUnitToSquad(unit->tag, defenseSquad))
         {
             continue;
         }
 
-        float dist = Util::Dist(unit->pos, pos);
+        const float dist = Util::Dist(unit->pos, pos);
         if (!closestDefender || (dist < minDistance))
         {
-            closestDefender = unitTag;
+            closestDefender = unit->tag;
             minDistance = dist;
         }
     }
@@ -389,57 +445,5 @@ sc2::Tag CombatCommander::findClosestDefender(const Squad & defenseSquad, const 
 void CombatCommander::drawSquadInformation()
 {
     m_squadData.drawSquadInformation();
-}
-
-sc2::Point2D CombatCommander::getMainAttackLocation() const
-{
-    const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
-
-    // First choice: Attack an enemy region if we can see units inside it
-    if (enemyBaseLocation)
-    {
-        sc2::Point2D enemyBasePosition = enemyBaseLocation->getPosition();
-
-        // If the enemy base hasn't been seen yet, go there.
-        if (!m_bot.Map().isExplored(enemyBasePosition))
-        {
-            return enemyBasePosition;
-        }
-        else
-        {
-            // if it has been explored, go there if there are any visible enemy units there
-            for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-            {
-                if (Util::Dist(enemyUnit->pos, enemyBasePosition) < 25)
-                {
-                    return enemyBasePosition;
-                }
-            }
-        }
-    }
-
-    // Second choice: Attack known enemy buildings
-    for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
-    {
-        const UnitInfo & ui = kv.second;
-
-        if (Util::IsBuilding(ui.type) && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
-        {
-            return ui.lastPosition;
-        }
-    }
-
-    // Third choice: Attack visible enemy units that aren't overlords
-    for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-    {
-        if (enemyUnit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
-        {
-            return enemyUnit->pos;
-        }
-    }
-    return sc2::Point2D(0,0);
-
-    // Fourth choice: We can't see anything so explore the map attacking along the way
-    //return m_bot.Map().getLeastRecentlySeenPosition();
 }
 

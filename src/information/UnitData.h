@@ -13,6 +13,8 @@ class UnitData
 
 	// Pointers to all the workers to allow for faster iteration. 
 	std::set<const UnitInfo*>              m_workers;
+	// Pointers to all the combat units to allow for faster iteration.
+	std::set<const UnitInfo*>              m_combatUnits;
 	std::set<const UnitInfo*>              m_depots;
 	// sc2::Tag is a player's refinery. int is the number of workers at that refinery. 
 	std::map<sc2::Tag, int>                m_refineryWorkerCount;
@@ -46,11 +48,12 @@ public:
     int getNumDeadUnits(sc2::UnitTypeID t) const;
 	int getNumAssignedWorkers(const sc2::Unit* depot);
 	const std::map<sc2::Tag, UnitInfo>& getUnitInfoMap() const;
+	std::set<const UnitInfo*> GetCombatUnits() const;
 
 	// jobUnitTag is the tag that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
     void setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag=0);
 	void setBuildingWorker(const sc2::Unit* worker, Building& b);
 	size_t getNumWorkers() const;
-	void clearPreviousJobStats(const sc2::Unit* unit);
+	void clearPreviousJob(const sc2::Unit* unit);
 	std::set<const UnitInfo*> getWorkers() const;
 };
