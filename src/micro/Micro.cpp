@@ -38,7 +38,7 @@ void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, 
 	//{
 	//	BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), dotRadius, BWAPI::Colors::Red, true);
 	//	BWAPI::Broodwar->drawCircleMap(target->getPosition(), dotRadius, BWAPI::Colors::Red, true);
-	//	BWAPI::Broodwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
+	//	BWAPI::Broosmdwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
 	//}
 
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
@@ -76,7 +76,18 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & targetPosition
 
 void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
+	// Prevent sending duplicate commands to give an accurate APM measurement in replays
+	bool sentCommandAlready = false;
+	for (sc2::UnitOrder theOrder : unit->orders)
+	{
+		if (theOrder.ability_id == sc2::ABILITY_ID::HARVEST_RETURN || theOrder.ability_id == sc2::ABILITY_ID::HARVEST_GATHER) return;
+		if (theOrder.ability_id == sc2::ABILITY_ID::SMART && theOrder.target_unit_tag == target->tag)
+		{
+			sentCommandAlready = true;
+		}
+	}
+	if (sentCommandAlready == false)
+		bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
 void Micro::SmartRepair(const sc2::Unit* unit, const sc2::Unit* & target, ByunJRBot & bot)
