@@ -21,8 +21,9 @@ public:
     sc2::UnitTypeID   type;
     float             progress;
     UnitMission       mission;
+	sc2::Tag          workerDepotTag;
 
-    UnitInfo()
+	UnitInfo()
         : lastHealth(0)
         , player(PlayerArrayIndex::Error)
         , lastPosition(sc2::Point3D(0, 0, 0))

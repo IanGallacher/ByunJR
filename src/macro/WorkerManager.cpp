@@ -57,12 +57,22 @@ void WorkerManager::assignGasWorkers() const
             const int numAssigned = m_bot.InformationManager().UnitInfo().getNumAssignedWorkers(refinery);
 
             // if it's less than we want it to be, fill 'er up
-            for (int i=0; i<(3-numAssigned); ++i)
+			// As a side effect of the following hack ( read next paragraph of comments )
+			// (3-numAssigned) has been changed to (2-numAssigned)
+			// Otherwise there will be four workers on gas when playing terran. 
+            for (int i=0; i<(2-numAssigned); ++i)
             {
                 sc2::Tag gasWorker = getGasWorker(refinery);
                 if (gasWorker)
                 {
                     m_bot.InformationManager().UnitInfo().setJob(m_bot.GetUnit(gasWorker), UnitMission::Gas, refinery->tag);
+					// Once a unit starts gathering resources, we don't send another command to gather resources. 
+					// If a unit is already gathering minerals, he won't start mining gas. 
+					// As a temporary work around, we send the gather command once they get assigned to a geyser. 
+					// A side effect of this system is the workers will never look for a more optimal mineral field to gather from. 
+					// TODO: Come up with a better system. 
+					m_bot.Actions()->UnitCommand(m_bot.GetUnit(gasWorker), sc2::ABILITY_ID::SMART, refinery);
+					Micro::SmartRightClick(m_bot.GetUnit(gasWorker), refinery, m_bot);
                 }
             }
         }
@@ -85,7 +95,7 @@ void WorkerManager::handleWorkers() const
 		else if (job == UnitMission::Gas)
 		{
 			// right click the refinery to start harvesting
-		//	Micro::SmartRightClick(workerInfo->unit, workerInfo.missionInfo, m_bot);
+			Micro::SmartRightClick(workerInfo->unit, m_bot.GetUnit(workerInfo->workerDepotTag), m_bot);
 		}
 	}
 }
@@ -93,7 +103,7 @@ void WorkerManager::handleWorkers() const
 sc2::Tag WorkerManager::getMineralToMine(const sc2::Unit* unit) const
 {
 	sc2::Tag bestMineral = -1;
-	double bestDist = 100000;
+	double bestDist = std::numeric_limits<double>::max();;
 
 	for (auto & mineral : m_bot.Observation()->GetUnits())
 	{

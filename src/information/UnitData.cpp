@@ -151,6 +151,8 @@ void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
 {
 	clearPreviousJob(unit);
 
+	UnitInfo & ui = m_unitInfoMap[unit->tag];
+
 	// Update the information about the current job. 
 	if (job == UnitMission::Minerals)
 	{
@@ -178,13 +180,17 @@ void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
 		// increase the count of workers assigned to this refinery
 		m_refineryWorkerCount[jobUnitTag] += 1;
 		m_workerRefineryMap[unit->tag] = unit;
+		// If the jobUnitTag is actually valid, set the worker depot to that value.
+		if (jobUnitTag != 0)
+		{
+			ui.workerDepotTag = jobUnitTag;
+		}
 	}
 	else if (job == UnitMission::Attack)
 	{
 		m_combatUnits.insert(&m_unitInfoMap[unit->tag]);
 	}
 
-    UnitInfo & ui = m_unitInfoMap[unit->tag];
     ui.mission = job;
 }
 
