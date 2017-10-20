@@ -55,6 +55,7 @@ void CombatCommander::onFrame(const std::set<const UnitInfo*> & combatUnits)
     //}
 
     Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
+    mainAttackSquad.clear();
     
     for (auto & unitInfo : m_combatUnits)
     {

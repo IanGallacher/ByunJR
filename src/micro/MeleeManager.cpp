@@ -45,9 +45,10 @@ void MeleeManager::assignTargets(const std::vector<sc2::Tag> & targets)
             // run away if we meet the retreat critereon
             if (meleeUnitShouldRetreat(meleeUnitTag, targets))
             {
-                sc2::Point2D fleeTo(m_bot.GetStartLocation());
+                const sc2::Point2D fleeTo(m_bot.GetStartLocation());
 
                 Micro::SmartMove(meleeUnit, fleeTo, m_bot);
+                m_bot.InformationManager().UnitInfo().setJob(meleeUnit, UnitMission::Minerals);
             }
             // if there are targets
             else if (!meleeUnitTargets.empty())
@@ -127,8 +128,10 @@ int MeleeManager::getAttackPriority(const sc2::Tag & attacker, const sc2::Tag & 
     return 1;
 }
 
-bool MeleeManager::meleeUnitShouldRetreat(const sc2::Tag & meleeUnit, const std::vector<sc2::Tag> & targets)
+bool MeleeManager::meleeUnitShouldRetreat(const sc2::Tag& meleeUnit, const std::vector<sc2::Tag>& targets) const
 {
     // TODO: should melee units ever retreat?
+    if (m_bot.GetUnit(meleeUnit)->health <= 10)
+        return true;
     return false;
 }

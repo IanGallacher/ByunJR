@@ -167,17 +167,6 @@ bool Squad::containsUnit(const sc2::Tag & u) const
 
 void Squad::clear()
 {
-    for (auto & unitTag : getUnits())
-    {
-        auto unit = m_bot.GetUnit(unitTag);
-        BOT_ASSERT(unit, "null unit in squad clear");
-
-        if (Util::IsWorker(unit))
-        {
-            m_bot.InformationManager().finishedWithUnit(unitTag);
-        }
-    }
-
     m_units.clear();
 }
 
