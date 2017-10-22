@@ -63,9 +63,9 @@ void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
         BOT_ASSERT(unit, "null unit in combat units");
     
         // get every unit of a lower priority and put it into the attack squad
-        if (squad_data_.CanAssignUnitToSquad(unit->tag, main_attack_squad))
+        if (squad_data_.CanAssignUnitToSquad(unit, main_attack_squad))
         {
-            squad_data_.AssignUnitToSquad(unit->tag, main_attack_squad);
+            squad_data_.AssignUnitToSquad(unit, main_attack_squad);
         }
     }
     
@@ -414,32 +414,32 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
 //    }
 //}
 
-sc2::Tag CombatCommander::FindClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos)
+const sc2::Unit* CombatCommander::FindClosestDefender(const Squad & defense_squad, const sc2::Point2D & pos)
 {
-    sc2::Tag closestDefender = 0;
-    float minDistance = std::numeric_limits<float>::max();
+    const sc2::Unit* closest_defender = nullptr;
+    float min_distance = std::numeric_limits<float>::max();
 
     // TODO: add back special case of zergling rush defense
 
-    for (auto & unitInfo : combat_units_)
+    for (auto & unit_info : combat_units_)
     {
-        auto unit = unitInfo->unit;
+        auto unit = unit_info->unit;
         BOT_ASSERT(unit, "null combat unit");
 
-        if (!squad_data_.CanAssignUnitToSquad(unit->tag, defenseSquad))
+        if (!squad_data_.CanAssignUnitToSquad(unit, defense_squad))
         {
             continue;
         }
 
         const float dist = Util::Dist(unit->pos, pos);
-        if (!closestDefender || (dist < minDistance))
+        if (!closest_defender || (dist < min_distance))
         {
-            closestDefender = unit->tag;
-            minDistance = dist;
+            closest_defender = unit;
+            min_distance = dist;
         }
     }
 
-    return closestDefender;
+    return closest_defender;
 }
 
 

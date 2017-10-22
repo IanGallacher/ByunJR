@@ -75,7 +75,7 @@ bool ProxyManager::ProxyBuildingAtChosenRandomLocation()
     {
         const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, my_vec);
-        proxy_worker_ = bot_.GetUnit(bot_.InformationManager().GetBuilder(b, false));
+        proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
         if(!proxy_worker_)
         {
             std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;

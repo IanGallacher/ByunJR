@@ -9,31 +9,25 @@ class ByunJRBot;
 class WorkerManager
 {
     ByunJRBot & bot_;
-    const sc2::Unit* previousClosestWorker;
+    const sc2::Unit* previous_closest_worker_;
 
 
-    void assignIdleWorkers() const;
-    void assignGasWorkers() const;
-    void handleWorkers() const;
-    sc2::Tag getMineralToMine(const sc2::Unit* unit) const;
-
-    void setMineralWorker(const sc2::Unit* unit) const;
+    void AssignIdleWorkers() const;
+    void AssignGasWorkers() const;
+    void HandleWorkers() const;
+    const sc2::Unit* GetMineralToMine(const sc2::Unit* unit) const;
 
 public:
-
     WorkerManager(ByunJRBot & bot);
 
-    void        OnFrame();
+    void                OnFrame();
 
-    void        setWorkerJob(const sc2::Tag & tag, UnitMission mission);
-    void        setBuildingWorker(const sc2::Unit* worker, Building & b);
+    bool                IsWorkerScout(const sc2::Unit* worker) const;
+    bool                IsFree(const sc2::Unit* worker) const;
+    bool                IsBuilder(const sc2::Unit* worker) const;
 
-    bool        isWorkerScout(const sc2::Unit* worker) const;
-    bool        isFree(const sc2::Unit* worker) const;
-    bool        isBuilder(const sc2::Unit* worker) const;
-
-    sc2::Tag    getClosestMineralWorkerTo(const sc2::Point2D & pos) const;
-    sc2::Tag    getBuilder(Building & b,bool setJobAsBuilder = true) const;
-    sc2::Tag    getGasWorker(const sc2::Unit* refinery) const;
+    const sc2::Unit*    GetClosestMineralWorkerTo(const sc2::Point2D & pos) const;
+    const sc2::Unit*    GetBuilder(Building & b,bool set_job_as_builder = true) const;
+    const sc2::Unit*    GetGasWorker(const sc2::Unit* refinery) const;
 };
 

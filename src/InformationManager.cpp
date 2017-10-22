@@ -64,40 +64,18 @@ const sc2::Race & InformationManager::GetPlayerRace(PlayerArrayIndex player) con
     return player_race_[static_cast<int>(player)];
 }
 
-sc2::Tag InformationManager::GetBuilder(Building & b, const bool set_job_as_builder)
+const sc2::Unit* InformationManager::GetBuilder(Building& b, const bool set_job_as_builder)
 {
     const std::vector<UnitMission> acceptable_missions{ UnitMission::Minerals, UnitMission::Proxy };
-    const sc2::Tag builder_worker = GetClosestUnitTagWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions );
+    const sc2::Unit* builder_worker = GetClosestUnitInfoWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions)->unit;
 
     // if the worker exists (one may not have been found in rare cases)
     if (builder_worker && set_job_as_builder)
     {
-        unit_info_.SetJob(bot_.GetUnit(builder_worker), UnitMission::Build);
+        unit_info_.SetJob(builder_worker, UnitMission::Build);
     }
 
     return builder_worker;
-}
-
-const sc2::Unit* InformationManager::GetClosestUnitOfType(const sc2::Unit* reference_unit,
-                                                          const sc2::UnitTypeID reference_type_id) const
-{
-    const sc2::Unit* closest_unit = nullptr;
-    double closest_distance = std::numeric_limits<double>::max();
-
-    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
-    {
-        if (unit->unit_type == reference_type_id)
-        {
-            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
-            if (!closest_unit || distance < closest_distance)
-            {
-                closest_unit = unit;
-                closest_distance = distance;
-            }
-        }
-    }
-
-    return closest_unit;
 }
 
 // Does not look for flying bases. Only landed bases. 
@@ -128,7 +106,7 @@ const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_u
     return closest_unit;
 }
 
-const ::UnitInfo * InformationManager::GetClosestUnitWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const
+const ::UnitInfo * InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const
 {
     const ::UnitInfo * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
@@ -150,19 +128,20 @@ const ::UnitInfo * InformationManager::GetClosestUnitWithJob(const sc2::Point2D 
     return closest_unit;
 }
 
-sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const
+const UnitInfo* InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D point,
+                                                          const std::vector<UnitMission> mission_vector) const
 {
-    sc2::Tag closest_unit = 0;
+    const ::UnitInfo * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
     {
-        if (unit_info.second.mission == mission)
+        if (std::find(mission_vector.begin(), mission_vector.end(), unit_info_pair.second.mission) != mission_vector.end())
         {
-            const double distance = Util::DistSq(unit_info.second.unit->pos, point);
+            const double distance = Util::DistSq(unit_info_pair.second.unit->pos, point);
             if (distance < closest_distance)
             {
-                closest_unit = unit_info.second.unit->tag;
+                closest_unit = &unit_info_pair.second;
                 closest_distance = distance;
             }
         }
@@ -171,24 +150,50 @@ sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, 
     return closest_unit;
 }
 
-
-sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission_vector) const
+const sc2::Unit* InformationManager::GetClosestUnitOfType(const sc2::Unit* reference_unit,
+    const sc2::UnitTypeID reference_type_id) const
 {
-    sc2::Tag closest_unit = 0;
+    const sc2::Unit* closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        if (std::find(mission_vector.begin(), mission_vector.end(), unit_info.second.mission) != mission_vector.end())
+        if (unit->unit_type == reference_type_id)
         {
-            const double distance = Util::DistSq(unit_info.second.unit->pos, point);
-            if (distance < closest_distance)
+            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
+            if (!closest_unit || distance < closest_distance)
             {
-                closest_unit = unit_info.second.unit->tag;
+                closest_unit = unit;
                 closest_distance = distance;
             }
         }
     }
 
     return closest_unit;
+}
+
+const sc2::Unit* InformationManager::GetClosestNotOptimalRefinery(const sc2::Unit* reference_unit) const
+{
+    const sc2::Unit* closest_refinery = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+    // Find all our refineries. If they not full, fill em up.
+    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
+        {
+            const int num_assigned = bot_.InformationManager().UnitInfo().GetNumAssignedWorkers(refinery);
+
+            if (0 < (refinery->ideal_harvesters - num_assigned))
+            {
+                const double distance = Util::DistSq(refinery->pos, reference_unit->pos);
+                if (!closest_refinery || distance < closest_distance)
+                {
+                    closest_refinery = refinery;
+                    closest_distance = distance;
+                }
+            }
+        }
+    }
+
+    return closest_refinery;
 }

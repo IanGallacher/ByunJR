@@ -11,8 +11,10 @@ public:
     sc2::Point2DI       finalPosition;
     sc2::Point2D        position;
     sc2::UnitTypeID     type;
-    sc2::Tag            buildingUnitTag;
-    sc2::Tag            builderUnitTag;
+    // The pointer to the building.
+    const sc2::Unit*    buildingUnit;
+    // The pointer to the worker that will make the building.
+    const sc2::Unit*    builderUnit;
     BuildingStatus      status;
     int                 lastOrderFrame;
     bool                buildCommandGiven;

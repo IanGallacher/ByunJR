@@ -8,78 +8,78 @@
 
 ProductionManager::ProductionManager(ByunJRBot & bot)
     : bot_             (bot)
-    , buildingManager (bot)
-    , queue           (bot)
+    , building_manager_ (bot)
+    , queue_           (bot)
 {
 
 }
 
-void ProductionManager::setBuildOrder(const BuildOrder & buildOrder)
+void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
 {
-    queue.ClearAll();
+    queue_.ClearAll();
 
-    for (size_t i(0); i<buildOrder.Size(); ++i)
+    for (size_t i(0); i<build_order.Size(); ++i)
     {
-        queue.QueueAsLowestPriority(buildOrder[i], true);
+        queue_.QueueAsLowestPriority(build_order[i], true);
     }
 }
 
 
-void ProductionManager::onStart()
+void ProductionManager::OnStart()
 {
-    planned_supply_depots = 0;
-    buildingManager.OnStart();
-    setBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
+    planned_supply_depots_ = 0;
+    building_manager_.OnStart();
+    SetBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
 }
 
 void ProductionManager::OnFrame()
 {
     // check the _queue for stuff we can build
-    manageBuildOrderQueue();
+    ManageBuildOrderQueue();
 
     // TODO: if nothing is currently building, get a new goal from the strategy manager
     // TODO: detect if there's a build order deadlock once per second
     // TODO: triggers for game things like cloaked units etc
 
-    buildingManager.OnFrame();
-    drawProductionInformation();
+    building_manager_.OnFrame();
+    DrawProductionInformation();
 }
 
-void ProductionManager::onBuildingConstructionComplete(const sc2::Unit* unit) {
+void ProductionManager::OnBuildingConstructionComplete(const sc2::Unit* unit) {
     if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
     {
-        planned_supply_depots--;
+        planned_supply_depots_--;
     }
 }
 
 // on unit destroy
-void ProductionManager::onUnitDestroy(const sc2::Unit* unit)
+void ProductionManager::OnUnitDestroy(const sc2::Unit* unit)
 {
     // TODO: might have to re-do build order if a vital unit died
 }
 
 // Called every frame.
-void ProductionManager::manageBuildOrderQueue()
+void ProductionManager::ManageBuildOrderQueue()
 {
     // if there is nothing in the queue, oh well
-    if (queue.IsEmpty())
+    if (queue_.IsEmpty())
     {
         return;
     }
 
-    preventSupplyBlock();
+    PreventSupplyBlock();
 
     // the current item to be used
-    BuildOrderItem & currentItem = queue.GetHighestPriorityItem();
+    BuildOrderItem & currentItem = queue_.GetHighestPriorityItem();
 
     // while there is still something left in the queue
-    while (!queue.IsEmpty())
+    while (!queue_.IsEmpty())
     {
         // this is the unit which can produce the currentItem
-        const sc2::Tag producer = getProducer(currentItem.type);
+        const sc2::Unit* producer = GetProducer(currentItem.type);
 
         // check to see if we can make it right now
-        const bool canMake = canMakeNow(producer, currentItem.type);
+        const bool canMake = CanMakeNow(producer, currentItem.type);
 
         // TODO: if it's a building and we can't make it yet, predict the worker movement to the location
 
@@ -87,20 +87,20 @@ void ProductionManager::manageBuildOrderQueue()
         if (producer && canMake)
         {
             // create it and remove it from the _queue
-            create(producer, currentItem);
-            queue.RemoveCurrentHighestPriorityItem();
+            Create(producer, currentItem);
+            queue_.RemoveCurrentHighestPriorityItem();
 
             // don't actually loop around in here
             break;
         }
         // otherwise, if we can skip the current item
-        else if (queue.CanSkipItem())
+        else if (queue_.CanSkipItem())
         {
             // skip it
-            queue.SkipItem();
+            queue_.SkipItem();
 
             // and get the next one
-            currentItem = queue.GetNextHighestPriorityItem();
+            currentItem = queue_.GetNextHighestPriorityItem();
         }
         else
         {
@@ -111,23 +111,23 @@ void ProductionManager::manageBuildOrderQueue()
 }
 
 // Every frame, see if more depots are required. 
-void ProductionManager::preventSupplyBlock() {
+void ProductionManager::PreventSupplyBlock() {
     // If the current supply that we have plus the total amount of things that could be made 
     if (
-        (bot_.Observation()->GetFoodUsed() + productionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
+        (bot_.Observation()->GetFoodUsed() + ProductionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
                                                             // Is greater than 
         >=
         // the player supply capacity, including pylons in production. 
         // The depots in production is key, otherwise you will build hundreds of pylons while supply blocked.
-        (bot_.Observation()->GetFoodCap() + (planned_supply_depots * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
+        (bot_.Observation()->GetFoodCap() + (planned_supply_depots_ * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
         )
     {
-        planned_supply_depots++;
-        queue.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
+        planned_supply_depots_++;
+        queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
 }
 
-int ProductionManager::productionCapacity() const
+int ProductionManager::ProductionCapacity() const
 {
     // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
     const  size_t commandCenters = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
@@ -135,16 +135,16 @@ int ProductionManager::productionCapacity() const
                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
     const size_t barracks = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-    return (int) (commandCenters + barracks) * 2;
+    return static_cast<int>(commandCenters + barracks) * 2;
 }
 
-sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo)
+const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const sc2::Point2D closest_to) const
 {
     // TODO: get the type of unit that builds this
     const sc2::UnitTypeID producerType = Util::WhatBuilds(t);
 
     // make a set of all candidate producers
-    std::vector<sc2::Tag> candidateProducers;
+    std::vector<const sc2::Unit*> candidateProducers;
     for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
@@ -158,50 +158,50 @@ sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestT
         // TODO: if the type requires an addon and the producer doesn't have one
 
         // if we haven't cut it, add it to the set of candidates
-        candidateProducers.push_back(unit->tag);
+        candidateProducers.push_back(unit);
     }
 
-    return getClosestUnitToPosition(candidateProducers, closestTo);
+    return GetClosestUnitToPosition(candidateProducers, closest_to);
 }
 
-sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag> & units, const sc2::Point2D closestTo) const
+const sc2::Unit* ProductionManager::GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, const sc2::Point2D closest_to) const
 {
     if (units.size() == 0)
     {
-        return 0;
+        return nullptr;
     }
 
     // if we don't care where the unit is return the first one we have
-    if (closestTo.x == 0 && closestTo.y == 0)
+    if (closest_to.x == 0 && closest_to.y == 0)
     {
         return units[0];
     }
 
-    sc2::Tag closestUnit = 0;
-    double minDist = std::numeric_limits<double>::max();
+    const sc2::Unit* closest_unit = nullptr;
+    double min_dist = std::numeric_limits<double>::max();
 
     for (auto & unit : units)
     {
-        const double distance = Util::Dist(bot_.GetUnit(unit)->pos, closestTo);
-        if (!closestUnit || distance < minDist)
+        const double distance = Util::Dist(unit->pos, closest_to);
+        if (!closest_unit || distance < min_dist)
         {
-            closestUnit = unit;
-            minDist = distance;
+            closest_unit = unit;
+            min_dist = distance;
         }
     }
 
-    return closestUnit;
+    return closest_unit;
 }
 
 // this function will check to see if all preconditions are met and then create a unit
-void ProductionManager::create(const sc2::Tag producer, BuildOrderItem & item)
+void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 {
     if (!producer)
     {
         return;
     }
 
-    sc2::UnitTypeID t = item.type;
+    const sc2::UnitTypeID t = item.type;
 
     // if we're dealing with a building
     // TODO: deal with morphed buildings & addons
@@ -211,30 +211,30 @@ void ProductionManager::create(const sc2::Tag producer, BuildOrderItem & item)
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
             const sc2::Point2DI proxyLocation = bot_.InformationManager().GetProxyLocation();
-            buildingManager.AddBuildingTask(t, proxyLocation);
+            building_manager_.AddBuildingTask(t, proxyLocation);
         }
         else
         {
-            buildingManager.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
+            building_manager_.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
         }
     }
     // if we're dealing with a non-building unit
     else
     {
-        Micro::SmartTrain(bot_.GetUnit(producer), t, bot_);
+        Micro::SmartTrain(producer, t, bot_);
     }
 }
 
-bool ProductionManager::canMakeNow(const sc2::Tag producerTag, const sc2::UnitTypeID type)
+bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type)
 {
-    if (!meetsReservedResources(type))
+    if (!MeetsReservedResources(type))
     {
         return false;
     }
-    if(producerTag==0)
+    if(producer_unit==nullptr)
         return false;
 
-    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(bot_.GetUnit(producerTag));
+    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit);
 
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty())
@@ -257,30 +257,30 @@ bool ProductionManager::canMakeNow(const sc2::Tag producerTag, const sc2::UnitTy
     return false;
 }
 
-bool ProductionManager::detectBuildOrderDeadlock() const
+bool ProductionManager::DetectBuildOrderDeadlock() const
 {
     // TODO: detect build order deadlocks here
     return false;
 }
 
-int ProductionManager::getFreeMinerals()
+int ProductionManager::GetFreeMinerals()
 {
-    return bot_.Observation()->GetMinerals() - buildingManager.GetReservedMinerals();
+    return bot_.Observation()->GetMinerals() - building_manager_.GetReservedMinerals();
 }
 
-int ProductionManager::getFreeGas()
+int ProductionManager::GetFreeGas()
 {
-    return bot_.Observation()->GetVespene() - buildingManager.GetReservedGas();
+    return bot_.Observation()->GetVespene() - building_manager_.GetReservedGas();
 }
 
 // return whether or not we meet resources, including building reserves
-bool ProductionManager::meetsReservedResources(sc2::UnitTypeID type)
+bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type)
 {
     // return whether or not we meet the resources
-    return (Util::GetUnitTypeMineralPrice(type, bot_) <= getFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, bot_) <= getFreeGas());
+    return (Util::GetUnitTypeMineralPrice(type, bot_) <= GetFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, bot_) <= GetFreeGas());
 }
 
-void ProductionManager::drawProductionInformation() const
+void ProductionManager::DrawProductionInformation() const
 {
     if (!bot_.Config().DrawProductionInfo)
     {
@@ -298,7 +298,7 @@ void ProductionManager::drawProductionInformation() const
         }
     }
 
-    ss << queue.GetQueueInformation();
+    ss << queue_.GetQueueInformation();
 
     bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.01f, 0.01f), ss.str(), sc2::Colors::Yellow);
 }

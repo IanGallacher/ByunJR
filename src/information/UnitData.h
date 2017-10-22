@@ -51,8 +51,7 @@ public:
     std::set<const UnitInfo*> GetCombatUnits() const;
 
     // job_unit_tag is the tag that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
-    void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag=0);
-    void SetBuildingWorker(const sc2::Unit* worker, Building& b);
+    void SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot);
     size_t GetNumWorkers() const;
     void ClearPreviousJob(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetWorkers() const;

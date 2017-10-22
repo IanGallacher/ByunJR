@@ -238,14 +238,9 @@ int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
     return unit_data_[PlayerArrayIndex::Self].GetNumAssignedWorkers(depot);
 }
 
-void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag)
+void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job)
 {
-    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, job_unit_tag);
-}
-
-void UnitInfoManager::SetBuildingWorker(const sc2::Unit* worker, Building & b)
-{
-    unit_data_[Util::GetPlayer(worker)].SetJob(worker, UnitMission::Build, b.type);
+    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_);
 }
 
 // This can only return your workers, not the enemy workers. 

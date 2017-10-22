@@ -25,14 +25,12 @@ public:
     sc2::Point2DI GetProxyLocation() const;
     UnitInfoManager & UnitInfo();
 
-    sc2::Tag GetBuilder(Building& b, bool set_job_as_builder = true);
-
+    const sc2::Unit* GetBuilder(Building& b, bool set_job_as_builder = true);
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
-    const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
-    const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;
-    const ::UnitInfo* GetClosestUnitWithJob(const sc2::Point2D point, const UnitMission) const;
-    sc2::Tag GetClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const;
-    sc2::Tag GetClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
 
-    void HandleUnitAssignments();
+    const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;
+    const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const UnitMission) const;
+    const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
+    const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
+    const sc2::Unit* GetClosestNotOptimalRefinery(const sc2::Unit* reference_unit) const;
 };

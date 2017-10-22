@@ -53,7 +53,7 @@ void StrategyManager::SetScoutUnits()
         if (ShouldSendInitialScout())
         {
             // grab the closest worker to the supply provider to send to scout
-            const ::UnitInfo * worker_scout = bot_.InformationManager().GetClosestUnitWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+            const ::UnitInfo * worker_scout = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
             // if we find a worker (which we should) add it to the scout units
             if (worker_scout)

@@ -155,7 +155,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
 {
     if (!scout) { std::cout << "Looked for scout, could not find anything" << std::endl;  return nullptr; }
 
-    sc2::Tag enemy_worker_tag = 0;
+    const sc2::Unit* enemy_worker = nullptr;
     float min_dist = std::numeric_limits<float>::max();
 
     // for each enemy worker
@@ -168,12 +168,12 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
             if (dist < min_dist)
             {
                 min_dist = dist;
-                enemy_worker_tag = unit->tag;
+                enemy_worker = unit;
             }
         }
     }
 
-    return bot_.GetUnit(enemy_worker_tag);
+    return enemy_worker;
 }
 bool ScoutManager::EnemyWorkerInRadiusOf(const sc2::Point2D & pos) const
 {

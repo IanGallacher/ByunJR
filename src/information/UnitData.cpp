@@ -140,7 +140,7 @@ std::set<const UnitInfo*> UnitData::GetCombatUnits() const
 }
 
 // jobUnitTag is optional.
-void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag)
+void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot)
 {
     ClearPreviousJob(unit);
 
@@ -149,27 +149,41 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
     // Update the information about the current job. 
     if (job == UnitMission::Minerals)
     {
+        // Check if there is a mineral available to send the worker to.
+        const sc2::Unit* base = bot.InformationManager().GetClosestBase(unit);
+
+        // We don't need to print an error. If we have lost all our bases, there is no point in assigning workers to minerals. 
+        // Simply check to see if we have any bases to prevent crashes before assigning workers to mine at the given base. 
+        if (!base) return;
+
         // if we haven't assigned anything to this depot yet, set its worker count to 0
-        if (base_worker_count_.find(job_unit_tag) == base_worker_count_.end())
+        if (base_worker_count_.find(base->tag) == base_worker_count_.end())
         {
-            base_worker_count_[job_unit_tag] = 0;
+            base_worker_count_[base->tag] = 0;
         }
 
         // add the depot to our set of depots
         depots_.insert(&unit_info_map_[unit->tag]);
 
         // increase the worker count of this depot
-        base_worker_count_[job_unit_tag]++;
+        base_worker_count_[base->tag]++;
         worker_depot_map_[unit->tag] = unit;
     }
     else if (job == UnitMission::Gas)
     {
-        worker_refinery_map_[unit->tag] = unit;
-        // If the jobUnitTag is actually valid, set the worker depot to that value.
-        if (job_unit_tag != 0)
+        // The Gas worker we are assigning should already 
+        const sc2::Unit* refinery = bot.InformationManager().GetClosestNotOptimalRefinery(unit);
+        if (!refinery)
         {
-            ui.workerDepotTag = job_unit_tag;
+            std::cout << "WARNING: Attempted assigning worker to refinery when there are no available refineries.";
+            // Avoid repeating error messages by attempting to assign the worker we were given to minerals. 
+            SetJob(unit, UnitMission::Minerals, bot);
+            return;
         }
+
+        // Well, it looks like everything is alls et. Time to assign the worker to the refinery.
+        worker_refinery_map_[unit->tag] = unit;
+        ui.workerDepot = refinery;
     }
     else if (job == UnitMission::Attack)
     {
@@ -181,13 +195,6 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
     }
 
     ui.mission = job;
-}
-
-void UnitData::SetBuildingWorker(const sc2::Unit* worker, Building & b)
-{
-    UnitInfo & ui = unit_info_map_[worker->tag];
-    ui.mission = UnitMission::Build;
-    SetJob(worker, UnitMission::Build, b.type);
 }
 
 void UnitData::ClearPreviousJob(const sc2::Unit* unit)

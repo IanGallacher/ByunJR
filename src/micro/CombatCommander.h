@@ -6,12 +6,12 @@ class ByunJRBot;
 
 class CombatCommander
 {
-    ByunJRBot &      bot_;
+    ByunJRBot &               bot_;
 
-    SquadData        squad_data_;
+    SquadData                 squad_data_;
     std::set<const UnitInfo*> combat_units_;
-    bool             initialized_;
-    bool             attack_started_;
+    bool                      initialized_;
+    bool                      attack_started_;
 
     //void             updateScoutDefenseSquad();
     //void             updateDefenseSquads();
@@ -19,7 +19,7 @@ class CombatCommander
     //void             updateIdleSquad();
     //bool             isSquadUpdateFrame() const;
 
-    sc2::Tag         FindClosestDefender(const Squad & defense_squad, const sc2::Point2D & pos);
+    const sc2::Unit* FindClosestDefender(const Squad & defense_squad, const sc2::Point2D & pos);
 
     sc2::Point2D     GetMainAttackLocation() const;
 
@@ -27,7 +27,6 @@ class CombatCommander
     bool             ShouldWeStartAttacking() const;
 
 public:
-
     CombatCommander(ByunJRBot & bot);
 
 

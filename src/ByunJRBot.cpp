@@ -33,7 +33,7 @@ void ByunJRBot::OnGameStart()
     information_manager_.OnStart();
     bases_.OnStart();
 
-    production_manager_.onStart();
+    production_manager_.OnStart();
     scout_manager_.OnStart();
     proxy_manager_.OnStart();
     combat_commander_.OnStart();
@@ -84,7 +84,7 @@ void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    production_manager_.onBuildingConstructionComplete(unit);
+    production_manager_.OnBuildingConstructionComplete(unit);
 }
 
 // Returns true if the bot thinks it still has a chance.
@@ -136,11 +136,6 @@ DebugManager & ByunJRBot::DebugHelper()
 
 ProxyManager & ByunJRBot::GetProxyManager() {
     return proxy_manager_;
-}
-
-const sc2::Unit* ByunJRBot::GetUnit(const sc2::Tag & tag) const
-{
-    return Observation()->GetUnit(tag);
 }
 
 sc2::Point2D ByunJRBot::GetStartLocation() const

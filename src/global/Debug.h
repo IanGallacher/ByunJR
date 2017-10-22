@@ -25,5 +25,5 @@ public:
     void DrawText(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
     void DrawTextScreen(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
     void DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const;
-    void DrawSphereAroundUnit(const sc2::Tag& uinit, sc2::Color color) const;
+    void DrawSphereAroundUnit(const sc2::Unit* uinit, sc2::Color color) const;
 };

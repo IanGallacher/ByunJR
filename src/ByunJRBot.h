@@ -59,7 +59,6 @@ public:
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
     sc2::Point2D GetStartLocation() const;
-    const sc2::Unit* GetUnit(const sc2::Tag & tag) const;
 };
 
 void DllExport *CreateNewAgent();

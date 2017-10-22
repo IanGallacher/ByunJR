@@ -147,10 +147,8 @@ void DebugManager::DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color col
     DrawBox(p_min, p_max, color);
 }
 
-void DebugManager::DrawSphereAroundUnit(const sc2::Tag& unit_tag, const sc2::Color color) const
+void DebugManager::DrawSphereAroundUnit(const sc2::Unit* unit, const sc2::Color color) const
 {
-    const sc2::Unit* unit = bot_.GetUnit(unit_tag);
-
     if (!unit) { return; }
 
     DrawSphere(unit->pos, 1, color);

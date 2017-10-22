@@ -18,17 +18,17 @@ public:
     void            OnFrame();
     void            ClearSquadData();
 
-    bool            CanAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const;
-    void            AssignUnitToSquad(const sc2::Tag & unit, Squad & squad);
+    bool            CanAssignUnitToSquad(const sc2::Unit* unit, const Squad & squad) const;
+    void            AssignUnitToSquad(const sc2::Unit* unit, Squad & squad);
     void            AddSquad(const std::string & squad_name, const Squad & squad);
     void            RemoveSquad(const std::string & squad_name);
     void            DrawSquadInformation();
 
 
     bool            SquadExists(const std::string & squad_name);
-    bool            UnitIsInSquad(const sc2::Tag & unit) const;
-    const Squad*    GetUnitSquad(const sc2::Tag& unit) const;
-    Squad* GetUnitSquad(const sc2::Tag& unit);
+    bool            UnitIsInSquad(const sc2::Unit* unit) const;
+    const Squad*    GetUnitSquad(const sc2::Unit* unit) const;
+    Squad*          GetUnitSquad(const sc2::Unit* unit);
 
     Squad &         GetSquad(const std::string & squad_name);
     const std::map<std::string, Squad> & GetSquads() const;

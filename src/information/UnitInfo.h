@@ -20,7 +20,7 @@ struct UnitInfo
     sc2::UnitTypeID   type;
     float             progress;
     UnitMission       mission;
-    sc2::Tag          workerDepotTag;
+    const sc2::Unit*  workerDepot;
 
     UnitInfo()
         : lastHealth(0)

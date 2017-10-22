@@ -10,40 +10,38 @@ MeleeManager::MeleeManager(ByunJRBot & bot)
 
 }
 
-void MeleeManager::ExecuteMicro(const std::vector<sc2::Tag> & targets)
+void MeleeManager::ExecuteMicro(const std::set<const sc2::Unit*> & targets)
 {
     AssignTargets(targets);
 }
 
-void MeleeManager::AssignTargets(const std::vector<sc2::Tag> & targets)
+void MeleeManager::AssignTargets(const std::set<const sc2::Unit*> & targets)
 {
-    const std::vector<sc2::Tag> & melee_units = GetUnits();
+    const std::vector<const sc2::Unit*> & melee_units = GetUnits();
 
     // figure out targets
-    std::vector<sc2::Tag> melee_unit_targets;
-    for (auto & target_tag : targets)
+    std::vector<const sc2::Unit*> melee_unit_targets;
+    for (auto & target : targets)
     {
-        const auto target = bot_.GetUnit(target_tag);
-
         if (!target) { continue; }
         if (target->is_flying) { continue; }
         if (target->unit_type == sc2::UNIT_TYPEID::ZERG_EGG) { continue; }
         if (target->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA) { continue; }
 
-        melee_unit_targets.push_back(target_tag);
+        melee_unit_targets.push_back(target);
     }
 
     // for each meleeUnit
     for (auto & melee_unit_tag : melee_units)
     {
-        auto melee_unit = bot_.GetUnit(melee_unit_tag);
+        auto melee_unit = melee_unit_tag;
         BOT_ASSERT(melee_unit, "melee unit is null");
 
         // if the order is to attack or defend
         if (order_.GetType() == SquadOrderTypes::Attack || order_.GetType() == SquadOrderTypes::Defend)
         {
             // run away if we meet the retreat critereon
-            if (MeleeUnitShouldRetreat(melee_unit_tag, targets))
+            if (MeleeUnitShouldRetreat(melee_unit, targets))
             {
                 const sc2::Point2D flee_to(bot_.GetStartLocation());
 
@@ -54,10 +52,10 @@ void MeleeManager::AssignTargets(const std::vector<sc2::Tag> & targets)
             else if (!melee_unit_targets.empty())
             {
                 // find the best target for this meleeUnit
-                sc2::Tag target_tag = GetTarget(melee_unit_tag, melee_unit_targets);
+                const sc2::Unit* target = GetTarget(melee_unit_tag, melee_unit_targets);
 
                 // attack it
-                Micro::SmartAttackUnit(melee_unit, bot_.GetUnit(target_tag), bot_);
+                Micro::SmartAttackUnit(melee_unit, target, bot_);
             }
             // if there are no targets
             else
@@ -79,22 +77,20 @@ void MeleeManager::AssignTargets(const std::vector<sc2::Tag> & targets)
 }
 
 // get a target for the meleeUnit to attack
-sc2::Tag MeleeManager::GetTarget(const sc2::Tag & melee_unit_tag, const std::vector<sc2::Tag> & targets)
+const sc2::Unit* MeleeManager::GetTarget(const sc2::Unit* melee_unit, const std::vector<const sc2::Unit*> & targets)
 {
-    auto melee_unit = bot_.GetUnit(melee_unit_tag);
     BOT_ASSERT(melee_unit, "null melee unit in getTarget");
 
     int high_priority = 0;
     double closest_dist = std::numeric_limits<double>::max();
-    sc2::Tag closest_target = 0;
+    const sc2::Unit* closest_target = nullptr;
 
     // for each target possiblity
-    for (auto & target_tag : targets)
+    for (auto & target_unit : targets)
     {
-        auto target_unit = bot_.GetUnit(target_tag);
         BOT_ASSERT(target_unit, "null target unit in getTarget");
 
-        const int priority = GetAttackPriority(melee_unit_tag, target_tag);
+        const int priority = GetAttackPriority(melee_unit, target_unit);
         const float distance = Util::Dist(melee_unit->pos, target_unit->pos);
 
         // if it's a higher priority, or it's closer, set it
@@ -102,7 +98,7 @@ sc2::Tag MeleeManager::GetTarget(const sc2::Tag & melee_unit_tag, const std::vec
         {
             closest_dist = distance;
             high_priority = priority;
-            closest_target = target_tag;
+            closest_target = target_unit;
         }
     }
 
@@ -110,9 +106,8 @@ sc2::Tag MeleeManager::GetTarget(const sc2::Tag & melee_unit_tag, const std::vec
 }
 
 // get the attack priority of a type in relation to a zergling
-int MeleeManager::GetAttackPriority(const sc2::Tag & attacker, const sc2::Tag & unit_tag) const
+int MeleeManager::GetAttackPriority(const sc2::Unit* attacker, const sc2::Unit* unit) const
 {
-    auto unit = bot_.GetUnit(unit_tag);
     BOT_ASSERT(unit, "null unit in getAttackPriority");
 
     if (Util::IsCombatUnit(unit))
@@ -128,10 +123,10 @@ int MeleeManager::GetAttackPriority(const sc2::Tag & attacker, const sc2::Tag & 
     return 1;
 }
 
-bool MeleeManager::MeleeUnitShouldRetreat(const sc2::Tag& melee_unit, const std::vector<sc2::Tag>& targets) const
+bool MeleeManager::MeleeUnitShouldRetreat(const sc2::Unit* melee_unit, const std::set<const sc2::Unit*>& targets) const
 {
     // TODO: should melee units ever retreat?
-    if (bot_.GetUnit(melee_unit)->health <= 10)
+    if (melee_unit->health <= 10)
         return true;
     return false;
 }

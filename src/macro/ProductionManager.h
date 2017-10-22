@@ -9,35 +9,35 @@ class ByunJRBot;
 
 class ProductionManager
 {
-    ByunJRBot &     bot_;
+    ByunJRBot &      bot_;
 
-    BuildingManager buildingManager;
-    BuildOrderQueue queue;
-    int planned_production;
-    int planned_supply_depots; // don't spend all our money on depots if capped. 
+    BuildingManager  building_manager_;
+    BuildOrderQueue  queue_;
+    int              planned_production_;
+    int              planned_supply_depots_; // don't spend all our money on depots if capped. 
 
 
-    sc2::Tag getClosestUnitToPosition(const std::vector<sc2::Tag> & units, sc2::Point2D closestTo) const;
-    bool    meetsReservedResources(sc2::UnitTypeID type);
-    bool    canMakeNow(sc2::Tag producer, sc2::UnitTypeID t);
-    bool    detectBuildOrderDeadlock() const;
-    void    setBuildOrder(const BuildOrder & buildOrder);
-    void    create(sc2::Tag producer, BuildOrderItem & item);
-    void    manageBuildOrderQueue();
-    void    preventSupplyBlock();
-    int     productionCapacity() const;
-    int     getFreeMinerals();
-    int     getFreeGas();
+    const sc2::Unit* GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, sc2::Point2D closest_to) const;
+    bool             MeetsReservedResources(sc2::UnitTypeID type);
+    bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t);
+    bool             DetectBuildOrderDeadlock() const;
+    void             SetBuildOrder(const BuildOrder & build_order);
+    void             Create(const sc2::Unit* producer, BuildOrderItem & item);
+    void             ManageBuildOrderQueue();
+    void             PreventSupplyBlock();
+    int              ProductionCapacity() const;
+    int              GetFreeMinerals();
+    int              GetFreeGas();
 
 public:
 
     ProductionManager(ByunJRBot & bot);
 
-    void    onStart();
-    void    OnFrame();
-    void    onBuildingConstructionComplete(const sc2::Unit* unit);
-    void    onUnitDestroy(const sc2::Unit* unit);
-    void    drawProductionInformation() const;
+    void             OnStart();
+    void             OnFrame();
+    void             OnBuildingConstructionComplete(const sc2::Unit* unit);
+    void             OnUnitDestroy(const sc2::Unit* unit);
+    void             DrawProductionInformation() const;
 
-    sc2::Tag getProducer(sc2::UnitTypeID t, sc2::Point2D closestTo = sc2::Point2D(0, 0));
+    const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
 };

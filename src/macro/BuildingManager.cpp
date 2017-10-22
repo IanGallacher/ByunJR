@@ -76,7 +76,7 @@ void BuildingManager::ValidateWorkersAndBuildings()
             continue;
         }
 
-        const auto building_unit = bot_.GetUnit(b.buildingUnitTag);
+        const auto building_unit = b.buildingUnit;
 
         // TODO: || !b.buildingUnit->getType().isBuilding()
         if (!building_unit || (building_unit->health <= 0))
@@ -99,7 +99,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
             continue;
         }
 
-        BOT_ASSERT(b.builderUnitTag == 0, "Error: Tried to assign a builder to a building that already had one ");
+        BOT_ASSERT(b.builderUnit == 0, "Error: Tried to assign a builder to a building that already had one ");
 
         if (debug_mode_) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
@@ -113,9 +113,9 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         b.finalPosition = test_location;
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        const sc2::Tag builder_unit_tag = bot_.InformationManager().GetBuilder(b);
-        b.builderUnitTag = builder_unit_tag;
-        if (!b.builderUnitTag)
+        const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);
+        b.builderUnit = builder_unit_tag;
+        if (!b.builderUnit)
         {
             continue;
         }
@@ -138,7 +138,7 @@ void BuildingManager::CheckForDeadTerranBuilders()
 {   // for each building that doesn't have a builder, assign one
     for (Building & b : buildings_)
     {
-        if (b.status != BuildingStatus::Unassigned && bot_.GetUnit(b.builderUnitTag))
+        if (b.status != BuildingStatus::Unassigned && b.builderUnit)
         {
             continue;
         }
@@ -146,8 +146,8 @@ void BuildingManager::CheckForDeadTerranBuilders()
         if (debug_mode_) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        const sc2::Tag builder_unit_tag = bot_.InformationManager().GetBuilder(b);
-        b.builderUnitTag = builder_unit_tag;
+        const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);
+        b.builderUnit = builder_unit_tag;
     }
 }
 
@@ -163,7 +163,7 @@ void BuildingManager::ConstructAssignedBuildings()
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
         const sc2::AbilityID build_ability = Util::UnitTypeIDToAbilityID(b.type);
-        const sc2::Unit* builder_unit = bot_.GetUnit(b.builderUnitTag);
+        const sc2::Unit* builder_unit = b.builderUnit;
 
         bool is_constructing = false;
 
@@ -214,7 +214,7 @@ void BuildingManager::ConstructAssignedBuildings()
                     
                     if (geyser)
                     {
-                        Micro::SmartBuildTag(bot_.GetUnit(b.builderUnitTag), b.type, geyser, bot_);
+                        Micro::SmartBuildTag(b.builderUnit, b.type, geyser, bot_);
                     }
                     else
                     {
@@ -224,7 +224,7 @@ void BuildingManager::ConstructAssignedBuildings()
                 // if it's not a refinery, we build right on the position
                 else
                 {
-                    Micro::SmartBuild(bot_.GetUnit(b.builderUnitTag), b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                    Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                 }
 
                 // set the flag to true
@@ -261,7 +261,7 @@ void BuildingManager::CheckForStartedConstruction()
 
             if (dx*dx + dy*dy < 1)
             {
-                if (b.buildingUnitTag != 0)
+                if (b.buildingUnit != 0)
                 {
                     std::cout << "Building mis-match somehow\n";
                 }
@@ -272,18 +272,18 @@ void BuildingManager::CheckForStartedConstruction()
                 
                 // flag it as started and set the buildingUnit
                 b.underConstruction = true;
-                b.buildingUnitTag = building_started->tag;
+                b.buildingUnit = building_started;
 
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
                 if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
                 {
-                    b.builderUnitTag = 0;
+                    b.builderUnit = 0;
                 }
                 else if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
                     // Protoss does not need to keep the worker around after starting construction.
-                    bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(b.builderUnitTag), UnitMission::Idle);
-                    b.builderUnitTag = 0;
+                    bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
+                    b.builderUnit = 0;
                 }
 
                 // put it in the under construction vector
@@ -307,18 +307,18 @@ void BuildingManager::CheckForCompletedBuildings()
     // for each of our buildings under construction
     for (auto & b : buildings_)
     {
-        if (b.status != BuildingStatus::UnderConstruction || !bot_.GetUnit(b.buildingUnitTag))
+        if (b.status != BuildingStatus::UnderConstruction || !b.buildingUnit)
         {
             continue;
         }
 
         // if the unit has completed
-        if (bot_.GetUnit(b.buildingUnitTag)->build_progress == 1.0f)
+        if (b.buildingUnit->build_progress == 1.0f)
         {
             // if we are terran, give the worker back to worker manager
             if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
-                bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(b.builderUnitTag), UnitMission::Idle);
+                bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
             }
 
             // remove this unit from the under construction vector
@@ -375,26 +375,26 @@ void BuildingManager::DrawBuildingInformation()
     {
         std::stringstream dss;
 
-        if (b.builderUnitTag)
+        if (b.builderUnit)
         {
-            dss << "\n\nBuilder: " << b.builderUnitTag << std::endl;
+            dss << "\n\nBuilder: " << b.builderUnit << std::endl;
         }
 
-        if (b.buildingUnitTag)
+        if (b.buildingUnit)
         {
-            dss << "Building: " << b.buildingUnitTag << std::endl << bot_.GetUnit(b.buildingUnitTag)->build_progress;
-            bot_.DebugHelper().DrawText(bot_.GetUnit(b.buildingUnitTag)->pos, dss.str());
+            dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
+            bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
 
 
-        const std::string job_code = bot_.InformationManager().UnitInfo().GetUnitInfo(bot_.GetUnit(b.builderUnitTag))->GetJobCode();
+        const std::string job_code = bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit)->GetJobCode();
         if (b.status == BuildingStatus::Unassigned)
         {
             ss << "Unassigned " << sc2::UnitTypeToName(b.type) << "    " << job_code << std::endl;
         }
         else if (b.status == BuildingStatus::Assigned)
         {
-            ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << job_code << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
+            ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnit << " " << job_code << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
             const float x1 = b.finalPosition.x;
             const float y1 = b.finalPosition.y;
@@ -406,7 +406,7 @@ void BuildingManager::DrawBuildingInformation()
         }
         else if (b.status == BuildingStatus::UnderConstruction)
         {
-            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnitTag << " " << b.buildingUnitTag << " " << job_code << std::endl;
+            ss << "Constructing " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnit << " " << b.buildingUnit << " " << job_code << std::endl;
         }
     }
 

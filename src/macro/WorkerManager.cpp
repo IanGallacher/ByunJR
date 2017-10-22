@@ -10,42 +10,47 @@
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : bot_ (bot)
 {
-    previousClosestWorker = nullptr;
+    previous_closest_worker_ = nullptr;
 }
 
 void WorkerManager::OnFrame()
 {
-    assignIdleWorkers();
-    assignGasWorkers();
-    handleWorkers();
+    // If all our units are dead, calling GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals)->unit will cause a crash.
+    // Don't bother doing anything if all our workers are dead.
+    if (bot_.InformationManager().UnitInfo().GetWorkers().size() == 0)
+        return;
+
+    AssignIdleWorkers();
+    AssignGasWorkers();
+    HandleWorkers();
 }
 
-void WorkerManager::assignIdleWorkers() const
+void WorkerManager::AssignIdleWorkers() const
 {
     // for each of our workers
-    for (auto & workerInfo : bot_.InformationManager().UnitInfo().GetWorkers())
+    for (auto & worker_info : bot_.InformationManager().UnitInfo().GetWorkers())
     {
-        const sc2::Unit* worker = workerInfo->unit;
+        const sc2::Unit* worker = worker_info->unit;
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
-        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(workerInfo->unit->tag).mission == UnitMission::Scout
-            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(workerInfo->unit->tag).mission == UnitMission::Proxy)
+        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Scout
+            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Proxy)
         {
             continue;
         }
 
         // if it is idle
-        if (Util::IsIdle(worker) || workerInfo->mission == UnitMission::Idle)
+        if (Util::IsIdle(worker) || worker_info->mission == UnitMission::Idle)
         {
         // Uncomment to worker rush. 
         //    bot_.InformationManager().assignUnit(workerInfo->unit->tag, UnitMission::Attack);
-            setMineralWorker(workerInfo->unit);
+            bot_.InformationManager().UnitInfo().SetJob(worker_info->unit, UnitMission::Minerals);
         }
     }
 }
 
-void WorkerManager::assignGasWorkers() const
+void WorkerManager::AssignGasWorkers() const
 {
     // for each unit we have
     for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
@@ -54,25 +59,23 @@ void WorkerManager::assignGasWorkers() const
         if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
         {
             // get the number of workers currently assigned to it
-            const int numAssigned = bot_.InformationManager().UnitInfo().GetNumAssignedWorkers(refinery);
+            const int num_assigned = bot_.InformationManager().UnitInfo().GetNumAssignedWorkers(refinery);
 
             // if it's less than we want it to be, fill 'er up
-            // As a side effect of the following hack ( read next paragraph of comments )
-            // (3-numAssigned) has been changed to (2-numAssigned)
-            // Otherwise there will be four workers on gas when playing terran. 
-            for (int i=0; i<(2-numAssigned); ++i)
+            for (int i=0; i<(refinery->ideal_harvesters - num_assigned); ++i)
             {
-                sc2::Tag gasWorker = getGasWorker(refinery);
-                if (gasWorker)
+                // Find the closest mining scv to the refinery.
+                const sc2::Unit* gas_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals)->unit;
+                if (gas_worker)
                 {
-                    bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(gasWorker), UnitMission::Gas, refinery->tag);
+                    bot_.InformationManager().UnitInfo().SetJob(gas_worker, UnitMission::Gas);
                     // Once a unit starts gathering resources, we don't send another command to gather resources. 
                     // If a unit is already gathering minerals, he won't start mining gas. 
                     // As a temporary work around, we send the gather command once they get assigned to a geyser. 
                     // A side effect of this system is the workers will never look for a more optimal mineral field to gather from. 
                     // TODO: Come up with a better system. 
-                    bot_.Actions()->UnitCommand(bot_.GetUnit(gasWorker), sc2::ABILITY_ID::SMART, refinery);
-                    Micro::SmartRightClick(bot_.GetUnit(gasWorker), refinery, bot_);
+                    bot_.Actions()->UnitCommand(gas_worker, sc2::ABILITY_ID::SMART, refinery);
+                    Micro::SmartRightClick(gas_worker, refinery, bot_);
                 }
             }
         }
@@ -80,31 +83,31 @@ void WorkerManager::assignGasWorkers() const
 }
 
 // Make the workers go do the things that they were assigned to do. 
-void WorkerManager::handleWorkers() const
+void WorkerManager::HandleWorkers() const
 {
-    for (auto & workerInfo : bot_.InformationManager().UnitInfo().GetWorkers())
+    for (auto & worker_info : bot_.InformationManager().UnitInfo().GetWorkers())
     {
-        const UnitMission job = workerInfo->mission;
+        const UnitMission job = worker_info->mission;
         if (job == UnitMission::Minerals)
         {
             // find the mineral to mine and mine it
-            const sc2::Unit* cc = bot_.InformationManager().GetClosestUnitOfType(workerInfo->unit, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+            const sc2::Unit* cc = bot_.InformationManager().GetClosestUnitOfType(worker_info->unit, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
             if (!cc) { return; }
-            const sc2::Tag mineralToMine = getMineralToMine(cc);
-            Micro::SmartRightClick(workerInfo->unit, bot_.GetUnit(mineralToMine), bot_);
+            const sc2::Unit* mineral_to_mine = GetMineralToMine(cc);
+            Micro::SmartRightClick(worker_info->unit, mineral_to_mine, bot_);
         }
         else if (job == UnitMission::Gas)
         {
             // right click the refinery to start harvesting
-            Micro::SmartRightClick(workerInfo->unit, bot_.GetUnit(workerInfo->workerDepotTag), bot_);
+            Micro::SmartRightClick(worker_info->unit, worker_info->workerDepot, bot_);
         }
     }
 }
 
-sc2::Tag WorkerManager::getMineralToMine(const sc2::Unit* unit) const
+const sc2::Unit* WorkerManager::GetMineralToMine(const sc2::Unit* unit) const
 {
-    sc2::Tag bestMineral = -1;
-    double bestDist = std::numeric_limits<double>::max();;
+    const sc2::Unit* best_mineral = nullptr;
+    double best_dist = std::numeric_limits<double>::max();;
 
     for (auto & mineral : bot_.Observation()->GetUnits())
     {
@@ -112,94 +115,77 @@ sc2::Tag WorkerManager::getMineralToMine(const sc2::Unit* unit) const
 
         const double dist = Util::Dist(mineral->pos, unit->pos);
 
-        if (dist < bestDist)
+        if (dist < best_dist)
         {
-            bestMineral = mineral->tag;
-            bestDist = dist;
+            best_mineral = mineral;
+            best_dist = dist;
         }
     }
 
-    return bestMineral;
+    return best_mineral;
 }
 
 // Unlike the GetCosestUnit functions inside InformationManager, this only iterates through workers.
-sc2::Tag WorkerManager::getClosestMineralWorkerTo(const sc2::Point2D & pos) const
+const sc2::Unit* WorkerManager::GetClosestMineralWorkerTo(const sc2::Point2D & pos) const
 {
-    sc2::Tag closestMineralWorker = 0;
-    double closestDist = std::numeric_limits<double>::max();
+    const sc2::Unit* closest_mineral_worker = nullptr;
+    double closest_dist = std::numeric_limits<double>::max();
 
     // for each of our workers
-    for (auto & workerInfo : bot_.InformationManager().UnitInfo().GetWorkers())
+    for (auto & worker_info : bot_.InformationManager().UnitInfo().GetWorkers())
     {
-        if (!workerInfo) { std::cout << "Warning: a workerInfo pointer is invalid." << std::endl; continue; }
+        if (!worker_info) { std::cout << "Warning: a workerInfo pointer is invalid." << std::endl; continue; }
 
         // if it is a mineral worker
-        if (workerInfo->mission == UnitMission::Minerals
-        ||  workerInfo->mission == UnitMission::Proxy)
+        if (worker_info->mission == UnitMission::Minerals
+        ||  worker_info->mission == UnitMission::Proxy)
         {
-            const double dist = Util::DistSq(workerInfo->unit->pos, pos);
+            const double dist = Util::DistSq(worker_info->unit->pos, pos);
 
-            if (!closestMineralWorker || dist < closestDist)
+            if (!closest_mineral_worker || dist < closest_dist)
             {
-                closestMineralWorker = workerInfo->unit->tag;
-                closestDist = dist;
+                closest_mineral_worker = worker_info->unit;
+                closest_dist = dist;
             }
         }
     }
 
-    return closestMineralWorker;
+    return closest_mineral_worker;
 }
 
-// set a worker to mine minerals
-void WorkerManager::setMineralWorker(const sc2::Unit* unit) const
+const sc2::Unit* WorkerManager::GetGasWorker(const sc2::Unit* refinery) const
 {
-    // check if there is a mineral available to send the worker to
-    const sc2::Unit* base = bot_.InformationManager().GetClosestBase(unit);
-    if (!base) return; 
-
-    const sc2::Tag baseTag = base->tag; 
-
-    // if there is a valid mineral
-    if (baseTag)
-    {
-        // update workerData with the new job
-        bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Minerals, baseTag);
-    }
-}
-
-sc2::Tag WorkerManager::getGasWorker(const sc2::Unit* refinery) const
-{
-    return getClosestMineralWorkerTo(refinery->pos);
+    return GetClosestMineralWorkerTo(refinery->pos);
 }
 
 // gets a builder for BuildingManager to use
-// if setJobAsBuilder is true (default), it will be flagged as a builder unit
-// set 'setJobAsBuilder' to false if we just want to see which worker will build a building
-sc2::Tag WorkerManager::getBuilder(Building & b, const bool setJobAsBuilder) const
+// if set_job_as_builder is true (default), it will be flagged as a builder unit
+// set 'set_job_as_builder' to false if we just want to see which worker will build a building
+const sc2::Unit* WorkerManager::GetBuilder(Building & b, const bool set_job_as_builder) const
 {
-    const sc2::Tag builderWorker = getClosestMineralWorkerTo(sc2::Point2D(b.finalPosition.x, b.finalPosition.y));
+    const sc2::Unit* builder_worker = GetClosestMineralWorkerTo(sc2::Point2D(b.finalPosition.x, b.finalPosition.y));
 
     // if the worker exists (one may not have been found in rare cases)
-    if (builderWorker && setJobAsBuilder)
+    if (builder_worker && set_job_as_builder)
     {
-        bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(builderWorker), UnitMission::Build, b.type);
+        bot_.InformationManager().UnitInfo().SetJob(builder_worker, UnitMission::Build);
     }
 
-    return builderWorker;
+    return builder_worker;
 }
 
-bool WorkerManager::isFree(const sc2::Unit* worker) const
+bool WorkerManager::IsFree(const sc2::Unit* worker) const
 {
     const UnitMission job = bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission;
     return job == UnitMission::Minerals || job == UnitMission::Idle;
 }
 
-bool WorkerManager::isWorkerScout(const sc2::Unit* worker) const
+bool WorkerManager::IsWorkerScout(const sc2::Unit* worker) const
 {
     return (bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission == UnitMission::Scout);
 }
 
-bool WorkerManager::isBuilder(const sc2::Unit* worker) const
+bool WorkerManager::IsBuilder(const sc2::Unit* worker) const
 {
     return (bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission == UnitMission::Build);
 }
