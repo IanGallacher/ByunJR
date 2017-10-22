@@ -22,7 +22,6 @@ void ScoutManager::OnStart()
 
 void ScoutManager::OnFrame()
 {
-    // Update our shorthand for 
     MoveScouts();
     DrawScoutInformation();
 }

@@ -5,7 +5,7 @@ class ByunJRBot;
 
 class ScoutManager
 {
-    ByunJRBot &     bot_;
+    ByunJRBot &                       bot_;
     std::string                       scout_status_;
     int                               num_scouts_;
     bool                              scout_under_attack_;
