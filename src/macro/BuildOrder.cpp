@@ -3,45 +3,45 @@
 #include "macro/BuildOrder.h"
 
 BuildOrder::BuildOrder()
-    : m_race(sc2::Race::Protoss)
+    : race_(sc2::Race::Protoss)
 {
 
 }
 
 BuildOrder::BuildOrder(const sc2::Race & race)
-    : m_race(race)
+    : race_(race)
 {
 
 }
 
 BuildOrder::BuildOrder(const sc2::Race & race, const std::vector<sc2::UnitTypeID> & vec)
-    : m_race(race)
-    , m_buildOrder(vec)
+    : race_(race)
+    , build_order_(vec)
 {
 
 }
 
-void BuildOrder::add(const sc2::UnitTypeID & type)
+void BuildOrder::Add(const sc2::UnitTypeID & type)
 {
-    m_buildOrder.push_back(type);
+    build_order_.push_back(type);
 }
 
-const sc2::Race & BuildOrder::getRace() const
+const sc2::Race & BuildOrder::GetRace() const
 {
-    return m_race;
+    return race_;
 }
 
-size_t BuildOrder::size() const
+size_t BuildOrder::Size() const
 {
-    return m_buildOrder.size();
+    return build_order_.size();
 }
 
 const sc2::UnitTypeID & BuildOrder::operator [] (const size_t & index) const
 {
-    return m_buildOrder[index];
+    return build_order_[index];
 }
 
 sc2::UnitTypeID & BuildOrder::operator [] (const size_t & index)
 {
-    return m_buildOrder[index];
+    return build_order_[index];
 }

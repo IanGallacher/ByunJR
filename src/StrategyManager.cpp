@@ -11,28 +11,28 @@ Strategy::Strategy()
 }
 
 Strategy::Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder)
-    : m_name(name)
-    , m_race(race)
-    , m_buildOrder(buildOrder)
-    , m_wins(0)
-    , m_losses(0)
+    : name(name)
+    , race(race)
+    , buildOrder(buildOrder)
+    , wins(0)
+    , losses(0)
 {
 
 }
 
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
-    : m_bot(bot)
+    : bot_(bot)
 {
 
 }
 
 void StrategyManager::onStart()
 {
-    readStrategyFile(m_bot.Config().ConfigFileLocation);
+    readStrategyFile(bot_.Config().ConfigFileLocation);
 }
 
-void StrategyManager::onFrame()
+void StrategyManager::OnFrame()
 {
 
 }
@@ -40,35 +40,35 @@ void StrategyManager::onFrame()
 // assigns units to various managers
 void StrategyManager::handleUnitAssignments()
 {
-    m_bot.InformationManager().handleUnitAssignments();
+    bot_.InformationManager().HandleUnitAssignments();
 }
 
 bool StrategyManager::shouldSendInitialScout() const
 {
     return true;
 
-    switch (m_bot.GetPlayerRace(PlayerArrayIndex::Self))
+    switch (bot_.GetPlayerRace(PlayerArrayIndex::Self))
     {
-    case sc2::Race::Terran:  return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
-    case sc2::Race::Protoss: return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
-    case sc2::Race::Zerg:    return m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+    case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+    case sc2::Race::Protoss: return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+    case sc2::Race::Zerg:    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
     default: return false;
     }
 }
 
 const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
 {
-    const auto buildOrderIt = m_strategies.find(m_bot.Config().StrategyName);
+    const auto buildOrderIt = strategies.find(bot_.Config().StrategyName);
 
     // look for the build order in the build order map
-    if (buildOrderIt != std::end(m_strategies))
+    if (buildOrderIt != std::end(strategies))
     {
-        return (*buildOrderIt).second.m_buildOrder;
+        return (*buildOrderIt).second.buildOrder;
     }
     else
     {
-        BOT_ASSERT(false, "Strategy not found: %s, returning empty initial build order", m_bot.Config().StrategyName.c_str());
-        return m_emptyBuildOrder;
+        BOT_ASSERT(false, "Strategy not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
+        return emptyBuildOrder;
     }
 }
 
@@ -79,7 +79,7 @@ bool StrategyManager::shouldExpandNow() const
 
 void StrategyManager::addStrategy(const std::string & name, const Strategy & strategy)
 {
-    m_strategies[name] = strategy;
+    strategies[name] = strategy;
 }
 
 UnitPairVector StrategyManager::getBuildOrderGoal() const
@@ -110,9 +110,9 @@ void StrategyManager::onEnd(const bool isWinner)
 
 void StrategyManager::readStrategyFile(const std::string & filename)
 {
-    sc2::Race race = m_bot.GetPlayerRace(PlayerArrayIndex::Self);
+    sc2::Race race = bot_.GetPlayerRace(PlayerArrayIndex::Self);
     std::string ourRace = Util::GetStringFromRace(race);
-    std::string config = m_bot.Config().RawConfigString;
+    std::string config = bot_.Config().RawConfigString;
     rapidjson::Document doc;
     const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
     if (parsingFailed)
@@ -127,19 +127,19 @@ void StrategyManager::readStrategyFile(const std::string & filename)
         const rapidjson::Value & strategy = doc["Strategy"];
 
         // read in the various strategic elements
-        JSONTools::ReadBool("ScoutHarassEnemy", strategy, m_bot.Config().ScoutHarassEnemy);
-        JSONTools::ReadString("ReadDirectory", strategy, m_bot.Config().ReadDir);
-        JSONTools::ReadString("WriteDirectory", strategy, m_bot.Config().WriteDir);
+        JSONTools::ReadBool("ScoutHarassEnemy", strategy, bot_.Config().ScoutHarassEnemy);
+        JSONTools::ReadString("ReadDirectory", strategy, bot_.Config().ReadDir);
+        JSONTools::ReadString("WriteDirectory", strategy, bot_.Config().WriteDir);
 
         // if we have set a strategy for the current race, use it
         if (strategy.HasMember(ourRace.c_str()) && strategy[ourRace.c_str()].IsString())
         {
-            m_bot.Config().StrategyName = strategy[ourRace.c_str()].GetString();
+            bot_.Config().StrategyName = strategy[ourRace.c_str()].GetString();
         }
 
         // check if we are using an enemy specific strategy
-        JSONTools::ReadBool("UseEnemySpecificStrategy", strategy, m_bot.Config().UseEnemySpecificStrategy);
-        if (m_bot.Config().UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
+        JSONTools::ReadBool("UseEnemySpecificStrategy", strategy, bot_.Config().UseEnemySpecificStrategy);
+        if (bot_.Config().UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
         {
             // TODO: Figure out enemy name
             const std::string enemyName = "ENEMY NAME";
@@ -153,8 +153,8 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                 // if that enemy has a strategy listed for our current race, use it
                 if (enemyStrategies.HasMember(ourRace.c_str()) && enemyStrategies[ourRace.c_str()].IsString())
                 {
-                    m_bot.Config().StrategyName = enemyStrategies[ourRace.c_str()].GetString();
-                    m_bot.Config().FoundEnemySpecificStrategy = true;
+                    bot_.Config().StrategyName = enemyStrategies[ourRace.c_str()].GetString();
+                    bot_.Config().FoundEnemySpecificStrategy = true;
                 }
             }
         }
@@ -188,9 +188,9 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     {
                         if (build[b].IsString())
                         {
-                            const sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(m_bot.Observation(), build[b].GetString());
+                            const sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(bot_.Observation(), build[b].GetString());
 
-                            buildOrder.add(typeID);
+                            buildOrder.Add(typeID);
                         }
                         else
                         {

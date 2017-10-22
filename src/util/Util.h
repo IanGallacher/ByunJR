@@ -9,7 +9,7 @@ namespace Util
 {
     struct IsUnit 
     {
-        sc2::UNIT_TYPEID m_type;
+        sc2::UNIT_TYPEID type;
 
         IsUnit(sc2::UNIT_TYPEID type);
     };
@@ -34,9 +34,9 @@ namespace Util
     float GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot);
     float GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot);
     
-    bool UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, ByunJRBot & m_bot);
+    bool UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, ByunJRBot & bot);
     sc2::UnitTypeID WhatBuilds(const sc2::UnitTypeID & type);
-    int EnemyDPSInRange(const sc2::Point3D unitPos, ByunJRBot & bot);
+    int EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot);
     int GetUnitTypeWidth(const sc2::UnitTypeID type, const ByunJRBot & bot);
     int GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot);
     int GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const ByunJRBot & bot);
@@ -49,7 +49,9 @@ namespace Util
     sc2::UnitTypeID GetUnitTypeIDFromName(const sc2::ObservationInterface * obs, const std::string & name);
 
     float Dist(const sc2::Point2D & p1, const sc2::Point2D & p2);
+    float Dist(const sc2::Point2DI & p1, const sc2::Point2D & p2);
     float DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2);
+    float DistSq(const sc2::Point2DI & p1, const sc2::Point2D & p2);
     
     // Kevin-provided helper functions
     void    VisualizeGrids(const sc2::ObservationInterface* obs, sc2::DebugInterface* debug);

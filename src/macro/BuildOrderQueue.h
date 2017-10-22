@@ -5,9 +5,9 @@ class ByunJRBot;
 
 struct BuildOrderItem
 {
-    sc2::UnitTypeID type;		// the thing we want to 'build'
-    int             priority;	// the priority at which to place it in the queue
-    bool            blocking;	// whether or not we block further items
+    sc2::UnitTypeID type;        // the thing we want to 'build'
+    int             priority;    // the priority at which to place it in the queue
+    bool            blocking;    // whether or not we block further items
 
     BuildOrderItem(sc2::UnitTypeID t, int p, bool b);
     bool operator<(const BuildOrderItem & x) const;
@@ -15,35 +15,35 @@ struct BuildOrderItem
 
 class BuildOrderQueue
 {
-    ByunJRBot & m_bot;
-    std::deque<BuildOrderItem> m_queue;
+    ByunJRBot & bot_;
+    std::deque<BuildOrderItem> queue_;
 
-    int m_lowestPriority;
-    int m_highestPriority;
-    int m_defaultPrioritySpacing;
-    int m_numSkippedItems;
+    int lowest_priority_;
+    int highest_priority_;
+    int default_priority_spacing_;
+    int num_skipped_items_;
 
 public:
 
     BuildOrderQueue(ByunJRBot & bot);
 
-    void clearAll();											// clears the entire build order queue
-    void skipItem();											// increments skippedItems
-    void queueAsHighestPriority(sc2::UnitTypeID type, bool blocking);		// queues something at the highest priority
-    void queueAsLowestPriority(sc2::UnitTypeID type, bool blocking);		// queues something at the lowest priority
-    void queueItem(BuildOrderItem b);			// queues something with a given priority
-    void removeHighestPriorityItem();								// removes the highest priority item
-    void removeCurrentHighestPriorityItem();
+    void ClearAll();                                                         // clears the entire build order queue
+    void SkipItem();                                                         // increments skippedItems
+    void QueueAsHighestPriority(sc2::UnitTypeID type, bool blocking);        // queues something at the highest priority
+    void QueueAsLowestPriority(sc2::UnitTypeID type, bool blocking);         // queues something at the lowest priority
+    void QueueItem(BuildOrderItem b);                                        // queues something with a given priority
+    void RemoveHighestPriorityItem();                                        // removes the highest priority item
+    void RemoveCurrentHighestPriorityItem();
 
-    size_t size() const;													// returns the size of the queue
+    size_t Size() const;                                                     // returns the size of the queue
 
-    bool isEmpty() const;
+    bool IsEmpty() const;
 
-    BuildOrderItem & getHighestPriorityItem();	// returns the highest priority item
-    BuildOrderItem & getNextHighestPriorityItem();	// returns the highest priority item
+    BuildOrderItem & GetHighestPriorityItem();                               // returns the highest priority item
+    BuildOrderItem & GetNextHighestPriorityItem();                           // returns the highest priority item
 
-    bool canSkipItem();
-    std::string getQueueInformation() const;
+    bool CanSkipItem();
+    std::string GetQueueInformation() const;
 
     // overload the bracket operator for ease of use
     BuildOrderItem operator [] (int i);

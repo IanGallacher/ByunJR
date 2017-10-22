@@ -4,11 +4,26 @@ class ByunJRBot;
 
 class DebugManager
 {
-    ByunJRBot &                 m_bot;
+    ByunJRBot &                 bot_;
 public:
     DebugManager(ByunJRBot & bot);
-    void drawResourceDebugInfo();
-    void drawAllUnitInformation() const;
-    void drawDebugInterface() const;
-    void drawGameInformation() const;
+    void DrawResourceDebugInfo() const;
+    void DrawAllUnitInformation() const;
+    void DrawDebugInterface() const;
+    void DrawGameInformation() const;
+
+
+    // Debug Helper functions
+    void DrawLine(float x1, float y1, float x2, float y2, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawLine(const sc2::Point2D& min, const sc2::Point2D max, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawSquare(float x1, float y1, float x2, float y2, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawBox(float x1, float y1, float x2, float y2, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawBox(const sc2::Point3D& min, const sc2::Point2D max, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawBox(const sc2::Point3D& min, const sc2::Point3D max, const sc2::Color& color) const;
+    void DrawSphere(float x1, float x2, float radius, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawSphere(const sc2::Point2D& pos, float radius, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawText(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawTextScreen(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const;
+    void DrawSphereAroundUnit(const sc2::Tag& uinit, sc2::Color color) const;
 };

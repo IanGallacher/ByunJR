@@ -9,48 +9,48 @@ class ByunJRBot;
 
 class BaseLocation
 {
-    ByunJRBot &                              m_bot;
-    DistanceMap                              m_distanceMap;
+    ByunJRBot &                              bot_;
+    DistanceMap                              distance_map_;
 
-    sc2::Point2D                             m_depotPosition;
-    sc2::Point2D                             m_centerOfResources;
-    std::vector<const sc2::Unit*>                  m_geysers;
-    std::vector<const sc2::Unit*>                  m_minerals;
+    sc2::Point2D                             depot_position_;
+    sc2::Point2D                             center_of_resources_;
+    std::vector<const sc2::Unit*>            geysers_;
+    std::vector<const sc2::Unit*>            minerals_;
 
-    std::vector<sc2::Point2D>                m_mineralPositions;
-    std::vector<sc2::Point2D>                m_geyserPositions;
+    std::vector<sc2::Point2D>                mineral_positions_;
+    std::vector<sc2::Point2D>                geyser_positions_;
 
-    std::map<PlayerArrayIndex, bool>         m_isPlayerOccupying;
-    std::map<PlayerArrayIndex, bool>         m_isPlayerStartLocation;
+    std::map<PlayerArrayIndex, bool>         is_player_occupying_;
+    std::map<PlayerArrayIndex, bool>         is_player_start_location_;
         
-    int                                      m_baseID;
-    float                                    m_left;
-    float                                    m_right;
-    float                                    m_top;
-    float                                    m_bottom;
-    bool                                     m_isStartLocation;
+    int                                      baseID;
+    float                                    left_;
+    float                                    right_;
+    float                                    top_;
+    float                                    bottom_;
+    bool                                     is_start_location_;
     
 public:
 
     BaseLocation(ByunJRBot & bot, int baseID, const std::vector<const sc2::Unit*> & resources);
     
-    int getGroundDistance(const sc2::Point2D & pos) const;
-    bool isStartLocation() const;
-    bool isPlayerStartLocation() const;
-	bool isPotentialEnemyStartLocation() const;
-    bool isMineralOnly() const;
-    bool containsPosition(const sc2::Point2D & pos) const;
-    const sc2::Point2D & getDepotPosition() const;
-    const sc2::Point2D & getPosition() const;
-	const std::vector<const sc2::Unit*>& getGeysers() const;
-	const std::vector<const sc2::Unit*>& getMinerals() const;
-    bool isOccupiedByPlayer(PlayerArrayIndex player) const;
-    bool isExplored() const;
-    bool isInResourceBox(int x, int y) const;
+    int GetGroundDistance(const sc2::Point2D & pos) const;
+    bool IsStartLocation() const;
+    bool IsPlayerStartLocation() const;
+    bool IsPotentialEnemyStartLocation() const;
+    bool IsMineralOnly() const;
+    bool ContainsPosition(const sc2::Point2D & pos) const;
+    const sc2::Point2D & GetDepotPosition() const;
+    const sc2::Point2D & GetPosition() const;
+    const std::vector<const sc2::Unit*>& GetGeysers() const;
+    const std::vector<const sc2::Unit*>& GetMinerals() const;
+    bool IsOccupiedByPlayer(PlayerArrayIndex player) const;
+    bool IsExplored() const;
+    bool IsInResourceBox(int x, int y) const;
 
-    void setPlayerOccupying(PlayerArrayIndex player, bool occupying);
+    void SetPlayerOccupying(PlayerArrayIndex player, bool occupying);
 
-    const std::vector<sc2::Point2D> & getClosestTiles() const;
+    const std::vector<sc2::Point2DI> & GetClosestTiles() const;
 
-    void draw();
+    void Draw();
 };

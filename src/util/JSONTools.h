@@ -1,4 +1,5 @@
 #pragma once
+#include "common/BotAssert.h"
 #include "rapidjson/document.h"
 
 namespace JSONTools

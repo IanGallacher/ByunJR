@@ -1,49 +1,48 @@
 #pragma once
-#include "common/Common.h"
 #include "micro/ProxyManager.h"
 
 class ProxyManager;
 
 class Candidate {
-    std::vector<int> m_genes;
-    int m_fitness;
+    std::vector<int> genes_;
+    int fitness_;
 
 public:
     Candidate();
     Candidate(std::vector<int> genes);
     Candidate(std::vector<int> genes, int fitness);
     void SetFitness(int fitness);
-    void setGene(int index, int gene);
-    int getGene(int i);
-    int getFitness();
+    void SetGene(int index, int gene);
+    int GetGene(int i);
+    int GetFitness() const;
 };
 
 class Population {
-    std::vector<Candidate> m_canidates;
+    std::vector<Candidate> canidates_;
 
 public :
     Population(const int size);
-    void setCanidate(int index, Candidate c);
-    Candidate getCandidate(int index);
-    Candidate getFittest();
-    void setReward(int i, int reward);
+    void SetCanidate(int index, Candidate c);
+    Candidate GetCandidate(int index);
+    Candidate GetFittest();
+    void SetReward(int i, int reward);
 };
 
 class GeneticAlgorithm {
-    double uniformRate;
-    double mutationRate;
-    int tournamentSize;
-    bool elitism;
-    Population m_population;
+    double uniform_rate_;
+    double mutation_rate_;
+    int tournament_size_;
+    bool elitism_;
+    Population population_;
 
-    Candidate crossover(Candidate indiv1, Candidate indiv2);
-    void mutate(Candidate &indiv);
+    Candidate Crossover(Candidate indiv1, Candidate indiv2) const;
+    void Mutate(Candidate &indiv) const;
 
-    Candidate tournamentSelection(Population pop);
+    Candidate TournamentSelection(Population pop) const;
 
     public:
         GeneticAlgorithm();
-        void evolvePopulation(ProxyTrainingData & pm);
-        Population* getPopulation();
-        void setReward(int i, int reward);
+        void EvolvePopulation(ProxyTrainingData & pm);
+        Population* GetPopulation();
+        void SetReward(int i, int reward);
 };

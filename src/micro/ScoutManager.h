@@ -5,25 +5,25 @@ class ByunJRBot;
 
 class ScoutManager
 {
-    ByunJRBot &     m_bot;
+    ByunJRBot &     bot_;
 
-    sc2::Tag        m_scoutUnitTag;
-    std::string     m_scoutStatus;
-    int             m_numScouts;
-    bool            m_scoutUnderAttack;
-    float           m_previousScoutHP;
+    sc2::Tag        scout_unit_tag_;
+    std::string     scout_status_;
+    int             num_scouts_;
+    bool            scout_under_attack_;
+    float           previous_scout_hp_;
 
-    bool            enemyWorkerInRadiusOf(const sc2::Point2D & pos) const;
-    sc2::Point2D    getFleePosition() const;
-    const sc2::Unit* closestEnemyWorkerTo(const sc2::Point2D & pos) const;
-    void            moveScouts();
-    void            drawScoutInformation();
+    bool            EnemyWorkerInRadiusOf(const sc2::Point2D & pos) const;
+    sc2::Point2D    GetFleePosition() const;
+    const sc2::Unit* ClosestEnemyWorkerTo(const sc2::Point2D & pos) const;
+    void            MoveScouts();
+    void            DrawScoutInformation() const;
 
 public:
 
     ScoutManager(ByunJRBot & bot);
 
-    void onStart();
-    void onFrame();
-    void setWorkerScout(const sc2::Tag & tag);
+    static void OnStart();
+    void OnFrame();
+    void SetWorkerScout(const sc2::Tag & tag);
 };

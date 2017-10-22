@@ -7,70 +7,151 @@
 #include "util/Util.h"
 
 DebugManager::DebugManager(ByunJRBot & bot)
-    : m_bot(bot)
+    : bot_(bot)
 {
 }
 
-void DebugManager::drawResourceDebugInfo()
+void DebugManager::DrawResourceDebugInfo() const
 {
-    const std::map<sc2::Tag, UnitInfo> ui = m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self);
 
-    for (auto const & unitInfo : ui)
+    for (auto const & unit_info : ui)
     {
-        if (Util::IsBuilding(unitInfo.second.unit->unit_type)) continue;
-        m_bot.Map().drawText(unitInfo.second.unit->pos, unitInfo.second.getJobCode());
+        if (Util::IsBuilding(unit_info.second.unit->unit_type)) continue;
+        bot_.DebugHelper().DrawText(unit_info.second.unit->pos, unit_info.second.GetJobCode());
 
-        //auto depot = m_bot.GetUnit(m_workerData.getWorkerDepot(workerTag));
+        //auto depot = bot_.GetUnit(workerData.getWorkerDepot(workerTag));
         //if (depot)
         //{
-        //    m_bot.Map().drawLine(m_bot.GetUnit(workerTag)->pos, depot->pos);
+        //    bot_.Map().drawLine(bot_.GetUnit(workerTag)->pos, depot->pos);
         //}
     }
 }
 
 //void DebugManager::drawDepotDebugInfo()
 //{
-//	for (auto & baseTag : m_depots)
-//	{
-//		const auto base = m_bot.GetUnit(baseTag);
+//    for (auto & baseTag : depots)
+//    {
+//        const auto base = bot_.GetUnit(baseTag);
 //
-//		if (!base) continue;
-//		std::stringstream ss;
-//		ss << "Workers: " << getNumAssignedWorkers(base);
+//        if (!base) continue;
+//        std::stringstream ss;
+//        ss << "Workers: " << getNumAssignedWorkers(base);
 //
-//		m_bot.Map().drawText(base->pos, ss.str());
-//	}
+//        bot_.Map().drawText(base->pos, ss.str());
+//    }
 //}
 
-void DebugManager::drawAllUnitInformation() const
+void DebugManager::DrawAllUnitInformation() const
 {
     std::stringstream ss;
-    const std::map<sc2::Tag, UnitInfo> ui = m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self);
 
     ss << "Workers: " << ui.size() << std::endl;
 
     int yspace = 0;
 
-    for (auto const & unitInfo : ui )
+    for (auto const & unit_info : ui )
     {
-        if (Util::IsBuilding(unitInfo.second.unit->unit_type)) continue;
-        ss << unitInfo.second.getJobCode() << " " << unitInfo.first << std::endl;
+        if (Util::IsBuilding(unit_info.second.unit->unit_type)) continue;
+        ss << unit_info.second.GetJobCode() << " " << unit_info.first << std::endl;
     }
 
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
 }
 
-void DebugManager::drawDebugInterface() const
+void DebugManager::DrawDebugInterface() const
 {
-    drawGameInformation();
+    DrawGameInformation();
 }
 
-void DebugManager::drawGameInformation() const
+void DebugManager::DrawGameInformation() const
 {
     std::stringstream ss;
     // ss << "Players: " << std::endl;
-    ss << "Strategy: " << m_bot.Config().StrategyName << std::endl;
-    ss << "Map Name: " << m_bot.Config().MapName << std::endl;
+    ss << "Strategy: " << bot_.Config().StrategyName << std::endl;
+    ss << "Map Name: " << bot_.Config().MapName << std::endl;
     // ss << "Time: " << std::endl;
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.75f, 0.1f), ss.str());
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.75f, 0.1f), ss.str());
+}
+
+float max_z_ = 10;
+
+void DebugManager::DrawLine(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_ + 0.2f), sc2::Point3D(x2, y2, max_z_ + 0.2f), color);
+}
+
+void DebugManager::DrawLine(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugLineOut(sc2::Point3D(min.x, min.y, max_z_ + 0.2f), sc2::Point3D(max.x, max.y, max_z_ + 0.2f), color);
+}
+
+void DebugManager::DrawSquare(const float x1, const float y1, float x2, float y2, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_), sc2::Point3D(x1 + 1, y1, max_z_), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_), sc2::Point3D(x1, y1 + 1, max_z_), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1 + 1, y1 + 1, max_z_), sc2::Point3D(x1 + 1, y1, max_z_), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1 + 1, y1 + 1, max_z_), sc2::Point3D(x1, y1 + 1, max_z_), color);
+}
+
+void DebugManager::DrawBox(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugBoxOut(sc2::Point3D(x1, y1, max_z_ + 2.0f), sc2::Point3D(x2, y2, max_z_ - 5.0f), color);
+}
+
+void DebugManager::DrawBox(const sc2::Point3D& min, const sc2::Point2D max, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, max_z_ + 2.0f), sc2::Point3D(max.x, max.y, max_z_ - 5.0f), color);
+}
+
+void DebugManager::DrawBox(const sc2::Point3D & min, const sc2::Point3D max, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, min.z), sc2::Point3D(max.x, max.y, max.z), color);
+}
+
+void DebugManager::DrawSphere(const sc2::Point2D& pos, const float radius, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugSphereOut(sc2::Point3D(pos.x, pos.y, max_z_), radius, color);
+}
+
+void DebugManager::DrawSphere(const float x, const float y, const float radius, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugSphereOut(sc2::Point3D(x, y, max_z_), radius, color);
+}
+
+void DebugManager::DrawText(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugTextOut(str, sc2::Point3D(pos.x, pos.y, max_z_), color);
+}
+
+void DebugManager::DrawTextScreen(const sc2::Point2D& pos, const std::string & str, const sc2::Color & color) const
+{
+    bot_.Debug()->DebugTextOut(str, pos, color);
+}
+
+void DebugManager::DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const
+{
+    if (!unit) { std::cout << "Warning. No unit was given to drawBoxAroundUnit" << std::endl; return; }
+
+    sc2::Point3D p_min = unit->pos;
+    p_min.x -= unit->radius;
+    p_min.y -= unit->radius;
+    p_min.z -= unit->radius;
+
+    sc2::Point3D p_max = unit->pos;
+    p_max.x += unit->radius;
+    p_max.y += unit->radius;
+    p_max.z += unit->radius;
+
+    DrawBox(p_min, p_max, color);
+}
+
+void DebugManager::DrawSphereAroundUnit(const sc2::Tag& unit_tag, const sc2::Color color) const
+{
+    const sc2::Unit* unit = bot_.GetUnit(unit_tag);
+
+    if (!unit) { return; }
+
+    DrawSphere(unit->pos, 1, color);
 }

@@ -1,18 +1,15 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "util/JSONTools.h"
-
-class BotConfig
+struct BotConfig
 {
-public:
     std::string RawConfigString;
 
     bool ConfigFileFound;
     bool ConfigFileParsed;
     std::string ConfigFileLocation;
         
-    bool UsingAutoObserver;		
+    bool UsingAutoObserver;        
     
     std::string BotName;
     std::string MapName;
@@ -41,7 +38,7 @@ public:
     bool DrawEnemyUnitInfo;
     bool DrawLastSeenTileInfo;
     bool DrawUnitTargetInfo;
-    bool DrawSquadInfo;		
+    bool DrawSquadInfo;        
     
     sc2::Color ColorLineTarget;
     sc2::Color ColorLineMineral;
@@ -58,6 +55,6 @@ public:
  
     BotConfig();
 
-    void readConfigFile();
-    void setProxyLocation(const int x, const int y);
+    void ReadConfigFile();
+    void SetProxyLocation(const int x, const int y);
 };

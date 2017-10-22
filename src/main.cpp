@@ -22,25 +22,25 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
-    if (parsingFailed)
+    const bool parsing_failed = doc.Parse(config.c_str()).HasParseError();
+    if (parsing_failed)
     {
         std::cerr << "Config file could not be parsed, and is required for starting the bot\n";
         std::cerr << "Please read the instructions and try again\n";
         exit(-1);
     }
 
-    std::string botRaceString;
-    std::string enemyRaceString;
-    std::string mapString;
+    std::string bot_race_string;
+    std::string enemy_race_string;
+    std::string map_string;
 
     if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
     {
         const rapidjson::Value & info = doc["Game Info"];
-        JSONTools::ReadString("BotRace", info, botRaceString);
-        JSONTools::ReadString("EnemyRace", info, enemyRaceString);
-        JSONTools::ReadString("MapName", info, mapString);
-        mapString += ".SC2Map"; // The MapName does not include the file extension.
+        JSONTools::ReadString("BotRace", info, bot_race_string);
+        JSONTools::ReadString("EnemyRace", info, enemy_race_string);
+        JSONTools::ReadString("MapName", info, map_string);
+        map_string += ".SC2Map"; // The MapName does not include the file extension.
     }
     else
     {
@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
         std::cerr << "Please read the instructions and try again\n";
         exit(-1);
     }
-    std::cout << mapString << std::endl;
+    std::cout << map_string << std::endl;
 
 
     std::cout << "GLHF" << std::endl;
 
     GeneticAlgorithm ga = GeneticAlgorithm();
-    bool geneticAlgorithmSetup = false;
+    bool genetic_algorithm_setup = false;
 
     while (true) {
         // Test all 10 Candidates inside the population
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
             coordinator.SetRealtime(false);
 
-            //          Setting this = N means the bot's onFrame gets called once every N frames
+            //          Setting this = N means the bot's OnFrame gets called once every N frames
             //          The bot may crash or do unexpected things if its logic is not called every frame
             coordinator.SetStepSize(10);
 
@@ -77,42 +77,42 @@ int main(int argc, char* argv[])
             ByunJRBot bot;
 
             coordinator.SetParticipants({
-                CreateParticipant(Util::GetRaceFromString(botRaceString), &bot),
-                CreateComputer(Util::GetRaceFromString(enemyRaceString), sc2::Difficulty::VeryHard)
+                CreateParticipant(Util::GetRaceFromString(bot_race_string), &bot),
+                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::VeryHard)
             });
 
             // Start the game.
             coordinator.LaunchStarcraft();
-            coordinator.StartGame(mapString);
-            bool alreadyInit = false;
+            coordinator.StartGame(map_string);
+            bool already_init = false;
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {
                 coordinator.Update();
 
-                if (geneticAlgorithmSetup == false)
+                if (genetic_algorithm_setup == false)
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        Population* pop = ga.getPopulation();
+                        Population* pop = ga.GetPopulation();
                         // grab proxy training data once
-                        const sc2::Point2D point = bot.GetProxyManager().getProxyTrainingData().getRandomViableProxyLocation();
+                        const sc2::Point2DI point = bot.GetProxyManager().GetProxyTrainingData().GetRandomViableProxyLocation();
                         std::vector<int> genes = std::vector<int>();
                         genes.resize(2);
                         genes[0] = point.x;
                         genes[1] = point.y;
                         const Candidate can = Candidate(genes);
-                        pop->setCanidate(i, can);
+                        pop->SetCanidate(i, can);
                     }
-                    geneticAlgorithmSetup = true;
+                    genetic_algorithm_setup = true;
                 }
 
 
-                if (alreadyInit == false)
+                if (already_init == false)
                 {
-                    Candidate c = ga.getPopulation()->getCandidate(i);
-                    bot.Config().setProxyLocation(c.getGene(0), c.getGene(1));
-                    bot.GetProxyManager().getProxyTrainingData().setupProxyLocation();
-                    alreadyInit = true;
+                    Candidate c = ga.GetPopulation()->GetCandidate(i);
+                    bot.Config().SetProxyLocation(c.GetGene(0), c.GetGene(1));
+                    bot.GetProxyManager().GetProxyTrainingData().SetupProxyLocation();
+                    already_init = true;
                 }
             }
 
@@ -125,10 +125,10 @@ int main(int argc, char* argv[])
                 std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
             }
             coordinator.LeaveGame();
-            ga.setReward(i, bot.GetProxyManager().getProxyTrainingData().getReward());
+            ga.SetReward(i, bot.GetProxyManager().GetProxyTrainingData().GetReward());
             if(i==9)
             {
-                ga.evolvePopulation(bot.GetProxyManager().getProxyTrainingData());
+                ga.EvolvePopulation(bot.GetProxyManager().GetProxyTrainingData());
                 std::cout << "MUTATING" << std::endl;
             }
         }

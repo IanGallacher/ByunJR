@@ -7,18 +7,18 @@ namespace SquadOrderTypes
 
 class SquadOrder
 {
-    size_t          m_type;
-    float           m_radius;
-    sc2::Point2D    m_position;
-    std::string     m_status;
+    size_t          type_;
+    float           radius_;
+    sc2::Point2D    position_;
+    std::string     status_;
 
 public:
 
     SquadOrder();
     SquadOrder(int type, const sc2::Point2D & position, float radius, std::string status = "Default");
 
-    const std::string & getStatus() const;
-    const sc2::Point2D & getPosition() const;
-    const float & getRadius() const;
-    const size_t & getType() const;
+    const std::string & GetStatus() const;
+    const sc2::Point2D & GetPosition() const;
+    const float & GetRadius() const;
+    const size_t & GetType() const;
 };

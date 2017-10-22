@@ -3,26 +3,27 @@
 
 enum class BuildingStatus { Unassigned = 0, Assigned = 1, UnderConstruction = 2, Size = 3 };
 
-class Building
+struct Building
 {
 public:
 
-    sc2::Point2D    desiredPosition;
-    sc2::Point2D    finalPosition;
-    sc2::Point2D    position;
-    sc2::UnitTypeID type;
-    sc2::Tag        buildingUnitTag;
-    sc2::Tag        builderUnitTag;
-    BuildingStatus  status;
-    int             lastOrderFrame;
-    bool            buildCommandGiven;
-    bool            underConstruction;
+    const sc2::Point2DI desiredPosition;
+    sc2::Point2DI       finalPosition;
+    sc2::Point2D        position;
+    sc2::UnitTypeID     type;
+    sc2::Tag            buildingUnitTag;
+    sc2::Tag            builderUnitTag;
+    BuildingStatus      status;
+    int                 lastOrderFrame;
+    bool                buildCommandGiven;
+    bool                underConstruction;
 
     Building();
 
     // constructor we use most often
-    Building(sc2::UnitTypeID t, sc2::Point2D desired);
+    Building(sc2::UnitTypeID t, sc2::Point2DI desired);
 
     // equals operator
     bool operator == (const Building & b);
+    Building& operator=(const Building&);
 };

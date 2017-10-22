@@ -3,35 +3,35 @@
 #include "micro/SquadOrder.h"
 
 SquadOrder::SquadOrder()
-    : m_type    (SquadOrderTypes::None)
-    , m_radius  (0)
+    : type_    (SquadOrderTypes::None)
+    , radius_  (0)
 {
 }
 
 SquadOrder::SquadOrder(const int type, const sc2::Point2D & position, const float radius, const std::string status)
-    : m_type    (type)
-    , m_position(position)
-    , m_radius  (radius)
-    , m_status  (status)
+    : type_    (type)
+    , position_(position)
+    , radius_  (radius)
+    , status_  (status)
 {
 }
 
-const std::string & SquadOrder::getStatus() const
+const std::string & SquadOrder::GetStatus() const
 {
-    return m_status;
+    return status_;
 }
 
-const sc2::Point2D & SquadOrder::getPosition() const
+const sc2::Point2D & SquadOrder::GetPosition() const
 {
-    return m_position;
+    return position_;
 }
 
-const float & SquadOrder::getRadius() const
+const float & SquadOrder::GetRadius() const
 {
-    return m_radius;
+    return radius_;
 }
 
-const size_t & SquadOrder::getType() const
+const size_t & SquadOrder::GetType() const
 {
-    return m_type;
+    return type_;
 }

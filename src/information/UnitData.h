@@ -9,49 +9,49 @@ typedef std::vector<UnitInfo> UnitInfoVector;
 // The difference between UnitData and UnitInfo is that UnitData is specific to a player. UnitInfo is everything.
 class UnitData
 {
-    std::map<sc2::Tag, UnitInfo>           m_unitInfoMap;
+    std::map<sc2::Tag, UnitInfo>           unit_info_map_;
 
-	// Pointers to all the workers to allow for faster iteration. 
-	std::set<const UnitInfo*>              m_workers;
-	// Pointers to all the combat units to allow for faster iteration.
-	std::set<const UnitInfo*>              m_combatUnits;
-	std::set<const UnitInfo*>              m_depots;
-	// sc2::Tag is a player's base. int is the number of workers at that base. 
-	std::map<sc2::Tag, int>                m_baseWorkerCount;
-	// sc2::Tag is the refinery. const sc2::Unit* is the workers at that refinery.
-	std::map<sc2::Tag, const sc2::Unit*>   m_workerRefineryMap;
-	// sc2::Tag is the base. const sc2::Unit* is the workers at that base.
-	std::map<sc2::Tag, const sc2::Unit*>   m_workerDepotMap;
+    // Pointers to all the workers to allow for faster iteration. 
+    std::set<const UnitInfo*>              workers_;
+    // Pointers to all the combat units to allow for faster iteration.
+    std::set<const UnitInfo*>              combat_units_;
+    std::set<const UnitInfo*>              depots_;
+    // sc2::Tag is a player's base. int is the number of workers at that base. 
+    std::map<sc2::Tag, int>                base_worker_count_;
+    // sc2::Tag is the refinery. const sc2::Unit* is the workers at that refinery.
+    std::map<sc2::Tag, const sc2::Unit*>   worker_refinery_map_;
+    // sc2::Tag is the base. const sc2::Unit* is the workers at that base.
+    std::map<sc2::Tag, const sc2::Unit*>   worker_depot_map_;
 
-	// These vectors are effectively maps. 
-	// They have every UnitTypeID. 
-    std::vector<int>                       m_numDeadUnits;
-    std::vector<int>                       m_numUnits;
-    int                                    m_mineralsLost;
-    int                                    m_gasLost;
+    // These vectors are effectively maps. 
+    // They have every UnitTypeID. 
+    std::vector<int>                       num_dead_units_;
+    std::vector<int>                       num_units_;
+    int                                    minerals_lost_;
+    int                                    gas_lost_;
 
-    bool badUnitInfo(const UnitInfo & ui) const;
+    bool BadUnitInfo(const UnitInfo & ui) const;
 
 public:
 
     UnitData();
 
-    void updateUnit(const sc2::Unit* unit);
-    void killUnit(const sc2::Unit* unit);
-    void removeBadUnits();
+    void UpdateUnit(const sc2::Unit* unit);
+    void KillUnit(const sc2::Unit* unit);
+    void RemoveBadUnits();
 
-    int getGasLost() const;
-    int getMineralsLost() const;
-    int getNumUnits(sc2::UnitTypeID t) const;
-    int getNumDeadUnits(sc2::UnitTypeID t) const;
-	int getNumAssignedWorkers(const sc2::Unit* depot);
-	const std::map<sc2::Tag, UnitInfo>& getUnitInfoMap() const;
-	std::set<const UnitInfo*> GetCombatUnits() const;
+    int GetGasLost() const;
+    int GetMineralsLost() const;
+    int GetNumUnits(sc2::UnitTypeID t) const;
+    int GetNumDeadUnits(sc2::UnitTypeID t) const;
+    int GetNumAssignedWorkers(const sc2::Unit* depot);
+    const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap() const;
+    std::set<const UnitInfo*> GetCombatUnits() const;
 
-	// jobUnitTag is the tag that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
-    void setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag=0);
-	void setBuildingWorker(const sc2::Unit* worker, Building& b);
-	size_t getNumWorkers() const;
-	void clearPreviousJob(const sc2::Unit* unit);
-	std::set<const UnitInfo*> getWorkers() const;
+    // job_unit_tag is the tag that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
+    void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag=0);
+    void SetBuildingWorker(const sc2::Unit* worker, Building& b);
+    size_t GetNumWorkers() const;
+    void ClearPreviousJob(const sc2::Unit* unit);
+    std::set<const UnitInfo*> GetWorkers() const;
 };

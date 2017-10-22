@@ -8,93 +8,93 @@
 #include "micro/Micro.h"
 
 ProxyManager::ProxyManager(ByunJRBot & bot)
-    : m_bot(bot)
-    , m_proxyWorker(nullptr)
-    , m_proxyUnderAttack(false)
+    : bot_(bot)
+    , proxy_worker_(nullptr)
+    , proxy_under_attack_(false)
 {
 
 }
 
-void ProxyManager::onStart()
+void ProxyManager::OnStart()
 {
-    m_firstReaperCreated = false;
-    m_ptd.InitAllValues(m_bot);
+    first_reaper_created_ = false;
+    ptd_.InitAllValues(bot_);
 }
 
-void ProxyManager::onFrame()
+void ProxyManager::OnFrame()
 {
-    proxyBuildingAtChosenRandomLocation();
+    ProxyBuildingAtChosenRandomLocation();
 }
 
-void ProxyManager::onUnitCreated(const sc2::Unit* unit)
+void ProxyManager::OnUnitCreated(const sc2::Unit* unit)
 {
-    if (m_bot.Config().TrainingMode && unit->unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !m_firstReaperCreated)
+    if (bot_.Config().TrainingMode && unit->unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !first_reaper_created_)
     {
-        const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
-        m_bot.Resign();
-        m_ptd.recordResult((int)m_bot.Query()->PathingDistance(unit, enemyBaseLocation->getPosition()));
-        m_firstReaperCreated = true;
+        bot_.Resign();
+        ptd_.RecordResult(static_cast<int>(bot_.Query()->PathingDistance(unit, enemy_base_location->GetPosition())));
+        first_reaper_created_ = true;
     }
 }
 
-void ProxyManager::onUnitEnterVision(const sc2::Unit* enemyUnit)
+void ProxyManager::OnUnitEnterVision(const sc2::Unit* enemy_unit)
 {
-	if (!m_proxyWorker) return;
+    if (!proxy_worker_) return;
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
-    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == m_proxyWorker->tag)
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == proxy_worker_->tag)
         {
-            const double dist(sqrt((enemyUnit->pos.x - unit->pos.x)*(enemyUnit->pos.x - unit
-				->pos.x) + (enemyUnit->pos.y - unit->pos.y)*(enemyUnit->pos.y - unit->pos.y)));
+            const double dist(sqrt((enemy_unit->pos.x - unit->pos.x)*(enemy_unit->pos.x - unit
+                ->pos.x) + (enemy_unit->pos.y - unit->pos.y)*(enemy_unit->pos.y - unit->pos.y)));
 
-            if (m_bot.Config().TrainingMode && dist < 10 && !m_firstReaperCreated)
+            if (bot_.Config().TrainingMode && dist < 10 && !first_reaper_created_)
             {
-                m_bot.Resign();
-                m_ptd.recordResult(-9);
+                bot_.Resign();
+                ptd_.RecordResult(-9);
                 std::cout << "THERE IS NO POINT IN CONTINUING" << std::endl;
             }
         }
     }
 }
 
-// YOU MUST CALL m_ptd.InitAllValues() before this.
-bool ProxyManager::proxyBuildingAtChosenRandomLocation()
+// YOU MUST CALL ptd.InitAllValues() before this.
+bool ProxyManager::ProxyBuildingAtChosenRandomLocation()
 {
-    if (!m_ptd.proxyLocationReady())
+    if (!ptd_.ProxyLocationReady())
         return false;
 
-    //if (m_proxyWorker->pos.x > myVec.x - 1 && m_proxyWorker->pos.x < myVec.x + 1)
+    //if (proxyWorker->pos.x > myVec.x - 1 && proxyWorker->pos.x < myVec.x + 1)
     //{
-    //    m_bot.Workers().finishedWithWorker(m_proxyWorker);
+    //    bot_.Workers().finishedWithWorker(proxyWorker);
     //}
     //else
     //{
-    if (!m_proxyWorker)
+    if (!proxy_worker_)
     {
-        const sc2::Vector2D myVec(m_ptd.getProxyLocation());
-        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, myVec);
-        m_proxyWorker = m_bot.GetUnit(m_bot.InformationManager().getBuilder(b, false));
-		if(!m_proxyWorker)
-		{
-			std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;
-			return false;
-		}
-        m_bot.InformationManager().assignUnit(m_proxyWorker->tag, UnitMission::Proxy);
-        Micro::SmartMove(m_proxyWorker, myVec, m_bot);
+        const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
+        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, my_vec);
+        proxy_worker_ = bot_.GetUnit(bot_.InformationManager().GetBuilder(b, false));
+        if(!proxy_worker_)
+        {
+            std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;
+            return false;
+        }
+        bot_.InformationManager().assignUnit(proxy_worker_->tag, UnitMission::Proxy);
+        Micro::SmartMove(proxy_worker_, sc2::Point2D(my_vec.x, my_vec.y), bot_);
     }
     //}
 
     return true;
 }
 
-sc2::Point2D ProxyManager::getProxyLocation()
+sc2::Point2DI ProxyManager::GetProxyLocation()
 {
-    return m_ptd.getProxyLocation();
+    return ptd_.GetProxyLocation();
 }
 
-ProxyTrainingData & ProxyManager::getProxyTrainingData()
+ProxyTrainingData & ProxyManager::GetProxyTrainingData()
 {
-    return m_ptd;
+    return ptd_;
 }

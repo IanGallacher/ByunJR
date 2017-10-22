@@ -8,11 +8,11 @@ class ByunJRBot;
 
 struct Strategy
 {
-    std::string m_name;
-    sc2::Race   m_race;
-    int         m_wins;
-    int         m_losses;
-    BuildOrder  m_buildOrder;
+    std::string name;
+    sc2::Race   race;
+    int         wins;
+    int         losses;
+    BuildOrder  buildOrder;
 
     Strategy();
     Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder);
@@ -20,13 +20,13 @@ struct Strategy
 
 class StrategyManager
 {
-    ByunJRBot & m_bot;
+    ByunJRBot & bot_;
 
-    sc2::Race                       m_selfRace;
-    sc2::Race                       m_enemyRace;
-    std::map<std::string, Strategy> m_strategies;
-    int                             m_totalGamesPlayed;
-    const BuildOrder                m_emptyBuildOrder;
+    sc2::Race                       selfRace;
+    sc2::Race                       enemyRace;
+    std::map<std::string, Strategy> strategies;
+    int                             totalGamesPlayed;
+    const BuildOrder                emptyBuildOrder;
 
     bool  shouldExpandNow() const;
     UnitPairVector getProtossBuildOrderGoal() const;
@@ -38,7 +38,7 @@ public:
     StrategyManager(ByunJRBot & bot);
 
     void onStart();
-    void onFrame();
+    void OnFrame();
     void onEnd(const bool isWinner);
     void addStrategy(const std::string & name, const Strategy & strategy);
     UnitPairVector getBuildOrderGoal() const;

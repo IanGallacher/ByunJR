@@ -13,38 +13,38 @@ const size_t ScoutDefensePriority = 3;
 const size_t DropPriority = 4;
 
 CombatCommander::CombatCommander(ByunJRBot & bot)
-    : m_bot(bot)
-    , m_squadData(bot)
-    , m_initialized(false)
-    , m_attackStarted(false)
+    : bot_(bot)
+    , squad_data_(bot)
+    , initialized_(false)
+    , attack_started_(false)
 {
 
 }
 
-void CombatCommander::onStart()
+void CombatCommander::OnStart()
 {
-    m_squadData.clearSquadData();
+    squad_data_.ClearSquadData();
 
-    SquadOrder idleOrder(SquadOrderTypes::Idle, m_bot.GetStartLocation(), 5, "Chill Out");
-    m_squadData.addSquad("Idle", Squad("Idle", idleOrder, IdlePriority, m_bot));
+    SquadOrder idle_order(SquadOrderTypes::Idle, bot_.GetStartLocation(), 5, "Chill Out");
+    squad_data_.AddSquad("Idle", Squad("Idle", idle_order, IdlePriority, bot_));
 
     // the main attack squad that will pressure the enemy's closest base location
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, sc2::Point2D(0.0f, 0.0f), 25, "Attack Enemy Base");
-    m_squadData.addSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority, m_bot));
+    squad_data_.AddSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority, bot_));
 
     // the scout defense squad will handle chasing the enemy worker scout
-    SquadOrder enemyScoutDefense(SquadOrderTypes::Defend, m_bot.GetStartLocation(), 25, "Get the scout");
-    m_squadData.addSquad("ScoutDefense", Squad("ScoutDefense", enemyScoutDefense, ScoutDefensePriority, m_bot));
+    SquadOrder enemyScoutDefense(SquadOrderTypes::Defend, bot_.GetStartLocation(), 25, "Get the scout");
+    squad_data_.AddSquad("ScoutDefense", Squad("ScoutDefense", enemyScoutDefense, ScoutDefensePriority, bot_));
 }
 
-void CombatCommander::onFrame(const std::set<const UnitInfo*> & combatUnits)
+void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
 {
-    if (!m_attackStarted)
+    if (!attack_started_)
     {
-        m_attackStarted = shouldWeStartAttacking();
+        attack_started_ = ShouldWeStartAttacking();
     }
 
-    m_combatUnits = combatUnits;
+    combat_units_ = combat_units;
 
     //if (isSquadUpdateFrame())
     //{
@@ -54,95 +54,95 @@ void CombatCommander::onFrame(const std::set<const UnitInfo*> & combatUnits)
     //    updateAttackSquads();
     //}
 
-    Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
-    mainAttackSquad.clear();
+    Squad & main_attack_squad = squad_data_.GetSquad("MainAttack");
+    main_attack_squad.Clear();
     
-    for (auto & unitInfo : m_combatUnits)
+    for (auto & unit_info : combat_units)
     {
-        auto unit = unitInfo->unit;
+        auto unit = unit_info->unit;
         BOT_ASSERT(unit, "null unit in combat units");
     
         // get every unit of a lower priority and put it into the attack squad
-        if (m_squadData.canAssignUnitToSquad(unit->tag, mainAttackSquad))
+        if (squad_data_.CanAssignUnitToSquad(unit->tag, main_attack_squad))
         {
-            m_squadData.assignUnitToSquad(unit->tag, mainAttackSquad);
+            squad_data_.AssignUnitToSquad(unit->tag, main_attack_squad);
         }
     }
     
-    const SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 25, "Attack Enemy Base");
-    mainAttackSquad.setSquadOrder(mainAttackOrder);
+    const SquadOrder main_attack_order(SquadOrderTypes::Attack, GetMainAttackLocation(), 25, "Attack Enemy Base");
+    main_attack_squad.SetSquadOrder(main_attack_order);
 
-    m_squadData.onFrame();
+    squad_data_.OnFrame();
 }
 
-bool CombatCommander::shouldWeStartAttacking() const
+bool CombatCommander::ShouldWeStartAttacking() const
 {
-    return m_combatUnits.size() >= m_bot.Config().CombatUnitsForAttack;
+    return combat_units_.size() >= bot_.Config().CombatUnitsForAttack;
 }
 
-sc2::Point2D CombatCommander::getMainAttackLocation() const
+sc2::Point2D CombatCommander::GetMainAttackLocation() const
 {
-	const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+    const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
-	// First choice: Attack an enemy region if we can see units inside it
-	if (enemyBaseLocation)
-	{
-		const sc2::Point2D enemyBasePosition = enemyBaseLocation->getPosition();
-		//const sc2::Point2D enemyBasePosition = m_bot.Observation()->GetGameInfo().enemy_start_locations[0];//enemyBaseLocation->getPosition();
+    // First choice: Attack an enemy region if we can see units inside it
+    if (enemy_base_location)
+    {
+        const sc2::Point2D enemy_base_position = enemy_base_location->GetPosition();
+        //const sc2::Point2D enemyBasePosition = bot_.Observation()->GetGameInfo().enemy_start_locations[0];//enemyBaseLocation->getPosition();
 
-		// If the enemy base hasn't been seen yet, go there.
-		if (!m_bot.Map().isExplored(enemyBasePosition))
-		{
-			return enemyBasePosition;
-		}
+        // If the enemy base hasn't been seen yet, go there.
+        if (!bot_.Map().IsExplored(enemy_base_position))
+        {
+            return enemy_base_position;
+        }
 
-		// First choice: attack the known enemy base location. 
-		// if it has been explored, go there if there are any visible enemy units there
-		for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-		{
-			if (Util::Dist(enemyUnit->pos, enemyBasePosition) < 25)
-			{
-				return enemyBasePosition;
-			}
-		}
+        // First choice: attack the known enemy base location. 
+        // if it has been explored, go there if there are any visible enemy units there
+        for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+        {
+            if (Util::Dist(enemy_unit->pos, enemy_base_position) < 25)
+            {
+                return enemy_base_position;
+            }
+        }
 
-	}
+    }
 
-	// Second choice: Attack known enemy buildings
-	for (const auto & kv : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Enemy))
-	{
-		const UnitInfo & ui = kv.second;
+    // Second choice: Attack known enemy buildings
+    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Enemy))
+    {
+        const UnitInfo & ui = kv.second;
 
-		if (Util::IsBuilding(ui.type) && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
-		{
-			return ui.lastPosition;
-		}
-	}
+        if (Util::IsBuilding(ui.type) && !(ui.lastPosition.x == 0.0f && ui.lastPosition.y == 0.0f))
+        {
+            return ui.lastPosition;
+        }
+    }
 
-	// Third choice: Attack visible enemy units that aren't overlords
-	for (auto & enemyUnit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
-	{
-		if (enemyUnit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
-		{
-			return enemyUnit->pos;
-		}
-	}
+    // Third choice: Attack visible enemy units that aren't overlords
+    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    {
+        if (enemy_unit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
+        {
+            return enemy_unit->pos;
+        }
+    }
 
-	std::cout << "WARNING: ENEMY BASE LOCATION NOT FOUND, RETURNING 0,0" << std::endl;
-	return sc2::Point2D(0, 0);
+    std::cout << "WARNING: ENEMY BASE LOCATION NOT FOUND, RETURNING 0,0" << std::endl;
+    return sc2::Point2D(0, 0);
 
-	// Fourth choice: We can't see anything so explore the map attacking along the way
-	//return m_bot.Map().getLeastRecentlySeenPosition();
+    // Fourth choice: We can't see anything so explore the map attacking along the way
+    //return bot_.Map().getLeastRecentlySeenPosition();
 }
 
 //
 //void CombatCommander::updateIdleSquad()
 //{
-//    Squad & idleSquad = m_squadData.getSquad("Idle");
-//    for (auto & unit : m_combatUnits)
+//    Squad & idleSquad = squadData.getSquad("Idle");
+//    for (auto & unit : combatUnits)
 //    {
 //        // if it hasn't been assigned to a squad yet, put it in the low priority idle squad
-//        if (m_squadData.canAssignUnitToSquad(unit, idleSquad))
+//        if (squadData.canAssignUnitToSquad(unit, idleSquad))
 //        {
 //            idleSquad.addUnit(unit);
 //        }
@@ -157,17 +157,17 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //        return;
 //    }
 //
-//    Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
+//    Squad & mainAttackSquad = squadData.getSquad("MainAttack");
 //
-//    for (auto & unitTag : m_combatUnits)
+//    for (auto & unitTag : combatUnits)
 //    {
-//        auto unit = m_bot.GetUnit(unitTag);
+//        auto unit = bot_.GetUnit(unitTag);
 //        BOT_ASSERT(unit, "null unit in combat units");
 //
 //        // get every unit of a lower priority and put it into the attack squad
-//        if (!Util::IsWorker(*unit) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
+//        if (!Util::IsWorker(*unit) && squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
 //        {
-//            m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
+//            squadData.assignUnitToSquad(unitTag, mainAttackSquad);
 //        }
 //    }
 //
@@ -177,21 +177,21 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //void CombatCommander::updateScoutDefenseSquad()
 //{
-//    if (m_combatUnits.empty())
+//    if (combatUnits.empty())
 //    {
 //        return;
 //    }
 //
 //    // if the current squad has units in it then we can ignore this
-//    Squad & scoutDefenseSquad = m_squadData.getSquad("ScoutDefense");
+//    Squad & scoutDefenseSquad = squadData.getSquad("ScoutDefense");
 //
 //    // get the region that our base is located in
-//    const BaseLocation* myBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Self);
+//    const BaseLocation* myBaseLocation = bot_.Bases().getPlayerStartingBaseLocation(Players::Self);
 //    BOT_ASSERT(myBaseLocation, "null self base location");
 //
 //    // get all of the enemy units in this region
 //    std::vector<sc2::Tag> enemyUnitsInRegion;
-//    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
+//    for (auto & unit : bot_.UnitInfo().getUnits(Players::Enemy))
 //    {
 //        if (myBaseLocation->containsPosition(unit->pos))
 //        {
@@ -200,26 +200,26 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //    }
 //
 //    // if there's an enemy worker in our region then assign someone to chase him
-//    bool assignScoutDefender = (enemyUnitsInRegion.size() == 1) && Util::IsWorker(*m_bot.GetUnit(enemyUnitsInRegion[0]));
+//    bool assignScoutDefender = (enemyUnitsInRegion.size() == 1) && Util::IsWorker(*bot_.GetUnit(enemyUnitsInRegion[0]));
 //
 //    // if our current squad is empty and we should assign a worker, do it
 //    if (scoutDefenseSquad.isEmpty() && assignScoutDefender)
 //    {
 //        // the enemy worker that is attacking us
 //        const sc2::Tag enemyWorkerTag = *enemyUnitsInRegion.begin();
-//        auto enemyWorkerUnit = m_bot.GetUnit(enemyWorkerTag);
+//        auto enemyWorkerUnit = bot_.GetUnit(enemyWorkerTag);
 //        BOT_ASSERT(enemyWorkerUnit, "null enemy worker unit");
 //
 //        // get our worker unit that is mining that is closest to it
-//        const sc2::Tag workerDefenderTag = m_bot.Workers().findClosestWorkerTo(enemyWorkerUnit->pos);
+//        const sc2::Tag workerDefenderTag = bot_.Workers().findClosestWorkerTo(enemyWorkerUnit->pos);
 //
 //        if (enemyWorkerTag && workerDefenderTag)
 //        {
 //            // grab it from the worker manager and put it in the squad
-//            if (m_squadData.canAssignUnitToSquad(workerDefenderTag, scoutDefenseSquad))
+//            if (squadData.canAssignUnitToSquad(workerDefenderTag, scoutDefenseSquad))
 //            {
-//                m_bot.Workers().setCombatWorker(workerDefenderTag);
-//                m_squadData.assignUnitToSquad(workerDefenderTag, scoutDefenseSquad);
+//                bot_.Workers().setCombatWorker(workerDefenderTag);
+//                squadData.assignUnitToSquad(workerDefenderTag, scoutDefenseSquad);
 //            }
 //        }
 //    }
@@ -228,12 +228,12 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //    {
 //        for (auto & unitTag : scoutDefenseSquad.getUnits())
 //        {
-//            auto unit = m_bot.GetUnit(unitTag);
+//            auto unit = bot_.GetUnit(unitTag);
 //            BOT_ASSERT(unit, "null unit in scoutDefenseSquad");
 //
 //            if (Util::IsWorker(*unit))
 //            {
-//                m_bot.Workers().finishedWithWorker(unitTag);
+//                bot_.Workers().finishedWithWorker(unitTag);
 //            }
 //        }
 //
@@ -243,14 +243,14 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //void CombatCommander::updateDefenseSquads()
 //{
-//    if (m_combatUnits.empty())
+//    if (combatUnits.empty())
 //    {
 //        return;
 //    }
 //
 //    // for each of our occupied regions
-//    const BaseLocation* enemyBaseLocation = m_bot.Bases().getPlayerStartingBaseLocation(Players::Enemy);
-//    for (const BaseLocation* myBaseLocation : m_bot.Bases().getOccupiedBaseLocations(Players::Self))
+//    const BaseLocation* enemyBaseLocation = bot_.Bases().getPlayerStartingBaseLocation(Players::Enemy);
+//    for (const BaseLocation* myBaseLocation : bot_.Bases().getOccupiedBaseLocations(Players::Self))
 //    {
 //        // don't defend inside the enemy region, this will end badly when we are stealing gas or cannon rushing
 //        if (myBaseLocation == enemyBaseLocation)
@@ -265,7 +265,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //        // all of the enemy units in this region
 //        std::vector<sc2::Tag> enemyUnitsInRegion;
-//        for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
+//        for (auto & unit : bot_.UnitInfo().getUnits(Players::Enemy))
 //        {
 //            // if it's an overlord, don't worry about it for defense, we don't care what they see
 //            if (unit->unit_type == sc2::UNIT_TYPEID::ZERG_OVERLORD)
@@ -282,7 +282,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //        // we can ignore the first enemy worker in our region since we assume it is a scout
 //        for (auto & unitTag : enemyUnitsInRegion)
 //        {
-//            auto unit = m_bot.GetUnit(unitTag);
+//            auto unit = bot_.GetUnit(unitTag);
 //            BOT_ASSERT(unit, "null enemyt unit in region");
 //
 //            if (Util::IsWorker(*unit))
@@ -297,7 +297,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //        int numEnemyGroundInRegion = 0;
 //        for (auto & unitTag : enemyUnitsInRegion)
 //        {
-//            auto unit = m_bot.GetUnit(unitTag);
+//            auto unit = bot_.GetUnit(unitTag);
 //            BOT_ASSERT(unit, "null enemyt unit in region");
 //
 //            if (unit->is_flying)
@@ -318,9 +318,9 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //        if (enemyUnitsInRegion.empty())
 //        {
 //            // if a defense squad for this region exists, remove it
-//            if (m_squadData.squadExists(squadName.str()))
+//            if (squadData.squadExists(squadName.str()))
 //            {
-//                m_squadData.getSquad(squadName.str()).clear();
+//                squadData.getSquad(squadName.str()).clear();
 //            }
 //
 //            // and return, nothing to defend here
@@ -332,14 +332,14 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //            if (!m_squadData.squadExists(squadName.str()))
 //            {
 //                SquadOrder defendRegion(SquadOrderTypes::Defend, basePosition, 32 * 25, "Defend Region!");
-//                m_squadData.addSquad(squadName.str(), Squad(squadName.str(), defendRegion, BaseDefensePriority, m_bot));
+//                squadData.addSquad(squadName.str(), Squad(squadName.str(), defendRegion, BaseDefensePriority, bot_));
 //            }
 //        }
 //
 //        // assign units to the squad
-//        if (m_squadData.squadExists(squadName.str()))
+//        if (squadData.squadExists(squadName.str()))
 //        {
-//            Squad & defenseSquad = m_squadData.getSquad(squadName.str());
+//            Squad & defenseSquad = squadData.getSquad(squadName.str());
 //
 //            // figure out how many units we need on defense
 //            const int flyingDefendersNeeded = numDefendersPerEnemyUnit * numEnemyFlyingInRegion;
@@ -355,7 +355,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //    // for each of our defense squads, if there aren't any enemy units near the position, remove the squad
 //    std::set<std::string> uselessDefenseSquads;
-//    for (const auto & kv : m_squadData.getSquads())
+//    for (const auto & kv : squadData.getSquads())
 //    {
 //        const Squad & squad = kv.second;
 //        const SquadOrder & order = squad.getSquadOrder();
@@ -366,7 +366,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //        }
 //
 //        bool enemyUnitInRange = false;
-//        for (auto & unit : m_bot.UnitInfo().getUnits(Players::Enemy))
+//        for (auto & unit : bot_.UnitInfo().getUnits(Players::Enemy))
 //        {
 //            if (Util::Dist(unit->pos, order.getPosition()) < order.getRadius())
 //            {
@@ -377,7 +377,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //        if (!enemyUnitInRange)
 //        {
-//            m_squadData.getSquad(squad.getName()).clear();
+//            squadData.getSquad(squad.getName()).clear();
 //        }
 //    }
 //}
@@ -404,7 +404,7 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //
 //        if (defenderToAdd)
 //        {
-//            m_squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
+//            squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
 //            defendersAdded++;
 //        }
 //        else
@@ -414,19 +414,19 @@ sc2::Point2D CombatCommander::getMainAttackLocation() const
 //    }
 //}
 
-sc2::Tag CombatCommander::findClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos)
+sc2::Tag CombatCommander::FindClosestDefender(const Squad & defenseSquad, const sc2::Point2D & pos)
 {
     sc2::Tag closestDefender = 0;
     float minDistance = std::numeric_limits<float>::max();
 
     // TODO: add back special case of zergling rush defense
 
-    for (auto & unitInfo : m_combatUnits)
+    for (auto & unitInfo : combat_units_)
     {
         auto unit = unitInfo->unit;
         BOT_ASSERT(unit, "null combat unit");
 
-        if (!m_squadData.canAssignUnitToSquad(unit->tag, defenseSquad))
+        if (!squad_data_.CanAssignUnitToSquad(unit->tag, defenseSquad))
         {
             continue;
         }
@@ -443,8 +443,8 @@ sc2::Tag CombatCommander::findClosestDefender(const Squad & defenseSquad, const 
 }
 
 
-void CombatCommander::drawSquadInformation()
+void CombatCommander::DrawSquadInformation()
 {
-    m_squadData.drawSquadInformation();
+    squad_data_.DrawSquadInformation();
 }
 

@@ -12,58 +12,58 @@ const int actionX[LegalActions] ={1, -1, 0, 0};
 const int actionY[LegalActions] ={0, 0, 1, -1};
 
 // constructor for MapTools
-MapTools::MapTools(ByunJRBot & bot)
-    : m_bot     (bot)
-    , m_width   (0)
-    , m_height  (0)
-    , m_maxZ    (0.0f)
-    , m_frame   (0)
+MapTools::MapTools(ByunJRBot& bot)
+    : bot_     (bot)
+    , width_   (0)
+    , height_  (0)
+    , max_z_    (0.0f)
+    , frame_   (0)
 {
 
 }
 
-void MapTools::onStart()
+void MapTools::OnStart()
 {
-    m_width  = m_bot.Observation()->GetGameInfo().width;
-    m_height = m_bot.Observation()->GetGameInfo().height;
+    width_  = bot_.Observation()->GetGameInfo().width;
+    height_ = bot_.Observation()->GetGameInfo().height;
 
-    m_walkable       = vvb(m_width, std::vector<bool>(m_height, true));
-    m_buildable      = vvb(m_width, std::vector<bool>(m_height, false));
-    m_depotBuildable = vvb(m_width, std::vector<bool>(m_height, false));
-    m_lastSeen       = vvi(m_width, std::vector<int>(m_height, 0));
-    m_sectorNumber   = vvi(m_width, std::vector<int>(m_height, 0));
-    m_terrainHeight  = vvf(m_width, std::vector<float>(m_height, 0.0f));
+    walkable_       = vvb(width_, std::vector<bool>(height_, true));
+    buildable_      = vvb(width_, std::vector<bool>(height_, false));
+    depot_buildable_ = vvb(width_, std::vector<bool>(height_, false));
+    last_seen_       = vvi(width_, std::vector<int>(height_, 0));
+    sector_number_   = vvi(width_, std::vector<int>(height_, 0));
+    terrain_height_  = vvf(width_, std::vector<float>(height_, 0.0f));
 
     // Set the boolean grid data from the Map
-    for (size_t x(0); x < m_width; ++x)
+    for (size_t x(0); x < width_; ++x)
     {
-        for (size_t y(0); y < m_height; ++y)
+        for (size_t y(0); y < height_; ++y)
         {
-            m_buildable[x][y]       = Util::Placement(m_bot.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            m_walkable[x][y]        = m_buildable[x][y] || Util::Pathable(m_bot.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            m_terrainHeight[x][y]   = Util::TerainHeight(m_bot.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            buildable_[x][y]       = Util::Placement(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            walkable_[x][y]        = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            terrain_height_[x][y]   = Util::TerainHeight(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
         }
     }
 
-    for (auto & unit : m_bot.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
+    for (auto& unit : bot_.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
     {
-        m_maxZ = std::max(unit->pos.z, m_maxZ);
+        max_z_ = std::max(unit->pos.z, max_z_);
     }
 
-    computeConnectivity();
+    ComputeConnectivity();
 }
 
-void MapTools::onFrame()
+void MapTools::OnFrame()
 {
- /*   m_frame++;
+ /*   frame++;
 
     for (int x=0; x<m_width; ++x)
     {
         for (int y=0; y<m_height; ++y)
         {
-            if (isVisible(sc2::Point2D((float)x, (float)y)))
+            if (isVisible(sc2::Point2DI((float)x, (float)y)))
             {
-                m_lastSeen[x][y] = m_frame;
+                lastSeen[x][y] = frame;
             }
         }
     }
@@ -71,47 +71,47 @@ void MapTools::onFrame()
     draw();*/
 }
 
-void MapTools::computeConnectivity()
+void MapTools::ComputeConnectivity()
 {
     // the fringe data structe we will use to do our BFS searches
-    std::vector<sc2::Point2D> fringe;
-    fringe.reserve(m_width*m_height);
-    int sectorNumber = 0;
+    std::vector<sc2::Point2DI> fringe;
+    fringe.reserve(width_*height_);
+    int sector_number = 0;
 
     // for every tile on the map, do a connected flood fill using BFS
-    for (int x=0; x<m_width; ++x)
+    for (int x=0; x<width_; ++x)
     {
-        for (int y=0; y<m_height; ++y)
+        for (int y=0; y<height_; ++y)
         {
             // if the sector is not currently 0, or the map isn't walkable here, then we can skip this tile
-            if (getSectorNumber(x, y) != 0 || !isWalkable(x, y))
+            if (GetSectorNumber(x, y) != 0 || !IsWalkable(x, y))
             {
                 continue;
             }
 
             // increase the sector number, so that walkable tiles have sectors 1-N
-            sectorNumber++;
+            sector_number++;
 
             // reset the fringe for the search and add the start tile to it
             fringe.clear();
-            fringe.push_back(sc2::Point2D(x+0.5f, y+0.5f));
-            m_sectorNumber[x][y] = sectorNumber;
+            fringe.push_back(sc2::Point2DI(x+0.5f, y+0.5f));
+            sector_number_[x][y] = sector_number;
 
             // do the BFS, stopping when we reach the last element of the fringe
-            for (size_t fringeIndex=0; fringeIndex<fringe.size(); ++fringeIndex)
+            for (size_t fringe_index=0; fringe_index<fringe.size(); ++fringe_index)
             {
-                auto & tile = fringe[fringeIndex];
+                auto& tile = fringe[fringe_index];
 
                 // check every possible child of this tile
                 for (size_t a=0; a<LegalActions; ++a)
                 {
-                    sc2::Point2D nextTile(tile.x + actionX[a], tile.y + actionY[a]);
+                    const sc2::Point2DI next_tile(tile.x + actionX[a], tile.y + actionY[a]);
 
                     // if the new tile is inside the map bounds, is walkable, and has not been assigned a sector, add it to the current sector and the fringe
-                    if (isOnMap(nextTile) && isWalkable(nextTile) && (getSectorNumber(nextTile) == 0))
+                    if (IsOnMap(next_tile.x, next_tile.y) && IsWalkable(next_tile) && (GetSectorNumber(next_tile) == 0))
                     {
-                        m_sectorNumber[(int)nextTile.x][(int)nextTile.y] = sectorNumber;
-                        fringe.push_back(nextTile);
+                        sector_number_[next_tile.x][next_tile.y] = sector_number;
+                        fringe.push_back(next_tile);
                     }
                 }
             }
@@ -119,26 +119,26 @@ void MapTools::computeConnectivity()
     }
 }
 
-bool MapTools::isExplored(const sc2::Point2D & pos) const
+bool MapTools::IsExplored(const sc2::Point2D& pos) const
 {
-    if (!isOnMap(pos)) { return false; }
+    if (!IsOnMap(pos)) { return false; }
 
-    sc2::Visibility vis = m_bot.Observation()->GetVisibility(pos);
+    sc2::Visibility vis = bot_.Observation()->GetVisibility(pos);
     return vis == sc2::Visibility::Fogged || vis == sc2::Visibility::Visible;
 }
 
-bool MapTools::isVisible(const sc2::Point2D & pos) const
+bool MapTools::IsVisible(const sc2::Point2D& pos) const
 {
-    if (!isOnMap(pos)) { return false; }
+    if (!IsOnMap(pos)) { return false; }
 
-    return m_bot.Observation()->GetVisibility(pos) == sc2::Visibility::Visible;
+    return bot_.Observation()->GetVisibility(pos) == sc2::Visibility::Visible;
 }
 
-bool MapTools::isPowered(const sc2::Point2D & pos) const
+bool MapTools::IsPowered(const sc2::Point2DI& pos) const
 {
-    for (auto & powerSource : m_bot.Observation()->GetPowerSources())
+    for (auto& power_source : bot_.Observation()->GetPowerSources())
     {
-        if (Util::Dist(pos, powerSource.position) < powerSource.radius)
+        if (Util::Dist(pos, power_source.position) < power_source.radius)
         {
             return true;
         }
@@ -147,198 +147,159 @@ bool MapTools::isPowered(const sc2::Point2D & pos) const
     return false;
 }
 
-float MapTools::terrainHeight(float x, float y) const
+float MapTools::TerrainHeight(float x, float y) const
 {
-    return m_terrainHeight[(int)x][(int)y];
+    return terrain_height_[x][y];
 }
 
-//int MapTools::getGroundDistance(const sc2::Point2D & src, const sc2::Point2D & dest) const
+//int MapTools::getGroundDistance(const sc2::Point2DI& src, const sc2::Point2DI& dest) const
 //{
-//    return (int)Util::Dist(src, dest);
+//    return Util::Dist(src, dest);
 //}
 
-int MapTools::getGroundDistance(const sc2::Point2D & src, const sc2::Point2D & dest) const
+int MapTools::GetGroundDistance(const sc2::Point2DI& src, const sc2::Point2DI& dest) const
 {
-    if (_allMaps.size() > 50)
+    if (all_maps_.size() > 50)
     {
-        _allMaps.clear();
+        all_maps_.clear();
     }
 
-    return getDistanceMap(dest).getDistance(src);
+    return GetDistanceMap(dest).GetDistance(src);
 }
 
-const DistanceMap & MapTools::getDistanceMap(const sc2::Point2D & tile) const
+int MapTools::GetGroundDistance(const sc2::Point2D& src, const sc2::Point2D& dest) const
 {
-    std::pair<int, int> intTile((int)tile.x, (int)tile.y);
+    return GetGroundDistance(
+        sc2::Point2DI(static_cast<int>(src.x),  static_cast<int>(src.y)),
+        sc2::Point2DI(static_cast<int>(dest.x), static_cast<int>(dest.y))
+    );
+}
 
-    if (_allMaps.find(intTile) == _allMaps.end())
+const DistanceMap& MapTools::GetDistanceMap(const sc2::Point2DI& tile) const
+{
+    const std::pair<int, int> int_tile(tile.x, tile.y);
+
+    if (all_maps_.find(int_tile) == all_maps_.end())
     {
-        _allMaps[intTile] = DistanceMap();
-        _allMaps[intTile].computeDistanceMap(m_bot, tile);
+        all_maps_[int_tile] = DistanceMap();
+        all_maps_[int_tile].ComputeDistanceMap(bot_, tile);
     }
 
-    return _allMaps[intTile];
+    return all_maps_[int_tile];
 }
 
-int MapTools::getSectorNumber(int x, int y) const
+int MapTools::GetSectorNumber(const int x, const int y) const
 {
-    if (!isOnMap(x, y))
+    if (!IsOnMap(x, y))
     {
         return 0;
     }
 
-    return m_sectorNumber[x][y];
+    return sector_number_[x][y];
 }
 
-int MapTools::getSectorNumber(const sc2::Point2D & pos) const
+int MapTools::GetSectorNumber(const sc2::Point2DI& pos) const
 {
-    return getSectorNumber((int)pos.x, (int)pos.y);
-}
-
-// Returns true if the point is on the map, and not just the playable portions of the map.
-bool MapTools::isOnMap(int x, int y) const
-{
-    return x >= 0 && y >= 0 && x < m_width && y < m_height;
+    return GetSectorNumber(pos.x, pos.y);
 }
 
 // Returns true if the point is on the map, and not just the playable portions of the map.
-bool MapTools::isOnMap(const sc2::Point2D & pos) const
+bool MapTools::IsOnMap(const int x, const int y) const
 {
-    return isOnMap((int)pos.x, (int)pos.y);
+    return x >= 0 && y >= 0 && x < width_ && y < height_;
 }
 
-void MapTools::draw() const
+// Returns true if the point is on the map, and not just the playable portions of the map.
+bool MapTools::IsOnMap(const sc2::Point2D& pos) const
 {
-    sc2::Point2D camera = m_bot.Observation()->GetCameraPos();
+    return IsOnMap(pos.x, pos.y);
+}
+
+// Returns true if the point is on the map, and not just the playable portions of the map.
+bool MapTools::IsOnMap(const sc2::Point2DI& pos) const
+{
+    return IsOnMap(pos.x, pos.y);
+}
+
+void MapTools::Draw() const
+{
+    const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
     for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
     {
         for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
         {
-            if (!isOnMap((int)x, (int)y))
+            if (!IsOnMap(x, y))
             {
                 continue;
             }
 
-            if (m_bot.Config().DrawWalkableSectors)
+            if (bot_.Config().DrawWalkableSectors)
             {
                 std::stringstream ss;
-                ss << getSectorNumber((int)x, (int)y);
-                m_bot.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, m_maxZ + 0.1f), sc2::Colors::Yellow);
+                ss << GetSectorNumber(x, y);
+                bot_.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, max_z_ + 0.1f), sc2::Colors::Yellow);
             }
 
-            if (m_bot.Config().DrawTileInfo)
+            if (bot_.Config().DrawTileInfo)
             {
-                sc2::Color color = isWalkable((int)x, (int)y) ? sc2::Colors::Green : sc2::Colors::Red;
-                if (isWalkable((int)x, (int)y) && !isBuildable((int)x, (int)y))
+                sc2::Color color = IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
+                if (IsWalkable(x, y) && !IsBuildable(x, y))
                 {
                     color = sc2::Colors::Yellow;
                 }
 
-                drawSquare(x, y, x+1, y+1, color);
+                bot_.DebugHelper().DrawSquare(x, y, x+1, y+1, color);
             }
         }
     }
 }
 
-void MapTools::drawLine(float x1, float y1, float x2, float y2, const sc2::Color & color) const
+bool MapTools::IsConnected(const int x1, const int y1, const int x2, const int y2) const
 {
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(x1, y1, m_maxZ + 0.2f), sc2::Point3D(x2, y2, m_maxZ + 0.2f), color);
-}
-
-void MapTools::drawLine(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(min.x, min.y, m_maxZ + 0.2f), sc2::Point3D(max.x, max.y, m_maxZ + 0.2f), color);
-}
-
-void MapTools::drawSquare(float x1, float y1, float x2, float y2, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(x1, y1, m_maxZ), sc2::Point3D(x1+1, y1, m_maxZ), color);
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(x1, y1, m_maxZ), sc2::Point3D(x1, y1+1, m_maxZ), color);
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(x1+1, y1+1, m_maxZ), sc2::Point3D(x1+1, y1, m_maxZ), color);
-    m_bot.Debug()->DebugLineOut(sc2::Point3D(x1+1, y1+1, m_maxZ), sc2::Point3D(x1, y1+1, m_maxZ), color);
-}
-
-void MapTools::drawBox(float x1, float y1, float x2, float y2, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugBoxOut(sc2::Point3D(x1, y1, m_maxZ + 2.0f), sc2::Point3D(x2, y2, m_maxZ-5.0f), color);
-}
-
-void MapTools::drawBox(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, m_maxZ + 2.0f), sc2::Point3D(max.x, max.y, m_maxZ-5.0f), color);
-}
-
-void MapTools::drawBox(const sc2::Point3D & min, const sc2::Point3D max, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, min.z), sc2::Point3D(max.x, max.y, max.z), color);
-}
-
-void MapTools::drawSphere(const sc2::Point2D & pos, float radius, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugSphereOut(sc2::Point3D(pos.x, pos.y, m_maxZ), radius, color);
-}
-
-void MapTools::drawSphere(float x, float y, float radius, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugSphereOut(sc2::Point3D(x, y, m_maxZ), radius, color);
-}
-
-void MapTools::drawText(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugTextOut(str, sc2::Point3D(pos.x, pos.y, m_maxZ), color);
-}
-
-void MapTools::drawTextScreen(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color) const
-{
-    m_bot.Debug()->DebugTextOut(str, pos, color);
-}
-
-bool MapTools::isConnected(int x1, int y1, int x2, int y2) const
-{
-    if (!isOnMap(x1, y1) || !isOnMap(x2, y2))
+    if (!IsOnMap(x1, y1) || !IsOnMap(x2, y2))
     {
         return false;
     }
 
-    const int s1 = getSectorNumber(x1, y1);
-    const int s2 = getSectorNumber(x2, y2);
+    const int s1 = GetSectorNumber(x1, y1);
+    const int s2 = GetSectorNumber(x2, y2);
 
     return s1 != 0 && (s1 == s2);
 }
 
-bool MapTools::isConnected(const sc2::Point2D & p1, const sc2::Point2D & p2) const
+bool MapTools::IsConnected(const sc2::Point2DI& p1, const sc2::Point2DI& p2) const
 {
-    return isConnected((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y);
+    return IsConnected(p1.x, p1.y, p2.x, p2.y);
 }
 
-bool MapTools::isBuildable(int x, int y) const
+bool MapTools::IsBuildable(const int x, const int y) const
 {
-    if (!isOnMap(x, y))
+    if (!IsOnMap(x, y))
     {
         return false;
     }
 
-    return m_buildable[x][y];
+    return buildable_[x][y];
 }
 
-bool MapTools::canBuildTypeAtPosition(const int x, const int y, const sc2::UnitTypeID type) const
+bool MapTools::CanBuildTypeAtPosition(const int x, const int y, const sc2::UnitTypeID type) const
 {
-    return m_bot.Query()->Placement(Util::UnitTypeIDToAbilityID(type), sc2::Point2D((float)x, (float)y));
+    return bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y)));
 }
 
-bool MapTools::isBuildable(const sc2::Point2D & tile) const
+bool MapTools::IsBuildable(const sc2::Point2DI& tile) const
 {
-    return isBuildable((int)tile.x, (int)tile.y);
+    return IsBuildable(tile.x, tile.y);
 }
 
-void MapTools::printMap() const
+void MapTools::PrintMap() const
 {
     std::stringstream ss;
-    for (int y(0); y < m_height; ++y)
+    for (int y(0); y < height_; ++y)
     {
-        for (int x(0); x < m_width; ++x)
+        for (int x(0); x < width_; ++x)
         {
-            ss << isWalkable(x, y);
+            ss << IsWalkable(x, y);
         }
 
         ss << std::endl;
@@ -349,90 +310,63 @@ void MapTools::printMap() const
     out.close();
 }
 
-bool MapTools::isDepotBuildableTile(const sc2::Point2D & tile) const
+bool MapTools::IsDepotBuildableTile(const sc2::Point2D& tile) const
 {
-    if (!isOnMap(tile))
+    if (!IsOnMap(tile))
     {
         return false;
     }
 
-    return m_depotBuildable[(int)tile.x][(int)tile.y];
+    return depot_buildable_[tile.x][tile.y];
 }
 
-bool MapTools::isWalkable(int x, int y) const
+bool MapTools::IsWalkable(const int x, const int y) const
 {
-    if (!isOnMap(x, y))
+    if (!IsOnMap(x, y))
     {
         return false;
     }
 
-    return m_walkable[x][y];
+    return walkable_[x][y];
 }
 
-bool MapTools::isWalkable(const sc2::Point2D & tile) const
+bool MapTools::IsWalkable(const sc2::Point2DI& tile) const
 {
-    return isWalkable((int)tile.x, (int)tile.y);
+    return IsWalkable(tile.x, tile.y);
 }
 
-int MapTools::width() const
+int MapTools::Width() const
 {
-    return m_width;
+    return width_;
 }
 
-int MapTools::height() const
+int MapTools::Height() const
 {
-    return m_height;
+    return height_;
 }
 
-const std::vector<sc2::Point2D> & MapTools::getClosestTilesTo(const sc2::Point2D & pos) const
+const std::vector<sc2::Point2DI>& MapTools::GetClosestTilesTo(const sc2::Point2DI& pos) const
 {
-    return getDistanceMap(pos).getSortedTiles();
+    return GetDistanceMap(pos).GetSortedTiles();
 }
 
-
-void MapTools::drawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const
+sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 {
-	if (!unit) { std::cout << "Warning. No unit was given to drawBoxAroundUnit" << std::endl; return; }
+    int min_seen = std::numeric_limits<int>::max();
+    sc2::Point2DI least_seen(0, 0);
+    const BaseLocation* base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self);
 
-    sc2::Point3D p_min = unit->pos;
-    p_min.x -= unit->radius;
-    p_min.y -= unit->radius;
-    p_min.z -= unit->radius;
-
-    sc2::Point3D p_max = unit->pos;
-    p_max.x += unit->radius;
-    p_max.y += unit->radius;
-    p_max.z += unit->radius;
-
-    drawBox(p_min, p_max, color);
-}
-
-void MapTools::drawSphereAroundUnit(const sc2::Tag & unitTag, const sc2::Color color) const
-{
-    const sc2::Unit* unit = m_bot.GetUnit(unitTag);
-
-    if (!unit) { return; }
-
-    drawSphere(unit->pos, 1, color);
-}
-
-sc2::Point2D MapTools::getLeastRecentlySeenPosition() const
-{
-    int minSeen = std::numeric_limits<int>::max();
-    sc2::Point2D leastSeen(0.0f, 0.0f);
-    const BaseLocation* baseLocation = m_bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self);
-
-    for (auto & tile : baseLocation->getClosestTiles())
+    for (auto& tile : base_location->GetClosestTiles())
     {
-        BOT_ASSERT(isOnMap(tile), "How is this tile not valid?");
+        BOT_ASSERT(IsOnMap(tile), "How is this tile not valid?");
 
-        const int lastSeen = m_lastSeen[(int)tile.x][(int)tile.y];
-        if (lastSeen < minSeen)
+        const int last_seen = last_seen_[static_cast<int>(tile.x)][static_cast<int>(tile.y)];
+        if (last_seen < min_seen)
         {
-            minSeen = lastSeen;
-            leastSeen = tile;
+            min_seen = last_seen;
+            least_seen = tile;
         }
     }
 
-    return leastSeen;
+    return least_seen;
 }

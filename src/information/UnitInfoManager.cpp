@@ -7,62 +7,62 @@
 #include "util/Util.h"
 
 UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
-    : m_bot(bot)
+    : bot_(bot)
 {
 
 }
 
-void UnitInfoManager::onStart()
+void UnitInfoManager::OnStart()
 {
 
 }
 
-void UnitInfoManager::onFrame()
+void UnitInfoManager::OnFrame()
 {
     // If units are created or modified, update the unitInfo object.
-    updateUnitInfo();
+    UpdateUnitInfo();
 
-	//m_workers.onFrame();
-    drawUnitInformation(100, 100);
-    drawSelectedUnitDebugInfo();
+    //m_workers.OnFrame();
+    DrawUnitInformation();
+    DrawSelectedUnitDebugInfo();
 }
 
 // If units die, update the unitInfo object.
-void UnitInfoManager::onUnitDestroyed(const sc2::Unit* unit)
+void UnitInfoManager::OnUnitDestroyed(const sc2::Unit* unit)
 {
-    m_unitData[Util::GetPlayer(unit)].killUnit(unit);
+    unit_data_[Util::GetPlayer(unit)].KillUnit(unit);
 }
 
 
-void UnitInfoManager::updateUnitInfo()
+void UnitInfoManager::UpdateUnitInfo()
 {
-    m_units[PlayerArrayIndex::Self].clear();
-    m_units[PlayerArrayIndex::Enemy].clear();
+    units_[PlayerArrayIndex::Self].clear();
+    units_[PlayerArrayIndex::Enemy].clear();
 
-    for (auto & unit : m_bot.Observation()->GetUnits())
+    for (auto & unit : bot_.Observation()->GetUnits())
     {
         if (Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy)
         {
-            updateUnit(unit);
-            m_units[Util::GetPlayer(unit)].push_back(unit);
+            UpdateUnit(unit);
+            units_[Util::GetPlayer(unit)].push_back(unit);
         }        
     }
 
     // remove bad enemy units
-    m_unitData[PlayerArrayIndex::Self].removeBadUnits();
-    m_unitData[PlayerArrayIndex::Enemy].removeBadUnits();
+    unit_data_[PlayerArrayIndex::Self].RemoveBadUnits();
+    unit_data_[PlayerArrayIndex::Enemy].RemoveBadUnits();
 }
 
-const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::getUnitInfoMap(const PlayerArrayIndex player) const
+const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const PlayerArrayIndex player) const
 {
-    return getUnitData(player).getUnitInfoMap();
+    return GetUnitData(player).GetUnitInfoMap();
 }
 
-const std::vector<const sc2::Unit*>& UnitInfoManager::getUnits(PlayerArrayIndex player) const
+const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(PlayerArrayIndex player) const
 {
-    BOT_ASSERT(m_units.find(player) != m_units.end(), "Couldn't find player units: %d", player);
+    BOT_ASSERT(units_.find(player) != units_.end(), "Couldn't find player units: %d", player);
 
-    return m_units.at(player);
+    return units_.at(player);
 }
 
 static std::string GetAbilityText(const sc2::AbilityID ability_id) {
@@ -74,10 +74,10 @@ static std::string GetAbilityText(const sc2::AbilityID ability_id) {
     return str;
 }
 
-void UnitInfoManager::drawSelectedUnitDebugInfo() const
+void UnitInfoManager::DrawSelectedUnitDebugInfo() const
 {
     const sc2::Unit* unit = nullptr;
-    for (const sc2::Unit* u : m_bot.Observation()->GetUnits())
+    for (const sc2::Unit* u : bot_.Observation()->GetUnits())
     {
         if (u->is_selected && u->alliance == sc2::Unit::Self) {
             unit = u;
@@ -87,9 +87,9 @@ void UnitInfoManager::drawSelectedUnitDebugInfo() const
 
     if (!unit) { return; }
 
-    auto debug = m_bot.Debug();
-    auto query = m_bot.Query();
-    auto abilities = m_bot.Observation()->GetAbilityData();
+    auto debug = bot_.Debug();
+    auto query = bot_.Query();
+    auto abilities = bot_.Observation()->GetAbilityData();
 
     std::string debug_txt = UnitTypeToName(unit->unit_type);
     if (debug_txt.length() < 1) 
@@ -172,7 +172,7 @@ void UnitInfoManager::drawSelectedUnitDebugInfo() const
 
         // Perform the pathing query.
         {
-            float distance = query->PathingDistance(unit->pos, target);
+            const float distance = query->PathingDistance(unit->pos, target);
             target_info += "\nPathing dist: " + std::to_string(distance);
         }
 
@@ -189,11 +189,11 @@ void UnitInfoManager::drawSelectedUnitDebugInfo() const
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::getUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool completed) const
+size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool completed) const
 {
     size_t count = 0;
 
-    for (auto & unit : getUnits(player))
+    for (auto & unit : GetUnits(player))
     {
         if ((!type || type == unit->unit_type) && (!completed || unit->build_progress == 1.0f))
         {
@@ -204,9 +204,9 @@ size_t UnitInfoManager::getUnitTypeCount(const PlayerArrayIndex player, const sc
     return count;
 }
 
-void UnitInfoManager::drawUnitInformation(float x,float y) const
+void UnitInfoManager::DrawUnitInformation() const
 {
-    if (!m_bot.Config().DrawEnemyUnitInfo)
+    if (!bot_.Config().DrawEnemyUnitInfo)
     {
         return;
     }
@@ -216,61 +216,61 @@ void UnitInfoManager::drawUnitInformation(float x,float y) const
     // for each unit in the queue
     for (int t(0); t < 255; t++)
     {
-        const int numUnits =      m_unitData.at(PlayerArrayIndex::Self).getNumUnits(t);
-        const int numDeadUnits =  m_unitData.at(PlayerArrayIndex::Enemy).getNumDeadUnits(t);
+        const int num_units =      unit_data_.at(PlayerArrayIndex::Self).GetNumUnits(t);
+        const int num_dead_units =  unit_data_.at(PlayerArrayIndex::Enemy).GetNumDeadUnits(t);
 
         // if there exist units in the vector
-        if (numUnits > 0)
+        if (num_units > 0)
         {
-            ss << numUnits << "   " << numDeadUnits << "   " << sc2::UnitTypeToName(t) << std::endl;
+            ss << num_units << "   " << num_dead_units << "   " << sc2::UnitTypeToName(t) << std::endl;
         }
     }
     
-    for (auto & kv : getUnitData(PlayerArrayIndex::Enemy).getUnitInfoMap())
+    for (auto & kv : GetUnitData(PlayerArrayIndex::Enemy).GetUnitInfoMap())
     {
-        m_bot.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
-        m_bot.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
+        bot_.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
+        bot_.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
     }
 }
 
-int UnitInfoManager::getNumAssignedWorkers(const sc2::Unit* depot)
+int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
 {
-	return m_unitData[PlayerArrayIndex::Self].getNumAssignedWorkers(depot);
+    return unit_data_[PlayerArrayIndex::Self].GetNumAssignedWorkers(depot);
 }
 
-void UnitInfoManager::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag)
+void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag)
 {
-    m_unitData[Util::GetPlayer(unit)].setJob(unit, job, jobUnitTag);
+    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, job_unit_tag);
 }
 
-void UnitInfoManager::setBuildingWorker(const sc2::Unit* worker, Building & b)
+void UnitInfoManager::SetBuildingWorker(const sc2::Unit* worker, Building & b)
 {
-	m_unitData[Util::GetPlayer(worker)].setJob(worker, UnitMission::Build, b.type);
+    unit_data_[Util::GetPlayer(worker)].SetJob(worker, UnitMission::Build, b.type);
 }
 
 // This can only return your workers, not the enemy workers. 
-std::set<const UnitInfo*> UnitInfoManager::getWorkers()
+std::set<const UnitInfo*> UnitInfoManager::GetWorkers()
 {
-	return m_unitData[PlayerArrayIndex::Self].getWorkers();
+    return unit_data_[PlayerArrayIndex::Self].GetWorkers();
 }
 
-const UnitInfo* UnitInfoManager::getUnitInfo(const sc2::Unit* unit)
+const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
 {
-	return &m_unitData[Util::GetPlayer(unit)].getUnitInfoMap().at(unit->tag);
+    return &unit_data_[Util::GetPlayer(unit)].GetUnitInfoMap().at(unit->tag);
 }
 
-void UnitInfoManager::updateUnit(const sc2::Unit* unit)
+void UnitInfoManager::UpdateUnit(const sc2::Unit* unit)
 {
     if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
     {
         return;
     }
 
-    m_unitData[Util::GetPlayer(unit)].updateUnit(unit);
+    unit_data_[Util::GetPlayer(unit)].UpdateUnit(unit);
 }
 
 // is the unit valid?
-bool UnitInfoManager::isValidUnit(const sc2::Unit* unit)
+bool UnitInfoManager::IsValidUnit(const sc2::Unit* unit)
 {
     // we only care about our units and enemy units
     if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
@@ -285,7 +285,7 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit* unit)
     }
 
     // if the position isn't valid throw it out
-    if (!m_bot.Map().isOnMap(unit->pos))
+    if (!bot_.Map().IsOnMap(unit->pos))
     {
         return false;
     }
@@ -294,11 +294,11 @@ bool UnitInfoManager::isValidUnit(const sc2::Unit* unit)
     return true;
 }
 
-void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Point2D p, const PlayerArrayIndex player, const float radius) const
+void UnitInfoManager::GetNearbyForce(std::vector<UnitInfo> & unit_info, sc2::Point2D p, const PlayerArrayIndex player, const float radius) const
 {
-    bool hasBunker = false;
+    bool has_bunker = false;
     // for each unit we know about for that player
-    for (const auto & kv : getUnitData(player).getUnitInfoMap())
+    for (const auto & kv : GetUnitData(player).GetUnitInfoMap())
     {
         const UnitInfo & ui(kv.second);
 
@@ -307,20 +307,20 @@ void UnitInfoManager::getNearbyForce(std::vector<UnitInfo> & unitInfo, sc2::Poin
         if (Util::IsCombatUnitType(ui.type) && Util::Dist(ui.lastPosition,p) <= radius)
         {
             // add it to the vector
-            unitInfo.push_back(ui);
+            unit_info.push_back(ui);
         }
     }
 }
 
 // Shorthand for the weird syntax required to get the unit data. This is available only inside this function. 
-const UnitData & UnitInfoManager::getUnitData(const PlayerArrayIndex player) const
+const UnitData & UnitInfoManager::GetUnitData(const PlayerArrayIndex player) const
 {
-    return m_unitData.find(player)->second;
+    return unit_data_.find(player)->second;
 }
 
 // getCombatUnits only has any meaning for your own units. 
 // unitData does not publicly expose this function to prevent accidental requsting of the set of enemy combat units. 
-std::set<const UnitInfo*> UnitInfoManager::getCombatUnits() const
+std::set<const UnitInfo*> UnitInfoManager::GetCombatUnits() const
 {
-	return getUnitData(PlayerArrayIndex::Self).GetCombatUnits();
+    return GetUnitData(PlayerArrayIndex::Self).GetCombatUnits();
 }

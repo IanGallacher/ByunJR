@@ -7,12 +7,11 @@
 
 enum class UnitMission { Idle, Wait, Move, Minerals, Gas, Build, Attack, Defend, Harass, Repair, Scout, Proxy };
 
-class UnitInfo
+struct UnitInfo
 {
     // we need to store all of this data because if the unit is not visible, we
     // can't reference it from the unit pointer
 
-public:
     float             lastHealth;
     float             lastShields;
     PlayerArrayIndex  player;
@@ -21,9 +20,9 @@ public:
     sc2::UnitTypeID   type;
     float             progress;
     UnitMission       mission;
-	sc2::Tag          workerDepotTag;
+    sc2::Tag          workerDepotTag;
 
-	UnitInfo()
+    UnitInfo()
         : lastHealth(0)
         , player(PlayerArrayIndex::Error)
         , lastPosition(sc2::Point3D(0, 0, 0))
@@ -33,7 +32,7 @@ public:
 
     }
 
-    std::string getJobCode() const
+    std::string GetJobCode() const
     {
         const UnitMission j = mission;
 

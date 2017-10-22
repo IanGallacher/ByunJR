@@ -5,179 +5,179 @@
 #include "util/Util.h"
 
 Squad::Squad(ByunJRBot & bot)
-    : m_bot(bot)
-    , m_lastRetreatSwitch(0)
-    , m_lastRetreatSwitchVal(false)
-    , m_priority(0)
-    , m_name("Default")
-    , m_meleeManager(bot)
-    , m_rangedManager(bot)
+    : bot_(bot)
+    , last_retreat_switch_(0)
+    , last_retreat_switch_val_(false)
+    , priority_(0)
+    , name_("Default")
+    , melee_manager_(bot)
+    , ranged_manager_(bot)
 {
 
 }
 
 Squad::Squad(const std::string & name, const SquadOrder & order, const size_t priority, ByunJRBot & bot)
-    : m_bot(bot)
-    , m_name(name)
-    , m_order(order)
-    , m_lastRetreatSwitch(0)
-    , m_lastRetreatSwitchVal(false)
-    , m_priority(priority)
-    , m_meleeManager(bot)
-    , m_rangedManager(bot)
+    : bot_(bot)
+    , name_(name)
+    , order_(order)
+    , last_retreat_switch_(0)
+    , last_retreat_switch_val_(false)
+    , priority_(priority)
+    , melee_manager_(bot)
+    , ranged_manager_(bot)
 {
 }
 
-void Squad::onFrame()
+void Squad::OnFrame()
 {
     // update all necessary unit information within this squad
-    updateUnits();
+    UpdateUnits();
 
     // determine whether or not we should regroup
-    const bool needToRegroup = needsToRegroup();
+    const bool need_to_regroup = NeedsToRegroup();
     
     // if we do need to regroup, do it
-    if (needToRegroup)
+    if (need_to_regroup)
     {
-        const sc2::Point2D regroupPosition = calcRegroupPosition();
+        const sc2::Point2D regroup_position = CalcRegroupPosition();
 
-        m_bot.Map().drawSphere(regroupPosition, 3, sc2::Colors::Purple);
+        bot_.DebugHelper().DrawSphere(regroup_position, 3, sc2::Colors::Purple);
 
-        m_meleeManager.regroup(regroupPosition);
-        m_rangedManager.regroup(regroupPosition);
+        melee_manager_.Regroup(regroup_position);
+        ranged_manager_.Regroup(regroup_position);
     }
     else // otherwise, execute micro
     {
-        m_meleeManager.execute(m_order);
-        m_rangedManager.execute(m_order);
+        melee_manager_.Execute(order_);
+        ranged_manager_.Execute(order_);
 
         //_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
         //_detectorManager.execute(_order);
     }
 }
 
-bool Squad::isEmpty() const
+bool Squad::IsEmpty() const
 {
-    return m_units.empty();
+    return units_.empty();
 }
 
-size_t Squad::getPriority() const
+size_t Squad::GetPriority() const
 {
-    return m_priority;
+    return priority_;
 }
 
-void Squad::setPriority(const size_t & priority)
+void Squad::SetPriority(const size_t & priority)
 {
-    m_priority = priority;
+    priority_ = priority;
 }
 
-void Squad::updateUnits()
+void Squad::UpdateUnits()
 {
-    setAllUnits();
-    setNearEnemyUnits();
-    addUnitsToMicroManagers();
+    SetAllUnits();
+    SetNearEnemyUnits();
+    AddUnitsToMicroManagers();
 }
 
-void Squad::setAllUnits()
+void Squad::SetAllUnits()
 {
     // clean up the _units vector just in case one of them died
-    std::set<sc2::Tag> goodUnits;
-    for (auto & unitTag : m_units)
+    std::set<sc2::Tag> good_units;
+    for (auto & unit_tag : units_)
     {
-        const sc2::Unit* unit = m_bot.GetUnit(unitTag);
+        const sc2::Unit* unit = bot_.GetUnit(unit_tag);
         if (!unit) { continue; }
         if (unit->build_progress < 1.0f) { continue; }
         if (unit->health <= 0) { continue; }
         
-        goodUnits.insert(unitTag);
+        good_units.insert(unit_tag);
     }
 
-    m_units = goodUnits;
+    units_ = good_units;
 }
 
-void Squad::setNearEnemyUnits()
+void Squad::SetNearEnemyUnits()
 {
-    m_nearEnemy.clear();
-    for (auto & unitTag : m_units)
+    near_enemy_.clear();
+    for (auto & unit_tag : units_)
     {
-        m_nearEnemy[unitTag] = isUnitNearEnemy(unitTag);
+        near_enemy_[unit_tag] = IsUnitNearEnemy(unit_tag);
 
-        sc2::Color color = m_nearEnemy[unitTag] ? m_bot.Config().ColorUnitNearEnemy : m_bot.Config().ColorUnitNotNearEnemy;
-        //m_bot.Map().drawSphereAroundUnit(unitTag, color);
+        sc2::Color color = near_enemy_[unit_tag] ? bot_.Config().ColorUnitNearEnemy : bot_.Config().ColorUnitNotNearEnemy;
+        //bot_.Map().drawSphereAroundUnit(unitTag, color);
     }
 }
 
-void Squad::addUnitsToMicroManagers()
+void Squad::AddUnitsToMicroManagers()
 {
-    std::vector<sc2::Tag> meleeUnits;
-    std::vector<sc2::Tag> rangedUnits;
-    std::vector<sc2::Tag> detectorUnits;
-    std::vector<sc2::Tag> transportUnits;
-    std::vector<sc2::Tag> tankUnits;
+    std::vector<sc2::Tag> melee_units;
+    std::vector<sc2::Tag> ranged_units;
+    std::vector<sc2::Tag> detector_units;
+    std::vector<sc2::Tag> transport_units;
+    std::vector<sc2::Tag> tank_units;
 
     // add _units to micro managers
-    for (auto & unitTag : m_units)
+    for (auto & unit_tag : units_)
     {
-        const sc2::Unit* unit = m_bot.GetUnit(unitTag);
+        const sc2::Unit* unit = bot_.GetUnit(unit_tag);
 
         BOT_ASSERT(unit, "null unit in addUnitsToMicroManagers()");
 
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SIEGETANK || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
         {
-            tankUnits.push_back(unitTag);
+            tank_units.push_back(unit_tag);
         }
         // TODO: detectors
         else if (Util::IsDetector(unit) && !Util::IsBuilding(unit->unit_type))
         {
-            detectorUnits.push_back(unitTag);
+            detector_units.push_back(unit_tag);
         }
         // select ranged _units
-        else if (Util::GetAttackRange(unit->unit_type, m_bot) >= 1.5f)
+        else if (Util::GetAttackRange(unit->unit_type, bot_) >= 1.5f)
         {
-            rangedUnits.push_back(unitTag);
+            ranged_units.push_back(unit_tag);
         }
         // select melee _units
-        else if (Util::GetAttackRange(unit->unit_type, m_bot) < 1.5f)
+        else if (Util::GetAttackRange(unit->unit_type, bot_) < 1.5f)
         {
-            meleeUnits.push_back(unitTag);
+            melee_units.push_back(unit_tag);
         }
     }
 
-    m_meleeManager.setUnits(meleeUnits);
-    m_rangedManager.setUnits(rangedUnits);
+    melee_manager_.SetUnits(melee_units);
+    ranged_manager_.SetUnits(ranged_units);
     //m_detectorManager.setUnits(detectorUnits);
     //m_tankManager.setUnits(tankUnits);
 }
 
 // TODO: calculates whether or not to regroup
-bool Squad::needsToRegroup() const
+bool Squad::NeedsToRegroup() const
 {
     return false;
 }
 
-void Squad::setSquadOrder(const SquadOrder & so)
+void Squad::SetSquadOrder(const SquadOrder & so)
 {
-    m_order = so;
+    order_ = so;
 }
 
-bool Squad::containsUnit(const sc2::Tag & u) const
+bool Squad::ContainsUnit(const sc2::Tag & u) const
 {
-    return std::find(m_units.begin(), m_units.end(),u) != m_units.end();
+    return std::find(units_.begin(), units_.end(),u) != units_.end();
 }
 
-void Squad::clear()
+void Squad::Clear()
 {
-    m_units.clear();
+    units_.clear();
 }
 
-bool Squad::isUnitNearEnemy(const sc2::Tag & unitTag) const
+bool Squad::IsUnitNearEnemy(const sc2::Tag & unit_tag) const
 {
-    auto unit = m_bot.GetUnit(unitTag);
+    auto unit = bot_.GetUnit(unit_tag);
     BOT_ASSERT(unit, "null unit in squad");
 
-    for (auto & unit : m_bot.Observation()->GetUnits())
+    for (auto & unit : bot_.Observation()->GetUnits())
     {
-        if ((Util::GetPlayer(unit) == PlayerArrayIndex::Enemy) && (Util::Dist(unit->pos, m_bot.GetUnit(unitTag)->pos) < 20))
+        if ((Util::GetPlayer(unit) == PlayerArrayIndex::Enemy) && (Util::Dist(unit->pos, bot_.GetUnit(unit_tag)->pos) < 20))
         {
             return true;
         }
@@ -186,41 +186,41 @@ bool Squad::isUnitNearEnemy(const sc2::Tag & unitTag) const
     return false;
 }
 
-sc2::Point2D Squad::calcCenter() const
+sc2::Point2D Squad::CalcCenter() const
 {
-    if (m_units.empty())
+    if (units_.empty())
     {
         return sc2::Point2D(0.0f,0.0f);
     }
 
     sc2::Point2D sum(0,0);
-    for (auto & unitTag : m_units)
+    for (auto & unit_tag : units_)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = bot_.GetUnit(unit_tag);
         BOT_ASSERT(unit, "null unit in squad calcCenter");
 
         sum += unit->pos;
     }
 
-    return sc2::Point2D(sum.x / m_units.size(), sum.y / m_units.size());
+    return sc2::Point2D(sum.x / units_.size(), sum.y / units_.size());
 }
 
-sc2::Point2D Squad::calcRegroupPosition() const
+sc2::Point2D Squad::CalcRegroupPosition() const
 {
     sc2::Point2D regroup(0.0f,0.0f);
 
-    float minDist = std::numeric_limits<float>::max();
+    float min_dist = std::numeric_limits<float>::max();
 
-    for (auto & unitTag : m_units)
+    for (auto & unit_tag : units_)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        const auto unit = bot_.GetUnit(unit_tag);
 
-        if (!m_nearEnemy.at(unitTag))
+        if (!near_enemy_.at(unit_tag))
         {
-            float dist = Util::Dist(m_order.getPosition(), unit->pos);
-            if (dist < minDist)
+            const float dist = Util::Dist(order_.GetPosition(), unit->pos);
+            if (dist < min_dist)
             {
-                minDist = dist;
+                min_dist = dist;
                 regroup = unit->pos;
             }
         }
@@ -228,7 +228,7 @@ sc2::Point2D Squad::calcRegroupPosition() const
 
     if (regroup.x == 0.0f && regroup.y == 0.0f)
     {
-        return m_bot.GetStartLocation();
+        return bot_.GetStartLocation();
     }
     else
     {
@@ -236,68 +236,68 @@ sc2::Point2D Squad::calcRegroupPosition() const
     }
 }
 
-sc2::Tag Squad::unitClosestToEnemy() const
+sc2::Tag Squad::UnitClosestToEnemy() const
 {
     sc2::Tag closest = 0;
-    float closestDist = std::numeric_limits<float>::max();
+    int closest_dist = std::numeric_limits<int>::max();
 
-    for (auto & unitTag : m_units)
+    for (auto & unit_tag : units_)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = bot_.GetUnit(unit_tag);
         BOT_ASSERT(unit, "null unit");
 
         // the distance to the order position
-        int dist = m_bot.Map().getGroundDistance(unit->pos, m_order.getPosition());
+        const int dist = bot_.Map().GetGroundDistance(unit->pos, order_.GetPosition());
 
-        if (dist != -1 && (!closest || dist < closestDist))
+        if (dist != -1 && (!closest || dist < closest_dist))
         {
-            closest = unitTag;
-            closestDist = (float)dist;
+            closest = unit_tag;
+            closest_dist = dist;
         }
     }
 
     return closest;
 }
 
-int Squad::squadUnitsNear(const sc2::Point2D & p) const
+int Squad::SquadUnitsNear(const sc2::Point2D & p) const
 {
-    int numUnits = 0;
+    int num_units = 0;
 
-    for (auto & unitTag : m_units)
+    for (auto & unit_tag : units_)
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = bot_.GetUnit(unit_tag);
         BOT_ASSERT(unit, "null unit");
 
         if (Util::Dist(unit->pos, p) < 20.0f)
         {
-            numUnits++;
+            num_units++;
         }
     }
 
-    return numUnits;
+    return num_units;
 }
 
-const std::set<sc2::Tag> & Squad::getUnits() const
+const std::set<sc2::Tag> & Squad::GetUnits() const
 {
-    return m_units;
+    return units_;
 }
 
-const SquadOrder & Squad::getSquadOrder()	const
+const SquadOrder & Squad::GetSquadOrder() const
 {
-    return m_order;
+    return order_;
 }
 
-void Squad::addUnit(const sc2::Tag & u)
+void Squad::AddUnit(const sc2::Tag & u)
 {
-    m_units.insert(u);
+    units_.insert(u);
 }
 
-void Squad::removeUnit(const sc2::Tag & u)
+void Squad::RemoveUnit(const sc2::Tag & u)
 {
-    m_units.erase(u);
+    units_.erase(u);
 }
 
-const std::string & Squad::getName() const
+const std::string & Squad::GetName() const
 {
-    return m_name;
+    return name_;
 }

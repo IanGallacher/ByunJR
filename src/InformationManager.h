@@ -7,35 +7,34 @@ class ByunJRBot;
 
 class InformationManager
 {
-    ByunJRBot &              m_bot;
+    ByunJRBot &              bot_;
 
-    std::vector<sc2::Tag>    m_scoutUnits;
-    UnitInfoManager          m_unitInfo;
+    std::vector<sc2::Tag>    scout_units_;
+    UnitInfoManager          unit_info_;
 
-    bool                     m_initialScoutSet;
+    bool                     initial_scout_set_;
 
-	void setScoutUnits(bool shouldSendInitialScout);
-	void setCombatUnits();
+    void SetScoutUnits(bool should_send_initial_scout);
 
 public:
     InformationManager(ByunJRBot & bot);
-    void onStart();
-    void onUnitCreated(const sc2::Unit* unit);
-    void onUnitDestroyed(const sc2::Unit* unit);
-    void onFrame();
+    void OnStart();
+    void OnUnitCreated(const sc2::Unit* unit);
+    void OnUnitDestroyed(const sc2::Unit* unit);
+    void OnFrame();
 
-    sc2::Point2D GetProxyLocation() const;
+    sc2::Point2DI GetProxyLocation() const;
     UnitInfoManager & UnitInfo();
 
-	sc2::Tag getBuilder(Building& b, bool setJobAsBuilder = true);
-	void assignUnit(const sc2::Tag & unit, UnitMission job);
-	void finishedWithUnit(const sc2::Tag& unit);
+    sc2::Tag GetBuilder(Building& b, bool set_job_as_builder = true);
+    void assignUnit(const sc2::Tag & unit, UnitMission job);
+    void finishedWithUnit(const sc2::Tag& unit);
 
-	const sc2::Unit* getClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
-	const sc2::Unit* getClosestBase(const sc2::Unit* referenceUnit) const;
-	const ::UnitInfo* getClosestUnitWithJob(const sc2::Point2D point, const UnitMission) const;
-	sc2::Tag getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const;
-	const sc2::Tag getClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
+    const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
+    const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;
+    const ::UnitInfo* GetClosestUnitWithJob(const sc2::Point2D point, const UnitMission) const;
+    sc2::Tag GetClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const;
+    const sc2::Tag GetClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
 
-	void handleUnitAssignments();
+    void HandleUnitAssignments();
 };

@@ -5,22 +5,22 @@ class ByunJRBot;
 
 class ProxyManager
 {
-    ByunJRBot &          m_bot;
-    const sc2::Unit*     m_proxyWorker;
-    bool                 m_proxyUnderAttack;
-    bool                 m_firstReaperCreated;
-    ProxyTrainingData    m_ptd;
+    ByunJRBot &          bot_;
+    const sc2::Unit*     proxy_worker_;
+    bool                 proxy_under_attack_;
+    bool                 first_reaper_created_;
+    ProxyTrainingData    ptd_;
     // bool            loggedResult;
 
 
 public:
     ProxyManager(ByunJRBot & bot);
-    void onStart();
-    void onFrame();
-    void onUnitCreated(const sc2::Unit* unit);
-    void onUnitEnterVision(const sc2::Unit* unit);
-    bool proxyBuildingAtChosenRandomLocation();
+    void OnStart();
+    void OnFrame();
+    void OnUnitCreated(const sc2::Unit* unit);
+    void OnUnitEnterVision(const sc2::Unit* unit);
+    bool ProxyBuildingAtChosenRandomLocation();
 
-    sc2::Point2D getProxyLocation();
-    ProxyTrainingData& getProxyTrainingData();
+    sc2::Point2DI GetProxyLocation();
+    ProxyTrainingData& GetProxyTrainingData();
 };

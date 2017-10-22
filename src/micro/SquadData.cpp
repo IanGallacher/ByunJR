@@ -5,90 +5,90 @@
 #include "micro/SquadData.h"
 #include "util/Util.h"
 
-SquadData::SquadData(ByunJRBot & bot)
-    : m_bot(bot)
+SquadData::SquadData(ByunJRBot& bot)
+    : bot_(bot)
 {
 
 }
 
-void SquadData::onFrame()
+void SquadData::OnFrame()
 {
-    updateAllSquads();
-    verifySquadUniqueMembership();
-    drawSquadInformation();
+    UpdateAllSquads();
+    VerifySquadUniqueMembership();
+    DrawSquadInformation();
 }
 
-void SquadData::clearSquadData()
+void SquadData::ClearSquadData()
 {
     // give back workers who were in squads
-    for (auto & kv : m_squads)
+    for (auto& kv : squads_)
     {
-        Squad & squad = kv.second;
-        for (auto & unitTag : squad.getUnits())
+        Squad& squad = kv.second;
+        for (auto& unit_tag : squad.GetUnits())
         {
-            auto unit = m_bot.GetUnit(unitTag);
+            auto unit = bot_.GetUnit(unit_tag);
             BOT_ASSERT(unit, "null unit");
 
             if (Util::IsWorker(unit))
             {
-                m_bot.InformationManager().finishedWithUnit(unitTag);
+                bot_.InformationManager().finishedWithUnit(unit_tag);
             }
         }
     }
 
-    m_squads.clear();
+    squads_.clear();
 }
 
-void SquadData::removeSquad(const std::string & squadName)
+void SquadData::RemoveSquad(const std::string& squad_name)
 {
-    const auto & squadPtr = m_squads.find(squadName);
+    const auto& squad_ptr = squads_.find(squad_name);
 
-    BOT_ASSERT(squadPtr != m_squads.end(), "Trying to clear a squad that didn't exist: %s", squadName.c_str());
-    if (squadPtr == m_squads.end())
+    BOT_ASSERT(squad_ptr != squads_.end(), "Trying to clear a squad that didn't exist: %s", squad_name.c_str());
+    if (squad_ptr == squads_.end())
     {
         return;
     }
 
-    for (auto unitTag : squadPtr->second.getUnits())
+    for (auto unit_tag : squad_ptr->second.GetUnits())
     {
-        auto unit = m_bot.GetUnit(unitTag);
+        auto unit = bot_.GetUnit(unit_tag);
         BOT_ASSERT(unit, "null unit");
 
         if (Util::IsWorker(unit))
         {
-            m_bot.InformationManager().finishedWithUnit(unitTag);
+            bot_.InformationManager().finishedWithUnit(unit_tag);
         }
     }
 
-    m_squads.erase(squadName);
+    squads_.erase(squad_name);
 }
 
-const std::map<std::string, Squad> & SquadData::getSquads() const
+const std::map<std::string, Squad>& SquadData::GetSquads() const
 {
-    return m_squads;
+    return squads_;
 }
 
-bool SquadData::squadExists(const std::string & squadName)
+bool SquadData::SquadExists(const std::string& squad_name)
 {
-    return m_squads.find(squadName) != m_squads.end();
+    return squads_.find(squad_name) != squads_.end();
 }
 
-void SquadData::addSquad(const std::string & squadName, const Squad & squad)
+void SquadData::AddSquad(const std::string& squad_name, const Squad& squad)
 {
-    m_squads.insert(std::pair<std::string, Squad>(squadName, squad));
+    squads_.insert(std::pair<std::string, Squad>(squad_name, squad));
 }
 
-void SquadData::updateAllSquads()
+void SquadData::UpdateAllSquads()
 {
-    for (auto & kv : m_squads)
+    for (auto& kv : squads_)
     {
-        kv.second.onFrame();
+        kv.second.OnFrame();
     }
 }
 
-void SquadData::drawSquadInformation()
+void SquadData::DrawSquadInformation()
 {
-    if (!m_bot.Config().DrawSquadInfo)
+    if (!bot_.Config().DrawSquadInfo)
     {
         return;
     }
@@ -96,59 +96,59 @@ void SquadData::drawSquadInformation()
     std::stringstream ss;
     ss << "Squad Data\n\n";
 
-    for (auto & kv : m_squads)
+    for (auto& kv : squads_)
     {
-        const Squad & squad = kv.second;
+        const Squad& squad = kv.second;
 
-        auto & units = squad.getUnits();
-        const SquadOrder & order = squad.getSquadOrder();
+        auto& units = squad.GetUnits();
+        const SquadOrder& order = squad.GetSquadOrder();
 
-        ss << squad.getName() << " " << units.size() << " (";
-        ss << (int)order.getPosition().x << ", " << (int)order.getPosition().y << ")\n";
+        ss << squad.GetName() << " " << units.size() << " (";
+        ss << static_cast<int>(order.GetPosition().x) << ", " << static_cast<int>(order.GetPosition().y) << ")\n";
 
-        m_bot.Map().drawSphere(order.getPosition(), 5, sc2::Colors::Red);
-        m_bot.Map().drawText(order.getPosition(), squad.getName(), sc2::Colors::Red);
+        bot_.DebugHelper().DrawSphere(order.GetPosition(), 5, sc2::Colors::Red);
+        bot_.DebugHelper().DrawText(order.GetPosition(), squad.GetName(), sc2::Colors::Red);
 
-        for (auto unitTag : units)
+        for (auto unit_tag : units)
         {
-            auto unit = m_bot.GetUnit(unitTag);
+            auto unit = bot_.GetUnit(unit_tag);
             BOT_ASSERT(unit, "null unit");
 
-            m_bot.Map().drawText(unit->pos, squad.getName(), sc2::Colors::Green);
+            bot_.DebugHelper().DrawText(unit->pos, squad.GetName(), sc2::Colors::Green);
         }
     }
 
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.5f, 0.2f), ss.str(), sc2::Colors::Red);
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.5f, 0.2f), ss.str(), sc2::Colors::Red);
 }
 
-void SquadData::verifySquadUniqueMembership()
+void SquadData::VerifySquadUniqueMembership()
 {
     std::vector<sc2::Tag> assigned;
 
-    for (const auto & kv : m_squads)
+    for (const auto& kv : squads_)
     {
-        for (auto & unitTag : kv.second.getUnits())
+        for (auto& unit_tag : kv.second.GetUnits())
         {
-            if (std::find(assigned.begin(), assigned.end(), unitTag) != assigned.end())
+            if (std::find(assigned.begin(), assigned.end(), unit_tag) != assigned.end())
             {
-                std::cout << "Warning: Unit is in at least two squads: " << unitTag << std::endl;
+                std::cout << "Warning: Unit is in at least two squads: " << unit_tag << std::endl;
             }
 
-            assigned.push_back(unitTag);
+            assigned.push_back(unit_tag);
         }
     }
 }
 
-bool SquadData::unitIsInSquad(const sc2::Tag & unit) const
+bool SquadData::UnitIsInSquad(const sc2::Tag& unit) const
 {
-    return getUnitSquad(unit) != nullptr;
+    return GetUnitSquad(unit) != nullptr;
 }
 
-const Squad * SquadData::getUnitSquad(const sc2::Tag & unit) const
+const Squad* SquadData::GetUnitSquad(const sc2::Tag& unit) const
 {
-    for (const auto & kv : m_squads)
+    for (const auto& kv : squads_)
     {
-        if (kv.second.containsUnit(unit))
+        if (kv.second.ContainsUnit(unit))
         {
             return &kv.second;
         }
@@ -157,11 +157,11 @@ const Squad * SquadData::getUnitSquad(const sc2::Tag & unit) const
     return nullptr;
 }
 
-Squad * SquadData::getUnitSquad(const sc2::Tag & unit)
+Squad * SquadData::GetUnitSquad(const sc2::Tag & unit)
 {
-    for (auto & kv : m_squads)
+    for (auto& kv : squads_)
     {
-        if (kv.second.containsUnit(unit))
+        if (kv.second.ContainsUnit(unit))
         {
             return &kv.second;
         }
@@ -170,35 +170,35 @@ Squad * SquadData::getUnitSquad(const sc2::Tag & unit)
     return nullptr;
 }
 
-void SquadData::assignUnitToSquad(const sc2::Tag & unit, Squad & squad)
+void SquadData::AssignUnitToSquad(const sc2::Tag& unit, Squad & squad)
 {
-    BOT_ASSERT(canAssignUnitToSquad(unit, squad), "We shouldn't be re-assigning this unit!");
+    BOT_ASSERT(CanAssignUnitToSquad(unit, squad), "We shouldn't be re-assigning this unit!");
 
-    Squad * previousSquad = getUnitSquad(unit);
+    Squad* previous_squad = GetUnitSquad(unit);
 
-    if (previousSquad)
+    if (previous_squad)
     {
-        previousSquad->removeUnit(unit);
+        previous_squad->RemoveUnit(unit);
     }
 
-    squad.addUnit(unit);
+    squad.AddUnit(unit);
 }
 
-bool SquadData::canAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const
+bool SquadData::CanAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const
 {
-    const Squad * unitSquad = getUnitSquad(unit);
+    const Squad * unit_squad = GetUnitSquad(unit);
 
     // make sure strictly less than so we don't reassign to the same squad etc
-    return !unitSquad || (unitSquad->getPriority() < squad.getPriority());
+    return !unit_squad || (unit_squad->GetPriority() < squad.GetPriority());
 }
 
-Squad & SquadData::getSquad(const std::string & squadName)
+Squad & SquadData::GetSquad(const std::string & squad_name)
 {
-    BOT_ASSERT(squadExists(squadName), "Trying to access squad that doesn't exist: %s", squadName);
-    if (!squadExists(squadName))
+    BOT_ASSERT(SquadExists(squad_name), "Trying to access squad that doesn't exist: %s", squad_name);
+    if (!SquadExists(squad_name))
     {
         int a = 10;
     }
 
-    return m_squads.at(squadName);
+    return squads_.at(squad_name);
 }

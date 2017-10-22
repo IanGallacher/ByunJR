@@ -8,8 +8,8 @@ class RangedManager: public MicroManager
 public:
 
     RangedManager(ByunJRBot & bot);
-    void    executeMicro(const std::vector<sc2::Tag> & targets);
-    void    assignTargets(const std::vector<sc2::Tag> & targets);
-    int     getAttackPriority(const sc2::Tag & rangedUnit, const sc2::Tag & target);
-    sc2::Tag getTarget(const sc2::Tag & rangedUnit, const std::vector<sc2::Tag> & targets);
+    void    ExecuteMicro(const std::vector<sc2::Tag> & targets) override;
+    void    AssignTargets(const std::vector<sc2::Tag> & targets);
+    int     GetAttackPriority(const sc2::Tag & ranged_unit, const sc2::Tag & target) const;
+    sc2::Tag GetTarget(const sc2::Tag & ranged_unit, const std::vector<sc2::Tag> & targets);
 };

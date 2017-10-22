@@ -8,77 +8,65 @@ class ByunJRBot;
 
 class MapTools
 {
-    ByunJRBot & m_bot;
-    int     m_width;
-    int     m_height;
-    float   m_maxZ;
-    int     m_frame;
+    ByunJRBot& bot_;
+    int     width_;
+    int     height_;
+    float   max_z_;
+    int     frame_;
     
 
     // a cache of already computed distance maps, which is mutable since it only acts as a cache
-    mutable std::map<std::pair<int, int>, DistanceMap>   _allMaps;   
+    mutable std::map<std::pair<int, int>, DistanceMap>   all_maps_;   
 
-    std::vector<std::vector<bool>>  m_walkable;         // whether a tile is buildable (includes static resources)
-    std::vector<std::vector<bool>>  m_buildable;        // whether a tile is buildable (includes static resources)
-    std::vector<std::vector<bool>>  m_depotBuildable;   // whether a depot is buildable on a tile (illegal within 3 tiles of static resource)
-    std::vector<std::vector<int>>   m_lastSeen;         // the last time any of our units has seen this position on the map
-    std::vector<std::vector<int>>   m_sectorNumber;     // connectivity sector number, two tiles are ground connected if they have the same number
-    std::vector<std::vector<float>> m_terrainHeight;        // height of the map at x+0.5, y+0.5
+    std::vector<std::vector<bool>>  walkable_;         // whether a tile is buildable (includes static resources)
+    std::vector<std::vector<bool>>  buildable_;        // whether a tile is buildable (includes static resources)
+    std::vector<std::vector<bool>>  depot_buildable_;   // whether a depot is buildable on a tile (illegal within 3 tiles of static resource)
+    std::vector<std::vector<int>>   last_seen_;         // the last time any of our units has seen this position on the map
+    std::vector<std::vector<int>>   sector_number_;     // connectivity sector number, two tiles are ground connected if they have the same number
+    std::vector<std::vector<float>> terrain_height_;        // height of the map at x+0.5, y+0.5
     
-    void computeConnectivity(); 
+    void ComputeConnectivity(); 
 
-    int getSectorNumber(int x, int y) const;
-    int getSectorNumber(const sc2::Point2D & pos) const;
+    int GetSectorNumber(int x, int y) const;
+    int GetSectorNumber(const sc2::Point2DI& pos) const;
         
-    void printMap() const;
+    void PrintMap() const;
 
 public:
 
-    MapTools(ByunJRBot & bot);
+    MapTools(ByunJRBot& bot);
 
-    void    onStart();
-    void    onFrame();
-    void    draw() const;
+    void    OnStart();
+    void    OnFrame();
+    void    Draw() const;
 
-    int     width() const;
-    int     height() const;
-    float   terrainHeight(float x, float y) const;
-
-    void    drawLine(float x1, float y1, float x2, float y2, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawLine(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawSquare(float x1, float y1, float x2, float y2, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawBox(float x1, float y1, float x2, float y2, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawBox(const sc2::Point2D & min, const sc2::Point2D max, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawBox(const sc2::Point3D& min, const sc2::Point3D max, const sc2::Color& color) const;
-    void    drawSphere(float x1, float x2, float radius, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawSphere(const sc2::Point2D & pos, float radius, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawText(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawTextScreen(const sc2::Point2D & pos, const std::string & str, const sc2::Color & color = sc2::Colors::White) const;
-    void    drawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const;
-    void    drawSphereAroundUnit(const sc2::Tag & uinit, sc2::Color color) const;
+    int     Width() const;
+    int     Height() const;
+    float   TerrainHeight(float x, float y) const;
     
-    bool    isOnMap(int x, int y) const;
-    bool    isOnMap(const sc2::Point2D & pos) const;
-    bool    isPowered(const sc2::Point2D & pos) const;
-    bool    isExplored(const sc2::Point2D & pos) const;
-    bool    isVisible(const sc2::Point2D & pos) const;
-    bool    canBuildTypeAtPosition(int x, int y, sc2::UnitTypeID type) const;
+    bool    IsOnMap(int x, int y) const;
+    bool    IsOnMap(const sc2::Point2D& pos) const;
+    bool    IsOnMap(const sc2::Point2DI& pos) const;
+    bool    IsPowered(const sc2::Point2DI& pos) const;
+    bool    IsExplored(const sc2::Point2D& pos) const;
+    bool    IsVisible(const sc2::Point2D& pos) const;
+    bool    CanBuildTypeAtPosition(int x, int y, sc2::UnitTypeID type) const;
 
-    const   DistanceMap & getDistanceMap(const sc2::Point2D & tile) const;
-    int     getGroundDistance(const sc2::Point2D & src, const sc2::Point2D & dest) const;
-    bool    isConnected(int x1, int y1, int x2, int y2) const;
-    bool    isConnected(const sc2::Point2D & from, const sc2::Point2D & to) const;
-    bool    isWalkable(const sc2::Point2D & pos) const;
-    bool    isWalkable(int x, int y) const;
-    void    drawLastSeen() const;
+    const   DistanceMap& GetDistanceMap(const sc2::Point2DI& tile) const;
+    int     GetGroundDistance(const sc2::Point2DI& src, const sc2::Point2DI& dest) const;
+    int     GetGroundDistance(const sc2::Point2D& src, const sc2::Point2D& dest) const;
+    bool    IsConnected(int x1, int y1, int x2, int y2) const;
+    bool    IsConnected(const sc2::Point2DI& from, const sc2::Point2DI& to) const;
+    bool    IsWalkable(const sc2::Point2DI& pos) const;
+    bool    IsWalkable(int x, int y) const;
     
-    bool    isBuildable(const sc2::Point2D & pos) const;
-    bool    isBuildable(int x, int y) const;
-    bool    isDepotBuildableTile(const sc2::Point2D & pos) const;
+    bool    IsBuildable(const sc2::Point2DI& pos) const;
+    bool    IsBuildable(int x, int y) const;
+    bool    IsDepotBuildableTile(const sc2::Point2D& pos) const;
     
-    sc2::Point2D getLeastRecentlySeenPosition() const;
+    sc2::Point2DI GetLeastRecentlySeenPosition() const;
 
     // returns a list of all tiles on the map, sorted by 4-direcitonal walk distance from the given position
-    const std::vector<sc2::Point2D> & getClosestTilesTo(const sc2::Point2D & pos) const;
+    const std::vector<sc2::Point2DI>& GetClosestTilesTo(const sc2::Point2DI& pos) const;
 };
 

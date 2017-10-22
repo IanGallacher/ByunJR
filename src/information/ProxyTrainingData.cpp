@@ -8,117 +8,118 @@
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 {
-    m_playable_max = bot.Observation()->GetGameInfo().playable_max;
-    m_playable_min = bot.Observation()->GetGameInfo().playable_min;
+    playable_max_ = bot.Observation()->GetGameInfo().playable_max;
+    playable_min_ = bot.Observation()->GetGameInfo().playable_min;
 
-    m_arena_width = (int)(bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
-    m_arena_height = (int)(bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
+    arena_width_ = (int)(bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
+    arena_height_ = (int)(bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
 
-    m_bot = &bot;
+    bot_ = &bot;
 
-    m_playerStart_y = (int)bot.Bases().getPlayerStartingBaseLocation(PlayerArrayIndex::Self)->getPosition().y;
+    player_start_y_ = (int)bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition().y;
     // This won't work for four player maps.
-    m_enemyStart_y = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
+    enemy_start_y_ = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-    m_result.resize(m_arena_height);
-    for (auto &row : m_result)
+    result_.resize(arena_height_);
+    for (auto &row : result_)
     {
-        row.resize(m_arena_width);
+        row.resize(arena_width_);
     }
 
-    loadProxyTrainingData();
+    LoadProxyTrainingData();
 
-    setupProxyLocation();
+    SetupProxyLocation();
 }
 // WARNING: DOES NOT INCLUDE FILE EXTENSION
-std::string ProxyTrainingData::getTrainingDataFileName()
+std::string ProxyTrainingData::GetTrainingDataFileName()
 {
-    return m_bot->Config().MapName + "TrainingData";
+    return bot_->Config().MapName + "TrainingData";
 }
 
-TilePos ProxyTrainingData::flipCoordinatesIfNecessary(const int x, const int y)
+sc2::Point2DI ProxyTrainingData::FlipCoordinatesIfNecessary(const int x, const int y)
 {
-    TilePos returnVal;
-    if (m_playerStart_y < m_enemyStart_y)
+    sc2::Point2DI return_val;
+    if (player_start_y_ < enemy_start_y_)
     {
-        returnVal.x = x;
-        returnVal.y = y;
+        return_val.x = x;
+        return_val.y = y;
     }
     else
     {
-        returnVal.x = (m_arena_width - x);
-        returnVal.y = (m_arena_height - y);
+        return_val.x = (arena_width_ - x);
+        return_val.y = (arena_height_ - y);
     }
-    return returnVal;
+    return return_val;
 }
 
 // Returns the proxy location in "True Map Space"
-sc2::Point2D ProxyTrainingData::getProxyLocation()
+sc2::Point2DI ProxyTrainingData::GetProxyLocation()
 {
-    if(m_proxy_loc.x == 0 || m_proxy_loc.y == 0)
+    if(proxy_loc_.x == 0 || proxy_loc_.y == 0)
         std::cout << "Please setup the proxy location values before trying to retrieve them." << std::endl;
-    const sc2::Point2D proxyLocation((float)m_proxy_loc.x + m_playable_min.x, (float)m_proxy_loc.y + m_playable_min.y);
+    const sc2::Point2DI proxy_location(proxy_loc_.x + playable_min_.x, proxy_loc_.y + playable_min_.y);
 
-    if (m_bot->Config().TrainingMode)
-        return proxyLocation;
+    if (bot_->Config().TrainingMode)
+        return proxy_location;
     else
-        return getBestProxyLocation();
+        return GetBestProxyLocation();
 }
 
 // Returns the best proxy location in "True Map Space"
-sc2::Point2D ProxyTrainingData::getBestProxyLocation()
+sc2::Point2DI ProxyTrainingData::GetBestProxyLocation()
 {
-    BOT_ASSERT(m_best_proxy_loc.x != 0 || m_best_proxy_loc.y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    BOT_ASSERT(best_proxy_loc_.x != 0 || best_proxy_loc_.y != 0, "Please setup the proxy location values before trying to retrieve them.");
 
-    const TilePos bestLoc = flipCoordinatesIfNecessary(m_best_proxy_loc.x, m_best_proxy_loc.y);
+    const sc2::Point2DI best_loc = FlipCoordinatesIfNecessary(best_proxy_loc_.x, best_proxy_loc_.y);
 
-    const sc2::Point2D proxyLocation((float) (bestLoc.x + m_playable_min.x), (float) (bestLoc.y + m_playable_min.y) );
+    // Convert coordinate systems.
+    const sc2::Point2DI proxy_location(best_loc.x + playable_min_.x, best_loc.y + playable_min_.y );
 
-    return proxyLocation;
+    return proxy_location;
 }
 
-int ProxyTrainingData::getReward()
+int ProxyTrainingData::GetReward()
 {
-    const TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
+    const sc2::Point2DI actual_proxy_loc = FlipCoordinatesIfNecessary(proxy_loc_.x, proxy_loc_.y);
 
-    return m_result[actualProxyLoc.y][actualProxyLoc.x];
+    return result_[actual_proxy_loc.y][actual_proxy_loc.x];
 }
 
-sc2::Point2D ProxyTrainingData::getNearestUntestedProxyLocation(int x, int y)
+sc2::Point2D ProxyTrainingData::GetNearestUntestedProxyLocation(const int x, const int y)
 {
-    sc2::Point2D closestPoint;
+    sc2::Point2D closest_point;
     int dist = std::numeric_limits<int>::max();
-    for (int i = 0; i < m_viableLocations.size(); ++i)
+    for (int i = 0; i < viable_locations_.size(); ++i)
     {
-        const int deltaX = (m_viableLocations[i].m_loc.x - x);
-        const int deltaY = (m_viableLocations[i].m_loc.y - y);
-        const int newDist = (deltaX * deltaX) + (deltaY * deltaY);
-        if (newDist < dist)
+        const int delta_x = (viable_locations_[i].loc.x - x);
+        const int delta_y = (viable_locations_[i].loc.y - y);
+        const int new_dist = (delta_x * delta_x) + (delta_y * delta_y);
+        if (new_dist < dist)
         {
-            closestPoint = sc2::Point2D(x, y);
-            dist = newDist;
+            closest_point = sc2::Point2D(x, y);
+            dist = new_dist;
         }
     }
-    return closestPoint;
+    return closest_point;
 }
 
 // Is the proxy location ready to go? Has it been setup yet?
-bool ProxyTrainingData::proxyLocationReady() const
+bool ProxyTrainingData::ProxyLocationReady() const
 {
     // If we are training the bot with a genetic algorithm, the genetic algorithm may not have setup the proxy location.
     // If that is the case, the proxyLocation is not ready to be retrieved. 
-    if (m_bot->Config().TrainingMode && (m_proxy_loc.x == 0 || m_proxy_loc.y == 0) )
+    if (bot_->Config().TrainingMode && (proxy_loc_.x == 0 || proxy_loc_.y == 0) )
         return false;
     // If we are not using a genetic algorithm, the "best coordinates" are ready.
     else
         return true;
 }
 
-sc2::Point2D ProxyTrainingData::getRandomViableProxyLocation()
+sc2::Point2DI ProxyTrainingData::GetRandomViableProxyLocation()
 {
-    return m_viableLocations[rand() % (int)m_viableLocations.size()].m_loc;
+    return viable_locations_[rand() % static_cast<int>(viable_locations_.size())].loc;
 }
 
 // Load all the values from training data stored on the disk.
@@ -126,26 +127,26 @@ sc2::Point2D ProxyTrainingData::getRandomViableProxyLocation()
 // Training data is stored in a standard .txt file. Spaces separate values, and new lines separate data entries.
 // Format used on every line on the file:
 // XCOORDINATE YCOORDINATE FITNESS
-bool ProxyTrainingData::loadProxyTrainingData()
+bool ProxyTrainingData::LoadProxyTrainingData()
 {
-    std::ifstream trainingData;
+    std::ifstream training_data;
     std::string line;
 
-    trainingData.open(getTrainingDataFileName() + ".txt");
+    training_data.open(GetTrainingDataFileName() + ".txt");
 
     // If we have an empty file, go ahead and test all the points on the map and use that instead of loading the file.
-    if (trainingData.peek() == std::ifstream::traits_type::eof())
+    if (training_data.peek() == std::ifstream::traits_type::eof())
     {
-        testAllPointsOnMap();
+        TestAllPointsOnMap();
         // In order to save computation time, only half of the valid locations will be searched initially. 
         // After we feel like we have some good canidates for the "best" proxy location, 
         // we can look for nearby tile locations that were eliminated by this function.
-        reduceSearchSpace(2);
+        ReduceSearchSpace(2);
     }
 
-    else if (trainingData.is_open())
+    else if (training_data.is_open())
     {
-        while (getline(trainingData, line))
+        while (getline(training_data, line))
         {
             std::string temp = "";
             int x = -100;
@@ -179,136 +180,136 @@ bool ProxyTrainingData::loadProxyTrainingData()
             if (x != -100 && y != -100)
             {
                 val = std::stoi(temp);
-                m_result[y][x] = val;
+                result_[y][x] = val;
             }
         }
     }
-    trainingData.close();
+    training_data.close();
 
     // No matter how we get our data, we ALWAYS will have to setup the list of suitable proxy locations.
-    upadateViableLocationsList();
+    UpadateViableLocationsList();
     return 0;
 }
 
-// Iterate through the result (training data) data structure and update the m_viableLocations vector.
-void ProxyTrainingData::upadateViableLocationsList()
+// Iterate through the result (training data) data structure and update the viableLocations vector.
+void ProxyTrainingData::UpadateViableLocationsList()
 {
     int best_reward = std::numeric_limits<int>::max();
-    for (int y = 0; y < m_result.size(); ++y)
+    for (int y = 0; y < result_.size(); ++y)
     {
-        for (int x = 0; x < m_result[y].size(); ++x)
+        for (int x = 0; x < result_[y].size(); ++x)
         {
-            if (m_result[y][x] == MapDataValue::LocationWithoutResultValue)
+            if (result_[y][x] == MapDataValue::LocationWithoutResultValue)
             {
-                const sc2::Point2D point((float)x, (float)y);
-                ProxyLocation pl = { point, m_result[y][x] };
-                m_viableLocations.push_back(pl);
+                const sc2::Point2DI point(x, y);
+                ProxyLocation pl = { point, result_[y][x] };
+                viable_locations_.push_back(pl);
             }
-            else if (m_result[y][x] > 0 && m_result[y][x] < best_reward)
+            else if (result_[y][x] > 0 && result_[y][x] < best_reward)
             {
-                m_best_proxy_loc.x = x;
-                m_best_proxy_loc.y = y;
-                best_reward = m_result[y][x];
+                best_proxy_loc_.x = x;
+                best_proxy_loc_.y = y;
+                best_reward = result_[y][x];
             }
         }
     }
 
-    if(!m_bot->Config().TrainingMode)
+    if(!bot_->Config().TrainingMode)
     {
-        m_bot->Config().setProxyLocation(m_best_proxy_loc.x, m_best_proxy_loc.y);
-        m_proxy_loc.x = m_best_proxy_loc.x;
-        m_proxy_loc.y = m_best_proxy_loc.y;
+        bot_->Config().SetProxyLocation(best_proxy_loc_.x, best_proxy_loc_.y);
+        proxy_loc_.x = best_proxy_loc_.x;
+        proxy_loc_.y = best_proxy_loc_.y;
     }
 }
 
-void ProxyTrainingData::recordResult(const int fitness)
+void ProxyTrainingData::RecordResult(const int fitness)
 {
-    const TilePos actualProxyLoc = flipCoordinatesIfNecessary(m_proxy_loc.x, m_proxy_loc.y);
+    const sc2::Point2DI actual_proxy_loc = FlipCoordinatesIfNecessary(proxy_loc_.x, proxy_loc_.y);
     
-    m_result[actualProxyLoc.y][actualProxyLoc.x] = fitness;
+    result_[actual_proxy_loc.y][actual_proxy_loc.x] = fitness;
 
     std::cout << fitness << "fitness" << std::endl;
-    writeAllTrainingData(getTrainingDataFileName());
+    WriteAllTrainingData(GetTrainingDataFileName());
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
 // This function takes the parameters in "True Map Space"
-bool ProxyTrainingData::isProxyLocationValid(int x, int y) const
+bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 {
-    if (m_bot->Map().canBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
+    if (bot_->Map().CanBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;
     return false;
 }
 
 // If we can't build at the chosen location, update that information in our data structure.
-void ProxyTrainingData::testAllPointsOnMap()
+void ProxyTrainingData::TestAllPointsOnMap()
 {
-    BOT_ASSERT(m_arena_height != 0, "Play area height is zero!");
-    BOT_ASSERT(m_arena_width != 0, "Play area height is zero!");
+    BOT_ASSERT(arena_height_ != 0, "Play area height is zero!");
+    BOT_ASSERT(arena_width_ != 0, "Play area height is zero!");
 
-    for (int y = 0; y < m_arena_height; ++y)
+    for (int y = 0; y < arena_height_; ++y)
     {
-        for (int x = 0; x < m_arena_width; ++x)
+        for (int x = 0; x < arena_width_; ++x)
         {
-            if (!isProxyLocationValid(x + (int)m_playable_min.x, y + (int)m_playable_min.y))
+            if (!IsProxyLocationValid(x + static_cast<int>(playable_min_.x), y + static_cast<int>(playable_min_.y)))
             {
-                m_result[y][x] = MapDataValue::UnbuildableLocation;
+                result_[y][x] = MapDataValue::UnbuildableLocation;
             }
         }
     }
 }
 
-// reductionFactor means "for every {reductionFactor} items, keep only 1 of them."
-// Example: If reductionFactor is 2, keep only half of the valid building locations.
-// Example: If reductionFactor is 1, keep everything. 
-void ProxyTrainingData::reduceSearchSpace(int reductionFactor)
+// reductionFactor means "for every {reduction_factor} items, keep only 1 of them."
+// Example: If reduction_factor is 2, keep only half of the valid building locations.
+// Example: If reduction_factor is 1, keep everything. 
+void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
 {
-    BOT_ASSERT(m_arena_height != 0, "Play area height is zero!");
-    BOT_ASSERT(m_arena_width != 0, "Play area height is zero!");
-    BOT_ASSERT(reductionFactor > 0, "reductionFactor must be one or bigger");
+    BOT_ASSERT(arena_height_ != 0, "Play area height is zero!");
+    BOT_ASSERT(arena_width_ != 0, "Play area height is zero!");
+    BOT_ASSERT(reduction_factor > 0, "reductionFactor must be one or bigger");
 
     // If reductionFactor is one, nothing will change.
     // Save time by skipping the rest of the function.
-    if (reductionFactor == 1) { return; }
+    if (reduction_factor == 1) { return; }
 
-    int validLocationNumber = 0;
-    for (int y = 0; y < m_arena_height; ++y)
+    int valid_location_number = 0;
+    for (int y = 0; y < arena_height_; ++y)
     {
-        for (int x = 0; x < m_arena_width; ++x)
+        for (int x = 0; x < arena_width_; ++x)
         {
             // keep only 1/reductionfactor valid entries. 
             // We are only interested in the untested locations.
-            if (validLocationNumber % reductionFactor == 0 && m_result[y][x] == MapDataValue::LocationWithoutResultValue)
+            if (valid_location_number % reduction_factor == 0 && result_[y][x] == MapDataValue::LocationWithoutResultValue)
             {
-                m_result[y][x] = MapDataValue::IgnoredLocationToSaveSearchSpace;
+                result_[y][x] = MapDataValue::IgnoredLocationToSaveSearchSpace;
             }
-            ++validLocationNumber;
+            ++valid_location_number;
         }
     }
 }
 
-bool ProxyTrainingData::setupProxyLocation()
+bool ProxyTrainingData::SetupProxyLocation()
 {
-    srand((unsigned int)time(NULL));
-    int index = rand() % m_viableLocations.size();
+    srand(static_cast<unsigned int>(time(NULL)));
+    int index = rand() % viable_locations_.size();
 
     // There are two coordinate systems for storing the proxy location.
     // "True Map Space" - Some maps are larger than the total play area.
     // "Training Space" - The play area only.
-    // To convert from training space to true map space, add m_playable_min.
+    // To convert from training space to true map space, add playable_min.
     // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
-    // m_proxy_x is stored in "Training Space."
-    // m_proxy_x = (int) (m_viableLocations[index].m_loc.x);
-    // m_proxy_y = (int) (m_viableLocations[index].m_loc.y);
-    m_proxy_loc.x = m_bot->Config().ProxyLocationX;
-    m_proxy_loc.y = m_bot->Config().ProxyLocationY;
+    // proxy_loc_.x is stored in "Training Space."
+    // proxy_loc_.x = (int) (viableLocations[index].m_loc.x);
+    // proxy_loc_.y = (int) (viableLocations[index].m_loc.y);
+    proxy_loc_.x = bot_->Config().ProxyLocationX;
+    proxy_loc_.y = bot_->Config().ProxyLocationY;
 
-    const sc2::Vector2D myVec((float)m_proxy_loc.x, (float)m_proxy_loc.y);
-    std::cout << myVec.x << "m_proxy_x " << myVec.y << "m_proxy_y" << std::endl;
+    const sc2::Vector2D my_vec(static_cast<float>(proxy_loc_.x), static_cast<float>(proxy_loc_.y));
+    std::cout << my_vec.x << "m_proxy_x " << my_vec.y << "m_proxy_y" << std::endl;
     return true;
 }
 
-void ProxyTrainingData::writeAllTrainingData(std::string filename)
+void ProxyTrainingData::WriteAllTrainingData(const std::string filename)
 {
     std::cout << "WritingAllTrainingDataToFile...";
     std::ofstream outfile;
@@ -316,13 +317,13 @@ void ProxyTrainingData::writeAllTrainingData(std::string filename)
 
     // Open the file in truncate mode to overwrite previous saved data.
     outfile.open(filename + ".txt", std::ios_base::trunc);
-    for (int y = (int)m_result.size() - 1; y >= 0; --y)
+    for (int y = static_cast<int>(result_.size()) - 1; y >= 0; --y)
     {
         // If we want to "draw" the map, uncomment out the following line and another one a few lines below it. 
         //buffer << std::endl;
-        for (int x = 0; x < m_result[y].size(); ++x)
+        for (int x = 0; x < result_[y].size(); ++x)
         {
-            buffer << x << " " << y << " " << m_result[y][x] << std::endl;
+            buffer << x << " " << y << " " << result_[y][x] << std::endl;
             // If we want to "draw" the map, uncomment out the following line and another one a few lines above it. 
             //buffer<< result[y][x];
         }

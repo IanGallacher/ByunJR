@@ -6,86 +6,86 @@
 #include "common/Common.h"
 
 ByunJRBot::ByunJRBot()
-    : m_map(*this)
-    , m_bases(*this)
-    , m_productionManager(*this)
-    , m_scoutManager(*this)
-    , m_proxyManager(*this)
-	, m_workers(*this)
-    , m_combatCommander(*this)
-    , m_strategy(*this)
-    , m_informationManager(*this)
-    , m_debug(*this)
-    , m_isWillingToFight(true)
+    : map_(*this)
+    , bases_(*this)
+    , production_manager_(*this)
+    , scout_manager_(*this)
+    , proxy_manager_(*this)
+    , workers_(*this)
+    , combat_commander_(*this)
+    , strategy_(*this)
+    , information_manager_(*this)
+    , debug_(*this)
+    , is_willing_to_fight_(true)
 {
     
 }
 
 void ByunJRBot::OnGameStart() 
 {
-    m_config.readConfigFile();
-    m_config.MapName = Observation()->GetGameInfo().local_map_path;
+    config_.ReadConfigFile();
+    config_.MapName = Observation()->GetGameInfo().local_map_path;
     // Ignore file extension of the local_map_path.
-    m_config.MapName = m_config.MapName.substr(0, m_config.MapName.find('.'));
+    config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
     // get my race
-    const auto playerID = Observation()->GetPlayerID();
-    for (auto & playerInfo : Observation()->GetGameInfo().player_info)
+    const auto player_id = Observation()->GetPlayerID();
+    for (auto & player_info : Observation()->GetGameInfo().player_info)
     {
-        if (playerInfo.player_id == playerID)
+        if (player_info.player_id == player_id)
         {
-            m_playerRace[(int)PlayerArrayIndex::Self] = playerInfo.race_actual;
+            playerRace[static_cast<int>(PlayerArrayIndex::Self)] = player_info.race_actual;
         }
         else
         {
-            m_playerRace[(int)PlayerArrayIndex::Enemy] = playerInfo.race_requested;
+            playerRace[static_cast<int>(PlayerArrayIndex::Enemy)] = player_info.race_requested;
         }
     }
 
-    m_strategy.onStart();
-    m_map.onStart();
-    m_informationManager.onStart();
-    m_bases.onStart();
+    strategy_.onStart();
+    map_.OnStart();
+    information_manager_.OnStart();
+    bases_.OnStart();
 
-    m_productionManager.onStart();
-    m_scoutManager.onStart();
-    m_proxyManager.onStart();
-    m_combatCommander.onStart();
+    production_manager_.onStart();
+    scout_manager_.OnStart();
+    proxy_manager_.OnStart();
+    combat_commander_.OnStart();
 }
 
 void ByunJRBot::OnStep()
 {
     Control()->GetObservation();
 
-    m_map.onFrame();
-    m_informationManager.onFrame();
-    m_bases.onFrame();
-    m_strategy.onFrame();
-	m_workers.onFrame();
+    map_.OnFrame();
+    information_manager_.OnFrame();
+    bases_.OnFrame();
+    strategy_.OnFrame();
+    workers_.OnFrame();
 
-    m_strategy.handleUnitAssignments();
+    strategy_.handleUnitAssignments();
 
-    m_productionManager.onFrame();
-    m_scoutManager.onFrame();
-    m_proxyManager.onFrame();
-    m_combatCommander.onFrame(m_informationManager.UnitInfo().getCombatUnits());
+    production_manager_.OnFrame();
+    scout_manager_.OnFrame();
+    proxy_manager_.OnFrame();
+    combat_commander_.OnFrame(information_manager_.UnitInfo().GetCombatUnits());
 
 
-    m_debug.drawAllUnitInformation();
-    m_debug.drawResourceDebugInfo();
-    m_debug.drawDebugInterface();
+    debug_.DrawAllUnitInformation();
+    debug_.DrawResourceDebugInfo();
+    debug_.DrawDebugInterface();
 
     Debug()->SendDebug();
 }
 
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
-    m_proxyManager.onUnitCreated(unit);
-    m_informationManager.onUnitCreated(unit);
+    proxy_manager_.OnUnitCreated(unit);
+    information_manager_.OnUnitCreated(unit);
 }
 
 void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
 {
-    m_informationManager.onUnitDestroyed(unit);
+    information_manager_.OnUnitDestroyed(unit);
 }
 
 //void ByunJRBot::onUnitDestroy(const sc2::Unit* unit)
@@ -94,64 +94,69 @@ void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
 //}
 
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
-    m_proxyManager.onUnitEnterVision(unit);
+    proxy_manager_.OnUnitEnterVision(unit);
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    m_productionManager.onBuildingConstructionComplete(unit);
+    production_manager_.onBuildingConstructionComplete(unit);
 }
 
 // Returns true if the bot thinks it still has a chance.
 // Return false if there is no point continuing the simulation.
-bool ByunJRBot::IsWillingToFight()
+bool ByunJRBot::IsWillingToFight() const
 {
-    return m_isWillingToFight;
+    return is_willing_to_fight_;
 }
 
 void ByunJRBot::Resign()
 {
-    m_isWillingToFight = false;
+    is_willing_to_fight_ = false;
 }
 
 // TODO: Figure out my race
 const sc2::Race & ByunJRBot::GetPlayerRace(PlayerArrayIndex player) const
 {
     BOT_ASSERT(player == PlayerArrayIndex::Self || player == PlayerArrayIndex::Enemy, "invalid player for GetPlayerRace");
-    return m_playerRace[(int) player];
+    return playerRace[static_cast<int>(player)];
 }
 
 BotConfig & ByunJRBot::Config()
 {
-     return m_config;
+     return config_;
 }
 
 const MapTools & ByunJRBot::Map() const
 {
-    return m_map;
+    return map_;
 }
 
 const StrategyManager & ByunJRBot::Strategy() const
 {
-    return m_strategy;
+    return strategy_;
 }
 
 InformationManager & ByunJRBot::InformationManager()
 {
-    return m_informationManager;
+    return information_manager_;
 }
 
 const BaseLocationManager & ByunJRBot::Bases() const
 {
-    return m_bases;
+    return bases_;
 }
 
 ScoutManager & ByunJRBot::Scout()
 {
-    return m_scoutManager;
+    return scout_manager_;
+}
+
+DebugManager & ByunJRBot::DebugHelper()
+{
+    return debug_;
 }
 
 ProxyManager & ByunJRBot::GetProxyManager() {
-    return m_proxyManager;
+    return proxy_manager_;
 }
 
 const sc2::Unit* ByunJRBot::GetUnit(const sc2::Tag & tag) const
@@ -171,16 +176,15 @@ void ByunJRBot::OnError(const std::vector<sc2::ClientError> & client_errors, con
 
 void *CreateNewAgent()
 {
-	return (void *) new ByunJRBot();
+    return (void *) new ByunJRBot();
 }
 
 int GetAgentRace()
 {
-	return sc2::Race::Terran;
+    return sc2::Race::Terran;
 }
 
 const char *GetAgentName()
 {
-	return "ByunJR";
-
+    return "ByunJR";
 }

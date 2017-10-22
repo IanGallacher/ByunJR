@@ -1,11 +1,9 @@
 #include <iostream>
 
-#include "common/BotAssert.h"
 #include "global/BotConfig.h"
 #include "rapidjson/document.h"
 #include "util/JSONTools.h"
 #include "util/Util.h"
-#include "StrategyManager.h"
 
 
 BotConfig::BotConfig()
@@ -58,7 +56,7 @@ BotConfig::BotConfig()
     ProxyLocationY                      = 0;
 }
 
-void BotConfig::readConfigFile()
+void BotConfig::ReadConfigFile()
 {
     rapidjson::Document doc;
 
@@ -75,8 +73,8 @@ void BotConfig::readConfigFile()
         return;
     }
 
-    const bool parsingFailed = doc.Parse(RawConfigString.c_str()).HasParseError();
-    if (parsingFailed)
+    const bool parsing_failed = doc.Parse(RawConfigString.c_str()).HasParseError();
+    if (parsing_failed)
     {
         std::cerr << "Error: Config File Found, but could not be parsed\n";
         std::cerr << "Config Filename: " << ConfigFileLocation << std::endl;
@@ -99,8 +97,8 @@ void BotConfig::readConfigFile()
     // Parse some of the Game Info
     if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
     {
-        const rapidjson::Value & gameInfo = doc["Game Info"];
-        JSONTools::ReadString("MapName", gameInfo, MapName);
+        const rapidjson::Value & game_info = doc["Game Info"];
+        JSONTools::ReadString("MapName", game_info, MapName);
     }
 
     // Parse the Micro Options
@@ -145,11 +143,11 @@ void BotConfig::readConfigFile()
     // Yes, the playerRace was already parsed in main.cpp.
     // This data does not need to be stored in the config object.
     // We still need to parse it again so that we can get the strategy from the config text file. 
-    std::string playerRace;
+    std::string player_race;
     if (doc.HasMember("Game Info") && doc["Game Info"].IsObject())
     {
         const rapidjson::Value & info = doc["Game Info"];
-        JSONTools::ReadString("BotRace", info, playerRace);
+        JSONTools::ReadString("BotRace", info, player_race);
     }
 
     // Parse the Strategy Options
@@ -164,9 +162,9 @@ void BotConfig::readConfigFile()
         JSONTools::ReadString("WriteDirectory", strategy, WriteDir);
 
         // if we have set a strategy for the current race, use it
-        if (strategy.HasMember(playerRace.c_str()) && strategy[playerRace.c_str()].IsString())
+        if (strategy.HasMember(player_race.c_str()) && strategy[player_race.c_str()].IsString())
         {
-            StrategyName = strategy[playerRace.c_str()].GetString();
+            StrategyName = strategy[player_race.c_str()].GetString();
         }
 
         // check if we are using an enemy specific strategy
@@ -175,18 +173,18 @@ void BotConfig::readConfigFile()
         if (UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
         {
             // TODO: Figure out enemy name
-            const std::string enemyName = "ENEMY NAME";
+            const std::string enemy_name = "ENEMY NAME";
             const rapidjson::Value & specific = strategy["EnemySpecificStrategy"];
 
             // check to see if our current enemy name is listed anywhere in the specific strategies
-            if (specific.HasMember(enemyName.c_str()) && specific[enemyName.c_str()].IsObject())
+            if (specific.HasMember(enemy_name.c_str()) && specific[enemy_name.c_str()].IsObject())
             {
-                const rapidjson::Value & enemyStrategies = specific[enemyName.c_str()];
+                const rapidjson::Value & enemy_strategies = specific[enemy_name.c_str()];
 
                 // if that enemy has a strategy listed for our current race, use it
-                if (enemyStrategies.HasMember(playerRace.c_str()) && enemyStrategies[playerRace.c_str()].IsString())
+                if (enemy_strategies.HasMember(player_race.c_str()) && enemy_strategies[player_race.c_str()].IsString())
                 {
-                    StrategyName = enemyStrategies[playerRace.c_str()].GetString();
+                    StrategyName = enemy_strategies[player_race.c_str()].GetString();
                     FoundEnemySpecificStrategy = true;
                 }
             }
@@ -194,7 +192,7 @@ void BotConfig::readConfigFile()
     }
 }
 
-void BotConfig::setProxyLocation(const int x, const int y)
+void BotConfig::SetProxyLocation(const int x, const int y)
 {
     ProxyLocationX = x;
     ProxyLocationY = y;

@@ -14,7 +14,7 @@ Building::Building()
 {} 
 
 // constructor we use most often
-Building::Building(sc2::UnitTypeID t, sc2::Point2D desired)
+Building::Building(const sc2::UnitTypeID t, const sc2::Point2DI desired)
     : desiredPosition   (desired)
     , finalPosition     (0,0)
     , position          (0,0)
@@ -28,11 +28,15 @@ Building::Building(sc2::UnitTypeID t, sc2::Point2D desired)
 {}
 
 // equals operator
-bool Building::operator == (const Building & b) 
+bool Building::operator == (const Building& b) 
 {
-	// buildings are equal if their worker unit and building unit are equal
+    // buildings are equal if their worker unit and building unit are equal
     return      (b.buildingUnitTag == buildingUnitTag) 
              && (b.builderUnitTag  == builderUnitTag) 
              && (b.finalPosition.x == finalPosition.x)
              && (b.finalPosition.y == finalPosition.y);
+}
+Building &Building::operator =(const Building &b)
+{
+    return Building();
 }

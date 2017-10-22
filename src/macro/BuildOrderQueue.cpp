@@ -4,163 +4,163 @@
 #include "macro/BuildOrderQueue.h"
 
 BuildOrderQueue::BuildOrderQueue(ByunJRBot & bot)
-    : m_bot(bot)
-    , m_highestPriority(0)
-    , m_lowestPriority(0)
-    , m_defaultPrioritySpacing(10)
-    , m_numSkippedItems(0)
+    : bot_(bot)
+    , highest_priority_(0)
+    , lowest_priority_(0)
+    , default_priority_spacing_(10)
+    , num_skipped_items_(0)
 {
 
 }
 
-void BuildOrderQueue::clearAll()
+void BuildOrderQueue::ClearAll()
 {
     // clear the queue
-    m_queue.clear();
+    queue_.clear();
 
     // reset the priorities
-    m_highestPriority = 0;
-    m_lowestPriority = 0;
+    highest_priority_ = 0;
+    lowest_priority_ = 0;
 }
 
-BuildOrderItem & BuildOrderQueue::getHighestPriorityItem()
+BuildOrderItem & BuildOrderQueue::GetHighestPriorityItem()
 {
     // reset the number of skipped items to zero
-    m_numSkippedItems = 0;
+    num_skipped_items_ = 0;
 
     // the queue will be sorted with the highest priority at the back
-    return m_queue.back();
+    return queue_.back();
 }
 
-BuildOrderItem & BuildOrderQueue::getNextHighestPriorityItem()
+BuildOrderItem & BuildOrderQueue::GetNextHighestPriorityItem()
 {
-    assert(m_queue.size() - 1 - m_numSkippedItems >= 0);
+    assert(queue_.size() - 1 - num_skipped_items_ >= 0);
 
     // the queue will be sorted with the highest priority at the back
-    return m_queue[m_queue.size() - 1 - m_numSkippedItems];
+    return queue_[queue_.size() - 1 - num_skipped_items_];
 }
 
-void BuildOrderQueue::skipItem()
+void BuildOrderQueue::SkipItem()
 {
     // make sure we can skip
-    assert(canSkipItem());
+    assert(CanSkipItem());
 
     // skip it
-    m_numSkippedItems++;
+    num_skipped_items_++;
 }
 
-bool BuildOrderQueue::canSkipItem()
+bool BuildOrderQueue::CanSkipItem()
 {
     // does the queue have more elements
-    bool bigEnough = m_queue.size() > (size_t)(1 + m_numSkippedItems);
+    const bool big_enough = queue_.size() > static_cast<size_t>(1 + num_skipped_items_);
 
-    if (!bigEnough)
+    if (!big_enough)
     {
         return false;
     }
 
     // is the current highest priority item not blocking a skip
-    bool highestNotBlocking = !m_queue[m_queue.size() - 1 - m_numSkippedItems].blocking;
+    const bool highest_not_blocking = !queue_[queue_.size() - 1 - num_skipped_items_].blocking;
 
     // this tells us if we can skip
-    return highestNotBlocking;
+    return highest_not_blocking;
 }
 
-void BuildOrderQueue::queueItem(BuildOrderItem b)
+void BuildOrderQueue::QueueItem(const BuildOrderItem b)
 {
     // if the queue is empty, set the highest and lowest priorities
-    if (m_queue.empty())
+    if (queue_.empty())
     {
-        m_highestPriority = b.priority;
-        m_lowestPriority = b.priority;
+        highest_priority_ = b.priority;
+        lowest_priority_ = b.priority;
     }
 
     // push the item into the queue
-    if (b.priority <= m_lowestPriority)
+    if (b.priority <= lowest_priority_)
     {
-        m_queue.push_front(b);
+        queue_.push_front(b);
     }
     else
     {
-        m_queue.push_back(b);
+        queue_.push_back(b);
     }
 
     // if the item is somewhere in the middle, we have to sort again
-    if ((m_queue.size() > 1) && (b.priority < m_highestPriority) && (b.priority > m_lowestPriority))
+    if ((queue_.size() > 1) && (b.priority < highest_priority_) && (b.priority > lowest_priority_))
     {
         // sort the list in ascending order, putting highest priority at the top
-        std::sort(m_queue.begin(), m_queue.end());
+        std::sort(queue_.begin(), queue_.end());
     }
 
     // update the highest or lowest if it is beaten
-    m_highestPriority = (b.priority > m_highestPriority) ? b.priority : m_highestPriority;
-    m_lowestPriority  = (b.priority < m_lowestPriority)  ? b.priority : m_lowestPriority;
+    highest_priority_ = (b.priority > highest_priority_) ? b.priority : highest_priority_;
+    lowest_priority_  = (b.priority < lowest_priority_)  ? b.priority : lowest_priority_;
 }
 
-void BuildOrderQueue::queueAsHighestPriority(sc2::UnitTypeID m, bool blocking)
+void BuildOrderQueue::QueueAsHighestPriority(const sc2::UnitTypeID m, const bool blocking)
 {
     // the new priority will be higher
-    const int newPriority = m_highestPriority + m_defaultPrioritySpacing;
+    const int new_priority = highest_priority_ + default_priority_spacing_;
 
     // queue the item
-    queueItem(BuildOrderItem(m, newPriority, blocking));
+    QueueItem(BuildOrderItem(m, new_priority, blocking));
 }
 
-void BuildOrderQueue::queueAsLowestPriority(sc2::UnitTypeID m, bool blocking)
+void BuildOrderQueue::QueueAsLowestPriority(const sc2::UnitTypeID m, const bool blocking)
 {
     // the new priority will be higher
-    const int newPriority = m_lowestPriority - m_defaultPrioritySpacing;
+    const int new_priority = lowest_priority_ - default_priority_spacing_;
 
     // queue the item
-    queueItem(BuildOrderItem(m, newPriority, blocking));
+    QueueItem(BuildOrderItem(m, new_priority, blocking));
 }
 
-void BuildOrderQueue::removeHighestPriorityItem()
+void BuildOrderQueue::RemoveHighestPriorityItem()
 {
     // remove the back element of the vector
-    m_queue.pop_back();
+    queue_.pop_back();
 
     // if the list is not empty, set the highest accordingly
-    m_highestPriority = m_queue.empty() ? 0 : m_queue.back().priority;
-    m_lowestPriority  = m_queue.empty() ? 0 : m_lowestPriority;
+    highest_priority_ = queue_.empty() ? 0 : queue_.back().priority;
+    lowest_priority_  = queue_.empty() ? 0 : lowest_priority_;
 }
 
-void BuildOrderQueue::removeCurrentHighestPriorityItem()
+void BuildOrderQueue::RemoveCurrentHighestPriorityItem()
 {
     // remove the back element of the vector
-    m_queue.erase(m_queue.begin() + m_queue.size() - 1 - m_numSkippedItems);
+    queue_.erase(queue_.begin() + queue_.size() - 1 - num_skipped_items_);
 
     //assert((int)(queue.size()) < size);
 
     // if the list is not empty, set the highest accordingly
-    m_highestPriority = m_queue.empty() ? 0 : m_queue.back().priority;
-    m_lowestPriority  = m_queue.empty() ? 0 : m_lowestPriority;
+    highest_priority_ = queue_.empty() ? 0 : queue_.back().priority;
+    lowest_priority_  = queue_.empty() ? 0 : lowest_priority_;
 }
 
-size_t BuildOrderQueue::size() const
+size_t BuildOrderQueue::Size() const
 {
-    return m_queue.size();
+    return queue_.size();
 }
 
-bool BuildOrderQueue::isEmpty() const
+bool BuildOrderQueue::IsEmpty() const
 {
-    return (m_queue.size() == 0);
+    return (queue_.size() == 0);
 }
 
 BuildOrderItem BuildOrderQueue::operator [] (int i)
 {
-    return m_queue[i];
+    return queue_[i];
 }
 
-std::string BuildOrderQueue::getQueueInformation() const
+std::string BuildOrderQueue::GetQueueInformation() const
 {
-    const size_t reps = m_queue.size() < 30 ? m_queue.size() : 30;
+    const size_t reps = queue_.size() < 30 ? queue_.size() : 30;
     std::stringstream ss;
 
     // for each unit in the queue
     for (size_t i(0); i<reps; i++)
     {
-        const sc2::UnitTypeID & type = m_queue[m_queue.size() - 1 - i].type;
+        const sc2::UnitTypeID & type = queue_[queue_.size() - 1 - i].type;
         ss << sc2::UnitTypeToName(type) << std::endl;
     }
 

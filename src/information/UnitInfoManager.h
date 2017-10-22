@@ -7,42 +7,42 @@
 class ByunJRBot;
 class UnitInfoManager 
 {
-    ByunJRBot &              m_bot;
+    ByunJRBot &              bot_;
 
-    std::map<PlayerArrayIndex, UnitData> m_unitData;
+    std::map<PlayerArrayIndex, UnitData> unit_data_;
 
-    std::map<PlayerArrayIndex, std::vector<const sc2::Unit*>> m_units;
+    std::map<PlayerArrayIndex, std::vector<const sc2::Unit*>> units_;
 
-    void                    updateUnit(const sc2::Unit* unit);
-    void                    updateUnitInfo();
-    bool                    isValidUnit(const sc2::Unit* unit);
+    void                    UpdateUnit(const sc2::Unit* unit);
+    void                    UpdateUnitInfo();
+    bool                    IsValidUnit(const sc2::Unit* unit);
     
-    const UnitData &        getUnitData(PlayerArrayIndex player) const;
+    const UnitData &        GetUnitData(PlayerArrayIndex player) const;
 
-	void drawSelectedUnitDebugInfo() const;
+    void DrawSelectedUnitDebugInfo() const;
 
 public:
 
     UnitInfoManager(ByunJRBot & bot);
 
-    void                    onStart();
-    void                    onFrame();
-    void                    onUnitDestroyed(const sc2::Unit* unit);
+    void                    OnStart();
+    void                    OnFrame();
+    void                    OnUnitDestroyed(const sc2::Unit* unit);
 
-	const std::vector<const sc2::Unit*>& getUnits(PlayerArrayIndex player) const;
+    const std::vector<const sc2::Unit*>& GetUnits(PlayerArrayIndex player) const;
 
-    size_t                  getUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed = true) const;
+    size_t                  GetUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed = true) const;
 
-    void                    getNearbyForce(std::vector<UnitInfo>& unitInfo, sc2::Point2D p, PlayerArrayIndex player, float radius) const;
+    void                    GetNearbyForce(std::vector<UnitInfo>& unit_info, sc2::Point2D p, PlayerArrayIndex player, float radius) const;
 
-	const std::map<sc2::Tag, UnitInfo>& getUnitInfoMap(PlayerArrayIndex player) const;
+    const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap(PlayerArrayIndex player) const;
 
     //bool                  enemyHasCloakedUnits() const;
-    void                    drawUnitInformation(float x, float y) const;
-	int getNumAssignedWorkers(const sc2::Unit* depot);
-	void setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag=0);
-	void setBuildingWorker(const sc2::Unit* worker, Building& b);
-	std::set<const UnitInfo*> getWorkers();
-	const UnitInfo* getUnitInfo(const sc2::Unit* tag);
-	std::set<const UnitInfo*> getCombatUnits() const;
+    void                    DrawUnitInformation() const;
+    int GetNumAssignedWorkers(const sc2::Unit* depot);
+    void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag=0);
+    void SetBuildingWorker(const sc2::Unit* worker, Building& b);
+    std::set<const UnitInfo*> GetWorkers();
+    const UnitInfo* GetUnitInfo(const sc2::Unit* unit);
+    std::set<const UnitInfo*> GetCombatUnits() const;
 };

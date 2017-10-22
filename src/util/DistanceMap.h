@@ -1,24 +1,24 @@
 #pragma once
 class DistanceMap 
 {
-    int m_width;
-    int m_height;
-    sc2::Point2D m_startTile;
+    int width_;
+    int height_;
+    sc2::Point2DI start_tile_;
 
-    vvi m_dist;
-    std::vector<sc2::Point2D> m_sortedTilePositions;
+    vvi dist_;
+    std::vector<sc2::Point2DI> sorted_tile_positions_;
     
 public:
     
     DistanceMap();
-    void computeDistanceMap(ByunJRBot & m_bot, const sc2::Point2D & startTile);
+    void ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI& start_tile);
 
-    int getDistance(int tileX, int tileY) const;
-    int getDistance(const sc2::Point2D & pos) const;
+    int GetDistance(int tile_x, int tile_y) const;
+    int GetDistance(const sc2::Point2DI& pos) const;
 
     // given a position, get the position we should move to to minimize distance
-    const std::vector<sc2::Point2D> & getSortedTiles() const;
-    const sc2::Point2D & getStartTile() const;
+    const std::vector<sc2::Point2DI>& GetSortedTiles() const;
+    const sc2::Point2DI& GetStartTile() const;
 
-    void draw(ByunJRBot & bot) const;
+    void Draw(ByunJRBot& bot) const;
 };

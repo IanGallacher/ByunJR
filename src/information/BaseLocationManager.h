@@ -7,32 +7,32 @@ class ByunJRBot;
 
 class BaseLocationManager
 {
-    ByunJRBot & m_bot;
+    ByunJRBot & bot_;
 
-    std::vector<BaseLocation>                                   m_baseLocationData;
-    std::vector<const BaseLocation*>                            m_baseLocationPtrs;
-    std::vector<const BaseLocation*>                            m_startingBaseLocations;
-    std::map<PlayerArrayIndex, const BaseLocation*>             m_playerStartingBaseLocations;
-    std::map<PlayerArrayIndex, std::set<const BaseLocation*>>   m_occupiedBaseLocations;
-    std::vector<std::vector<BaseLocation*>>                     m_tileBaseLocations;
+    std::vector<BaseLocation>                                   base_location_data_;
+    std::vector<const BaseLocation*>                            base_location_ptrs_;
+    std::vector<const BaseLocation*>                            starting_base_locations_;
+    std::map<PlayerArrayIndex, const BaseLocation*>             player_starting_base_locations_;
+    std::map<PlayerArrayIndex, std::set<const BaseLocation*>>   occupied_base_locations_;
+    std::vector<std::vector<BaseLocation*>>                     tile_base_locations_;
 
-	// If the enemy base is not yet scouted, the enemy base location will be set to the next unexplored enemy spawn location.
-	bool														m_enemyBaseScouted;
+    // If the enemy base is not yet scouted, the enemy base location will be set to the next unexplored enemy spawn location.
+    bool                                                        enemy_base_scouted_;
 
-    BaseLocation* getBaseLocation(const sc2::Point2D & pos) const;
+    BaseLocation* GetBaseLocation(const sc2::Point2D & pos) const;
 
 public:
 
     BaseLocationManager(ByunJRBot & bot);
     
-    void onStart();
-    void onFrame();
-    void drawBaseLocations();
+    void OnStart();
+    void OnFrame();
+    void DrawBaseLocations();
 
-    const std::vector<const BaseLocation*> & getBaseLocations() const;
-    const std::vector<const BaseLocation*> & getStartingBaseLocations() const;
-    const std::set<const BaseLocation*> & getOccupiedBaseLocations(PlayerArrayIndex player) const;
-    const BaseLocation* getPlayerStartingBaseLocation(PlayerArrayIndex player) const;
+    const std::vector<const BaseLocation*> & GetBaseLocations() const;
+    const std::vector<const BaseLocation*> & GetStartingBaseLocations() const;
+    const std::set<const BaseLocation*> & GetOccupiedBaseLocations(PlayerArrayIndex player) const;
+    const BaseLocation* GetPlayerStartingBaseLocation(PlayerArrayIndex player) const;
     
-    sc2::Point2D getNextExpansion(PlayerArrayIndex player) const;
+    sc2::Point2D GetNextExpansion(PlayerArrayIndex player) const;
 };

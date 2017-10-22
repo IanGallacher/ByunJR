@@ -9,12 +9,12 @@ class ByunJRBot;
 
 class ProductionManager
 {
-    ByunJRBot &     m_bot;
+    ByunJRBot &     bot_;
 
-    BuildingManager m_buildingManager;
-    BuildOrderQueue m_queue;
-    int m_planned_production;
-    int m_planned_supply_depots; // don't spend all our money on depots if capped. 
+    BuildingManager buildingManager;
+    BuildOrderQueue queue;
+    int planned_production;
+    int planned_supply_depots; // don't spend all our money on depots if capped. 
 
 
     sc2::Tag getClosestUnitToPosition(const std::vector<sc2::Tag> & units, sc2::Point2D closestTo) const;
@@ -34,7 +34,7 @@ public:
     ProductionManager(ByunJRBot & bot);
 
     void    onStart();
-    void    onFrame();
+    void    OnFrame();
     void    onBuildingConstructionComplete(const sc2::Unit* unit);
     void    onUnitDestroy(const sc2::Unit* unit);
     void    drawProductionInformation() const;

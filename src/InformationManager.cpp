@@ -8,83 +8,83 @@
 #include "util/Util.h"
 
 InformationManager::InformationManager(ByunJRBot & bot)
-    : m_bot(bot)
-    , m_unitInfo(bot)
-    , m_initialScoutSet(false)
+    : bot_(bot)
+    , unit_info_(bot)
+    , initial_scout_set_(false)
 {
 
 }
 
-void InformationManager::onStart()
+void InformationManager::OnStart()
 {
-    m_unitInfo.onStart();
+    unit_info_.OnStart();
 }
 
-void InformationManager::onUnitCreated(const sc2::Unit* unit)
+void InformationManager::OnUnitCreated(const sc2::Unit* unit)
 {
 }
 
-void InformationManager::onUnitDestroyed(const sc2::Unit* unit)
+void InformationManager::OnUnitDestroyed(const sc2::Unit* unit)
 {
-    m_unitInfo.onUnitDestroyed(unit);
+    unit_info_.OnUnitDestroyed(unit);
 }
 
-void InformationManager::onFrame()
+void InformationManager::OnFrame()
 {
-    m_unitInfo.onFrame();
+    unit_info_.OnFrame();
 }
 
 UnitInfoManager & InformationManager::UnitInfo()
 {
-    return m_unitInfo;
+    return unit_info_;
 }
 
-sc2::Point2D InformationManager::GetProxyLocation() const
+sc2::Point2DI InformationManager::GetProxyLocation() const
 {
-    return m_bot.GetProxyManager().getProxyLocation();
+    return bot_.GetProxyManager().GetProxyLocation();
 }
 
 void InformationManager::assignUnit(const sc2::Tag & unit, UnitMission job)
 {
-	// Remove unit from any existing jobs. 
-	finishedWithUnit(unit);
-	if (job == UnitMission::Scout)
+    // Remove unit from any existing jobs. 
+    finishedWithUnit(unit);
+    if (job == UnitMission::Scout)
     {
-        m_unitInfo.setJob(m_bot.GetUnit(unit), UnitMission::Scout);
-        m_scoutUnits.push_back(unit);
+        unit_info_.SetJob(bot_.GetUnit(unit), UnitMission::Scout);
+        scout_units_.push_back(unit);
     }
-	else
-	{
-		m_unitInfo.setJob(m_bot.GetUnit(unit), job);
-	}
+    else
+    {
+        unit_info_.SetJob(bot_.GetUnit(unit), job);
+    }
 }
 
 void InformationManager::finishedWithUnit(const sc2::Tag & unit)
 {
-	if (std::find(m_scoutUnits.begin(), m_scoutUnits.end(), unit) != m_scoutUnits.end())
-	{
-		m_scoutUnits.erase(std::remove(m_scoutUnits.begin(), m_scoutUnits.end(), unit), m_scoutUnits.end());
-	}
+    if (std::find(scout_units_.begin(), scout_units_.end(), unit) != scout_units_.end())
+    {
+        scout_units_.erase(std::remove(scout_units_.begin(), scout_units_.end(), unit), scout_units_.end());
+    }
 }
 
-void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
+void InformationManager::SetScoutUnits(const bool shouldSendInitialScout)
 {
     // if we haven't set a scout unit, do it
-    if (m_scoutUnits.empty() && !m_initialScoutSet)
+    if (scout_units_.empty() && !initial_scout_set_)
     {
         // if it exists
         if (shouldSendInitialScout)
         {
             // grab the closest worker to the supply provider to send to scout
-            const ::UnitInfo * workerScout = getClosestUnitWithJob(m_bot.GetStartLocation(), UnitMission::Minerals);
+            const ::UnitInfo * workerScout = GetClosestUnitWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
             // if we find a worker (which we should) add it to the scout units
             if (workerScout)
             {
-                m_bot.Scout().setWorkerScout(workerScout->unit->tag);
+                bot_.Scout().SetWorkerScout(workerScout->unit->tag);
 
                 assignUnit(workerScout->unit->tag, UnitMission::Scout);
-                m_initialScoutSet = true;
+                initial_scout_set_ = true;
             }
             else
             {
@@ -93,64 +93,28 @@ void InformationManager::setScoutUnits(const bool shouldSendInitialScout)
         }
     }
 }
-// sets combat units to be passed to CombatCommander
-void InformationManager::setCombatUnits()
+
+sc2::Tag InformationManager::GetBuilder(Building & b, bool setJobAsBuilder)
 {
-    //for (auto & unitTag : m_validUnits)
-    //{
-    //    const sc2::Unit* unit = m_bot.GetUnit(unitTag);
+    const std::vector<UnitMission> acceptableMissions{ UnitMission::Minerals, UnitMission::Proxy };
+    const sc2::Tag builderWorker = GetClosestUnitTagWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptableMissions );
 
-    //    BOT_ASSERT(unit, "Have a null unit in our valid units\n");
-
-    //    if (!isAssigned(unitTag) && Util::IsCombatUnitType(unit->unit_type))
-    //    {
-    //        assignUnit(unitTag, UnitMission::Attack);
-    //    }
-    //}
-   /* if (!m_attackStarted)
+    // if the worker exists (one may not have been found in rare cases)
+    if (builderWorker && setJobAsBuilder)
     {
-        return;
-    }*/
-    
-    //Squad & mainAttackSquad = m_squadData.getSquad("MainAttack");
-    //
-    //for (auto & unitTag : m_combatUnits)
-    //{
-    //    auto unit = m_bot.GetUnit(unitTag);
-    //    BOT_ASSERT(unit, "null unit in combat units");
-    //
-    //    // get every unit of a lower priority and put it into the attack squad
-    //    if (!Util::IsWorker(*unit) && m_squadData.canAssignUnitToSquad(unitTag, mainAttackSquad))
-    //    {
-    //        m_squadData.assignUnitToSquad(unitTag, mainAttackSquad);
-    //    }
-    //}
-    //
-    //const SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 25, "Attack Enemy Base");
-    //mainAttackSquad.setSquadOrder(mainAttackOrder);
+        unit_info_.SetJob(bot_.GetUnit(builderWorker), UnitMission::Build);
+    }
+
+    return builderWorker;
 }
 
-sc2::Tag InformationManager::getBuilder(Building & b, bool setJobAsBuilder)
-{
-	const std::vector<UnitMission> acceptableMissions{ UnitMission::Minerals, UnitMission::Proxy };
-	const sc2::Tag builderWorker = getClosestUnitTagWithJob(b.finalPosition, acceptableMissions );
-
-	// if the worker exists (one may not have been found in rare cases)
-	if (builderWorker && setJobAsBuilder)
-	{
-		m_unitInfo.setJob(m_bot.GetUnit(builderWorker), UnitMission::Build);
-	}
-
-	return builderWorker;
-}
-
-const sc2::Unit* InformationManager::getClosestUnitOfType(const sc2::Unit* referenceUnit,
+const sc2::Unit* InformationManager::GetClosestUnitOfType(const sc2::Unit* referenceUnit,
                                                           const sc2::UnitTypeID referenceTypeID) const
 {
     const sc2::Unit* closestUnit = nullptr;
     double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
+    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         if (unit->unit_type == referenceTypeID)
         {
@@ -167,103 +131,100 @@ const sc2::Unit* InformationManager::getClosestUnitOfType(const sc2::Unit* refer
 }
 
 // Does not look for flying bases. Only landed bases. 
-const sc2::Unit* InformationManager::getClosestBase(const sc2::Unit* referenceUnit) const
+const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* referenceUnit) const
 {
-	const sc2::Unit* closestUnit = nullptr;
-	double closestDistance = std::numeric_limits<double>::max();
+    const sc2::Unit* closestUnit = nullptr;
+    double closestDistance = std::numeric_limits<double>::max();
 
-	for (auto unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
-	{
-		if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
-		||  unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
-		||  unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
-		||  unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
-		||  unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
-		||  unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
+    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
+        ||  unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
+        ||  unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
+        ||  unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
+        ||  unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
+        ||  unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
         ||  unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
-		{
-			const double distance = Util::DistSq(unit->pos, referenceUnit->pos);
-			if (!closestUnit || distance < closestDistance)
-			{
-				closestUnit = unit;
-				closestDistance = distance;
-			}
-		}
-	}
+        {
+            const double distance = Util::DistSq(unit->pos, referenceUnit->pos);
+            if (!closestUnit || distance < closestDistance)
+            {
+                closestUnit = unit;
+                closestDistance = distance;
+            }
+        }
+    }
 
-	return closestUnit;
+    return closestUnit;
 }
 
-const ::UnitInfo * InformationManager::getClosestUnitWithJob(const sc2::Point2D referencePoint, const UnitMission unitMission) const
+const ::UnitInfo * InformationManager::GetClosestUnitWithJob(const sc2::Point2D referencePoint, const UnitMission unitMission) const
 {
-	const ::UnitInfo * closestUnit = nullptr;
-	double closestDistance = std::numeric_limits<double>::max();
+    const ::UnitInfo * closestUnit = nullptr;
+    double closestDistance = std::numeric_limits<double>::max();
 
-	for (auto & unitInfoPair : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self))
-	{
-		const ::UnitInfo & unitInfo = unitInfoPair.second;
-		if (unitInfo.mission == unitMission)
-		{
-			const double distance = Util::DistSq(referencePoint, unitInfo.unit->pos);
-			if (!closestUnit || distance < closestDistance)
-			{
-				closestUnit = &unitInfo;
-				closestDistance = distance;
-			}
-		}
-	}
+    for (auto & unitInfoPair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    {
+        const ::UnitInfo & unitInfo = unitInfoPair.second;
+        if (unitInfo.mission == unitMission)
+        {
+            const double distance = Util::DistSq(referencePoint, unitInfo.unit->pos);
+            if (!closestUnit || distance < closestDistance)
+            {
+                closestUnit = &unitInfo;
+                closestDistance = distance;
+            }
+        }
+    }
 
-	return closestUnit;
+    return closestUnit;
 }
 
-sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const
+sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, const UnitMission mission) const
 {
-	sc2::Tag closestUnit;
-	double closestDistance = std::numeric_limits<double>::max();
+    sc2::Tag closestUnit;
+    double closestDistance = std::numeric_limits<double>::max();
 
-	for (auto & unitInfo : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self))
-	{
-		if (unitInfo.second.mission == mission)
-		{
-			const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
-			if (distance < closestDistance)
-			{
-				closestUnit = unitInfo.second.unit->tag;
-				closestDistance = distance;
-			}
-		}
-	}
+    for (auto & unitInfo : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    {
+        if (unitInfo.second.mission == mission)
+        {
+            const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
+            if (distance < closestDistance)
+            {
+                closestUnit = unitInfo.second.unit->tag;
+                closestDistance = distance;
+            }
+        }
+    }
 
-	return closestUnit;
+    return closestUnit;
 }
 
 
-const sc2::Tag InformationManager::getClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> missionVector) const
+const sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, const std::vector<UnitMission> missionVector) const
 {
-	sc2::Tag closestUnit;
-	double closestDistance = std::numeric_limits<double>::max();
+    sc2::Tag closestUnit;
+    double closestDistance = std::numeric_limits<double>::max();
 
-	for (auto & unitInfo : m_bot.InformationManager().UnitInfo().getUnitInfoMap(PlayerArrayIndex::Self))
-	{
-		if (std::find(missionVector.begin(), missionVector.end(), unitInfo.second.mission) != missionVector.end())
-		{
-			const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
-			if (distance < closestDistance)
-			{
-				closestUnit = unitInfo.second.unit->tag;
-				closestDistance = distance;
-			}
-		}
-	}
+    for (auto & unitInfo : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    {
+        if (std::find(missionVector.begin(), missionVector.end(), unitInfo.second.mission) != missionVector.end())
+        {
+            const double distance = Util::DistSq(unitInfo.second.unit->pos, point);
+            if (distance < closestDistance)
+            {
+                closestUnit = unitInfo.second.unit->tag;
+                closestDistance = distance;
+            }
+        }
+    }
 
-	return closestUnit;
+    return closestUnit;
 }
 
-void InformationManager::handleUnitAssignments()
+void InformationManager::HandleUnitAssignments()
 {
-    //m_combatUnits.clear();
-
     // set each type of unit
-    setScoutUnits(m_bot.Strategy().shouldSendInitialScout());
-    setCombatUnits();
+    SetScoutUnits(bot_.Strategy().shouldSendInitialScout());
 }

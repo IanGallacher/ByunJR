@@ -5,31 +5,31 @@ class ByunJRBot;
 
 class SquadData
 {
-    ByunJRBot & m_bot;
-    std::map<std::string, Squad> m_squads;
+    ByunJRBot & bot_;
+    std::map<std::string, Squad> squads_;
 
-    void    updateAllSquads();
-    void    verifySquadUniqueMembership();
+    void    UpdateAllSquads();
+    void    VerifySquadUniqueMembership();
 
 public:
 
     SquadData(ByunJRBot & bot);
 
-    void            onFrame();
-    void            clearSquadData();
+    void            OnFrame();
+    void            ClearSquadData();
 
-    bool            canAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const;
-    void            assignUnitToSquad(const sc2::Tag & unit, Squad & squad);
-    void            addSquad(const std::string & squadName, const Squad & squad);
-    void            removeSquad(const std::string & squadName);
-    void            drawSquadInformation();
+    bool            CanAssignUnitToSquad(const sc2::Tag & unit, const Squad & squad) const;
+    void            AssignUnitToSquad(const sc2::Tag & unit, Squad & squad);
+    void            AddSquad(const std::string & squad_name, const Squad & squad);
+    void            RemoveSquad(const std::string & squad_name);
+    void            DrawSquadInformation();
 
 
-    bool            squadExists(const std::string & squadName);
-    bool            unitIsInSquad(const sc2::Tag & unit) const;
-    const Squad *   getUnitSquad(const sc2::Tag & unit) const;
-    Squad *         getUnitSquad(const sc2::Tag & unit);
+    bool            SquadExists(const std::string & squad_name);
+    bool            UnitIsInSquad(const sc2::Tag & unit) const;
+    const Squad*    GetUnitSquad(const sc2::Tag& unit) const;
+    Squad* GetUnitSquad(const sc2::Tag& unit);
 
-    Squad &         getSquad(const std::string & squadName);
-    const std::map<std::string, Squad> & getSquads() const;
+    Squad &         GetSquad(const std::string & squad_name);
+    const std::map<std::string, Squad> & GetSquads() const;
 };

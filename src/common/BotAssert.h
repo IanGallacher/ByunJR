@@ -19,7 +19,7 @@
 
 namespace Assert
 {
-    extern std::string lastErrorMessage;
+    extern std::string last_error_message;
 
     const std::string CurrentDateTime();
 

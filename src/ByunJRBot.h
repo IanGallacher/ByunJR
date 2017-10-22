@@ -19,23 +19,23 @@
 
 class ByunJRBot : public sc2::Agent 
 {
-    sc2::Race                m_playerRace[2];
+    sc2::Race                playerRace[2];
 
-    CombatCommander          m_combatCommander;
-    InformationManager       m_informationManager;
+    CombatCommander          combat_commander_;
+    InformationManager       information_manager_;
 
-    MapTools                 m_map;
-    BaseLocationManager      m_bases;
-    StrategyManager          m_strategy;
-    BotConfig                m_config;
+    MapTools                 map_;
+    BaseLocationManager      bases_;
+    StrategyManager          strategy_;
+    BotConfig                config_;
 
-    ProductionManager        m_productionManager;
-    ScoutManager             m_scoutManager;
-    ProxyManager             m_proxyManager;
-    DebugManager             m_debug;
-	WorkerManager            m_workers;
+    ProductionManager        production_manager_;
+    ScoutManager             scout_manager_;
+    ProxyManager             proxy_manager_;
+    DebugManager             debug_;
+    WorkerManager            workers_;
 
-    bool                     m_isWillingToFight;
+    bool                     is_willing_to_fight_;
 
     void OnError(const std::vector<sc2::ClientError> & client_errors,
                  const std::vector<std::string> & protocol_errors = {});
@@ -49,13 +49,14 @@ public:
     void OnUnitDestroyed(const sc2::Unit*) override;
     void OnUnitEnterVision(const sc2::Unit*) override;
     void OnBuildingConstructionComplete(const sc2::Unit*) override;
-    bool IsWillingToFight();
+    bool IsWillingToFight() const;
     void Resign();
 
           BotConfig & Config();
     const BaseLocationManager & Bases() const;
     ScoutManager & Scout();
-	InformationManager & InformationManager();
+    DebugManager& DebugHelper();
+    InformationManager & InformationManager();
     const MapTools & Map() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;

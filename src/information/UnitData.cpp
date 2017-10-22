@@ -3,25 +3,25 @@
 #include "util/Util.h"
 
 UnitData::UnitData()
-    : m_mineralsLost(0)
-    , m_gasLost(0)
+    : minerals_lost_(0)
+    , gas_lost_(0)
 {
-    const int maxTypeID = 1024;
-    m_numDeadUnits	    = std::vector<int>(maxTypeID + 1, 0);
-    m_numUnits		    = std::vector<int>(maxTypeID + 1, 0);
+    const int max_type_id = 1024;
+    num_dead_units_       = std::vector<int>(max_type_id + 1, 0);
+    num_units_            = std::vector<int>(max_type_id + 1, 0);
 }
 
-void UnitData::updateUnit(const sc2::Unit* unit)
+void UnitData::UpdateUnit(const sc2::Unit* unit)
 {
-    bool firstSeen = false;
-    const auto & it = m_unitInfoMap.find(unit->tag);
-    if (it == m_unitInfoMap.end())
+    bool first_seen = false;
+    const auto & it = unit_info_map_.find(unit->tag);
+    if (it == unit_info_map_.end())
     {
-        firstSeen = true;
-        m_unitInfoMap[unit->tag] = UnitInfo();
+        first_seen = true;
+        unit_info_map_[unit->tag] = UnitInfo();
     }
 
-    UnitInfo & ui   = m_unitInfoMap[unit->tag];
+    UnitInfo & ui   = unit_info_map_[unit->tag];
     ui.unit         = unit;
     ui.player       = Util::GetPlayer(unit);
     ui.lastPosition = unit->pos;
@@ -30,46 +30,46 @@ void UnitData::updateUnit(const sc2::Unit* unit)
     ui.type         = unit->unit_type;
     ui.progress     = unit->build_progress;
 
-    if (firstSeen)
+    if (first_seen)
     {
-        m_numUnits[ui.type]++;
-		ui.mission = UnitMission::Idle;
+        num_units_[ui.type]++;
+        ui.mission = UnitMission::Idle;
     }
 
-	if (Util::IsWorker(unit))
-	{
-		m_workers.insert(&m_unitInfoMap[unit->tag]);
-	}
+    if (Util::IsWorker(unit))
+    {
+        workers_.insert(&unit_info_map_[unit->tag]);
+    }
     else if(Util::IsCombatUnit(unit))
     {
-        m_combatUnits.insert(&m_unitInfoMap[unit->tag]);
+        combat_units_.insert(&unit_info_map_[unit->tag]);
     }
 }
 
-void UnitData::killUnit(const sc2::Unit* unit)
+void UnitData::KillUnit(const sc2::Unit* unit)
 {
     //m_mineralsLost += unit->unit_type.mineralPrice();
     //_gasLost += unit->getType().gasPrice();
-    m_numUnits[unit->unit_type]--;
-    m_numDeadUnits[unit->unit_type]++;
+    num_units_[unit->unit_type]--;
+    num_dead_units_[unit->unit_type]++;
 
-	// If the previous unit was a worker, go ahead and update some stats.
-	clearPreviousJob(unit);
-	m_workers.erase(&m_unitInfoMap[unit->tag]);
-	// Erasing the unit must be last. Cleanup the pointers before deleting the object. 
-    m_unitInfoMap.erase(unit->tag); 
+    // If the previous unit was a worker, go ahead and update some stats.
+    ClearPreviousJob(unit);
+    workers_.erase(&unit_info_map_[unit->tag]);
+    // Erasing the unit must be last. Cleanup the pointers before deleting the object. 
+    unit_info_map_.erase(unit->tag); 
 }
 
-void UnitData::removeBadUnits()
+void UnitData::RemoveBadUnits()
 {
-    for (auto iter = m_unitInfoMap.begin(); iter != m_unitInfoMap.end();)
+    for (auto iter = unit_info_map_.begin(); iter != unit_info_map_.end();)
     {
-        if (badUnitInfo(iter->second))
+        if (BadUnitInfo(iter->second))
         {
-            m_numUnits[iter->second.type]--;
-            iter = m_unitInfoMap.erase(iter);
-			m_combatUnits.erase(&iter->second);
-			m_workers.erase(&iter->second);
+            num_units_[iter->second.type]--;
+            iter = unit_info_map_.erase(iter);
+            combat_units_.erase(&iter->second);
+            workers_.erase(&iter->second);
         }
         else
         {
@@ -78,135 +78,135 @@ void UnitData::removeBadUnits()
     }
 }
 
-bool UnitData::badUnitInfo(const UnitInfo & ui) const
+bool UnitData::BadUnitInfo(const UnitInfo & ui) const
 {
     return false;
 }
 
-size_t UnitData::getNumWorkers() const
+size_t UnitData::GetNumWorkers() const
 {
-	return m_workers.size();
+    return workers_.size();
 }
 
-int UnitData::getGasLost() const
+int UnitData::GetGasLost() const
 {
-    return m_gasLost;
+    return gas_lost_;
 }
 
-int UnitData::getMineralsLost() const
+int UnitData::GetMineralsLost() const
 {
-    return m_mineralsLost;
+    return minerals_lost_;
 }
 
-int UnitData::getNumUnits(sc2::UnitTypeID t) const
+int UnitData::GetNumUnits(sc2::UnitTypeID t) const
 {
-    return m_numUnits[t];
+    return num_units_[t];
 }
 
-int UnitData::getNumDeadUnits(sc2::UnitTypeID t) const
+int UnitData::GetNumDeadUnits(sc2::UnitTypeID t) const
 {
-    return m_numDeadUnits[t];
+    return num_dead_units_[t];
 }
 
-int UnitData::getNumAssignedWorkers(const sc2::Unit* depot)
+int UnitData::GetNumAssignedWorkers(const sc2::Unit* depot)
 {
-	if (Util::IsTownHall(depot))
-	{
-		const auto it = m_baseWorkerCount.find(depot->tag);
+    if (Util::IsTownHall(depot))
+    {
+        const auto it = base_worker_count_.find(depot->tag);
 
-		// if there is an entry, return it
-		if (it != m_baseWorkerCount.end())
-		{
-			return it->second;
-		}
-	}
-	else if (Util::IsRefinery(depot))
-	{
+        // if there is an entry, return it
+        if (it != base_worker_count_.end())
+        {
+            return it->second;
+        }
+    }
+    else if (Util::IsRefinery(depot))
+    {
         return depot->assigned_harvesters;
-	}
+    }
 
-	// when all else fails, return 0
-	return 0;
+    // when all else fails, return 0
+    return 0;
 }
 
-const std::map<sc2::Tag, UnitInfo>& UnitData::getUnitInfoMap() const
+const std::map<sc2::Tag, UnitInfo>& UnitData::GetUnitInfoMap() const
 {
-    return m_unitInfoMap;
+    return unit_info_map_;
 }
 
 std::set<const UnitInfo*> UnitData::GetCombatUnits() const
 {
-	return m_combatUnits;
+    return combat_units_;
 }
 
 // jobUnitTag is optional.
-void UnitData::setJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag jobUnitTag)
+void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag)
 {
-	clearPreviousJob(unit);
+    ClearPreviousJob(unit);
 
-	UnitInfo & ui = m_unitInfoMap[unit->tag];
+    UnitInfo & ui = unit_info_map_[unit->tag];
 
-	// Update the information about the current job. 
-	if (job == UnitMission::Minerals)
-	{
-		// if we haven't assigned anything to this depot yet, set its worker count to 0
-		if (m_baseWorkerCount.find(jobUnitTag) == m_baseWorkerCount.end())
-		{
-			m_baseWorkerCount[jobUnitTag] = 0;
-		}
+    // Update the information about the current job. 
+    if (job == UnitMission::Minerals)
+    {
+        // if we haven't assigned anything to this depot yet, set its worker count to 0
+        if (base_worker_count_.find(job_unit_tag) == base_worker_count_.end())
+        {
+            base_worker_count_[job_unit_tag] = 0;
+        }
 
-		// add the depot to our set of depots
-		m_depots.insert(&m_unitInfoMap[unit->tag]);
+        // add the depot to our set of depots
+        depots_.insert(&unit_info_map_[unit->tag]);
 
-		// increase the worker count of this depot
-		m_baseWorkerCount[jobUnitTag]++;
-		m_workerDepotMap[unit->tag] = unit;
-	}
-	else if (job == UnitMission::Gas)
-	{
-		m_workerRefineryMap[unit->tag] = unit;
-		// If the jobUnitTag is actually valid, set the worker depot to that value.
-		if (jobUnitTag != 0)
-		{
-			ui.workerDepotTag = jobUnitTag;
-		}
-	}
-	else if (job == UnitMission::Attack)
-	{
-		m_combatUnits.insert(&m_unitInfoMap[unit->tag]);
-	}
+        // increase the worker count of this depot
+        base_worker_count_[job_unit_tag]++;
+        worker_depot_map_[unit->tag] = unit;
+    }
+    else if (job == UnitMission::Gas)
+    {
+        worker_refinery_map_[unit->tag] = unit;
+        // If the jobUnitTag is actually valid, set the worker depot to that value.
+        if (job_unit_tag != 0)
+        {
+            ui.workerDepotTag = job_unit_tag;
+        }
+    }
+    else if (job == UnitMission::Attack)
+    {
+        combat_units_.insert(&unit_info_map_[unit->tag]);
+    }
 
     ui.mission = job;
 }
 
-void UnitData::setBuildingWorker(const sc2::Unit* worker, Building & b)
+void UnitData::SetBuildingWorker(const sc2::Unit* worker, Building & b)
 {
-	UnitInfo & ui = m_unitInfoMap[worker->tag];
-	ui.mission = UnitMission::Build;
-	setJob(worker, UnitMission::Build, b.type);
+    UnitInfo & ui = unit_info_map_[worker->tag];
+    ui.mission = UnitMission::Build;
+    SetJob(worker, UnitMission::Build, b.type);
 }
 
-void UnitData::clearPreviousJob(const sc2::Unit* unit)
+void UnitData::ClearPreviousJob(const sc2::Unit* unit)
 {
-	// Remove the entry from the previous job, if there is one. 
-	if (m_unitInfoMap[unit->tag].mission == UnitMission::Minerals)
-	{
-		// Remove one worker from the count of the depot this worker was assigned to.
-		m_baseWorkerCount[m_workerDepotMap[unit->tag]->tag]--;
-		m_workerDepotMap.erase(unit->tag);
-	}
-	else if (m_unitInfoMap[unit->tag].mission == UnitMission::Gas)
-	{
-		m_workerRefineryMap.erase(unit->tag);
-	}
+    // Remove the entry from the previous job, if there is one. 
+    if (unit_info_map_[unit->tag].mission == UnitMission::Minerals)
+    {
+        // Remove one worker from the count of the depot this worker was assigned to.
+        base_worker_count_[worker_depot_map_[unit->tag]->tag]--;
+        worker_depot_map_.erase(unit->tag);
+    }
+    else if (unit_info_map_[unit->tag].mission == UnitMission::Gas)
+    {
+        worker_refinery_map_.erase(unit->tag);
+    }
 
-	m_combatUnits.erase(&m_unitInfoMap[unit->tag]);
-	// No need to remove workers. m_workers keep track of scv's and mules.
-	// Workers will always be workers. Only remove them from m_workers when they die. 
-	// m_workers.erase(&m_unitInfoMap[unit->tag]);
+    combat_units_.erase(&unit_info_map_[unit->tag]);
+    // No need to remove workers. workers keep track of scv's and mules.
+    // Workers will always be workers. Only remove them from workers when they die. 
+    // workers.erase(&m_unitInfoMap[unit->tag]);
 }
 
-std::set<const UnitInfo*> UnitData::getWorkers() const
+std::set<const UnitInfo*> UnitData::GetWorkers() const
 {
-	return m_workers;
+    return workers_;
 }

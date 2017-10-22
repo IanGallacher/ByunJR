@@ -7,32 +7,32 @@
 #include "util/Util.h"
 
 ProductionManager::ProductionManager(ByunJRBot & bot)
-    : m_bot             (bot)
-    , m_buildingManager (bot)
-    , m_queue           (bot)
+    : bot_             (bot)
+    , buildingManager (bot)
+    , queue           (bot)
 {
 
 }
 
 void ProductionManager::setBuildOrder(const BuildOrder & buildOrder)
 {
-    m_queue.clearAll();
+    queue.ClearAll();
 
-    for (size_t i(0); i<buildOrder.size(); ++i)
+    for (size_t i(0); i<buildOrder.Size(); ++i)
     {
-        m_queue.queueAsLowestPriority(buildOrder[i], true);
+        queue.QueueAsLowestPriority(buildOrder[i], true);
     }
 }
 
 
 void ProductionManager::onStart()
 {
-    m_planned_supply_depots = 0;
-    m_buildingManager.onStart();
-    setBuildOrder(m_bot.Strategy().getOpeningBookBuildOrder());
+    planned_supply_depots = 0;
+    buildingManager.OnStart();
+    setBuildOrder(bot_.Strategy().getOpeningBookBuildOrder());
 }
 
-void ProductionManager::onFrame()
+void ProductionManager::OnFrame()
 {
     // check the _queue for stuff we can build
     manageBuildOrderQueue();
@@ -41,14 +41,14 @@ void ProductionManager::onFrame()
     // TODO: detect if there's a build order deadlock once per second
     // TODO: triggers for game things like cloaked units etc
 
-    m_buildingManager.onFrame();
+    buildingManager.OnFrame();
     drawProductionInformation();
 }
 
 void ProductionManager::onBuildingConstructionComplete(const sc2::Unit* unit) {
     if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
     {
-        m_planned_supply_depots--;
+        planned_supply_depots--;
     }
 }
 
@@ -62,7 +62,7 @@ void ProductionManager::onUnitDestroy(const sc2::Unit* unit)
 void ProductionManager::manageBuildOrderQueue()
 {
     // if there is nothing in the queue, oh well
-    if (m_queue.isEmpty())
+    if (queue.IsEmpty())
     {
         return;
     }
@@ -70,10 +70,10 @@ void ProductionManager::manageBuildOrderQueue()
     preventSupplyBlock();
 
     // the current item to be used
-    BuildOrderItem & currentItem = m_queue.getHighestPriorityItem();
+    BuildOrderItem & currentItem = queue.GetHighestPriorityItem();
 
     // while there is still something left in the queue
-    while (!m_queue.isEmpty())
+    while (!queue.IsEmpty())
     {
         // this is the unit which can produce the currentItem
         const sc2::Tag producer = getProducer(currentItem.type);
@@ -88,19 +88,19 @@ void ProductionManager::manageBuildOrderQueue()
         {
             // create it and remove it from the _queue
             create(producer, currentItem);
-            m_queue.removeCurrentHighestPriorityItem();
+            queue.RemoveCurrentHighestPriorityItem();
 
             // don't actually loop around in here
             break;
         }
         // otherwise, if we can skip the current item
-        else if (m_queue.canSkipItem())
+        else if (queue.CanSkipItem())
         {
             // skip it
-            m_queue.skipItem();
+            queue.SkipItem();
 
             // and get the next one
-            currentItem = m_queue.getNextHighestPriorityItem();
+            currentItem = queue.GetNextHighestPriorityItem();
         }
         else
         {
@@ -114,27 +114,27 @@ void ProductionManager::manageBuildOrderQueue()
 void ProductionManager::preventSupplyBlock() {
     // If the current supply that we have plus the total amount of things that could be made 
     if (
-        (m_bot.Observation()->GetFoodUsed() + productionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
+        (bot_.Observation()->GetFoodUsed() + productionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
                                                             // Is greater than 
         >=
         // the player supply capacity, including pylons in production. 
         // The depots in production is key, otherwise you will build hundreds of pylons while supply blocked.
-        (m_bot.Observation()->GetFoodCap() + (m_planned_supply_depots * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
+        (bot_.Observation()->GetFoodCap() + (planned_supply_depots * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
         )
     {
-        m_planned_supply_depots++;
-        m_queue.queueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
+        planned_supply_depots++;
+        queue.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
 }
 
 int ProductionManager::productionCapacity() const
 {
     // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
-    const  size_t commandCenters = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                                 + m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                                 + m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const  size_t commandCenters = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                                 + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                                 + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
-    const size_t barracks = m_bot.InformationManager().UnitInfo().getUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    const size_t barracks = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     return (int) (commandCenters + barracks) * 2;
 }
 
@@ -145,7 +145,7 @@ sc2::Tag ProductionManager::getProducer(sc2::UnitTypeID t, sc2::Point2D closestT
 
     // make a set of all candidate producers
     std::vector<sc2::Tag> candidateProducers;
-    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
         if (unit->unit_type != producerType) { continue; }
@@ -182,7 +182,7 @@ sc2::Tag ProductionManager::getClosestUnitToPosition(const std::vector<sc2::Tag>
 
     for (auto & unit : units)
     {
-        const double distance = Util::Dist(m_bot.GetUnit(unit)->pos, closestTo);
+        const double distance = Util::Dist(bot_.GetUnit(unit)->pos, closestTo);
         if (!closestUnit || distance < minDist)
         {
             closestUnit = unit;
@@ -210,18 +210,18 @@ void ProductionManager::create(const sc2::Tag producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            const sc2::Point2D proxyLocation = m_bot.InformationManager().GetProxyLocation();
-            m_buildingManager.addBuildingTask(t, proxyLocation);
+            const sc2::Point2DI proxyLocation = bot_.InformationManager().GetProxyLocation();
+            buildingManager.AddBuildingTask(t, proxyLocation);
         }
         else
         {
-            m_buildingManager.addBuildingTask(t, m_bot.GetStartLocation());
+            buildingManager.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
         }
     }
     // if we're dealing with a non-building unit
     else
     {
-        Micro::SmartTrain(m_bot.GetUnit(producer), t, m_bot);
+        Micro::SmartTrain(bot_.GetUnit(producer), t, bot_);
     }
 }
 
@@ -234,7 +234,7 @@ bool ProductionManager::canMakeNow(const sc2::Tag producerTag, const sc2::UnitTy
     if(producerTag==0)
         return false;
 
-    sc2::AvailableAbilities available_abilities = m_bot.Query()->GetAbilitiesForUnit(m_bot.GetUnit(producerTag));
+    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(bot_.GetUnit(producerTag));
 
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty())
@@ -265,24 +265,24 @@ bool ProductionManager::detectBuildOrderDeadlock() const
 
 int ProductionManager::getFreeMinerals()
 {
-    return m_bot.Observation()->GetMinerals() - m_buildingManager.getReservedMinerals();
+    return bot_.Observation()->GetMinerals() - buildingManager.GetReservedMinerals();
 }
 
 int ProductionManager::getFreeGas()
 {
-    return m_bot.Observation()->GetVespene() - m_buildingManager.getReservedGas();
+    return bot_.Observation()->GetVespene() - buildingManager.GetReservedGas();
 }
 
 // return whether or not we meet resources, including building reserves
 bool ProductionManager::meetsReservedResources(sc2::UnitTypeID type)
 {
     // return whether or not we meet the resources
-    return (Util::GetUnitTypeMineralPrice(type, m_bot) <= getFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, m_bot) <= getFreeGas());
+    return (Util::GetUnitTypeMineralPrice(type, bot_) <= getFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, bot_) <= getFreeGas());
 }
 
 void ProductionManager::drawProductionInformation() const
 {
-    if (!m_bot.Config().DrawProductionInfo)
+    if (!bot_.Config().DrawProductionInfo)
     {
         return;
     }
@@ -290,7 +290,7 @@ void ProductionManager::drawProductionInformation() const
     std::stringstream ss;
     ss << "Production Information\n\n";
 
-    for (auto & unit : m_bot.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         if (unit->build_progress < 1.0f)
         {
@@ -298,7 +298,7 @@ void ProductionManager::drawProductionInformation() const
         }
     }
 
-    ss << m_queue.getQueueInformation();
+    ss << queue.GetQueueInformation();
 
-    m_bot.Map().drawTextScreen(sc2::Point2D(0.01f, 0.01f), ss.str(), sc2::Colors::Yellow);
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.01f, 0.01f), ss.str(), sc2::Colors::Yellow);
 }

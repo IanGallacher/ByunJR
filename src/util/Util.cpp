@@ -7,7 +7,7 @@
 #include "util/Util.h"
 
 Util::IsUnit::IsUnit(sc2::UNIT_TYPEID type) 
-    : m_type(type) 
+    : type(type) 
 {
 }
 
@@ -143,12 +143,12 @@ int Util::GetUnitTypeGasPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
 
 int Util::GetUnitTypeWidth(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
-    return (int)(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
+    return static_cast<int>(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
 
 int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot)
 {
-    return (int)(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
+    return static_cast<int>(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
 
 
@@ -185,16 +185,16 @@ float Util::GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot)
         return 0.0f;
     }
 
-    float maxRange = 0.0f;
+    float max_range = 0.0f;
     for (auto & weapon : weapons)
     {
-        if (weapon.range > maxRange)
+        if (weapon.range > max_range)
         {
-            maxRange = weapon.range;
+            max_range = weapon.range;
         }
     }
 
-    return maxRange;
+    return max_range;
 }
 
 float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
@@ -206,13 +206,13 @@ float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
         return 0.0f;
     }
 
-    float maxDamage = 0.0f;
+    float max_damage = 0.0f;
     for (auto & weapon : weapons)
     {
-        maxDamage = weapon.damage_;
+        max_damage = weapon.damage_;
     }
 
-    return maxDamage;
+    return max_damage;
 }
 
 bool Util::IsDetectorType(const sc2::UnitTypeID & type)
@@ -278,8 +278,6 @@ bool Util::IsSupplyProviderType(const sc2::UnitTypeID type)
         case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED    : return true;
         default: return false;
     }
-
-    return true;
 }
 
 bool Util::IsSupplyProvider(const sc2::Unit* unit)
@@ -292,7 +290,20 @@ float Util::Dist(const sc2::Point2D & p1, const sc2::Point2D & p2)
     return sqrtf(Util::DistSq(p1,p2));
 }
 
+float Util::Dist(const sc2::Point2DI & p1, const sc2::Point2D & p2)
+{
+    return sqrtf(Util::DistSq(p1, p2));
+}
+
 float Util::DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2)
+{
+    const float dx = p1.x - p2.x;
+    const float dy = p1.y - p2.y;
+
+    return dx*dx + dy*dy;
+}
+
+float Util::DistSq(const sc2::Point2DI & p1, const sc2::Point2D & p2)
 {
     const float dx = p1.x - p2.x;
     const float dy = p1.y - p2.y;
@@ -302,44 +313,44 @@ float Util::DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2)
 
 bool Util::Pathable(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    const sc2::Point2DI pointI((int)point.x, (int)point.y);
-    if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
+    const sc2::Point2DI point_i(point.x, point.y);
+    if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
     {
         return false;
     }
 
     assert(info.pathing_grid.data.size() == info.width * info.height);
-    const unsigned char encodedPlacement = info.pathing_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    const bool decodedPlacement = encodedPlacement == 255 ? false : true;
-    return decodedPlacement;
+    const unsigned char encoded_placement = info.pathing_grid.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
+    const bool decoded_placement = encoded_placement == 255 ? false : true;
+    return decoded_placement;
 }
 
 bool Util::Placement(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    const sc2::Point2DI pointI((int)point.x, (int)point.y);
-    if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
+    const sc2::Point2DI point_i(static_cast<int>(point.x), static_cast<int>(point.y));
+    if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
     {
         return false;
     }
 
     assert(info.placement_grid.data.size() == info.width * info.height);
-    const unsigned char encodedPlacement = info.placement_grid.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    const bool decodedPlacement = encodedPlacement == 255 ? true : false;
-    return decodedPlacement;
+    const unsigned char encoded_placement = info.placement_grid.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
+    const bool decoded_placement = encoded_placement == 255 ? true : false;
+    return decoded_placement;
 }
 
 float Util::TerainHeight(const sc2::GameInfo & info, const sc2::Point2D & point) 
 {
-    const sc2::Point2DI pointI((int)point.x, (int)point.y);
-    if (pointI.x < 0 || pointI.x >= info.width || pointI.y < 0 || pointI.y >= info.width)
+    const sc2::Point2DI point_i(static_cast<int>(point.x), static_cast<int>(point.y));
+    if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
     {
         return 0.0f;
     }
 
     assert(info.terrain_height.data.size() == info.width * info.height);
-    const unsigned char encodedHeight = info.terrain_height.data[pointI.x + ((info.height - 1) - pointI.y) * info.width];
-    const float decodedHeight = -100.0f + 200.0f * float(encodedHeight) / 255.0f;
-    return decodedHeight;
+    const unsigned char encoded_height = info.terrain_height.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
+    const float decoded_height = -100.0f + 200.0f * float(encoded_height) / 255.0f;
+    return decoded_height;
 }
 
 void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInterface * debug) 
@@ -377,9 +388,9 @@ std::string Util::GetStringFromRace(const sc2::Race & race)
     }
 }
 
-sc2::Race Util::GetRaceFromString(const std::string & raceIn)
+sc2::Race Util::GetRaceFromString(const std::string & race_in)
 {
-    std::string race(raceIn);
+    std::string race(race_in);
     std::transform(race.begin(), race.end(), race.begin(), ::tolower);
 
     if (race == "terran")
@@ -514,21 +525,21 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
     }
 }
 
-int Util::EnemyDPSInRange(const sc2::Point3D unitPos, ByunJRBot & bot)
+int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot)
 {
-    float totalDPS = 0;
+    float total_dps = 0;
     for (auto & enemyunit : bot.Observation()->GetUnits())
     {
-        double dist = Util::Dist(enemyunit->pos, unitPos);
+        double dist = Util::Dist(enemyunit->pos, unit_pos);
         double range = GetAttackRange(enemyunit->unit_type, bot);
         // if we are in range, the dps that is coming at us increases.
         if (dist < range+0.5f)
         {
-            totalDPS += GetAttackDamage(enemyunit->unit_type, bot);
+            total_dps += GetAttackDamage(enemyunit->unit_type, bot);
         }
     }
 
-    return totalDPS;
+    return total_dps;
 }
 
 sc2::UnitTypeID Util::GetUnitTypeIDFromName(const sc2::ObservationInterface * obs, const std::string & name)
@@ -545,23 +556,23 @@ sc2::UnitTypeID Util::GetUnitTypeIDFromName(const sc2::ObservationInterface * ob
     return 0;
 }
 
-sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit* ourUnit, const sc2::ObservationInterface * obs)
+sc2::Tag GetClosestEnemyUnitTo(const sc2::Unit* our_unit, const sc2::ObservationInterface * obs)
 {
-    sc2::Tag closestTag = 0;
-	double closestDist = std::numeric_limits<double>::max();
+    sc2::Tag closest_tag = 0;
+    double closest_dist = std::numeric_limits<double>::max();
 
-	for (auto & unit : obs->GetUnits())
-	{
-        const double dist = Util::DistSq(unit->pos, ourUnit->pos);
+    for (auto & unit : obs->GetUnits())
+    {
+        const double dist = Util::DistSq(unit->pos, our_unit->pos);
 
-		if (!closestTag || (dist < closestDist))
-		{
-			closestTag = unit->tag;
-			closestDist = dist;
-		}
-	}
+        if (!closest_tag || (dist < closest_dist))
+        {
+            closest_tag = unit->tag;
+            closest_dist = dist;
+        }
+    }
 
-	return closestTag;
+    return closest_tag;
 }
 
 bool Util::IsMorphCommand(const sc2::AbilityID & ability) 
@@ -782,10 +793,10 @@ bool Util::UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & ty
     else 
     {
         // check to see if one of the unit's available abilities matches the build ability type
-        const sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
+        const sc2::AbilityID build_type_ability = Util::UnitTypeIDToAbilityID(type);
         for (const sc2::AvailableAbility & available_ability : available_abilities.abilities) 
         {
-            if (available_ability.ability_id == buildTypeAbility)
+            if (available_ability.ability_id == build_type_ability)
             {
                 return true;
             }

@@ -1,69 +1,71 @@
 #include "GeneticAlgorithm.h"
-
+// See http://www.theprojectspot.com/tutorial-post/creating-a-genetic-algorithm-for-beginners/3 for more information on genetic algorithms.
+// MIT Opencourseware on genetic algorithms: https://www.youtube.com/watch?v=kHyNqSnzP8Y
+// Much of the code here was inspired by the above two links. 
 Candidate::Candidate()
 {
 
 }
 
-Candidate::Candidate(std::vector<int> genes)
+Candidate::Candidate(const std::vector<int> genes)
 {
-    m_genes = genes;
+    genes_ = genes;
 }
 
-Candidate::Candidate(std::vector<int> genes, int fitness)
+Candidate::Candidate(const std::vector<int> genes, const int fitness)
 {
-    m_genes = genes;
-    m_fitness = fitness;
+    genes_ = genes;
+    fitness_ = fitness;
 }
 
 void Candidate::SetFitness(const int fitness)
 {
-    m_fitness = fitness;
+    fitness_ = fitness;
 }
 
-void Candidate::setGene(int index, int gene)
+void Candidate::SetGene(const int index, const int gene)
 {
-    m_genes[index] = gene;
+    genes_[index] = gene;
 }
 
-int Candidate::getGene(int i)
+int Candidate::GetGene(const int i)
 {
-    return m_genes[i];
+    return genes_[i];
 }
 
-int Candidate::getFitness()
+int Candidate::GetFitness() const
 {
-    return m_fitness;
+    return fitness_;
 }
 
 
 Population::Population(const int size)
 {
-    m_canidates = std::vector<Candidate>();
-    m_canidates.resize(size);
+    canidates_ = std::vector<Candidate>();
+    canidates_.resize(size);
 }
 
-void Population::setCanidate(int index, Candidate c)
+void Population::SetCanidate(const int index, Candidate c)
 {
-    m_canidates[index] = c;
+    canidates_[index] = c;
 }
 
-Candidate Population::getCandidate(int index)
+Candidate Population::GetCandidate(const int index)
 {
-    return m_canidates[index];
+    return canidates_[index];
 }
 
-void Population::setReward(int index, int reward)
+void Population::SetReward(const int index, const int reward)
 {
-    m_canidates[index].SetFitness(reward);
+    canidates_[index].SetFitness(reward);
 }
 
-Candidate Population::getFittest() {
-    Candidate fittest = m_canidates[0];
+Candidate Population::GetFittest() {
+    Candidate fittest = canidates_[0];
 
-    for (int i = 0; i < m_canidates.size(); ++i) {
-        if (fittest.getFitness() <= getCandidate(i).getFitness()) {
-            fittest = getCandidate(i);
+    for (int i = 0; i < canidates_.size(); ++i) {
+        if (fittest.GetFitness() <= GetCandidate(i).GetFitness()) {
+            fittest = GetCandidate(i);
         }
     }
     return fittest;
@@ -72,62 +74,63 @@ Candidate Population::getFittest() {
 
 
 GeneticAlgorithm::GeneticAlgorithm()
-    : uniformRate(0.5),
-    mutationRate(0.015),
-    tournamentSize(5),
-    elitism(true),
-    m_population(10)
+    : uniform_rate_(0.5),
+    mutation_rate_(0.015),
+    tournament_size_(5),
+    elitism_(true),
+    population_(10)
 {
 
 }
 
-void GeneticAlgorithm::evolvePopulation(ProxyTrainingData & pm) {
-    Population newPopulation(10); // new Population(pop.size(), false);
+void GeneticAlgorithm::EvolvePopulation(ProxyTrainingData & pm) {
+    Population new_population(10); // new Population(pop.size(), false);
 
-    int elitismOffset;
+    int elitism_offset;
     // Keep our best candidate
-    if (elitism) {
-        newPopulation.setCanidate(0, m_population.getFittest());
-        elitismOffset = 1;
+    if (elitism_) {
+        new_population.SetCanidate(0, population_.GetFittest());
+        elitism_offset = 1;
     }
     else {
-        elitismOffset = 0;
+        elitism_offset = 0;
     }
 
     // Loop over the population size and create new individuals with
     // crossover
-    for (int i = elitismOffset; i < 10; i++) {
-        Candidate indiv1 = tournamentSelection(m_population);
-        Candidate indiv2 = tournamentSelection(m_population);
-        Candidate newIndiv = crossover(indiv1, indiv2);
+    for (int i = elitism_offset; i < 10; i++) {
+        const Candidate indiv1 = TournamentSelection(population_);
+        const Candidate indiv2 = TournamentSelection(population_);
+        Candidate new_indiv = Crossover(indiv1, indiv2);
 
         // make sure we have the closest valid proxy location.
-        sc2::Point2D point = pm.getNearestUntestedProxyLocation( newIndiv.getGene(0), newIndiv.getGene(1) );
-        auto genes = std::vector<int> { (int)point.x, (int)point.y };
-        auto finalIndiv = Candidate(genes);
-        newPopulation.setCanidate(i, newIndiv);
+        const sc2::Point2D point = pm.GetNearestUntestedProxyLocation( new_indiv.GetGene(0), new_indiv.GetGene(1) );
+        const auto genes = std::vector<int> { static_cast<int>(point.x), static_cast<int>(point.y) };
+        auto final_indiv = Candidate(genes);
+        new_population.SetCanidate(i, new_indiv);
     }
 
     // Mutate population
-    for (int i = elitismOffset; i < 10; i++) {
-        mutate(newPopulation.getCandidate(i));
+    for (int i = elitism_offset; i < 10; i++) {
+        Mutate(new_population.GetCandidate(i));
     }
 
-    m_population = newPopulation;
+    population_ = new_population;
 }
 
 // Crossover individuals
-Candidate GeneticAlgorithm::crossover(Candidate indiv1, Candidate indiv2) {
+Candidate GeneticAlgorithm::Crossover(Candidate indiv1, Candidate indiv2) const
+{
     auto genes = std::vector<int>();
     genes.resize(2);
     // Loop through genes
     for (int i = 0; i < 2; i++) { //2 is how many genes there are.
         // Crossover
         if (rand() % 2 == 0) {
-            genes[i] = indiv1.getGene(i);
+            genes[i] = indiv1.GetGene(i);
         }
         else {
-            genes[i] = indiv2.getGene(i);
+            genes[i] = indiv2.GetGene(i);
         }
     }
 
@@ -136,40 +139,41 @@ Candidate GeneticAlgorithm::crossover(Candidate indiv1, Candidate indiv2) {
 }
 
 // Mutate an candidate
-void GeneticAlgorithm::mutate(Candidate &indiv) {
+void GeneticAlgorithm::Mutate(Candidate &indiv) const
+{
     // Loop through genes
     for (int i = 0; i < 2; i++) { //2 is how many genes there are.
-        if (rand() <= mutationRate) {
+        if (rand() <= mutation_rate_) {
             // Create random gene
-            int gene = indiv.getGene(i) + rand() % 2;
-            indiv.setGene(i, gene);
+            const int gene = indiv.GetGene(i) + rand() % 2;
+            indiv.SetGene(i, gene);
         }
     }
 }
 
-Population* GeneticAlgorithm::getPopulation()
+Population* GeneticAlgorithm::GetPopulation()
 {
-    return &m_population;
+    return &population_;
 }
 
-void GeneticAlgorithm::setReward(int i, int reward)
+void GeneticAlgorithm::SetReward(const int i, const int reward)
 {
-    m_population.setReward(i, reward);
+    population_.SetReward(i, reward);
 }
 
 
 // Select individuals for crossover
-Candidate GeneticAlgorithm::tournamentSelection(Population pop) 
+Candidate GeneticAlgorithm::TournamentSelection(Population pop) const
 {
     // Create a tournament population
     Population tournament(5);
     // For each place in the tournament get a random individual
-    for (int i = 0; i < tournamentSize; i++) {
-        int randomId = rand() % 10; //pop.size());
-        tournament.setCanidate(i, pop.getCandidate(randomId));
+    for (int i = 0; i < tournament_size_; i++) {
+        const int random_id = rand() % 10; //pop.size());
+        tournament.SetCanidate(i, pop.GetCandidate(random_id));
     }
 
     // Get the fittest
-    Candidate fittest = tournament.getFittest();
+    Candidate fittest = tournament.GetFittest();
     return fittest;
 }

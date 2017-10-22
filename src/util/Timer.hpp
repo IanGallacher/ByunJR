@@ -4,114 +4,114 @@
 #include <chrono>
 
 #ifdef WIN32   // Windows system specific
-	#include <windows.h>
+    #include <windows.h>
 #else          // Unix based system specific
-	#include <sys/time.h>
+    #include <sys/time.h>
 #endif
 
 class Timer
 {
- 	double startTimeInMicroSec;                 // starting time in micro-second
-    double endTimeInMicroSec;                   // ending time in micro-second
-    int    stopped;                             // stop flag 
-	#ifdef WIN32
-		LARGE_INTEGER frequency;                    // ticks per second
-		LARGE_INTEGER startCount;                   //
-		LARGE_INTEGER endCount;                     //
-	#else
-		timeval startCount;                         //
-		timeval endCount;                           //
-	#endif
+    double start_time_in_micro_sec_;                // starting time in micro-second
+    double end_time_in_micro_sec_;                  // ending time in micro-second
+    int    stopped_;                                // stop flag 
+    #ifdef WIN32
+        LARGE_INTEGER frequency_;                   // ticks per second
+        LARGE_INTEGER start_count_;                 //
+        LARGE_INTEGER end_count_;                   //
+    #else
+        timeval startCount;                         //
+        timeval endCount;                           //
+    #endif
 
 public:
 
-	Timer()
-	{
-		#ifdef WIN32
-			QueryPerformanceFrequency(&frequency);
-			startCount.QuadPart = 0;
-			endCount.QuadPart = 0;
-		#else
-			startCount.tv_sec = startCount.tv_usec = 0;
-			endCount.tv_sec = endCount.tv_usec = 0;
-		#endif
+    Timer()
+    {
+        #ifdef WIN32
+            QueryPerformanceFrequency(&frequency_);
+            start_count_.QuadPart = 0;
+            end_count_.QuadPart = 0;
+        #else
+            startCount.tv_sec = startCount.tv_usec = 0;
+            endCount.tv_sec = endCount.tv_usec = 0;
+        #endif
 
-		stopped = 0;
-		startTimeInMicroSec = 0;
-		endTimeInMicroSec = 0;
-		
-		start();
-	}
-	
+        stopped_ = 0;
+        start_time_in_micro_sec_ = 0;
+        end_time_in_micro_sec_ = 0;
+        
+        Start();
+    }
+    
     ~Timer() {}                                 // default destructor
 
-    void start()
-	{
-		stopped = 0; // reset stop flag
-		
-		#ifdef WIN32
-			QueryPerformanceCounter(&startCount);
-		#else
-			gettimeofday(&startCount, NULL);
-		#endif
-	}
-	
-    void stop()
-	{
-		stopped = 1; // set timer stopped flag
+    void Start()
+    {
+        stopped_ = 0; // reset stop flag
+        
+        #ifdef WIN32
+            QueryPerformanceCounter(&start_count_);
+        #else
+            gettimeofday(&startCount, NULL);
+        #endif
+    }
+    
+    void Stop()
+    {
+        stopped_ = 1; // set timer stopped flag
 
-		#ifdef WIN32
-			QueryPerformanceCounter(&endCount);
-		#else
-			gettimeofday(&endCount, NULL);
-		#endif
-	}
-	
-    double getElapsedTimeInMicroSec()
-	{
-		#ifdef WIN32
-			if(!stopped)
-				QueryPerformanceCounter(&endCount);
+        #ifdef WIN32
+            QueryPerformanceCounter(&end_count_);
+        #else
+            gettimeofday(&endCount, NULL);
+        #endif
+    }
+    
+    double GetElapsedTimeInMicroSec()
+    {
+        #ifdef WIN32
+            if(!stopped_)
+                QueryPerformanceCounter(&end_count_);
 
-			startTimeInMicroSec = startCount.QuadPart * (1000000.0 / frequency.QuadPart);
-			endTimeInMicroSec = endCount.QuadPart * (1000000.0 / frequency.QuadPart);
-		#else
-			if(!stopped)
-				gettimeofday(&endCount, NULL);
+            start_time_in_micro_sec_ = start_count_.QuadPart * (1000000.0 / frequency_.QuadPart);
+            end_time_in_micro_sec_ = end_count_.QuadPart * (1000000.0 / frequency_.QuadPart);
+        #else
+            if(!stopped)
+                gettimeofday(&endCount, NULL);
 
-			startTimeInMicroSec = (startCount.tv_sec * 1000000.0) + startCount.tv_usec;
-			endTimeInMicroSec = (endCount.tv_sec * 1000000.0) + endCount.tv_usec;
-		#endif
+            startTimeInMicroSec = (startCount.tv_sec * 1000000.0) + startCount.tv_usec;
+            endTimeInMicroSec = (endCount.tv_sec * 1000000.0) + endCount.tv_usec;
+        #endif
 
-		return endTimeInMicroSec - startTimeInMicroSec;
-	}
-	 
-	double getElapsedTimeInMilliSec()
-	{
-		return this->getElapsedTimeInMicroSec() * 0.001;
-	}
+        return end_time_in_micro_sec_ - start_time_in_micro_sec_;
+    }
+     
+    double GetElapsedTimeInMilliSec()
+    {
+        return this->GetElapsedTimeInMicroSec() * 0.001;
+    }
 
 
-	double getElapsedTimeInSec()
-	{
-		return this->getElapsedTimeInMicroSec() * 0.000001;
-	}
+    double GetElapsedTimeInSec()
+    {
+        return this->GetElapsedTimeInMicroSec() * 0.000001;
+    }
 
-	double getElapsedTime()
-	{
-		return this->getElapsedTimeInSec();
-	}
+    double GetElapsedTime()
+    {
+        return this->GetElapsedTimeInSec();
+    }
 
     template <class T>
     static void TimeFunction(std::function<T> function, ...)
     {
         Timer t;
-        t.start();
+        t.Start();
         va_list args;
         va_start(args, function);
         va_end(args);
 
-        double ms = t.getElapsedTimeInMilliSec();
+        double ms = t.GetElapsedTimeInMilliSec();
         std::cout << "Function ran in " << ms << "ms\n";
     }
 };

@@ -18,23 +18,23 @@ class ByunJRBot;
 
 class MicroManager
 {
-    std::vector<sc2::Tag> m_units;
+    std::vector<sc2::Tag> units_;
 
 protected:
 
-    ByunJRBot & m_bot;
-    SquadOrder order;
+    ByunJRBot & bot_;
+    SquadOrder order_;
 
-    virtual void executeMicro(const std::vector<sc2::Tag> & targets) = 0;
+    virtual void ExecuteMicro(const std::vector<sc2::Tag> & targets) = 0;
 
 public:
 
     MicroManager(ByunJRBot & bot);
 
-    const std::vector<sc2::Tag> & getUnits() const;
+    const std::vector<sc2::Tag> & GetUnits() const;
 
-    void setUnits(const std::vector<sc2::Tag> & u);
-    void execute(const SquadOrder & order);
-    void regroup(const sc2::Point2D & regroupPosition) const;
+    void SetUnits(const std::vector<sc2::Tag> & u);
+    void Execute(const SquadOrder & order);
+    void Regroup(const sc2::Point2D & regroup_position) const;
 
 };
