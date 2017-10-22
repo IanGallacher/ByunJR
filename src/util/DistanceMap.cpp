@@ -36,7 +36,7 @@ void DistanceMap::ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI & start
 {
     start_tile_ = start_tile;
     width_ = bot.Map().Width();
-    height_ = bot.Map().Width();
+    height_ = bot.Map().Height();
     dist_ = vvi (width_, std::vector<int>(height_, -1));
     sorted_tile_positions_.reserve(width_ * height_);
 
@@ -46,7 +46,7 @@ void DistanceMap::ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI & start
     fringe.push_back(start_tile_);
     sorted_tile_positions_.push_back(start_tile);
 
-    dist_[static_cast<int>(start_tile.x)][static_cast<int>(start_tile.y)] = 0;
+    dist_[start_tile.x][start_tile.y] = 0;
 
     for (size_t fringe_index=0; fringe_index<fringe.size(); ++fringe_index)
     {
