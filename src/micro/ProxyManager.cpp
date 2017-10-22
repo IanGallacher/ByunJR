@@ -81,7 +81,7 @@ bool ProxyManager::ProxyBuildingAtChosenRandomLocation()
             std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;
             return false;
         }
-        bot_.InformationManager().assignUnit(proxy_worker_->tag, UnitMission::Proxy);
+        bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
         Micro::SmartMove(proxy_worker_, sc2::Point2D(my_vec.x, my_vec.y), bot_);
     }
     //}

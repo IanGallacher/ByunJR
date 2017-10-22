@@ -22,19 +22,22 @@ class StrategyManager
 {
     ByunJRBot & bot_;
 
-    sc2::Race                       self_race_;
-    sc2::Race                       enemy_race_;
     std::map<std::string, Strategy> strategies_;
     int                             total_games_played_;
     const BuildOrder                empty_build_order_;
+    // Have we sent the scout at the start of the game?
+    bool        initial_scout_set_;
 
     bool  ShouldExpandNow() const;
     UnitPairVector GetProtossBuildOrderGoal() const;
     UnitPairVector GetTerranBuildOrderGoal() const;
     UnitPairVector GetZergBuildOrderGoal() const;
 
-public:
+    // Functions called by HandleUnitAssignments.
+    void SetScoutUnits();
+    bool ShouldSendInitialScout() const;
 
+public:
     StrategyManager(ByunJRBot & bot);
 
     void OnStart();
@@ -44,8 +47,5 @@ public:
     const BuildOrder & GetOpeningBookBuildOrder() const;
     void ReadStrategyFile(const std::string & str);
 
-
     void HandleUnitAssignments();
-
-    bool ShouldSendInitialScout() const;
 };

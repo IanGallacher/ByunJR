@@ -45,11 +45,11 @@ void ByunJRBot::OnStep()
 
     map_.OnFrame();
     information_manager_.OnFrame();
+    strategy_.HandleUnitAssignments();
+
     bases_.OnFrame();
     strategy_.OnFrame();
     workers_.OnFrame();
-
-    strategy_.HandleUnitAssignments();
 
     production_manager_.OnFrame();
     scout_manager_.OnFrame();
@@ -153,6 +153,8 @@ void ByunJRBot::OnError(const std::vector<sc2::ClientError> & client_errors, con
     
 }
 
+
+#pragma region Functions for use on ladder
 void *CreateNewAgent()
 {
     return (void *) new ByunJRBot();
@@ -167,3 +169,4 @@ const char *GetAgentName()
 {
     return "ByunJR";
 }
+#pragma endregion

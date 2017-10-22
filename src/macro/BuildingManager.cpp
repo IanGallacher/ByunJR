@@ -281,7 +281,8 @@ void BuildingManager::CheckForStartedConstruction()
                 }
                 else if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
-                    bot_.InformationManager().finishedWithUnit(b.builderUnitTag);
+                    // Protoss does not need to keep the worker around after starting construction.
+                    bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(b.builderUnitTag), UnitMission::Idle);
                     b.builderUnitTag = 0;
                 }
 
@@ -317,7 +318,7 @@ void BuildingManager::CheckForCompletedBuildings()
             // if we are terran, give the worker back to worker manager
             if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
-                bot_.InformationManager().finishedWithUnit(b.builderUnitTag);
+                bot_.InformationManager().UnitInfo().SetJob(bot_.GetUnit(b.builderUnitTag), UnitMission::Idle);
             }
 
             // remove this unit from the under construction vector

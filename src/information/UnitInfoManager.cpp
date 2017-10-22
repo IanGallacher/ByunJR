@@ -254,6 +254,12 @@ std::set<const UnitInfo*> UnitInfoManager::GetWorkers()
     return unit_data_[PlayerArrayIndex::Self].GetWorkers();
 }
 
+// This can only return your scouts, not the enemy scouts. 
+std::set<const UnitInfo*> UnitInfoManager::GetScouts()
+{
+    return unit_data_[PlayerArrayIndex::Self].GetScouts();
+}
+
 const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
 {
     return &unit_data_[Util::GetPlayer(unit)].GetUnitInfoMap().at(unit->tag);

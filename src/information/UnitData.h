@@ -15,6 +15,8 @@ class UnitData
     std::set<const UnitInfo*>              workers_;
     // Pointers to all the combat units to allow for faster iteration.
     std::set<const UnitInfo*>              combat_units_;
+    // Pointers to all the scouting units to allow for faster iteration.
+    std::set<const UnitInfo*>              scout_units_;
     std::set<const UnitInfo*>              depots_;
     // sc2::Tag is a player's base. int is the number of workers at that base. 
     std::map<sc2::Tag, int>                base_worker_count_;
@@ -54,4 +56,5 @@ public:
     size_t GetNumWorkers() const;
     void ClearPreviousJob(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetWorkers() const;
+    std::set<const UnitInfo*> GetScouts() const;
 };

@@ -43,6 +43,7 @@ public:
     void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Tag job_unit_tag=0);
     void SetBuildingWorker(const sc2::Unit* worker, Building& b);
     std::set<const UnitInfo*> GetWorkers();
+    std::set<const UnitInfo*> GetScouts();
     const UnitInfo* GetUnitInfo(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetCombatUnits() const;
 };

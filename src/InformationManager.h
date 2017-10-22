@@ -5,18 +5,15 @@
 
 class ByunJRBot;
 
+// InformationManager is not inside the information folder in order to remind people not to include individual things from the information folder.
+// Only include InformationManager, and use it to get and set specific information about the game.
 class InformationManager
 {
     ByunJRBot &              bot_;
 
-    std::vector<sc2::Tag>    scout_units_;
     UnitInfoManager          unit_info_;
 
-    bool                     initial_scout_set_;
-
     sc2::Race                player_race_[2];
-
-    void SetScoutUnits(bool should_send_initial_scout);
 
 public:
     InformationManager(ByunJRBot & bot);
@@ -29,8 +26,6 @@ public:
     UnitInfoManager & UnitInfo();
 
     sc2::Tag GetBuilder(Building& b, bool set_job_as_builder = true);
-    void assignUnit(const sc2::Tag & unit, UnitMission job);
-    void finishedWithUnit(const sc2::Tag& unit);
 
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
     const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;

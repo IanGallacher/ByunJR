@@ -23,6 +23,7 @@ Strategy::Strategy(const std::string & name, const sc2::Race & race, const Build
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
+    , initial_scout_set_(false)
 {
 
 }
@@ -40,19 +41,42 @@ void StrategyManager::OnFrame()
 // assigns units to various managers
 void StrategyManager::HandleUnitAssignments()
 {
-    bot_.InformationManager().HandleUnitAssignments();
+    SetScoutUnits();
+}
+
+void StrategyManager::SetScoutUnits()
+{
+    // if we haven't set a scout unit, do it
+    if (bot_.InformationManager().UnitInfo().GetScouts().empty() && !initial_scout_set_)
+    {
+        // Should we send the initial scout?
+        if (ShouldSendInitialScout())
+        {
+            // grab the closest worker to the supply provider to send to scout
+            const ::UnitInfo * worker_scout = bot_.InformationManager().GetClosestUnitWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+
+            // if we find a worker (which we should) add it to the scout units
+            if (worker_scout)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
+                initial_scout_set_ = true;
+            }
+            else
+            {
+
+            }
+        }
+    }
 }
 
 bool StrategyManager::ShouldSendInitialScout() const
 {
-    return true;
-
     switch (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self))
     {
-    case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
-    case sc2::Race::Protoss: return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
-    case sc2::Race::Zerg:    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
-    default: return false;
+        case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+        case sc2::Race::Protoss: return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+        case sc2::Race::Zerg:    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+        default: return false;
     }
 }
 

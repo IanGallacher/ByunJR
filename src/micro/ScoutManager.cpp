@@ -7,12 +7,11 @@
 #include "util/Util.h"
 
 ScoutManager::ScoutManager(ByunJRBot & bot)
-    : bot_             (bot)
-    , scout_unit_tag_    (0)
-    , num_scouts_       (0)
-    , scout_under_attack_(false)
-    , scout_status_     ("None")
-    , previous_scout_hp_ (0.0f)
+    : bot_                (bot)
+    , num_scouts_         (0)
+    , scout_under_attack_ (false)
+    , scout_status_       ("None")
+    , previous_scout_hp_  (0.0f)
 {
 }
 
@@ -23,20 +22,9 @@ void ScoutManager::OnStart()
 
 void ScoutManager::OnFrame()
 {
+    // Update our shorthand for 
     MoveScouts();
     DrawScoutInformation();
-}
-
-void ScoutManager::SetWorkerScout(const sc2::Tag & tag)
-{
-    // if we have a previous worker scout, release it back to the worker manager
-    if (scout_unit_tag_)
-    {
-        bot_.InformationManager().finishedWithUnit(scout_unit_tag_);
-    }
-
-    scout_unit_tag_ = tag;
-    bot_.InformationManager().assignUnit(scout_unit_tag_, UnitMission::Scout);
 }
 
 void ScoutManager::DrawScoutInformation() const
@@ -54,115 +42,119 @@ void ScoutManager::DrawScoutInformation() const
 
 void ScoutManager::MoveScouts()
 {
-    if (!scout_unit_tag_) { return; }
-    const sc2::Unit* worker_scout = bot_.GetUnit(scout_unit_tag_);
-    if (!worker_scout || worker_scout->health <= 0) { return; }
+    // Setup shorthand for bot_.InformationManager().UnitInfo().GetScouts(),
+    const std::set<const UnitInfo*> & scout_units = bot_.InformationManager().UnitInfo().GetScouts();
 
-    const float scout_hp = worker_scout->health + worker_scout->shield;
+    // No need to print an error message. Sometimes we don't need any scouts for our current strategy.
+    if (scout_units.size() == 0) { return; }
 
-    if(scout_hp <= 10)
+    for(const auto & scout : scout_units)
     {
-        Micro::SmartMove(worker_scout, bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition(), bot_);
-        bot_.InformationManager().finishedWithUnit(scout_unit_tag_);
-        scout_unit_tag_ = -1;
-        return;
-    }
+        if (!scout || scout->unit->health <= 0) { return; }
 
-    // get the enemy base location, if we have one
-    const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+        const float scout_hp = scout->unit->health + scout->unit->shield;
 
-    int scout_distance_threshold = 20;
-
-    // if we know where the enemy region is and where our scout is
-    if (enemy_base_location)
-    {
-        int scout_distance_to_enemy = bot_.Map().GetGroundDistance(worker_scout->pos, enemy_base_location->GetPosition());
-        const bool scout_in_range_ofenemy = enemy_base_location->ContainsPosition(worker_scout->pos);
-
-        // we only care if the scout is under attack within the enemy region
-        // this ignores if their scout worker attacks it on the way to their base
-        if (scout_hp < previous_scout_hp_)
+        if (scout_hp <= 10)
         {
-            scout_under_attack_ = true;
+            Micro::SmartMove(scout->unit, bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition(), bot_);
+            bot_.InformationManager().UnitInfo().SetJob(scout->unit, UnitMission::Minerals);
+            return;
         }
 
-        if (scout_hp == previous_scout_hp_ && !EnemyWorkerInRadiusOf(worker_scout->pos))
-        {
-            scout_under_attack_ = false;
-        }
+        // get the enemy base location, if we have one
+        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
 
-        // if the scout is in the enemy region
-        if (scout_in_range_ofenemy)
-        {
-            // get the closest enemy worker
-            const sc2::Unit* closest_enemy_worker_unit = ClosestEnemyWorkerTo(worker_scout->pos);
+        int scout_distance_threshold = 20;
 
-            // if the worker scout is not under attack
-            if (!scout_under_attack_)
+        // if we know where the enemy region is and where our scout is
+        if (enemy_base_location)
+        {
+            int scout_distance_to_enemy = bot_.Map().GetGroundDistance(scout->unit->pos, enemy_base_location->GetPosition());
+            const bool scout_in_range_ofenemy = enemy_base_location->ContainsPosition(scout->unit->pos);
+
+            // we only care if the scout is under attack within the enemy region
+            // this ignores if their scout worker attacks it on the way to their base
+            if (scout_hp < previous_scout_hp_)
             {
-                // if there is a worker nearby, harass it
-                if (bot_.Config().ScoutHarassEnemy && closest_enemy_worker_unit && (Util::Dist(worker_scout->pos, closest_enemy_worker_unit->pos) < 12))
+                scout_under_attack_ = true;
+            }
+
+            if (scout_hp == previous_scout_hp_ && !EnemyWorkerInRadiusOf(scout->unit->pos))
+            {
+                scout_under_attack_ = false;
+            }
+
+            // if the scout is in the enemy region
+            if (scout_in_range_ofenemy)
+            {
+                // get the closest enemy worker
+                const sc2::Unit* closest_enemy_worker_unit = ClosestEnemyWorkerTo(scout->unit);
+
+                // if the worker scout is not under attack
+                if (!scout_under_attack_)
                 {
-                    scout_status_ = "Harass enemy worker";
-                    Micro::SmartAttackUnit(worker_scout, closest_enemy_worker_unit, bot_);
+                    // if there is a worker nearby, harass it
+                    if (bot_.Config().ScoutHarassEnemy && closest_enemy_worker_unit && (Util::Dist(scout->unit->pos, closest_enemy_worker_unit->pos) < 12))
+                    {
+                        scout_status_ = "Harass enemy worker";
+                        Micro::SmartAttackUnit(scout->unit, closest_enemy_worker_unit, bot_);
+                    }
+                    // otherwise keep moving to the enemy base location
+                    else
+                    {
+                        scout_status_ = "Moving to enemy base location";
+                        Micro::SmartMove(scout->unit, enemy_base_location->GetPosition(), bot_);
+                    }
                 }
-                // otherwise keep moving to the enemy base location
+                // if the worker scout is under attack
                 else
                 {
-                    scout_status_ = "Moving to enemy base location";
-                    Micro::SmartMove(worker_scout, enemy_base_location->GetPosition(), bot_);
+                    scout_status_ = "Under attack inside, fleeing";
+                    Micro::SmartMove(scout->unit, GetFleePosition(), bot_);
                 }
             }
-            // if the worker scout is under attack
+            // if the scout is not in the enemy region
+            else if (scout_under_attack_)
+            {
+                scout_status_ = "Under attack outside, fleeing";
+
+                Micro::SmartMove(scout->unit, GetFleePosition(), bot_);
+            }
             else
             {
-                scout_status_ = "Under attack inside, fleeing";
-                Micro::SmartMove(worker_scout, GetFleePosition(), bot_);
+                scout_status_ = "Enemy region known, going there";
+
+                // move to the enemy region
+                Micro::SmartMove(scout->unit, enemy_base_location->GetPosition(), bot_);
             }
-        }
-        // if the scout is not in the enemy region
-        else if (scout_under_attack_)
-        {
-            scout_status_ = "Under attack outside, fleeing";
 
-            Micro::SmartMove(worker_scout, GetFleePosition(), bot_);
-        }
-        else
-        {
-            scout_status_ = "Enemy region known, going there";
-
-            // move to the enemy region
-            Micro::SmartMove(worker_scout, enemy_base_location->GetPosition(), bot_);
         }
 
-    }
-
-    // for each start location on the map
-    if (!enemy_base_location)
-    {
-        scout_status_ = "Enemy base unknown, exploring";
-        
-        //for (const BaseLocation* startLocation : bot_.Bases().getStartingBaseLocations())
-        for (const sc2::Point2D start_location : bot_.Observation()->GetGameInfo().enemy_start_locations)
+        // for each start location on the map
+        if (!enemy_base_location)
         {
-            // if we haven't explored it yet then scout it out
-            // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
-            if (!bot_.Map().IsExplored(start_location))
+            scout_status_ = "Enemy base unknown, exploring";
+
+            //for (const BaseLocation* startLocation : bot_.Bases().getStartingBaseLocations())
+            for (const sc2::Point2D start_location : bot_.Observation()->GetGameInfo().enemy_start_locations)
             {
-                Micro::SmartMove(bot_.GetUnit(scout_unit_tag_), start_location, bot_);
-                return;
+                // if we haven't explored it yet then scout it out
+                // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
+                if (!bot_.Map().IsExplored(start_location))
+                {
+                    Micro::SmartMove(scout->unit, start_location, bot_);
+                    return;
+                }
             }
         }
-    }
 
-    previous_scout_hp_ = scout_hp;
+        previous_scout_hp_ = scout_hp;
+    }
 }
 
-const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Point2D & pos) const
+const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) const
 {
-    const sc2::Unit* our_scout = bot_.GetUnit(scout_unit_tag_);
-
-    if (!our_scout) { return nullptr; }
+    if (!scout) { std::cout << "Looked for scout, could not find anything" << std::endl;  return nullptr; }
 
     sc2::Tag enemy_worker_tag = 0;
     float min_dist = std::numeric_limits<float>::max();
@@ -172,7 +164,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Point2D & pos) co
     {
         if (Util::IsWorker(unit))
         {
-            const float dist = Util::Dist(unit->pos, our_scout->pos);
+            const float dist = Util::Dist(unit->pos, scout->pos);
 
             if (dist < min_dist)
             {

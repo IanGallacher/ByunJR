@@ -98,12 +98,12 @@ int UnitData::GetMineralsLost() const
     return minerals_lost_;
 }
 
-int UnitData::GetNumUnits(sc2::UnitTypeID t) const
+int UnitData::GetNumUnits(const sc2::UnitTypeID t) const
 {
     return num_units_[t];
 }
 
-int UnitData::GetNumDeadUnits(sc2::UnitTypeID t) const
+int UnitData::GetNumDeadUnits(const sc2::UnitTypeID t) const
 {
     return num_dead_units_[t];
 }
@@ -175,6 +175,10 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::T
     {
         combat_units_.insert(&unit_info_map_[unit->tag]);
     }
+    else if (job == UnitMission::Scout)
+    {
+        scout_units_.insert(&unit_info_map_[unit->tag]);
+    }
 
     ui.mission = job;
 }
@@ -200,6 +204,7 @@ void UnitData::ClearPreviousJob(const sc2::Unit* unit)
         worker_refinery_map_.erase(unit->tag);
     }
 
+    scout_units_.erase(&unit_info_map_[unit->tag]);
     combat_units_.erase(&unit_info_map_[unit->tag]);
     // No need to remove workers. workers keep track of scv's and mules.
     // Workers will always be workers. Only remove them from workers when they die. 
@@ -209,4 +214,9 @@ void UnitData::ClearPreviousJob(const sc2::Unit* unit)
 std::set<const UnitInfo*> UnitData::GetWorkers() const
 {
     return workers_;
+}
+
+std::set<const UnitInfo*> UnitData::GetScouts() const
+{
+    return scout_units_;
 }

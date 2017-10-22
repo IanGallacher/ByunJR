@@ -10,7 +10,6 @@
 InformationManager::InformationManager(ByunJRBot & bot)
     : bot_(bot)
     , unit_info_(bot)
-    , initial_scout_set_(false)
 {
 
 }
@@ -56,56 +55,6 @@ UnitInfoManager & InformationManager::UnitInfo()
 sc2::Point2DI InformationManager::GetProxyLocation() const
 {
     return bot_.GetProxyManager().GetProxyLocation();
-}
-
-void InformationManager::assignUnit(const sc2::Tag & unit, UnitMission job)
-{
-    // Remove unit from any existing jobs. 
-    finishedWithUnit(unit);
-    if (job == UnitMission::Scout)
-    {
-        unit_info_.SetJob(bot_.GetUnit(unit), UnitMission::Scout);
-        scout_units_.push_back(unit);
-    }
-    else
-    {
-        unit_info_.SetJob(bot_.GetUnit(unit), job);
-    }
-}
-
-void InformationManager::finishedWithUnit(const sc2::Tag & unit)
-{
-    if (std::find(scout_units_.begin(), scout_units_.end(), unit) != scout_units_.end())
-    {
-        scout_units_.erase(std::remove(scout_units_.begin(), scout_units_.end(), unit), scout_units_.end());
-    }
-}
-
-void InformationManager::SetScoutUnits(const bool should_send_initial_scout)
-{
-    // if we haven't set a scout unit, do it
-    if (scout_units_.empty() && !initial_scout_set_)
-    {
-        // if it exists
-        if (should_send_initial_scout)
-        {
-            // grab the closest worker to the supply provider to send to scout
-            const ::UnitInfo * worker_scout = GetClosestUnitWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
-
-            // if we find a worker (which we should) add it to the scout units
-            if (worker_scout)
-            {
-                bot_.Scout().SetWorkerScout(worker_scout->unit->tag);
-
-                assignUnit(worker_scout->unit->tag, UnitMission::Scout);
-                initial_scout_set_ = true;
-            }
-            else
-            {
-
-            }
-        }
-    }
 }
 
 // TODO: Figure out my race
@@ -242,10 +191,4 @@ sc2::Tag InformationManager::GetClosestUnitTagWithJob(const sc2::Point2D point, 
     }
 
     return closest_unit;
-}
-
-void InformationManager::HandleUnitAssignments()
-{
-    // set each type of unit
-    SetScoutUnits(bot_.Strategy().ShouldSendInitialScout());
 }
