@@ -168,7 +168,7 @@ void BuildingManager::ConstructAssignedBuildings()
         bool is_constructing = false;
 
         // if we're zerg and the builder unit is null, we assume it morphed into the building
-        if (bot_.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
+        if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
         {
             if (!builder_unit)
             {
@@ -275,11 +275,11 @@ void BuildingManager::CheckForStartedConstruction()
                 b.buildingUnitTag = building_started->tag;
 
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
-                if (bot_.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
+                if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
                 {
                     b.builderUnitTag = 0;
                 }
-                else if (bot_.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
+                else if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
                     bot_.InformationManager().finishedWithUnit(b.builderUnitTag);
                     b.builderUnitTag = 0;
@@ -315,7 +315,7 @@ void BuildingManager::CheckForCompletedBuildings()
         if (bot_.GetUnit(b.buildingUnitTag)->build_progress == 1.0f)
         {
             // if we are terran, give the worker back to worker manager
-            if (bot_.GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
+            if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
                 bot_.InformationManager().finishedWithUnit(b.builderUnitTag);
             }

@@ -27,9 +27,9 @@ StrategyManager::StrategyManager(ByunJRBot & bot)
 
 }
 
-void StrategyManager::onStart()
+void StrategyManager::OnStart()
 {
-    readStrategyFile(bot_.Config().ConfigFileLocation);
+    ReadStrategyFile(bot_.Config().ConfigFileLocation);
 }
 
 void StrategyManager::OnFrame()
@@ -38,16 +38,16 @@ void StrategyManager::OnFrame()
 }
 
 // assigns units to various managers
-void StrategyManager::handleUnitAssignments()
+void StrategyManager::HandleUnitAssignments()
 {
     bot_.InformationManager().HandleUnitAssignments();
 }
 
-bool StrategyManager::shouldSendInitialScout() const
+bool StrategyManager::ShouldSendInitialScout() const
 {
     return true;
 
-    switch (bot_.GetPlayerRace(PlayerArrayIndex::Self))
+    switch (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self))
     {
     case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
     case sc2::Race::Protoss: return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
@@ -56,66 +56,60 @@ bool StrategyManager::shouldSendInitialScout() const
     }
 }
 
-const BuildOrder & StrategyManager::getOpeningBookBuildOrder() const
+const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
 {
-    const auto buildOrderIt = strategies.find(bot_.Config().StrategyName);
+    const auto build_order_it = strategies_.find(bot_.Config().StrategyName);
 
     // look for the build order in the build order map
-    if (buildOrderIt != std::end(strategies))
+    if (build_order_it != std::end(strategies_))
     {
-        return (*buildOrderIt).second.buildOrder;
+        return (*build_order_it).second.buildOrder;
     }
     else
     {
         BOT_ASSERT(false, "Strategy not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
-        return emptyBuildOrder;
+        return empty_build_order_;
     }
 }
 
-bool StrategyManager::shouldExpandNow() const
+bool StrategyManager::ShouldExpandNow() const
 {
     return false;
 }
 
-void StrategyManager::addStrategy(const std::string & name, const Strategy & strategy)
+void StrategyManager::AddStrategy(const std::string & name, const Strategy & strategy)
 {
-    strategies[name] = strategy;
+    strategies_[name] = strategy;
 }
 
-UnitPairVector StrategyManager::getBuildOrderGoal() const
+UnitPairVector StrategyManager::GetBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-UnitPairVector StrategyManager::getProtossBuildOrderGoal() const
+UnitPairVector StrategyManager::GetProtossBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-UnitPairVector StrategyManager::getTerranBuildOrderGoal() const
+UnitPairVector StrategyManager::GetTerranBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-UnitPairVector StrategyManager::getZergBuildOrderGoal() const
+UnitPairVector StrategyManager::GetZergBuildOrderGoal() const
 {
     return std::vector<UnitPair>();
 }
 
-
-void StrategyManager::onEnd(const bool isWinner)
+void StrategyManager::ReadStrategyFile(const std::string & filename)
 {
-
-}
-
-void StrategyManager::readStrategyFile(const std::string & filename)
-{
-    sc2::Race race = bot_.GetPlayerRace(PlayerArrayIndex::Self);
-    std::string ourRace = Util::GetStringFromRace(race);
+    const sc2::Race race = bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self);
+    std::string our_race = Util::GetStringFromRace(race);
     std::string config = bot_.Config().RawConfigString;
     rapidjson::Document doc;
-    const bool parsingFailed = doc.Parse(config.c_str()).HasParseError();
-    if (parsingFailed)
+    const bool parsing_failed = doc.Parse(config.c_str()).HasParseError();
+    if (parsing_failed)
     {
         std::cerr << "ParseStrategy could not find file: " << filename << ", shutting down.\n";
         return;
@@ -132,9 +126,9 @@ void StrategyManager::readStrategyFile(const std::string & filename)
         JSONTools::ReadString("WriteDirectory", strategy, bot_.Config().WriteDir);
 
         // if we have set a strategy for the current race, use it
-        if (strategy.HasMember(ourRace.c_str()) && strategy[ourRace.c_str()].IsString())
+        if (strategy.HasMember(our_race.c_str()) && strategy[our_race.c_str()].IsString())
         {
-            bot_.Config().StrategyName = strategy[ourRace.c_str()].GetString();
+            bot_.Config().StrategyName = strategy[our_race.c_str()].GetString();
         }
 
         // check if we are using an enemy specific strategy
@@ -142,18 +136,18 @@ void StrategyManager::readStrategyFile(const std::string & filename)
         if (bot_.Config().UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
         {
             // TODO: Figure out enemy name
-            const std::string enemyName = "ENEMY NAME";
+            const std::string enemy_name = "ENEMY NAME";
             const rapidjson::Value & specific = strategy["EnemySpecificStrategy"];
 
             // check to see if our current enemy name is listed anywhere in the specific strategies
-            if (specific.HasMember(enemyName.c_str()) && specific[enemyName.c_str()].IsObject())
+            if (specific.HasMember(enemy_name.c_str()) && specific[enemy_name.c_str()].IsObject())
             {
-                const rapidjson::Value & enemyStrategies = specific[enemyName.c_str()];
+                const rapidjson::Value & enemy_strategies = specific[enemy_name.c_str()];
 
                 // if that enemy has a strategy listed for our current race, use it
-                if (enemyStrategies.HasMember(ourRace.c_str()) && enemyStrategies[ourRace.c_str()].IsString())
+                if (enemy_strategies.HasMember(our_race.c_str()) && enemy_strategies[our_race.c_str()].IsString())
                 {
-                    bot_.Config().StrategyName = enemyStrategies[ourRace.c_str()].GetString();
+                    bot_.Config().StrategyName = enemy_strategies[our_race.c_str()].GetString();
                     bot_.Config().FoundEnemySpecificStrategy = true;
                 }
             }
@@ -168,10 +162,10 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                 const std::string &         name = itr->name.GetString();
                 const rapidjson::Value &    val  = itr->value;
 
-                sc2::Race strategyRace;
+                sc2::Race strategy_race;
                 if (val.HasMember("Race") && val["Race"].IsString())
                 {
-                    strategyRace = Util::GetRaceFromString(val["Race"].GetString());
+                    strategy_race = Util::GetRaceFromString(val["Race"].GetString());
                 }
                 else
                 {
@@ -179,7 +173,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     continue;
                 }
 
-                BuildOrder buildOrder(strategyRace);
+                BuildOrder build_order(strategy_race);
                 if (val.HasMember("OpeningBuildOrder") && val["OpeningBuildOrder"].IsArray())
                 {
                     const rapidjson::Value & build = val["OpeningBuildOrder"];
@@ -188,9 +182,9 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     {
                         if (build[b].IsString())
                         {
-                            const sc2::UnitTypeID typeID = Util::GetUnitTypeIDFromName(bot_.Observation(), build[b].GetString());
+                            const sc2::UnitTypeID type_id = Util::GetUnitTypeIDFromName(bot_.Observation(), build[b].GetString());
 
-                            buildOrder.Add(typeID);
+                            build_order.Add(type_id);
                         }
                         else
                         {
@@ -200,7 +194,7 @@ void StrategyManager::readStrategyFile(const std::string & filename)
                     }
                 }
 
-                addStrategy(name, Strategy(name, strategyRace, buildOrder));
+                AddStrategy(name, Strategy(name, strategy_race, build_order));
             }
         }
     }

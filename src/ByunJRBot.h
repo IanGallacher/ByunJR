@@ -19,8 +19,6 @@
 
 class ByunJRBot : public sc2::Agent 
 {
-    sc2::Race                playerRace[2];
-
     CombatCommander          combat_commander_;
     InformationManager       information_manager_;
 
@@ -60,7 +58,6 @@ public:
     const MapTools & Map() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
-    const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
     sc2::Point2D GetStartLocation() const;
     const sc2::Unit* GetUnit(const sc2::Tag & tag) const;
 };

@@ -15,38 +15,37 @@ struct Strategy
     BuildOrder  buildOrder;
 
     Strategy();
-    Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder);
+    Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & build_order);
 };
 
 class StrategyManager
 {
     ByunJRBot & bot_;
 
-    sc2::Race                       selfRace;
-    sc2::Race                       enemyRace;
-    std::map<std::string, Strategy> strategies;
-    int                             totalGamesPlayed;
-    const BuildOrder                emptyBuildOrder;
+    sc2::Race                       self_race_;
+    sc2::Race                       enemy_race_;
+    std::map<std::string, Strategy> strategies_;
+    int                             total_games_played_;
+    const BuildOrder                empty_build_order_;
 
-    bool  shouldExpandNow() const;
-    UnitPairVector getProtossBuildOrderGoal() const;
-    UnitPairVector getTerranBuildOrderGoal() const;
-    UnitPairVector getZergBuildOrderGoal() const;
+    bool  ShouldExpandNow() const;
+    UnitPairVector GetProtossBuildOrderGoal() const;
+    UnitPairVector GetTerranBuildOrderGoal() const;
+    UnitPairVector GetZergBuildOrderGoal() const;
 
 public:
 
     StrategyManager(ByunJRBot & bot);
 
-    void onStart();
+    void OnStart();
     void OnFrame();
-    void onEnd(const bool isWinner);
-    void addStrategy(const std::string & name, const Strategy & strategy);
-    UnitPairVector getBuildOrderGoal() const;
-    const BuildOrder & getOpeningBookBuildOrder() const;
-    void readStrategyFile(const std::string & str);
+    void AddStrategy(const std::string & name, const Strategy & strategy);
+    UnitPairVector GetBuildOrderGoal() const;
+    const BuildOrder & GetOpeningBookBuildOrder() const;
+    void ReadStrategyFile(const std::string & str);
 
 
-    void handleUnitAssignments();
+    void HandleUnitAssignments();
 
-    bool shouldSendInitialScout() const;
+    bool ShouldSendInitialScout() const;
 };

@@ -28,21 +28,7 @@ void ByunJRBot::OnGameStart()
     // Ignore file extension of the local_map_path.
     config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
-    // get my race
-    const auto player_id = Observation()->GetPlayerID();
-    for (auto & player_info : Observation()->GetGameInfo().player_info)
-    {
-        if (player_info.player_id == player_id)
-        {
-            playerRace[static_cast<int>(PlayerArrayIndex::Self)] = player_info.race_actual;
-        }
-        else
-        {
-            playerRace[static_cast<int>(PlayerArrayIndex::Enemy)] = player_info.race_requested;
-        }
-    }
-
-    strategy_.onStart();
+    strategy_.OnStart();
     map_.OnStart();
     information_manager_.OnStart();
     bases_.OnStart();
@@ -63,7 +49,7 @@ void ByunJRBot::OnStep()
     strategy_.OnFrame();
     workers_.OnFrame();
 
-    strategy_.handleUnitAssignments();
+    strategy_.HandleUnitAssignments();
 
     production_manager_.OnFrame();
     scout_manager_.OnFrame();
@@ -111,13 +97,6 @@ bool ByunJRBot::IsWillingToFight() const
 void ByunJRBot::Resign()
 {
     is_willing_to_fight_ = false;
-}
-
-// TODO: Figure out my race
-const sc2::Race & ByunJRBot::GetPlayerRace(PlayerArrayIndex player) const
-{
-    BOT_ASSERT(player == PlayerArrayIndex::Self || player == PlayerArrayIndex::Enemy, "invalid player for GetPlayerRace");
-    return playerRace[static_cast<int>(player)];
 }
 
 BotConfig & ByunJRBot::Config()

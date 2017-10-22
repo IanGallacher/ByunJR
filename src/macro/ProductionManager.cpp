@@ -29,7 +29,7 @@ void ProductionManager::onStart()
 {
     planned_supply_depots = 0;
     buildingManager.OnStart();
-    setBuildOrder(bot_.Strategy().getOpeningBookBuildOrder());
+    setBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
 }
 
 void ProductionManager::OnFrame()
