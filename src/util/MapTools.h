@@ -28,9 +28,6 @@ class MapTools
     std::vector<std::vector<float>> terrain_height_;    // height of the map at x+0.5, y+0.5
     
     void ComputeConnectivity(); 
-
-    int GetSectorNumber(int x, int y) const;
-    int GetSectorNumber(const sc2::Point2DI& pos) const;
         
     void PrintMap() const;
 
@@ -40,7 +37,10 @@ public:
 
     void    OnStart();
     void    OnFrame();
-    void    Draw() const;
+
+    // Only needs to be public in order to draw debug information on the map. 
+    int GetSectorNumber(int x, int y) const;
+    int GetSectorNumber(const sc2::Point2DI& pos) const;
 
     // Map size can be bigger than the area the player can actually play on. 
     // "TrueMapSize" is the complete map dimensions, including places units can not move to. 

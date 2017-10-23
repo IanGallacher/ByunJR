@@ -401,7 +401,7 @@ void BuildingManager::DrawBuildingInformation()
             const float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, bot_);
             const float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, bot_);
 
-            bot_.DebugHelper().DrawSquare(x1, y1, x2, y2, sc2::Colors::Red);
+            bot_.DebugHelper().DrawSquareOnMap(x1, y1, x2, y2, sc2::Colors::Red);
             //bot_.Map().drawLine(b.finalPosition, bot_.GetUnit(b.builderUnitTag)->pos, sc2::Colors::Yellow);
         }
         else if (b.status == BuildingStatus::UnderConstruction)

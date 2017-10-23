@@ -345,30 +345,6 @@ bool Util::Placement(const sc2::GameInfo & info, const sc2::Point2D & point)
     return decoded_placement;
 }
 
-void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInterface * debug) 
-{
-    const sc2::GameInfo& info = obs->GetGameInfo();
-
-    const sc2::Point2D camera = obs->GetCameraPos();
-    for (float x = camera.x - 8.0f; x < camera.x + 8.0f; ++x) 
-    {
-        for (float y = camera.y - 8.0f; y < camera.y + 8.0f; ++y) 
-        {
-            // Draw in the center of each 1x1 cell
-            const  sc2::Point2D point(x + 0.5f, y + 0.5f);
-
-            const float height = obs->TerrainHeight(sc2::Point2D(x, y));
-            const bool placable = Placement(info, sc2::Point2D(x, y));
-            //bool pathable = Pathable(info, sc2::Point2D(x, y));
-
-            const sc2::Color color = placable ? sc2::Colors::Green : sc2::Colors::Red;
-            debug->DebugSphereOut(sc2::Point3D(point.x, point.y, height + 0.5f), 0.4f, color);
-        }
-    }
-
-    debug->SendDebug();
-}
-
 std::string Util::GetStringFromRace(const sc2::Race & race)
 {
     switch ( race )

@@ -6,6 +6,9 @@
 #include "global/Debug.h"
 #include "util/Util.h"
 
+
+float max_z_ = 10;
+
 DebugManager::DebugManager(ByunJRBot & bot)
     : bot_(bot)
 {
@@ -37,6 +40,46 @@ void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
         {
             if(dps_map[y][x] != 0)
             DrawBox((float)x - 0.5, (float)y - 0.5, (float)x + 0.5, (float)y + 0.5);
+        }
+    }
+}
+
+void DebugManager::DrawMapSectors() const
+{
+    const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
+    for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
+    {
+        for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
+        {
+            if (!bot_.Map().IsOnMap(x, y))
+            {
+                continue;
+            }
+            std::stringstream ss;
+            ss << bot_.Map().GetSectorNumber(x, y);
+            bot_.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, max_z_ + 0.1f), sc2::Colors::Yellow);
+        }
+    }
+}
+
+void DebugManager::DrawMapWalkableTiles() const
+{
+    const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
+    for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
+    {
+        for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
+        {
+            if (!bot_.Map().IsOnMap(x, y))
+            {
+                continue;
+            }
+            sc2::Color color = bot_.Map().IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
+            if (bot_.Map().IsWalkable(x, y) && !bot_.Map().IsBuildable(x, y))
+            {
+                color = sc2::Colors::Yellow;
+            }
+
+            DrawSquareOnMap(x, y, x + 1, y + 1, color);
         }
     }
 }
@@ -87,8 +130,6 @@ void DebugManager::DrawGameInformation() const
     // ss << "Time: " << std::endl;
     bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.75f, 0.1f), ss.str());
 }
-
-float max_z_ = 10;
 
 void DebugManager::DrawLine(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {

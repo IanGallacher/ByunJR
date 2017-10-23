@@ -225,39 +225,6 @@ bool MapTools::IsOnMap(const sc2::Point2DI& pos) const
     return IsOnMap(pos.x, pos.y);
 }
 
-void MapTools::Draw() const
-{
-    const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
-    for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
-    {
-        for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
-        {
-            if (!IsOnMap(x, y))
-            {
-                continue;
-            }
-
-            if (bot_.Config().DrawWalkableSectors)
-            {
-                std::stringstream ss;
-                ss << GetSectorNumber(x, y);
-                bot_.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, max_z_ + 0.1f), sc2::Colors::Yellow);
-            }
-
-            if (bot_.Config().DrawTileInfo)
-            {
-                sc2::Color color = IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
-                if (IsWalkable(x, y) && !IsBuildable(x, y))
-                {
-                    color = sc2::Colors::Yellow;
-                }
-
-                bot_.DebugHelper().DrawSquare(x, y, x+1, y+1, color);
-            }
-        }
-    }
-}
-
 bool MapTools::IsConnected(const int x1, const int y1, const int x2, const int y2) const
 {
     if (!IsOnMap(x1, y1) || !IsOnMap(x2, y2))
