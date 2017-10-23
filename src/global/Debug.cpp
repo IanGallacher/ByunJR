@@ -100,12 +100,13 @@ void DebugManager::DrawLine(const sc2::Point2D & min, const sc2::Point2D max, co
     bot_.Debug()->DebugLineOut(sc2::Point3D(min.x, min.y, max_z_ + 0.2f), sc2::Point3D(max.x, max.y, max_z_ + 0.2f), color);
 }
 
-void DebugManager::DrawSquare(const float x1, const float y1, float x2, float y2, const sc2::Color & color) const
+void DebugManager::DrawSquare(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_), sc2::Point3D(x1 + 1, y1, max_z_), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_), sc2::Point3D(x1, y1 + 1, max_z_), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1 + 1, y1 + 1, max_z_), sc2::Point3D(x1 + 1, y1, max_z_), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1 + 1, y1 + 1, max_z_), sc2::Point3D(x1, y1 + 1, max_z_), color);
+    const float zcoord = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1));
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoord), sc2::Point3D(x2, y1, zcoord), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoord), sc2::Point3D(x1, y2, zcoord), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoord), sc2::Point3D(x2, y1, zcoord), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoord), sc2::Point3D(x1, y2, zcoord), color);
 }
 
 void DebugManager::DrawBox(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
