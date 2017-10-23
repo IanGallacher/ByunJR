@@ -31,6 +31,15 @@ void InformationManager::OnStart()
             player_race_[static_cast<int>(PlayerArrayIndex::Enemy)] = player_info.race_requested;
         }
     }
+
+    for (int y = 0; y < bot_.Map().Height(); ++y)
+    {
+        dps_map_.push_back(std::vector<int>());
+        for (int x = 0; x < bot_.Map().Width(); ++x)
+        {
+            dps_map_[y].push_back(0);
+        }
+    }
 }
 
 void InformationManager::OnUnitCreated(const sc2::Unit* unit)
@@ -196,4 +205,8 @@ const sc2::Unit* InformationManager::GetClosestNotOptimalRefinery(const sc2::Uni
     }
 
     return closest_refinery;
+}
+vvi InformationManager::GetDPSMap() const
+{
+    return dps_map_;
 }

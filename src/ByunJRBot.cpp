@@ -67,6 +67,7 @@ void ByunJRBot::OnStep()
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
     proxy_manager_.OnUnitCreated(unit);
     information_manager_.OnUnitCreated(unit);
+    combat_commander_.OnUnitCreated(unit);
 }
 
 void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)

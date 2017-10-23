@@ -75,6 +75,14 @@ void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
     squad_data_.OnFrame();
 }
 
+void CombatCommander::OnUnitCreated(const sc2::Unit* unit)
+{
+    if (Util::IsCombatUnit(unit))
+    {
+        bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);;
+    }
+}
+
 bool CombatCommander::ShouldWeStartAttacking() const
 {
     return combat_units_.size() >= bot_.Config().CombatUnitsForAttack;

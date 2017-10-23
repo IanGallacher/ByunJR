@@ -14,6 +14,7 @@ class InformationManager
     UnitInfoManager          unit_info_;
 
     sc2::Race                player_race_[2];
+    vvi                      dps_map_;
 
 public:
     InformationManager(ByunJRBot & bot);
@@ -33,4 +34,5 @@ public:
     const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
     const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
     const sc2::Unit* GetClosestNotOptimalRefinery(const sc2::Unit* reference_unit) const;
+    vvi GetDPSMap() const;
 };

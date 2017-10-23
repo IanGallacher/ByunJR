@@ -28,6 +28,18 @@ void DebugManager::DrawResourceDebugInfo() const
     }
 }
 
+
+void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
+{
+    for(int y = 0; y < dps_map.size(); ++y)
+    {
+        for (int x = 0; x < dps_map[y].size(); ++x)
+        {
+            DrawBox((float)x - 0.5, (float)y - 0.5, (float)x + 0.5, (float)y + 0.5);
+        }
+    }
+}
+
 //void DebugManager::drawDepotDebugInfo()
 //{
 //    for (auto & baseTag : depots)

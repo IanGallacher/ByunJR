@@ -27,6 +27,7 @@ struct UnitInfo
         , player(PlayerArrayIndex::Error)
         , lastPosition(sc2::Point3D(0, 0, 0))
         , type(0)
+        , mission(UnitMission::Idle)
         , progress(1.0)
     {
 
@@ -38,15 +39,15 @@ struct UnitInfo
 
         if (j == UnitMission::Build)     return "B";
         if (j == UnitMission::Attack)    return "A";
-        if (j == UnitMission::Attack)    return "D";
+        if (j == UnitMission::Defend)    return "D";
         if (j == UnitMission::Wait)      return "W";
         if (j == UnitMission::Gas)       return "G";
-        if (j == UnitMission::Idle)      return "I";
         if (j == UnitMission::Minerals)  return "M";
         if (j == UnitMission::Repair)    return "R";
         if (j == UnitMission::Move)      return "O";
         if (j == UnitMission::Scout)     return "S";
         if (j == UnitMission::Proxy)     return "P";
+        if (j == UnitMission::Idle)      return "I";
         return "X";
     }
 

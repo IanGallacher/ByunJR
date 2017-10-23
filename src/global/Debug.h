@@ -8,6 +8,7 @@ class DebugManager
 public:
     DebugManager(ByunJRBot & bot);
     void DrawResourceDebugInfo() const;
+    void DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const;
     void DrawAllUnitInformation() const;
     void DrawDebugInterface() const;
     void DrawGameInformation() const;

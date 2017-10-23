@@ -33,16 +33,11 @@ void UnitData::UpdateUnit(const sc2::Unit* unit)
     if (first_seen)
     {
         num_units_[ui.type]++;
-        ui.mission = UnitMission::Idle;
     }
 
     if (Util::IsWorker(unit))
     {
         workers_.insert(&unit_info_map_[unit->tag]);
-    }
-    else if(Util::IsCombatUnit(unit))
-    {
-        combat_units_.insert(&unit_info_map_[unit->tag]);
     }
 }
 

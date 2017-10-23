@@ -29,9 +29,9 @@ class CombatCommander
 public:
     CombatCommander(ByunJRBot & bot);
 
-
     void OnStart();
     void OnFrame(const std::set<const UnitInfo*>& combat_units);
+    void OnUnitCreated(const sc2::Unit* unit);
 
     void DrawSquadInformation();
 };
