@@ -65,9 +65,11 @@ void WorkerManager::AssignGasWorkers() const
             for (int i=0; i<(refinery->ideal_harvesters - num_assigned); ++i)
             {
                 // Find the closest mining scv to the refinery.
-                const sc2::Unit* gas_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals)->unit;
-                if (gas_worker)
+                const ::UnitInfo* gas_worker_info = bot_.InformationManager().GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals);
+                if (gas_worker_info)
                 {
+                    const sc2::Unit* gas_worker = gas_worker_info->unit;
+                    if (!gas_worker) continue;
                     bot_.InformationManager().UnitInfo().SetJob(gas_worker, UnitMission::Gas);
                     // Once a unit starts gathering resources, we don't send another command to gather resources. 
                     // If a unit is already gathering minerals, he won't start mining gas. 
