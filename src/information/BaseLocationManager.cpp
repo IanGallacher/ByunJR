@@ -11,7 +11,7 @@ BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
 
 void BaseLocationManager::OnStart()
 {
-    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.Map().Width(), std::vector<BaseLocation*>(bot_.Map().Height(), nullptr));
+    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.Map().TrueMapWidth(), std::vector<BaseLocation*>(bot_.Map().TrueMapHeight(), nullptr));
     player_starting_base_locations_[PlayerArrayIndex::Self]  = nullptr;
     player_starting_base_locations_[PlayerArrayIndex::Enemy] = nullptr; 
 
@@ -101,9 +101,9 @@ void BaseLocationManager::OnStart()
     }
 
     // construct the map of tile positions to base locations
-    for (float x=0; x < bot_.Map().Width(); ++x)
+    for (float x=0; x < bot_.Map().TrueMapWidth(); ++x)
     {
-        for (int y=0; y < bot_.Map().Height(); ++y)
+        for (int y=0; y < bot_.Map().TrueMapHeight(); ++y)
         {
             for (auto & base_location : base_location_data_)
             {

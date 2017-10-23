@@ -15,6 +15,7 @@ ProxyManager::ProxyManager(ByunJRBot & bot)
 
 }
 
+// The map must be set up before seting up the ProxyManager.
 void ProxyManager::OnStart()
 {
     first_reaper_created_ = false;

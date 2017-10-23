@@ -8,13 +8,10 @@
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 {
+    bot_ = &bot;
+
     playable_max_ = bot.Observation()->GetGameInfo().playable_max;
     playable_min_ = bot.Observation()->GetGameInfo().playable_min;
-
-    arena_width_ = (int)(bot.Observation()->GetGameInfo().playable_max.x - bot.Observation()->GetGameInfo().playable_min.x);
-    arena_height_ = (int)(bot.Observation()->GetGameInfo().playable_max.y - bot.Observation()->GetGameInfo().playable_min.y);
-
-    bot_ = &bot;
 
     player_start_y_ = (int)bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition().y;
     // This won't work for four player maps.
@@ -22,10 +19,10 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-    result_.resize(arena_height_);
+    result_.resize(bot_->Map().PlayableMapHeight());
     for (auto &row : result_)
     {
-        row.resize(arena_width_);
+        row.resize(bot_->Map().PlayableMapWidth());
     }
 
     LoadProxyTrainingData();
@@ -48,8 +45,8 @@ sc2::Point2DI ProxyTrainingData::FlipCoordinatesIfNecessary(const int x, const i
     }
     else
     {
-        return_val.x = (arena_width_ - x);
-        return_val.y = (arena_height_ - y);
+        return_val.x = (bot_->Map().PlayableMapWidth() - x);
+        return_val.y = (bot_->Map().PlayableMapHeight() - y);
     }
     return return_val;
 }
@@ -244,12 +241,9 @@ bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 // If we can't build at the chosen location, update that information in our data structure.
 void ProxyTrainingData::TestAllPointsOnMap()
 {
-    BOT_ASSERT(arena_height_ != 0, "Play area height is zero!");
-    BOT_ASSERT(arena_width_ != 0, "Play area height is zero!");
-
-    for (int y = 0; y < arena_height_; ++y)
+    for (int y = 0; y < bot_->Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < arena_width_; ++x)
+        for (int x = 0; x < bot_->Map().PlayableMapWidth(); ++x)
         {
             if (!IsProxyLocationValid(x + static_cast<int>(playable_min_.x), y + static_cast<int>(playable_min_.y)))
             {
@@ -264,8 +258,6 @@ void ProxyTrainingData::TestAllPointsOnMap()
 // Example: If reduction_factor is 1, keep everything. 
 void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
 {
-    BOT_ASSERT(arena_height_ != 0, "Play area height is zero!");
-    BOT_ASSERT(arena_width_ != 0, "Play area height is zero!");
     BOT_ASSERT(reduction_factor > 0, "reductionFactor must be one or bigger");
 
     // If reductionFactor is one, nothing will change.
@@ -273,9 +265,9 @@ void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
     if (reduction_factor == 1) { return; }
 
     int valid_location_number = 0;
-    for (int y = 0; y < arena_height_; ++y)
+    for (int y = 0; y < bot_->Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < arena_width_; ++x)
+        for (int x = 0; x < bot_->Map().PlayableMapWidth(); ++x)
         {
             // keep only 1/reductionfactor valid entries. 
             // We are only interested in the untested locations.
@@ -293,9 +285,9 @@ bool ProxyTrainingData::SetupProxyLocation()
     srand(static_cast<unsigned int>(time(NULL)));
     int index = rand() % viable_locations_.size();
 
-    // There are two coordinate systems for storing the proxy location.
+    // There are two coordinate systems for storing the map locations.
     // "True Map Space" - Some maps are larger than the total play area.
-    // "Training Space" - The play area only.
+    // "Training Space" or "Playable Space" - The play area only.
     // To convert from training space to true map space, add playable_min.
     // For the most part, "Training Space" does not exist outside of the ProxyTrainingData class.
     // proxy_loc_.x is stored in "Training Space."

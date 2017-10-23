@@ -9,8 +9,10 @@ class ByunJRBot;
 class MapTools
 {
     ByunJRBot& bot_;
-    int     width_;
-    int     height_;
+    int     true_map_width_;
+    int     true_map_height_;
+    int     playable_map_height_;
+    int     playable_map_width_;
     float   max_z_;
     int     frame_;
     
@@ -18,12 +20,12 @@ class MapTools
     // a cache of already computed distance maps, which is mutable since it only acts as a cache
     mutable std::map<std::pair<int, int>, DistanceMap>   all_maps_;   
 
-    std::vector<std::vector<bool>>  walkable_;         // whether a tile is buildable (includes static resources)
-    std::vector<std::vector<bool>>  buildable_;        // whether a tile is buildable (includes static resources)
+    std::vector<std::vector<bool>>  walkable_;          // whether a tile is buildable (includes static resources)
+    std::vector<std::vector<bool>>  buildable_;         // whether a tile is buildable (includes static resources)
     std::vector<std::vector<bool>>  depot_buildable_;   // whether a depot is buildable on a tile (illegal within 3 tiles of static resource)
     std::vector<std::vector<int>>   last_seen_;         // the last time any of our units has seen this position on the map
     std::vector<std::vector<int>>   sector_number_;     // connectivity sector number, two tiles are ground connected if they have the same number
-    std::vector<std::vector<float>> terrain_height_;        // height of the map at x+0.5, y+0.5
+    std::vector<std::vector<float>> terrain_height_;    // height of the map at x+0.5, y+0.5
     
     void ComputeConnectivity(); 
 
@@ -40,8 +42,16 @@ public:
     void    OnFrame();
     void    Draw() const;
 
-    int     Width() const;
-    int     Height() const;
+    // Map size can be bigger than the area the player can actually play on. 
+    // "TrueMapSize" is the complete map dimensions, including places units can not move to. 
+    int     TrueMapWidth() const;
+    int     TrueMapHeight() const;
+
+    // Map size can be bigger than the area the player can actually play on. 
+    // The "PlayableMapSize" is the area units can actually move to.
+    int     PlayableMapWidth() const;
+    int     PlayableMapHeight() const;
+
     float   TerrainHeight(float x, float y) const;
     
     bool    IsOnMap(int x, int y) const;

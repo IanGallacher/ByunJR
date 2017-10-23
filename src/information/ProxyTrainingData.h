@@ -17,8 +17,6 @@ class ProxyTrainingData
 
     sc2::Point2D playable_min_;
     sc2::Point2D playable_max_;
-    int arena_height_;
-    int arena_width_;
     int enemy_start_y_;
     int player_start_y_;
 

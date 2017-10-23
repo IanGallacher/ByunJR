@@ -345,20 +345,6 @@ bool Util::Placement(const sc2::GameInfo & info, const sc2::Point2D & point)
     return decoded_placement;
 }
 
-float Util::TerainHeight(const sc2::GameInfo & info, const sc2::Point2D & point) 
-{
-    const sc2::Point2DI point_i(static_cast<int>(point.x), static_cast<int>(point.y));
-    if (point_i.x < 0 || point_i.x >= info.width || point_i.y < 0 || point_i.y >= info.width)
-    {
-        return 0.0f;
-    }
-
-    assert(info.terrain_height.data.size() == info.width * info.height);
-    const unsigned char encoded_height = info.terrain_height.data[point_i.x + ((info.height - 1) - point_i.y) * info.width];
-    const float decoded_height = -100.0f + 200.0f * float(encoded_height) / 255.0f;
-    return decoded_height;
-}
-
 void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInterface * debug) 
 {
     const sc2::GameInfo& info = obs->GetGameInfo();
@@ -371,7 +357,7 @@ void Util::VisualizeGrids(const sc2::ObservationInterface * obs, sc2::DebugInter
             // Draw in the center of each 1x1 cell
             const  sc2::Point2D point(x + 0.5f, y + 0.5f);
 
-            const float height = TerainHeight(info, sc2::Point2D(x, y));
+            const float height = obs->TerrainHeight(sc2::Point2D(x, y));
             const bool placable = Placement(info, sc2::Point2D(x, y));
             //bool pathable = Pathable(info, sc2::Point2D(x, y));
 

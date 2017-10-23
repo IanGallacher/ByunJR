@@ -12,7 +12,7 @@ BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
 
 void BuildingPlacer::OnStart()
 {
-    reserveMap = std::vector< std::vector<bool> >(bot_.Map().Width(), std::vector<bool>(bot_.Map().Height(), false));
+    reserveMap = std::vector< std::vector<bool> >(bot_.Map().TrueMapWidth(), std::vector<bool>(bot_.Map().TrueMapHeight(), false));
 }
 
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
@@ -75,7 +75,7 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const Bui
     // TODO: recalculate start and end positions for addons
 
     // if this rectangle doesn't fit on the map we can't build here
-    if (startx < 0 || starty < 0 || endx > bot_.Map().Width() || endx < bx + width || endy > bot_.Map().Height())
+    if (startx < 0 || starty < 0 || endx > bot_.Map().TrueMapWidth() || endx < bx + width || endy > bot_.Map().TrueMapHeight())
     {
         return false;
     }

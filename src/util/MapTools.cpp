@@ -14,8 +14,8 @@ const int actionY[LegalActions] ={0, 0, 1, -1};
 // constructor for MapTools
 MapTools::MapTools(ByunJRBot& bot)
     : bot_     (bot)
-    , width_   (0)
-    , height_  (0)
+    , true_map_width_   (0)
+    , true_map_height_  (0)
     , max_z_    (0.0f)
     , frame_   (0)
 {
@@ -24,24 +24,33 @@ MapTools::MapTools(ByunJRBot& bot)
 
 void MapTools::OnStart()
 {
-    width_  = bot_.Observation()->GetGameInfo().width;
-    height_ = bot_.Observation()->GetGameInfo().height;
+    true_map_width_  = bot_.Observation()->GetGameInfo().width;
+    true_map_height_ = bot_.Observation()->GetGameInfo().height;
+    BOT_ASSERT(true_map_width_ != 0, "True map width is zero!");
+    BOT_ASSERT(true_map_height_ != 0, "Play area height is zero!");
 
-    walkable_       = vvb(width_, std::vector<bool>(height_, true));
-    buildable_      = vvb(width_, std::vector<bool>(height_, false));
-    depot_buildable_ = vvb(width_, std::vector<bool>(height_, false));
-    last_seen_       = vvi(width_, std::vector<int>(height_, 0));
-    sector_number_   = vvi(width_, std::vector<int>(height_, 0));
-    terrain_height_  = vvf(width_, std::vector<float>(height_, 0.0f));
+
+    playable_map_width_ = static_cast<int>(bot_.Observation()->GetGameInfo().playable_max.x - bot_.Observation()->GetGameInfo().playable_min.x);
+    playable_map_height_ = static_cast<int>(bot_.Observation()->GetGameInfo().playable_max.y - bot_.Observation()->GetGameInfo().playable_min.y);
+    BOT_ASSERT(playable_map_width_ != 0, "Play area with is zero!");
+    BOT_ASSERT(playable_map_height_ != 0, "Play area height is zero!");
+
+
+    walkable_        = vvb(true_map_width_, std::vector<bool>(true_map_height_, true));
+    buildable_       = vvb(true_map_width_, std::vector<bool>(true_map_height_, false));
+    depot_buildable_ = vvb(true_map_width_, std::vector<bool>(true_map_height_, false));
+    last_seen_       = vvi(true_map_width_, std::vector<int>(true_map_height_, 0));
+    sector_number_   = vvi(true_map_width_, std::vector<int>(true_map_height_, 0));
+    terrain_height_  = vvf(true_map_width_, std::vector<float>(true_map_height_, 0.0f));
 
     // Set the boolean grid data from the Map
-    for (size_t x(0); x < width_; ++x)
+    for (size_t x(0); x < true_map_width_; ++x)
     {
-        for (size_t y(0); y < height_; ++y)
+        for (size_t y(0); y < true_map_height_; ++y)
         {
-            buildable_[x][y]       = Util::Placement(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            walkable_[x][y]        = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            terrain_height_[x][y]   = Util::TerainHeight(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            buildable_[x][y]        = Util::Placement(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            walkable_[x][y]         = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
+            terrain_height_[x][y]   = bot_.Observation()->TerrainHeight(sc2::Point2D(x + 0.5f, y + 0.5f));
         }
     }
 
@@ -75,13 +84,13 @@ void MapTools::ComputeConnectivity()
 {
     // the fringe data structe we will use to do our BFS searches
     std::vector<sc2::Point2DI> fringe;
-    fringe.reserve(width_*height_);
+    fringe.reserve(true_map_width_*true_map_height_);
     int sector_number = 0;
 
     // for every tile on the map, do a connected flood fill using BFS
-    for (int x=0; x<width_; ++x)
+    for (int x=0; x<true_map_width_; ++x)
     {
-        for (int y=0; y<height_; ++y)
+        for (int y=0; y<true_map_height_; ++y)
         {
             // if the sector is not currently 0, or the map isn't walkable here, then we can skip this tile
             if (GetSectorNumber(x, y) != 0 || !IsWalkable(x, y))
@@ -152,11 +161,6 @@ float MapTools::TerrainHeight(float x, float y) const
     return terrain_height_[x][y];
 }
 
-//int MapTools::getGroundDistance(const sc2::Point2DI& src, const sc2::Point2DI& dest) const
-//{
-//    return Util::Dist(src, dest);
-//}
-
 int MapTools::GetGroundDistance(const sc2::Point2DI& src, const sc2::Point2DI& dest) const
 {
     if (all_maps_.size() > 50)
@@ -206,7 +210,7 @@ int MapTools::GetSectorNumber(const sc2::Point2DI& pos) const
 // Returns true if the point is on the map, and not just the playable portions of the map.
 bool MapTools::IsOnMap(const int x, const int y) const
 {
-    return x >= 0 && y >= 0 && x < width_ && y < height_;
+    return x >= 0 && y >= 0 && x < true_map_width_ && y < true_map_height_;
 }
 
 // Returns true if the point is on the map, and not just the playable portions of the map.
@@ -295,9 +299,9 @@ bool MapTools::IsBuildable(const sc2::Point2DI& tile) const
 void MapTools::PrintMap() const
 {
     std::stringstream ss;
-    for (int y(0); y < height_; ++y)
+    for (int y(0); y < true_map_height_; ++y)
     {
-        for (int x(0); x < width_; ++x)
+        for (int x(0); x < true_map_width_; ++x)
         {
             ss << IsWalkable(x, y);
         }
@@ -335,15 +339,33 @@ bool MapTools::IsWalkable(const sc2::Point2DI& tile) const
     return IsWalkable(tile.x, tile.y);
 }
 
-int MapTools::Width() const
+
+// There are two coordinate systems for storing the map locations.
+// "True Map Space" - Some maps are larger than the total play area.
+// "Training Space" or "Arena Space" - The play area only.
+// To convert from training space to true map space, add playable_min.
+#pragma region Map Dimension Utilities
+int MapTools::TrueMapWidth() const
 {
-    return width_;
+    return true_map_width_;
 }
 
-int MapTools::Height() const
+int MapTools::TrueMapHeight() const
 {
-    return height_;
+    return true_map_height_;
 }
+
+int MapTools::PlayableMapWidth() const
+{
+    return playable_map_width_;
+}
+
+int MapTools::PlayableMapHeight() const
+{
+    return playable_map_height_;
+}
+#pragma endregion
+
 
 const std::vector<sc2::Point2DI>& MapTools::GetClosestTilesTo(const sc2::Point2DI& pos) const
 {

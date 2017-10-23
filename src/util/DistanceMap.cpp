@@ -35,8 +35,8 @@ const std::vector<sc2::Point2DI>& DistanceMap::GetSortedTiles() const
 void DistanceMap::ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI & start_tile)
 {
     start_tile_ = start_tile;
-    width_ = bot.Map().Width();
-    height_ = bot.Map().Height();
+    width_ = bot.Map().TrueMapWidth();
+    height_ = bot.Map().TrueMapHeight();
     dist_ = vvi (width_, std::vector<int>(height_, -1));
     sorted_tile_positions_.reserve(width_ * height_);
 

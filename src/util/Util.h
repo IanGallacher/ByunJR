@@ -56,7 +56,6 @@ namespace Util
     
     // Kevin-provided helper functions
     void    VisualizeGrids(const sc2::ObservationInterface* obs, sc2::DebugInterface* debug);
-    float   TerainHeight(const sc2::GameInfo& info, const sc2::Point2D& point);
     bool    Placement(const sc2::GameInfo& info, const sc2::Point2D& point);
     bool    Pathable(const sc2::GameInfo& info, const sc2::Point2D& point);
     

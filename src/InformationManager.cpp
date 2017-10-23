@@ -32,10 +32,10 @@ void InformationManager::OnStart()
         }
     }
 
-    for (int y = 0; y < bot_.Map().Height(); ++y)
+    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
     {
         dps_map_.push_back(std::vector<int>());
-        for (int x = 0; x < bot_.Map().Width(); ++x)
+        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
         {
             dps_map_[y].push_back(0);
         }

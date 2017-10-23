@@ -10,7 +10,7 @@ class ProxyManager
     bool                 proxy_under_attack_;
     bool                 first_reaper_created_;
     ProxyTrainingData    ptd_;
-    // bool            loggedResult;
+    // bool              loggedResult;
 
 
 public:
