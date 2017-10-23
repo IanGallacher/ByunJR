@@ -100,13 +100,17 @@ void DebugManager::DrawLine(const sc2::Point2D & min, const sc2::Point2D max, co
     bot_.Debug()->DebugLineOut(sc2::Point3D(min.x, min.y, max_z_ + 0.2f), sc2::Point3D(max.x, max.y, max_z_ + 0.2f), color);
 }
 
-void DebugManager::DrawSquare(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
+void DebugManager::DrawSquareOnMap(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {
-    const float zcoord = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1));
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoord), sc2::Point3D(x2, y1, zcoord), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoord), sc2::Point3D(x1, y2, zcoord), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoord), sc2::Point3D(x2, y1, zcoord), color);
-    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoord), sc2::Point3D(x1, y2, zcoord), color);
+    // Sdd 0.5f to make sure the z coordinate does not intersect with the terrain.
+    const float zcoordx1y1 = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1)) + 0.5f;
+    const float zcoordx1y2 = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y2)) + 0.5f;
+    const float zcoordx2y1 = bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y1)) + 0.5f;
+    const float zcoordx2y2 = bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y2)) + 0.5f;
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x2, y1, zcoordx2y1), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x1, y2, zcoordx1y2), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoordx2y2), sc2::Point3D(x2, y1, zcoordx2y1), color);
+    bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoordx2y2), sc2::Point3D(x1, y2, zcoordx1y2), color);
 }
 
 void DebugManager::DrawBox(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
