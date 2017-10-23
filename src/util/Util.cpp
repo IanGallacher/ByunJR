@@ -285,6 +285,13 @@ bool Util::IsSupplyProvider(const sc2::Unit* unit)
     return IsSupplyProviderType(unit->unit_type);
 }
 
+float Util::Dist(const int x1, const int y1, const int x2, const int y2)
+{
+    const float dx = x1 - x2;
+    const float dy = y1 - y2;
+    return dx*dx + dy*dy;
+}
+
 float Util::Dist(const sc2::Point2D & p1, const sc2::Point2D & p2)
 {
     return sqrtf(Util::DistSq(p1,p2));
@@ -299,7 +306,6 @@ float Util::DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2)
 {
     const float dx = p1.x - p2.x;
     const float dy = p1.y - p2.y;
-
     return dx*dx + dy*dy;
 }
 

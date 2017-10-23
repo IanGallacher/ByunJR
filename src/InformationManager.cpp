@@ -54,6 +54,38 @@ void InformationManager::OnUnitDestroyed(const sc2::Unit* unit)
 void InformationManager::OnFrame()
 {
     unit_info_.OnFrame();
+
+    // Reset dps_map_
+    for (const auto & unit : unit_info_.GetUnits(PlayerArrayIndex::Enemy))
+    {
+        for (int y = 0; y < dps_map_.size(); ++y)
+        {
+            for (int x = 0; x < dps_map_[y].size(); ++x)
+            {
+                dps_map_[y][x] = 0;
+            }
+        }
+    }
+
+    // Update dps_map_
+    for(const auto & unit : unit_info_.GetUnits(PlayerArrayIndex::Enemy))
+    {
+        const int damage = Util::GetAttackDamage(unit->unit_type, bot_);
+        if (damage == 0) continue;
+        const int range = Util::GetAttackRange(unit->unit_type, bot_);
+        if (range == 0) continue;
+
+        for (int y = 0; y < dps_map_.size(); ++y)
+        {
+            for (int x = 0; x < dps_map_[y].size(); ++x)
+            {
+                if( Util::DistSq(sc2::Point2D(x,y),unit->pos) <= (range*range) )
+                {
+                    dps_map_[y][x] += damage;
+                }
+            }
+        }
+    }
 }
 
 UnitInfoManager & InformationManager::UnitInfo()

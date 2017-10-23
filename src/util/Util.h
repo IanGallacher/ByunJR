@@ -48,6 +48,7 @@ namespace Util
     sc2::Point2D CalcCenter(const std::vector<const sc2::Unit*>& units);
     sc2::UnitTypeID GetUnitTypeIDFromName(const sc2::ObservationInterface * obs, const std::string & name);
 
+    float Dist(const int x1, const int y1, const int x2, const int y2);
     float Dist(const sc2::Point2D & p1, const sc2::Point2D & p2);
     float Dist(const sc2::Point2DI & p1, const sc2::Point2D & p2);
     float DistSq(const sc2::Point2D & p1, const sc2::Point2D & p2);
