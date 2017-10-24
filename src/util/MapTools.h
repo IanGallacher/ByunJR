@@ -27,9 +27,19 @@ class MapTools
     std::vector<std::vector<int>>   sector_number_;     // connectivity sector number, two tiles are ground connected if they have the same number
     std::vector<std::vector<float>> terrain_height_;    // height of the map at x+0.5, y+0.5
     
-    void ComputeConnectivity(); 
+    void ComputeConnectivity();
         
     void PrintMap() const;
+
+
+    enum class MapTileType
+    {
+        Free,
+        Ramp,
+        CantBuild,
+        CantWalk
+    };
+
 
 public:
 
@@ -73,8 +83,15 @@ public:
     bool    IsBuildable(const sc2::Point2DI& pos) const;
     bool    IsBuildable(int x, int y) const;
     bool    IsDepotBuildableTile(const sc2::Point2D& pos) const;
+
+
     
     sc2::Point2DI GetLeastRecentlySeenPosition() const;
+    sc2::Point2D  GetBaseRampLocation(const sc2::Point2D reference_location) const;
+    bool IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const;
+    bool IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type,
+                                     sc2::UnitTypeID building_type) const;
+    sc2::Point2D  GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
 
     // returns a list of all tiles on the map, sorted by 4-direcitonal walk distance from the given position
     const std::vector<sc2::Point2DI>& GetClosestTilesTo(const sc2::Point2DI& pos) const;

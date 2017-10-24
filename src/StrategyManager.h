@@ -26,7 +26,7 @@ class StrategyManager
     int                             total_games_played_;
     const BuildOrder                empty_build_order_;
     // Have we sent the scout at the start of the game?
-    bool        initial_scout_set_;
+    bool                            initial_scout_set_;
 
     bool  ShouldExpandNow() const;
     UnitPairVector GetProtossBuildOrderGoal() const;

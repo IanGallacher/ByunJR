@@ -18,16 +18,16 @@ class ProductionManager
 
 
     const sc2::Unit* GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, sc2::Point2D closest_to) const;
-    bool             MeetsReservedResources(sc2::UnitTypeID type);
-    bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t);
+    bool             MeetsReservedResources(sc2::UnitTypeID type) const;
+    bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t) const;
     bool             DetectBuildOrderDeadlock() const;
     void             SetBuildOrder(const BuildOrder & build_order);
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
     void             PreventSupplyBlock();
     int              ProductionCapacity() const;
-    int              GetFreeMinerals();
-    int              GetFreeGas();
+    int              GetFreeMinerals() const;
+    int              GetFreeGas() const;
 
 public:
 

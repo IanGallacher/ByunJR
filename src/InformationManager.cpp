@@ -9,6 +9,7 @@
 
 InformationManager::InformationManager(ByunJRBot & bot)
     : bot_(bot)
+    , building_placer_(bot)
     , unit_info_(bot)
 {
 
@@ -16,6 +17,7 @@ InformationManager::InformationManager(ByunJRBot & bot)
 
 void InformationManager::OnStart()
 {
+    building_placer_.OnStart();
     unit_info_.OnStart();
 
     // get my race
@@ -86,6 +88,11 @@ void InformationManager::OnFrame()
             }
         }
     }
+}
+
+BuildingPlacer & InformationManager::BuildingPlacer()
+{
+    return building_placer_;
 }
 
 UnitInfoManager & InformationManager::UnitInfo()

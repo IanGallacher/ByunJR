@@ -2,6 +2,7 @@
 #include <sc2api/sc2_api.h>
 
 #include "information/UnitInfoManager.h"
+#include "macro/BuildingPlacer.h"
 
 class ByunJRBot;
 
@@ -10,7 +11,7 @@ class ByunJRBot;
 class InformationManager
 {
     ByunJRBot &              bot_;
-
+    BuildingPlacer           building_placer_;
     UnitInfoManager          unit_info_;
 
     sc2::Race                player_race_[2];
@@ -22,9 +23,10 @@ public:
     void OnUnitCreated(const sc2::Unit* unit);
     void OnUnitDestroyed(const sc2::Unit* unit);
     void OnFrame();
+    BuildingPlacer & BuildingPlacer();
+    UnitInfoManager & UnitInfo();
 
     sc2::Point2DI GetProxyLocation() const;
-    UnitInfoManager & UnitInfo();
 
     const sc2::Unit* GetBuilder(Building& b, bool set_job_as_builder = true);
     const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;

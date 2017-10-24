@@ -7,7 +7,7 @@
 #include "util/Util.h"
 
 
-float max_z_ = 10;
+float max_z_ = 11;
 
 DebugManager::DebugManager(ByunJRBot & bot)
     : bot_(bot)
@@ -46,10 +46,9 @@ void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
 
 void DebugManager::DrawMapSectors() const
 {
-    const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
-    for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
+    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
     {
-        for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
+        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
         {
             if (!bot_.Map().IsOnMap(x, y))
             {
@@ -65,9 +64,9 @@ void DebugManager::DrawMapSectors() const
 void DebugManager::DrawMapWalkableTiles() const
 {
     const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
-    for (float x = camera.x - 16.0f; x < camera.x + 16.0f; ++x)
+    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
     {
-        for (float y = camera.y - 16.0f; y < camera.y + 16.0f; ++y)
+        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
         {
             if (!bot_.Map().IsOnMap(x, y))
             {
@@ -144,10 +143,10 @@ void DebugManager::DrawLine(const sc2::Point2D & min, const sc2::Point2D max, co
 void DebugManager::DrawSquareOnMap(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {
     // Sdd 0.5f to make sure the z coordinate does not intersect with the terrain.
-    const float zcoordx1y1 = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1)) + 0.5f;
-    const float zcoordx1y2 = bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y2)) + 0.5f;
-    const float zcoordx2y1 = bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y1)) + 0.5f;
-    const float zcoordx2y2 = bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y2)) + 0.5f;
+    const float zcoordx1y1 = 12; // bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1)) + 0.1f;
+    const float zcoordx1y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y2)) + 0.1f;
+    const float zcoordx2y1 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y1)) + 0.1f;
+    const float zcoordx2y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y2)) + 0.1f;
     bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x2, y1, zcoordx2y1), color);
     bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x1, y2, zcoordx1y2), color);
     bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoordx2y2), sc2::Point3D(x2, y1, zcoordx2y1), color);
@@ -161,7 +160,7 @@ void DebugManager::DrawBox(const float x1, const float y1, const float x2, const
 
 void DebugManager::DrawBox(const sc2::Point3D& min, const sc2::Point2D max, const sc2::Color & color) const
 {
-    bot_.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, max_z_ + 2.0f), sc2::Point3D(max.x, max.y, max_z_ - 5.0f), color);
+    bot_.Debug()->DebugBoxOut(sc2::Point3D(min.x, min.y, max_z_ + 5.0f), sc2::Point3D(max.x, max.y, max_z_ - 5.0f), color);
 }
 
 void DebugManager::DrawBox(const sc2::Point3D & min, const sc2::Point3D max, const sc2::Color & color) const

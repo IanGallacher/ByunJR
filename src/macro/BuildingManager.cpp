@@ -10,7 +10,6 @@
 
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
-    , building_placer_(bot)
     , debug_mode_(false)
     , reserved_minerals_(0)
     , reserved_gas_(0)
@@ -20,7 +19,7 @@ BuildingManager::BuildingManager(ByunJRBot & bot)
 
 void BuildingManager::OnStart()
 {
-    building_placer_.OnStart();
+
 }
 
 // gets called every frame from GameCommander
@@ -121,7 +120,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         }
 
         // reserve this building's space
-        building_placer_.ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
+        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
@@ -290,7 +289,7 @@ void BuildingManager::CheckForStartedConstruction()
                 b.status = BuildingStatus::UnderConstruction;
 
                 // free this space
-                building_placer_.FreeTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
+                bot_.InformationManager().BuildingPlacer().FreeTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
 
                 // only one building will match
                 break;
@@ -359,7 +358,7 @@ int BuildingManager::GetReservedGas() const
 
 void BuildingManager::DrawBuildingInformation()
 {
-    building_placer_.DrawReservedTiles();
+    bot_.InformationManager().BuildingPlacer().DrawReservedTiles();
 
     if (!bot_.Config().DrawBuildingInfo)
     {
@@ -434,7 +433,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
 
     if (Util::IsRefineryType(b.type))
     {
-        return building_placer_.GetRefineryPosition();
+        return bot_.InformationManager().BuildingPlacer().GetRefineryPosition();
     }
 
     if (Util::IsTownHallType(b.type))
@@ -445,7 +444,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
 
     // get a position within our region
     // TODO: put back in special pylon / cannon spacing
-    return building_placer_.GetBuildLocationNear(b, bot_.Config().BuildingSpacing);
+    return bot_.InformationManager().BuildingPlacer().GetBuildLocationNear(b, bot_.Config().BuildingSpacing);
 }
 
 void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
@@ -459,4 +458,9 @@ void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
             buildings_.erase(it);
         }
     }
+}
+
+bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
+{
+    return bot_.InformationManager().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
 }

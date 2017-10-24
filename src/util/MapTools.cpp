@@ -48,9 +48,9 @@ void MapTools::OnStart()
     {
         for (size_t y(0); y < true_map_height_; ++y)
         {
-            buildable_[x][y]        = Util::Placement(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            walkable_[x][y]         = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x+0.5f, y+0.5f));
-            terrain_height_[x][y]   = bot_.Observation()->TerrainHeight(sc2::Point2D(x + 0.5f, y + 0.5f));
+            buildable_[x][y]        = Util::Placement(bot_.Observation()->GetGameInfo(), sc2::Point2D(x, y));
+            walkable_[x][y]         = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x, y));
+            terrain_height_[x][y]   = bot_.Observation()->TerrainHeight(sc2::Point2D(x, y));
         }
     }
 
@@ -132,7 +132,7 @@ bool MapTools::IsExplored(const sc2::Point2D& pos) const
 {
     if (!IsOnMap(pos)) { return false; }
 
-    sc2::Visibility vis = bot_.Observation()->GetVisibility(pos);
+    const sc2::Visibility vis = bot_.Observation()->GetVisibility(pos);
     return vis == sc2::Visibility::Fogged || vis == sc2::Visibility::Visible;
 }
 
@@ -358,4 +358,118 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
     }
 
     return least_seen;
+}
+
+sc2::Point2D MapTools::GetBaseRampLocation(const sc2::Point2D reference_location) const
+{
+    sc2::Point2D closest_point(0, 0);
+    double closest_distance = std::numeric_limits<double>::max();
+    for (int y = 0; y < true_map_height_; y++)
+    {
+        for (int x = 0; x < true_map_width_; x++)
+        {
+            // If we can walk on it, but not build on it, it is most likely a ramp.
+            // TODO: That is not actually correct, come up with a beter way to detect ramps. 
+            if (IsWalkable(x, y) && !IsBuildable(x, y))
+            {
+                const sc2::Point2D point(x, y);
+                const double distance = Util::DistSq(point, reference_location);
+                if (distance < closest_distance)
+                {
+                    closest_point = point;
+                    closest_distance = distance;
+                }
+            }
+        }
+    }
+    return closest_point;
+}
+
+bool MapTools::IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const
+{
+    if(p.x > 0 &&
+        bot_.Map().IsWalkable(p.x-1, p.y) && !bot_.Map().IsBuildable(p.x-1, p.y))
+        return true;
+    if (p.x < true_map_width_-1 &&
+        bot_.Map().IsWalkable(p.x+1, p.y) && !bot_.Map().IsBuildable(p.x+1, p.y))
+        return true;
+    if (p.y > 0 &&
+        bot_.Map().IsWalkable(p.x, p.y-1) && !bot_.Map().IsBuildable(p.x, p.y-1))
+        return true;
+    if (p.y < true_map_height_-1 && bot_.Map().IsWalkable(p.x, p.y+1) && !bot_.Map().IsBuildable(p.x, p.y+1))
+        return true;
+    return false;
+}
+
+bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type, const sc2::UnitTypeID building_type) const
+{
+    const int width = Util::GetUnitTypeWidth(building_type, bot_);
+    const int height = Util::GetUnitTypeHeight(building_type, bot_);
+
+    // TODO: make sure we leave space for add-ons. These types of units can have addons:
+
+    // define the rectangle of the building spot
+    const int startx = p.x;
+    const int starty = p.y;
+    const int endx = p.x + width;
+    const int endy = p.y + height;
+
+    // TODO: recalculate start and end positions for addons
+
+    // if this rectangle doesn't fit on the map we can't build here
+    if (endx < 0 || endy < 0 || startx > bot_.Map().TrueMapWidth() || starty > bot_.Map().TrueMapHeight())
+    {
+        return false;
+    }
+
+    // if we can't build here, or space is reserved, or it's in the resource box, we can't build here
+    for (int x = startx; x < endx; x++)
+    {
+        for (int y = starty; y < endy; y++)
+        {
+            if (IsTileAdjacentToTileType(p, tile_type))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const
+{
+    sc2::Point2D closest_point(0, 0);
+    double closest_distance = std::numeric_limits<double>::max();
+
+    // Get the closest ramp to our starting base. 
+    const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
+    const sc2::Point2D ramp_location = GetBaseRampLocation(base_location);
+
+    // No need to iterate through the edges of the map, as the edge can never be part of our wall. 
+    // The smallest building is width 2, so shrink the iteration dimensions by that amount. 
+    for (int y = 2; y < (true_map_height_ - 2); y++)
+    {
+        for (int x = 2; x < (true_map_width_ - 2); x++)
+        {
+            // If we can walk on it, but not build on it, it is most likely a ramp.
+            // TODO: That is not actually correct, come up with a beter way to detect ramps. 
+            if (IsAnyTileAdjacentToTileType(sc2::Point2DI(x,y),MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+                && bot_.Map().IsWalkable(x, y)
+                && bot_.Map().IsWalkable(x - 1, y)
+                && bot_.Map().IsWalkable(x + 1, y)
+                && bot_.Map().IsWalkable(x, y - 1)
+                && bot_.Map().IsWalkable(x, y + 1)
+                && bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(building_type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y))))
+            {
+                const sc2::Point2D point(x, y);
+                const double distance = Util::DistSq(point, base_location);
+                if (distance < closest_distance)
+                {
+                    closest_point = point;
+                    closest_distance = distance;
+                }
+            }
+        }
+    }
+    return closest_point;
 }

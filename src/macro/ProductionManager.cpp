@@ -129,13 +129,12 @@ void ProductionManager::PreventSupplyBlock() {
 
 int ProductionManager::ProductionCapacity() const
 {
-    // Probes take take up twice as much supply as usual because two can finish before a pylon is done.
-    const  size_t commandCenters = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                                 + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                                 + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const  size_t command_centers = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
     const size_t barracks = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-    return static_cast<int>(commandCenters + barracks) * 2;
+    return static_cast<int>(command_centers + barracks) * 2;
 }
 
 const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const sc2::Point2D closest_to) const
@@ -144,7 +143,7 @@ const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const s
     const sc2::UnitTypeID producerType = Util::WhatBuilds(t);
 
     // make a set of all candidate producers
-    std::vector<const sc2::Unit*> candidateProducers;
+    std::vector<const sc2::Unit*> candidate_producers;
     for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
@@ -158,10 +157,10 @@ const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const s
         // TODO: if the type requires an addon and the producer doesn't have one
 
         // if we haven't cut it, add it to the set of candidates
-        candidateProducers.push_back(unit);
+        candidate_producers.push_back(unit);
     }
 
-    return GetClosestUnitToPosition(candidateProducers, closest_to);
+    return GetClosestUnitToPosition(candidate_producers, closest_to);
 }
 
 const sc2::Unit* ProductionManager::GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, const sc2::Point2D closest_to) const
@@ -213,6 +212,12 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
             const sc2::Point2DI proxyLocation = bot_.InformationManager().GetProxyLocation();
             building_manager_.AddBuildingTask(t, proxyLocation);
         }
+        // Once the code to wall in is in place, uncomment this. 
+        //else if(t == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+        //{
+        //    const sc2::Point2D p = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+        //    building_manager_.AddBuildingTask(t, sc2::Point2DI(p.x, p.y));
+        //}
         else
         {
             building_manager_.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
@@ -225,7 +230,7 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
     }
 }
 
-bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type)
+bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type) const
 {
     if (!MeetsReservedResources(type))
     {
@@ -244,10 +249,10 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
     else
     {
         // check to see if one of the unit's available abilities matches the build ability type
-        const sc2::AbilityID buildTypeAbility = Util::UnitTypeIDToAbilityID(type);
+        const sc2::AbilityID build_type_ability = Util::UnitTypeIDToAbilityID(type);
         for (const sc2::AvailableAbility & available_ability : available_abilities.abilities)
         {
-            if (available_ability.ability_id == buildTypeAbility)
+            if (available_ability.ability_id == build_type_ability)
             {
                 return true;
             }
@@ -263,18 +268,18 @@ bool ProductionManager::DetectBuildOrderDeadlock() const
     return false;
 }
 
-int ProductionManager::GetFreeMinerals()
+int ProductionManager::GetFreeMinerals() const
 {
     return bot_.Observation()->GetMinerals() - building_manager_.GetReservedMinerals();
 }
 
-int ProductionManager::GetFreeGas()
+int ProductionManager::GetFreeGas() const
 {
     return bot_.Observation()->GetVespene() - building_manager_.GetReservedGas();
 }
 
 // return whether or not we meet resources, including building reserves
-bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type)
+bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type) const
 {
     // return whether or not we meet the resources
     return (Util::GetUnitTypeMineralPrice(type, bot_) <= GetFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, bot_) <= GetFreeGas());
