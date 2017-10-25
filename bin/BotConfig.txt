@@ -10,7 +10,7 @@
     {
         "BotRace"                   : "Terran",
         "EnemyRace"                 : "Zerg",
-        "MapName"                   : "BloodBoilLE"
+        "MapName"                   : "DefendersLandingLE"
     },
 
     "Micro" :
