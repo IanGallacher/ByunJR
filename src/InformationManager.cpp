@@ -39,7 +39,9 @@ void InformationManager::OnStart()
         dps_map_.push_back(std::vector<int>());
         for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
         {
-            dps_map_[y].push_back(0);
+            // There is an inherit "danger" for traveling through any square. 
+            // Don't use 0, otherwise we won't find the "shortest and safest path"
+            dps_map_[y].push_back(1);
         }
     }
 }
@@ -64,7 +66,7 @@ void InformationManager::OnFrame()
         {
             for (int x = 0; x < dps_map_[y].size(); ++x)
             {
-                dps_map_[y][x] = 0;
+                dps_map_[y][x] = 1;
             }
         }
     }
@@ -74,8 +76,9 @@ void InformationManager::OnFrame()
     {
         const int damage = Util::GetAttackDamage(unit->unit_type, bot_);
         if (damage == 0) continue;
-        const int range = Util::GetAttackRange(unit->unit_type, bot_);
-        if (range == 0) continue;
+        int range = Util::GetAttackRange(unit->unit_type, bot_);
+        //  Melee units are dangerous too.
+        if (range == 0 && !Util::IsBuilding(unit->unit_type)) range = 2;
 
         for (int y = 0; y < dps_map_.size(); ++y)
         {
@@ -86,6 +89,15 @@ void InformationManager::OnFrame()
                     dps_map_[y][x] += damage;
                 }
             }
+        }
+    }
+
+    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
+    {
+        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
+        {
+            if (!bot_.Map().IsWalkable(x, y))
+                dps_map_[y][x] = 999;
         }
     }
 }

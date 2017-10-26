@@ -95,6 +95,9 @@
     <ClCompile Include="..\src\global\Debug.cpp">
       <Filter>global</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ai\Pathfinding.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ByunJRBot.h" />
@@ -198,6 +201,9 @@
     <ClInclude Include="..\src\StrategyManager.h" />
     <ClInclude Include="..\src\global\Debug.h">
       <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ai\Pathfinding.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

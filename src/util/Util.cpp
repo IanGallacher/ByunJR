@@ -209,7 +209,7 @@ float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
     float max_damage = 0.0f;
     for (auto & weapon : weapons)
     {
-        max_damage = weapon.damage_;
+        max_damage = weapon.damage_ * weapon.attacks;
     }
 
     return max_damage;
@@ -496,7 +496,7 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
 int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot)
 {
     float total_dps = 0;
-    for (auto & enemyunit : bot.Observation()->GetUnits())
+    for (auto & enemyunit : bot.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
     {
         double dist = Util::Dist(enemyunit->pos, unit_pos);
         double range = GetAttackRange(enemyunit->unit_type, bot);

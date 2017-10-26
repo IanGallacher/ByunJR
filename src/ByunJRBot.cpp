@@ -60,8 +60,9 @@ void ByunJRBot::OnStep()
     debug_.DrawAllUnitInformation();
     debug_.DrawResourceDebugInfo();
     debug_.DrawDebugInterface();
-    debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
 
+
+    //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
 
     if (config_.DrawWalkableSectors)
         debug_.DrawMapSectors();

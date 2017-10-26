@@ -2,6 +2,7 @@
 #include "common/Common.h"
 #include "micro/Micro.h"
 #include "util/Util.h"
+#include "ai/Pathfinding.h"
 
 const float dot_radius = 0.1f;
 
@@ -59,7 +60,40 @@ void Micro::SmartAttackMove(const sc2::Unit* attacker, const sc2::Point2D & targ
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target_position);
 }
 
-void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
+void Micro::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
+{
+    // Sometimes after we remove the floating points, it will turn out we are trying to move to is almost the same as our current position.
+    // No need to run the pathfinding algorithm in that case. 
+    if (sc2::Point2DI(unit->pos.x, unit->pos.y)
+     == sc2::Point2DI(target_position.x, target_position.y))
+    {
+        SmartMove(unit, target_position, bot);
+        return;
+    }
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        sc2::Point2DI(target_position.x, target_position.y),
+        bot.InformationManager().GetDPSMap());
+    SmartMove(unit, move_path[0], bot);
+}
+
+void Micro::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBot & bot)
+{
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        run_distance,
+        bot.InformationManager().GetDPSMap());
+    //SmartMove(unit, move_path[0], bot, false);
+    //SmartMove(unit, move_path[1], bot, true);
+    //SmartMove(unit, move_path[2], bot, true);
+    SmartMove(unit, move_path[3], bot, false);
+    //for (const auto & j : move_path)
+    //{
+    //    SmartMove(unit, j, bot, true);
+    //}
+}
+
+void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot, bool queued_command)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
     bool sent_command_already = false;
@@ -71,7 +105,7 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
         }
     }
     if (sent_command_already == false)
-        bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position);
+        bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position, queued_command);
 }
 
 void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
@@ -141,15 +175,14 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     sc2::Point2D flee_position;
     if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot) + 5.0)
     {
-        //std::cout << Util::EnemyDPSInRange(rangedUnit->pos, bot) << std::endl;
         kite = true;
-        bot.DebugHelper().DrawBoxAroundUnit(ranged_unit, sc2::Colors::Red);
-        flee_position = bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
+        flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
+        SmartRunAway(ranged_unit, 20, bot);
+        return;
     }
     else
     {
         // kite if we are not close to death.
-        bot.DebugHelper().DrawBoxAroundUnit(ranged_unit, sc2::Colors::Green);
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
     }
 
@@ -158,7 +191,8 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     {
         //fleePosition = rangedUnit->pos - target->pos + rangedUnit->pos;
         bot.DebugHelper().DrawLine(ranged_unit->pos, flee_position);
-        Micro::SmartMove(ranged_unit, flee_position, bot);
+        flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
+        SmartMove(ranged_unit, flee_position, bot);
     }
     //// otherwise shoot
     else

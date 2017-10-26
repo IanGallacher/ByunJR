@@ -38,7 +38,7 @@ void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
     {
         for (int x = 0; x < dps_map[y].size(); ++x)
         {
-            if(dps_map[y][x] != 0)
+            if(dps_map[y][x] != 1)
             DrawBox((float)x - 0.5, (float)y - 0.5, (float)x + 0.5, (float)y + 0.5);
         }
     }

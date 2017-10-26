@@ -428,6 +428,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ai\GeneticAlgorithm.cpp" />
+    <ClCompile Include="..\src\ai\Pathfinding.cpp" />
     <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\common\BotAssert.cpp" />
     <ClCompile Include="..\src\global\BotConfig.cpp" />
@@ -464,6 +465,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ai\GeneticAlgorithm.h" />
+    <ClInclude Include="..\src\ai\Pathfinding.h" />
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\common\BotAssert.h" />
     <ClInclude Include="..\src\common\Common.h" />

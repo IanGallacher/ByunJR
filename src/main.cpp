@@ -11,8 +11,12 @@
 
 
 
+#include "ai/pathfinding.h"
 int main(int argc, char* argv[])
 {
+    //Pathfinding p;
+    //p.TestDjikstra();
+    //return 0;
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
@@ -71,7 +75,7 @@ int main(int argc, char* argv[])
 
             //          Setting this = N means the bot's OnFrame gets called once every N frames
             //          The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(10);
+            coordinator.SetStepSize(3);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;
