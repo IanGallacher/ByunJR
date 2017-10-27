@@ -62,4 +62,5 @@ namespace Util
     bool    IsMorphCommand(const sc2::AbilityID & ability);
     sc2::AbilityID  UnitTypeIDToAbilityID(const sc2::UnitTypeID & id);
     bool CanAttackAir(std::vector<sc2::Weapon> weapons);
+    int  GetGameTimeInSeconds(const sc2::Agent& bot);
 };

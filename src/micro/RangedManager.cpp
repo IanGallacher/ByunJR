@@ -25,7 +25,6 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
     // Zerg eggs are a pain in the butt to kill. Don't bother.
     for (auto & target : targets)
     {
-
         if (!target) { continue; }
         if (target->unit_type == sc2::UNIT_TYPEID::ZERG_EGG) { continue; }
         if (target->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA) { continue; }
@@ -33,7 +32,7 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
         ranged_unit_targets.push_back(target);
     }
 
-    // for each meleeUnit
+    // for each ranged_unit
     for (auto & ranged_unit : ranged_units)
     {
         BOT_ASSERT(ranged_unit, "melee unit is null");
@@ -116,17 +115,19 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, cons
 
         const int priority = GetAttackPriority(ranged_unit_tag, target_unit);
         const float distance = Util::Dist(ranged_unit->pos, target_unit->pos);
+        int f = bot_.Observation()->GetGameLoop();
+
+        // Don't waste time killing buildings until we have a good chance of winning the game from all the workers we have killed
+        if(Util::IsBuilding(target_unit->unit_type) && Util::GetGameTimeInSeconds(bot_) < 400)
+            continue;
 
         // Don't bother attacking units that we can not hit. 
         if (target_unit->is_flying && !Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[ranged_unit->unit_type].weapons))
-        {
             continue;
-        }
+
         // If there are ranged units on high ground we can't see, we can't attack them back.
         if(!bot_.Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit))
-        {
             continue;
-        }
         
         if (!best_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))
         {

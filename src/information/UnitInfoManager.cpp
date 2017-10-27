@@ -65,7 +65,7 @@ const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(PlayerArrayIndex 
     return units_.at(player);
 }
 
-static std::string GetAbilityText(const sc2::AbilityID ability_id) {
+std::string GetAbilityText(const sc2::AbilityID ability_id) {
     std::string str;
     str += sc2::AbilityTypeToName(ability_id);
     str += " (";

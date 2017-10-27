@@ -20,7 +20,9 @@ bool Util::IsTownHallType(const sc2::UnitTypeID & type)
         case sc2::UNIT_TYPEID::ZERG_HIVE                    : return true;
         case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER         : return true;
         case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND        : return true;
-        case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING  : return true;
+        // There is no point in treating flying buildings like the building type they are supposed to be. 
+        // You can't train units from a flying building. 
+        // case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING  : return true;
         case sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS     : return true;
         case sc2::UNIT_TYPEID::PROTOSS_NEXUS                : return true;
         default: return false;
@@ -684,6 +686,10 @@ bool Util::CanAttackAir(std::vector<sc2::Weapon> weapons)
             return true;
     }
     return false;
+}
+int Util::GetGameTimeInSeconds(const sc2::Agent& bot)
+{
+    return bot.Observation()->GetGameLoop() / 22;
 }
 
 bool Util::IsBuilding(const sc2::UnitTypeID & type)

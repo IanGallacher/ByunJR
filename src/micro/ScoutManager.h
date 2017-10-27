@@ -20,6 +20,6 @@ class ScoutManager
 public:
     ScoutManager(ByunJRBot & bot);
 
-    static void OnStart();
+    void OnStart();
     void OnFrame();
 };

@@ -25,6 +25,7 @@ class ProductionManager
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
     void             PreventSupplyBlock();
+    void             MacroUp();
     int              ProductionCapacity() const;
     int              GetFreeMinerals() const;
     int              GetFreeGas() const;

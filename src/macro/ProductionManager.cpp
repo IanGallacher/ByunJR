@@ -62,12 +62,15 @@ void ProductionManager::OnUnitDestroy(const sc2::Unit* unit)
 void ProductionManager::ManageBuildOrderQueue()
 {
     // if there is nothing in the queue, oh well
+
+
+    PreventSupplyBlock();
+    MacroUp();
+
     if (queue_.IsEmpty())
     {
         return;
     }
-
-    PreventSupplyBlock();
 
     // the current item to be used
     BuildOrderItem & currentItem = queue_.GetHighestPriorityItem();
@@ -110,6 +113,7 @@ void ProductionManager::ManageBuildOrderQueue()
     }
 }
 
+bool has_completed_wall = false;
 // Every frame, see if more depots are required. 
 void ProductionManager::PreventSupplyBlock() {
     // If the current supply that we have plus the total amount of things that could be made 
@@ -125,6 +129,18 @@ void ProductionManager::PreventSupplyBlock() {
         planned_supply_depots_++;
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
+
+    // Build wall if needed.
+    if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Enemy) == sc2::Zerg
+        && Util::GetGameTimeInSeconds(bot_) > 100 && !has_completed_wall)
+    {
+        has_completed_wall = true;
+        queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
+    }
+}
+
+// Every frame, see if more depots are required. 
+void ProductionManager::MacroUp() {
 }
 
 int ProductionManager::ProductionCapacity() const
@@ -140,16 +156,16 @@ int ProductionManager::ProductionCapacity() const
 const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const sc2::Point2D closest_to) const
 {
     // TODO: get the type of unit that builds this
-    const sc2::UnitTypeID producerType = Util::WhatBuilds(t);
+    const sc2::UnitTypeID producer_type = Util::WhatBuilds(t);
 
     // make a set of all candidate producers
     std::vector<const sc2::Unit*> candidate_producers;
     for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // reasons a unit can not train the desired type
-        if (unit->unit_type != producerType) { continue; }
+        if (unit->unit_type != producer_type) { continue; }
         if (unit->build_progress < 1.0f) { continue; }
-        if (Util::IsBuilding(producerType) && unit->orders.size() > 0) { continue; }
+        if (Util::IsBuilding(producer_type) && unit->orders.size() > 0) { continue; }
         // TODO: if unit is not powered continue
         if (unit->is_flying) { continue; }
 
@@ -209,15 +225,15 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
         // send the building task to the building manager
         if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            const sc2::Point2DI proxyLocation = bot_.InformationManager().GetProxyLocation();
-            building_manager_.AddBuildingTask(t, proxyLocation);
+            const sc2::Point2DI proxy_location = bot_.InformationManager().GetProxyLocation();
+            building_manager_.AddBuildingTask(t, proxy_location);
         }
         // Once the code to wall in is in place, uncomment this. 
-        //else if(t == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-        //{
-        //    const sc2::Point2D p = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-        //    building_manager_.AddBuildingTask(t, sc2::Point2DI(p.x, p.y));
-        //}
+        else if(t == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self,sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 3)
+        {
+            const sc2::Point2D p = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+            building_manager_.AddBuildingTask(t, sc2::Point2DI(p.x, p.y));
+        }
         else
         {
             building_manager_.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));

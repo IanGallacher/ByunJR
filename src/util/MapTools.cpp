@@ -409,10 +409,10 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     // TODO: make sure we leave space for add-ons. These types of units can have addons:
 
     // define the rectangle of the building spot
-    const int startx = p.x;
-    const int starty = p.y;
-    const int endx = p.x + width;
-    const int endy = p.y + height;
+    const int startx = p.x-width/2;
+    const int starty = p.y-width/2;
+    const int endx = p.x + width/2;
+    const int endy = p.y + height/2;
 
     // TODO: recalculate start and end positions for addons
 
@@ -427,7 +427,7 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     {
         for (int y = starty; y < endy; y++)
         {
-            if (IsTileAdjacentToTileType(p, tile_type))
+            if (IsTileAdjacentToTileType(sc2::Point2DI(x,y), tile_type))
             {
                 return true;
             }
@@ -454,11 +454,6 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID build
             // If we can walk on it, but not build on it, it is most likely a ramp.
             // TODO: That is not actually correct, come up with a beter way to detect ramps. 
             if (IsAnyTileAdjacentToTileType(sc2::Point2DI(x,y),MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-                && bot_.Map().IsWalkable(x, y)
-                && bot_.Map().IsWalkable(x - 1, y)
-                && bot_.Map().IsWalkable(x + 1, y)
-                && bot_.Map().IsWalkable(x, y - 1)
-                && bot_.Map().IsWalkable(x, y + 1)
                 && bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(building_type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y))))
             {
                 const sc2::Point2D point(x, y);
@@ -466,6 +461,7 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID build
                 if (distance < closest_distance)
                 {
                     closest_point = point;
+                    closest_point.x;
                     closest_distance = distance;
                 }
             }

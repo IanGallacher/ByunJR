@@ -193,6 +193,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
         bot.DebugHelper().DrawLine(ranged_unit->pos, flee_position);
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
         SmartMove(ranged_unit, flee_position, bot);
+        //SmartRunAway(ranged_unit, 20, bot);
     }
     //// otherwise shoot
     else
@@ -213,7 +214,7 @@ void Micro::SmartBuildTag(const sc2::Unit* builder, const sc2::UnitTypeID & buil
     bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), target);
 }
 
-void Micro::SmartTrain(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, ByunJRBot & bot)
+void Micro::SmartTrain(const sc2::Unit* production_building, const sc2::UnitTypeID & type_to_train, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type));
+    bot.Actions()->UnitCommand(production_building, Util::UnitTypeIDToAbilityID(type_to_train));
 }
