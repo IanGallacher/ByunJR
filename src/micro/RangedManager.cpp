@@ -4,7 +4,7 @@
 #include "util/Util.h"
 
 RangedManager::RangedManager(ByunJRBot & bot)
-    : MicroManager(bot)
+    : CombatMicroManager(bot)
 {
 
 }

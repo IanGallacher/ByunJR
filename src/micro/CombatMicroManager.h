@@ -16,7 +16,9 @@ struct GroundThreat
 
 class ByunJRBot;
 
-class MicroManager
+
+// All the unit combat controllers currently inherit from CombatMicroManager.
+class CombatMicroManager
 {
     std::vector<const sc2::Unit*> units_;
 
@@ -27,7 +29,7 @@ protected:
     virtual void ExecuteMicro(const std::set<const sc2::Unit*> & targets) = 0;
 
 public:
-    MicroManager(ByunJRBot & bot);
+    CombatMicroManager(ByunJRBot & bot);
 
     const std::vector<const sc2::Unit*> & GetUnits() const;
 

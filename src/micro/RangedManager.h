@@ -1,9 +1,9 @@
 #pragma once
-#include "micro/MicroManager.h"
+#include "micro/CombatMicroManager.h"
 
 class ByunJRBot;
 
-class RangedManager: public MicroManager
+class RangedManager: public CombatMicroManager
 {
 public:
     

@@ -3,7 +3,7 @@
 #include "macro/BuildOrder.h"
 
 BuildOrder::BuildOrder()
-    : race_(sc2::Race::Protoss)
+    : race_(sc2::Race::Terran)
 {
 
 }
