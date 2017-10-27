@@ -10,7 +10,7 @@
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : bot_ (bot)
 {
-    previous_closest_worker_ = nullptr;
+
 }
 
 void WorkerManager::OnFrame()

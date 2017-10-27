@@ -9,8 +9,6 @@ class ByunJRBot;
 class WorkerManager
 {
     ByunJRBot & bot_;
-    const sc2::Unit* previous_closest_worker_;
-
 
     void AssignIdleWorkers() const;
     void AssignGasWorkers() const;
