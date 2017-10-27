@@ -25,7 +25,6 @@ StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
     , initial_scout_set_(false)
 {
-
 }
 
 void StrategyManager::OnStart()
@@ -35,6 +34,15 @@ void StrategyManager::OnStart()
 
 void StrategyManager::OnFrame()
 {
+    HandleUnitAssignments();
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        if(Util::IsTownHall(unit) && unit->orders.size() == 0)
+        {
+            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
+        }
+    }
+
 
 }
 

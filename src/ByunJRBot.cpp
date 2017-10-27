@@ -45,7 +45,7 @@ void ByunJRBot::OnStep()
 
     map_.OnFrame();
     information_manager_.OnFrame();
-    strategy_.HandleUnitAssignments();
+    strategy_.OnFrame();
 
     bases_.OnFrame();
     strategy_.OnFrame();

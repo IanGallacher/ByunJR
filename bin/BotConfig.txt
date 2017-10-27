@@ -10,7 +10,7 @@
     {
         "BotRace"                   : "Terran",
         "EnemyRace"                 : "Zerg",
-        "MapName"                   : "DefendersLandingLE"
+        "MapName"                   : "AscensiontoAiurLE"
     },
 
     "Micro" :
@@ -51,7 +51,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Barracks", "SCV", "Refinery",  "SCV", "Refinery", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] }
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Refinery", "Reaper", "Barracks", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Factory", "Starport", "FusionCore", "Battlecruiser", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] }
         }
     }
 }
