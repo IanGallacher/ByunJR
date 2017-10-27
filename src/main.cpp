@@ -14,9 +14,6 @@
 #include "ai/pathfinding.h"
 int main(int argc, char* argv[])
 {
-    //Pathfinding p;
-    //p.TestDjikstra();
-    //return 0;
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("BotConfig.txt");
     if (config.length() == 0)
