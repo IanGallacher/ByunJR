@@ -360,31 +360,6 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
     return least_seen;
 }
 
-sc2::Point2D MapTools::GetBaseRampLocation(const sc2::Point2D reference_location) const
-{
-    sc2::Point2D closest_point(0, 0);
-    double closest_distance = std::numeric_limits<double>::max();
-    for (int y = 0; y < true_map_height_; y++)
-    {
-        for (int x = 0; x < true_map_width_; x++)
-        {
-            // If we can walk on it, but not build on it, it is most likely a ramp.
-            // TODO: That is not actually correct, come up with a beter way to detect ramps. 
-            if (IsWalkable(x, y) && !IsBuildable(x, y))
-            {
-                const sc2::Point2D point(x, y);
-                const double distance = Util::DistSq(point, reference_location);
-                if (distance < closest_distance)
-                {
-                    closest_point = point;
-                    closest_distance = distance;
-                }
-            }
-        }
-    }
-    return closest_point;
-}
-
 bool MapTools::IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const
 {
     if(p.x > 0 &&
@@ -443,7 +418,6 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID build
 
     // Get the closest ramp to our starting base. 
     const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
-    const sc2::Point2D ramp_location = GetBaseRampLocation(base_location);
 
     // No need to iterate through the edges of the map, as the edge can never be part of our wall. 
     // The smallest building is width 2, so shrink the iteration dimensions by that amount. 

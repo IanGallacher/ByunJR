@@ -52,7 +52,6 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
 //returns true if we can build this type of unit here with the specified amount of space.
 bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2::UnitTypeID type, const int build_dist) const
 {
-
     //if we can't build here, we of course can't build here with space
     if (!CanBuildHere(bx, by, type))
     {
