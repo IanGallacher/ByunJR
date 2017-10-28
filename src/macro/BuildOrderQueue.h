@@ -29,9 +29,10 @@ public:
 
     void ClearAll();                                                         // clears the entire build order queue
     void SkipItem();                                                         // increments skippedItems
-    void QueueAsHighestPriority(sc2::UnitTypeID type, bool blocking);        // queues something at the highest priority
-    void QueueAsLowestPriority(sc2::UnitTypeID type, bool blocking);         // queues something at the lowest priority
+    void QueueAsHighestPriority(const sc2::UnitTypeID unit_type, const bool blocking);        // queues something at the highest priority
+    void QueueAsLowestPriority(const sc2::UnitTypeID unit_type, const bool blocking);         // queues something at the lowest priority
     void QueueItem(BuildOrderItem b);                                        // queues something with a given priority
+    void QueueItem(const sc2::UnitTypeID unit_type, const int priority);
     void RemoveHighestPriorityItem();                                        // removes the highest priority item
     void RemoveCurrentHighestPriorityItem();
 

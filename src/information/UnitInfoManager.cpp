@@ -331,3 +331,11 @@ int UnitInfoManager::GetNumRepairWorkers(const sc2::Unit* unit) const
 {
     return GetUnitData(PlayerArrayIndex::Self).GetNumRepairWorkers(unit);
 }
+
+// The game considers raised and lowered supply depots as different units. 
+// This gets the total number you have, regardless if they are raised or lower. 
+int UnitInfoManager::GetNumDepots(PlayerArrayIndex self) const
+{
+    return GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+        + GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
+}

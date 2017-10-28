@@ -46,4 +46,5 @@ public:
     const UnitInfo* GetUnitInfo(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetCombatUnits() const;
     int GetNumRepairWorkers(const sc2::Unit* unit) const;
+    int GetNumDepots(PlayerArrayIndex self) const;
 };

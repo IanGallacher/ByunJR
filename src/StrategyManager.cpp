@@ -36,23 +36,29 @@ void StrategyManager::OnStart()
 // This code will not function correctly if playing other races.
 void StrategyManager::OnFrame()
 {
+    // Update variables that we will need later. 
+    bases_safe_ = AreBasesSafe();
+
     HandleUnitAssignments();
 
-    // Macro up. Constantly make SCV's. At this level of play, no reason not to.
+    // Repair any damaged supply depots. If our base is safe, lower the wall. Otherwise, raise the wall. 
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        if(Util::IsTownHall(unit) && unit->orders.size() == 0)
+        // Find all the depots and perform some actions on them. 
+        if (Util::IsSupplyProvider(unit) )
         {
-            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
-        }
-    }
+            // If the depot may die, go repair it. 
+            if(unit->health != unit->health_max)
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
 
-    // Repair any damaged supply depots. 
-    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
-    {
-        if (Util::IsSupplyProvider(unit) && unit->health != unit->health_max)
-        {
-            Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+            if (bases_safe_)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MORPH_SUPPLYDEPOT_LOWER);
+            }
+            else
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MORPH_SUPPLYDEPOT_RAISE);
+            }
         }
     }
 }
@@ -99,6 +105,22 @@ bool StrategyManager::ShouldSendInitialScout() const
     }
 }
 
+bool StrategyManager::AreBasesSafe()
+{
+    for (const auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    {
+        for (const auto & potential_base : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        {
+            if( Util::IsTownHall(potential_base)
+             && Util::DistSq(potential_base->pos, enemy_unit->pos) < (30*30))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
 {
     const auto build_order_it = strategies_.find(bot_.Config().StrategyName);
@@ -117,6 +139,10 @@ const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
 
 bool StrategyManager::ShouldExpandNow() const
 {
+    const int num_bases = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                    + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND);
+    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_)
+        return true;
     return false;
 }
 
