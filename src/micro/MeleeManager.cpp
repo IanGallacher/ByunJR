@@ -5,7 +5,7 @@
 
 
 MeleeManager::MeleeManager(ByunJRBot & bot)
-    : MicroManager(bot)
+    : CombatMicroManager(bot)
 {
 
 }

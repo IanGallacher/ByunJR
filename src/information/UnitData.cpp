@@ -135,7 +135,7 @@ std::set<const UnitInfo*> UnitData::GetCombatUnits() const
 }
 
 // jobUnitTag is optional.
-void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot)
+void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot, const sc2::Unit* mission_target)
 {
     ClearPreviousJob(unit);
 
@@ -178,7 +178,7 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
 
         // Well, it looks like everything is alls et. Time to assign the worker to the refinery.
         worker_refinery_map_[unit->tag] = unit;
-        ui.workerDepot = refinery;
+        ui.missionTarget = refinery;
     }
     else if (job == UnitMission::Attack)
     {
@@ -187,6 +187,11 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
     else if (job == UnitMission::Scout)
     {
         scout_units_.insert(&unit_info_map_[unit->tag]);
+    }
+    else if (job == UnitMission::Repair)
+    {
+        unit_repair_chart_[mission_target->tag]++;
+        ui.missionTarget = mission_target;
     }
 
     ui.mission = job;
@@ -205,6 +210,8 @@ void UnitData::ClearPreviousJob(const sc2::Unit* unit)
     {
         worker_refinery_map_.erase(unit->tag);
     }
+    else if (unit_info_map_[unit->tag].mission == UnitMission::Repair)
+        unit_repair_chart_[unit_info_map_[unit->tag].missionTarget->tag]--;
 
     scout_units_.erase(&unit_info_map_[unit->tag]);
     combat_units_.erase(&unit_info_map_[unit->tag]);
@@ -221,4 +228,9 @@ std::set<const UnitInfo*> UnitData::GetWorkers() const
 std::set<const UnitInfo*> UnitData::GetScouts() const
 {
     return scout_units_;
+}
+
+int UnitData::GetNumRepairWorkers(const sc2::Unit* unit) const
+{
+    return unit_repair_chart_[unit->tag];
 }

@@ -32,9 +32,13 @@ void StrategyManager::OnStart()
     ReadStrategyFile(bot_.Config().ConfigFileLocation);
 }
 
+// This strategy code is only for Terran. 
+// This code will not function correctly if playing other races.
 void StrategyManager::OnFrame()
 {
     HandleUnitAssignments();
+
+    // Macro up. Constantly make SCV's. At this level of play, no reason not to.
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         if(Util::IsTownHall(unit) && unit->orders.size() == 0)
@@ -43,7 +47,14 @@ void StrategyManager::OnFrame()
         }
     }
 
-
+    // Repair any damaged supply depots. 
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        if (Util::IsSupplyProvider(unit) && unit->health != unit->health_max)
+        {
+            Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+        }
+    }
 }
 
 // assigns units to various managers

@@ -24,6 +24,9 @@ class UnitData
     std::map<sc2::Tag, const sc2::Unit*>   worker_refinery_map_;
     // sc2::Tag is the base. const sc2::Unit* is the workers at that base.
     std::map<sc2::Tag, const sc2::Unit*>   worker_depot_map_;
+    // Keep track of how many units are currenlty repairing a given unit.
+    // Marked as mutable. If we are checking if an element in the map exists, create one if it does not. 
+    mutable std::map<sc2::Tag, int >       unit_repair_chart_;
 
     // These vectors are effectively maps. 
     // They have every UnitTypeID. 
@@ -51,9 +54,10 @@ public:
     std::set<const UnitInfo*> GetCombatUnits() const;
 
     // job_unit_tag is the tag that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
-    void SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot);
+    void SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot& bot, const sc2::Unit* mission_target=nullptr);
     size_t GetNumWorkers() const;
     void ClearPreviousJob(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetWorkers() const;
     std::set<const UnitInfo*> GetScouts() const;
+    int GetNumRepairWorkers(const sc2::Unit* unit) const;
 };

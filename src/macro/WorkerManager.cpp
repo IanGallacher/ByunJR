@@ -101,7 +101,24 @@ void WorkerManager::HandleWorkers() const
         else if (job == UnitMission::Gas)
         {
             // right click the refinery to start harvesting
-            Micro::SmartRightClick(worker_info->unit, worker_info->workerDepot, bot_);
+            Micro::SmartRightClick(worker_info->unit, worker_info->missionTarget, bot_);
+
+            // If the geyser is out of gas, the worker is free to do other things. 
+            if(worker_info->missionTarget->vespene_contents == 0)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(worker_info->unit, UnitMission::Minerals);
+            }
+        }
+        else if (job == UnitMission::Repair)
+        {
+            // right click the refinery to start harvesting
+            Micro::SmartRepair(worker_info->unit, worker_info->missionTarget, bot_);
+
+            // If we are done repairing, time to send the worker back to work. 
+            if(worker_info->missionTarget->health == worker_info->missionTarget->health_max)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(worker_info->unit, UnitMission::Minerals);
+            }
         }
     }
 }

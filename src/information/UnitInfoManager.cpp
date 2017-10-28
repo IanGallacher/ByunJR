@@ -238,9 +238,10 @@ int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
     return unit_data_[PlayerArrayIndex::Self].GetNumAssignedWorkers(depot);
 }
 
-void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job)
+// mission_target is optional. Only required when a repair target is needed. 
+void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
-    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_);
+    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_, mission_target);
 }
 
 // This can only return your workers, not the enemy workers. 
@@ -324,4 +325,9 @@ const UnitData & UnitInfoManager::GetUnitData(const PlayerArrayIndex player) con
 std::set<const UnitInfo*> UnitInfoManager::GetCombatUnits() const
 {
     return GetUnitData(PlayerArrayIndex::Self).GetCombatUnits();
+}
+
+int UnitInfoManager::GetNumRepairWorkers(const sc2::Unit* unit) const
+{
+    return GetUnitData(PlayerArrayIndex::Self).GetNumRepairWorkers(unit);
 }

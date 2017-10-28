@@ -40,9 +40,10 @@ public:
     //bool                  enemyHasCloakedUnits() const;
     void                    DrawUnitInformation() const;
     int GetNumAssignedWorkers(const sc2::Unit* depot);
-    void SetJob(const sc2::Unit* unit, const UnitMission job);
+    void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target=nullptr);
     std::set<const UnitInfo*> GetWorkers();
     std::set<const UnitInfo*> GetScouts();
     const UnitInfo* GetUnitInfo(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetCombatUnits() const;
+    int GetNumRepairWorkers(const sc2::Unit* unit) const;
 };

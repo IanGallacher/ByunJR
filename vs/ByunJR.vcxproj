@@ -450,7 +450,7 @@
     <ClCompile Include="..\src\micro\CombatCommander.cpp" />
     <ClCompile Include="..\src\micro\MeleeManager.cpp" />
     <ClCompile Include="..\src\micro\Micro.cpp" />
-    <ClCompile Include="..\src\micro\MicroManager.cpp" />
+    <ClCompile Include="..\src\micro\CombatMicroManager.cpp" />
     <ClCompile Include="..\src\micro\ProxyManager.cpp" />
     <ClCompile Include="..\src\micro\RangedManager.cpp" />
     <ClCompile Include="..\src\micro\ScoutManager.cpp" />
@@ -488,7 +488,7 @@
     <ClInclude Include="..\src\micro\CombatCommander.h" />
     <ClInclude Include="..\src\micro\MeleeManager.h" />
     <ClInclude Include="..\src\micro\Micro.h" />
-    <ClInclude Include="..\src\micro\MicroManager.h" />
+    <ClInclude Include="..\src\micro\CombatMicroManager.h" />
     <ClInclude Include="..\src\micro\ProxyManager.h" />
     <ClInclude Include="..\src\micro\RangedManager.h" />
     <ClInclude Include="..\src\micro\ScoutManager.h" />

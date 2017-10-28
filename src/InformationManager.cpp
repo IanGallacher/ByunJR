@@ -188,6 +188,28 @@ const ::UnitInfo * InformationManager::GetClosestUnitInfoWithJob(const sc2::Poin
     return closest_unit;
 }
 
+const sc2::Unit * InformationManager::GetClosestUnitWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const
+{
+    const sc2::Unit * closest_unit = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    {
+        const ::UnitInfo & unit_info = unit_info_pair.second;
+        if (unit_info.mission == unit_mission)
+        {
+            const double distance = Util::DistSq(reference_point, unit_info.unit->pos);
+            if (!closest_unit || distance < closest_distance)
+            {
+                closest_unit = unit_info.unit;
+                closest_distance = distance;
+            }
+        }
+    }
+
+    return closest_unit;
+}
+
 const UnitInfo* InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D point,
                                                           const std::vector<UnitMission> mission_vector) const
 {

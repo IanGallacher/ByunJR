@@ -124,9 +124,33 @@ void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, Byun
         bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
-void Micro::SmartRepair(const sc2::Unit* unit, const sc2::Unit* & target, ByunJRBot & bot)
+void Micro::SmartRepair(const sc2::Unit* scv, const sc2::Unit* target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
+    bool sent_command_already = false;
+    for (const sc2::UnitOrder the_order : scv->orders)
+    {
+        if (the_order.ability_id == sc2::ABILITY_ID::EFFECT_REPAIR && the_order.target_unit_tag == target->tag)
+        {
+            sent_command_already = true;
+        }
+    }
+    if (sent_command_already == false)
+    bot.Actions()->UnitCommand(scv, sc2::ABILITY_ID::EFFECT_REPAIR, target);
+}
+
+void Micro::SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int num_repair_workers, ByunJRBot & bot)
+{    
+    const int current_repairing_workers = bot.InformationManager().UnitInfo().GetNumRepairWorkers(unit_to_repair);
+    if(current_repairing_workers < num_repair_workers)
+    {
+        // If we are not repairing with enough scv's, send some more to repair.
+        for (int i = 0; i < num_repair_workers - current_repairing_workers; i++)
+        {
+            const sc2::Unit* scv = bot.InformationManager().GetClosestUnitWithJob(unit_to_repair->pos, UnitMission::Minerals);
+            if(scv)
+                bot.InformationManager().UnitInfo().SetJob(scv, UnitMission::Repair, unit_to_repair);
+        }
+    }
 }
 
 void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* target, ByunJRBot & bot)
