@@ -9,6 +9,8 @@ class BuildingPlacer
 {
     ByunJRBot & bot_;
 
+    // All the tiles that either have a building planned, or currently have a building on them. 
+    // They are only unreserved if the building dies. 
     std::vector< std::vector<bool> > reserve_map_;
 
     // queries for various BuildingPlacer data

@@ -55,7 +55,9 @@ void ProductionManager::OnBuildingConstructionComplete(const sc2::Unit* unit) {
 // on unit destroy
 void ProductionManager::OnUnitDestroy(const sc2::Unit* unit)
 {
-    // TODO: might have to re-do build order if a vital unit died
+    // The building is dead! We can build where it used to be!
+    if(Util::IsBuilding(unit->unit_type))
+        bot_.InformationManager().BuildingPlacer().FreeTiles(unit->pos.x, unit->pos.y, Util::GetUnitTypeWidth(unit->unit_type, bot_), Util::GetUnitTypeHeight(unit->unit_type, bot_));
 }
 
 // Called every frame.
@@ -284,14 +286,16 @@ bool ProductionManager::DetectBuildOrderDeadlock() const
     return false;
 }
 
+// Shorthand for getting minerals from the observation layer. 
 int ProductionManager::GetFreeMinerals() const
 {
-    return bot_.Observation()->GetMinerals() - building_manager_.GetReservedMinerals();
+    return bot_.Observation()->GetMinerals();
 }
 
+// Shorthand for getting gas from the observation layer. 
 int ProductionManager::GetFreeGas() const
 {
-    return bot_.Observation()->GetVespene() - building_manager_.GetReservedGas();
+    return bot_.Observation()->GetVespene();
 }
 
 // return whether or not we meet resources, including building reserves

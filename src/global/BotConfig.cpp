@@ -50,7 +50,7 @@ BotConfig::BotConfig()
     ColorUnitNearEnemy                  = sc2::Colors::Red;
     ColorUnitNotNearEnemy               = sc2::Colors::Green;
     
-    BuildingSpacing                     = 0;
+    BuildingSpacing                     = 2;
     ProxyLocationX                      = 0;
     ProxyLocationY                      = 0;
 }

@@ -11,8 +11,6 @@
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
     , debug_mode_(false)
-    , reserved_minerals_(0)
-    , reserved_gas_(0)
 {
 
 }
@@ -264,10 +262,6 @@ void BuildingManager::CheckForStartedConstruction()
                 {
                     std::cout << "Building mis-match somehow\n";
                 }
-
-                // the resources should now be spent, so unreserve them
-                reserved_minerals_ -= Util::GetUnitTypeMineralPrice(building_started->unit_type, bot_);
-                reserved_gas_      -= Util::GetUnitTypeGasPrice(building_started->unit_type, bot_);
                 
                 // flag it as started and set the buildingUnit
                 b.underConstruction = true;
@@ -287,9 +281,6 @@ void BuildingManager::CheckForStartedConstruction()
 
                 // put it in the under construction vector
                 b.status = BuildingStatus::UnderConstruction;
-
-                // free this space
-                bot_.InformationManager().BuildingPlacer().FreeTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
 
                 // only one building will match
                 break;
@@ -331,9 +322,6 @@ void BuildingManager::CheckForCompletedBuildings()
 // add a new building to be constructed
 void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position)
 {
-    reserved_minerals_  += Util::GetUnitTypeMineralPrice(type, bot_);
-    reserved_gas_       += Util::GetUnitTypeGasPrice(type, bot_);
-
     Building b(type, desired_position);
     b.status = BuildingStatus::Unassigned;
 
@@ -344,16 +332,6 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::P
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
     return bot_.Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
-}
-
-int BuildingManager::GetReservedMinerals() const
-{
-    return reserved_minerals_;
-}
-
-int BuildingManager::GetReservedGas() const
-{
-    return reserved_gas_;
 }
 
 void BuildingManager::DrawBuildingInformation()

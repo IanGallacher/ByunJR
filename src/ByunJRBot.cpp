@@ -85,12 +85,8 @@ void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
 void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
 {
     information_manager_.OnUnitDestroyed(unit);
+    production_manager_.OnUnitDestroyed(unit);
 }
-
-//void ByunJRBot::onUnitDestroy(const sc2::Unit* unit)
-//{
-//    //_productionManager.onUnitDestroy(unit);
-//}
 
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
     proxy_manager_.OnUnitEnterVision(unit);
