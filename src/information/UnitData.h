@@ -20,6 +20,8 @@ class UnitData
     std::set<const UnitInfo*>              depots_;
     // sc2::Tag is a player's base. int is the number of workers at that base. 
     std::map<sc2::Tag, int>                base_worker_count_;
+    // sc2::Tag is a player's base. int is the number of workers at that refinery. 
+    std::map<sc2::Tag, int>                refinery_worker_count_;
     // sc2::Tag is the refinery. const sc2::Unit* is the workers at that refinery.
     std::map<sc2::Tag, const sc2::Unit*>   worker_refinery_map_;
     // sc2::Tag is the base. const sc2::Unit* is the workers at that base.

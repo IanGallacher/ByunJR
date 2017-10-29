@@ -48,7 +48,10 @@ void UnitData::KillUnit(const sc2::Unit* unit)
     num_units_[unit->unit_type]--;
     num_dead_units_[unit->unit_type]++;
 
-    // If the previous unit was a worker, go ahead and update some stats.
+    // If a refinery or a base dies, no need to set the coresponding refinery_worker_count_ or base_worker_count_ to 0.
+    // Those stats get changed when we call ClearPreviousJob(unit);
+
+    // If the killed unit was a worker, go ahead and update some stats.
     ClearPreviousJob(unit);
     workers_.erase(&unit_info_map_[unit->tag]);
     // Erasing the unit must be last. Cleanup the pointers before deleting the object. 
@@ -107,17 +110,13 @@ int UnitData::GetNumAssignedWorkers(const sc2::Unit* depot)
 {
     if (Util::IsTownHall(depot))
     {
-        const auto it = base_worker_count_.find(depot->tag);
-
-        // if there is an entry, return it
-        if (it != base_worker_count_.end())
-        {
-            return it->second;
-        }
+        // If the base does not yet exist in base_worker_count_, it gets set to 0. 
+        base_worker_count_[depot->tag];
     }
     else if (Util::IsRefinery(depot))
     {
-        return depot->assigned_harvesters;
+        // If the refinery does not yet exist in refinery_worker_count, it gets set to 0. 
+        return refinery_worker_count_[depot->tag];
     }
 
     // when all else fails, return 0
@@ -151,7 +150,7 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
         // Simply check to see if we have any bases to prevent crashes before assigning workers to mine at the given base. 
         if (!base) return;
 
-        // if we haven't assigned anything to this depot yet, set its worker count to 0
+        // If we haven't assigned anything to this depot yet, set its worker count to 0.
         if (base_worker_count_.find(base->tag) == base_worker_count_.end())
         {
             base_worker_count_[base->tag] = 0;
@@ -160,7 +159,7 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
         // add the depot to our set of depots
         depots_.insert(&unit_info_map_[unit->tag]);
 
-        // increase the worker count of this depot
+        // Increase the worker count of this depot.
         base_worker_count_[base->tag]++;
         worker_depot_map_[unit->tag] = unit;
     }
@@ -175,6 +174,14 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
             SetJob(unit, UnitMission::Minerals, bot);
             return;
         }
+
+        // If we haven't assigned any workers to this refinery yet set count to 0.
+        if (refinery_worker_count_.find(refinery->tag) == refinery_worker_count_.end())
+        {
+            refinery_worker_count_[refinery->tag] = 0;
+        }
+        // Increase the count of workers assigned to this refinery.
+        refinery_worker_count_[refinery->tag] += 1;
 
         // Well, it looks like everything is alls et. Time to assign the worker to the refinery.
         worker_refinery_map_[unit->tag] = unit;
@@ -208,6 +215,7 @@ void UnitData::ClearPreviousJob(const sc2::Unit* unit)
     }
     else if (unit_info_map_[unit->tag].mission == UnitMission::Gas)
     {
+        refinery_worker_count_[worker_refinery_map_[unit->tag]->tag]--;
         worker_refinery_map_.erase(unit->tag);
     }
     else if (unit_info_map_[unit->tag].mission == UnitMission::Repair)

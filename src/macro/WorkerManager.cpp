@@ -62,7 +62,8 @@ void WorkerManager::AssignGasWorkers() const
             const int num_assigned = bot_.InformationManager().UnitInfo().GetNumAssignedWorkers(refinery);
 
             // if it's less than we want it to be, fill 'er up
-            for (int i=0; i<(refinery->ideal_harvesters - num_assigned); ++i)
+            // ideal_harvesters starts counting at 1, not 0. Start iterating at 1 to avoid off by one error. 
+            for (int i=1; i<(refinery->ideal_harvesters - num_assigned); ++i)
             {
                 // Find the closest mining scv to the refinery.
                 const ::UnitInfo* gas_worker_info = bot_.InformationManager().GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals);
