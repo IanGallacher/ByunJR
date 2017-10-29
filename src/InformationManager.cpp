@@ -127,7 +127,7 @@ const sc2::Race & InformationManager::GetPlayerRace(PlayerArrayIndex player) con
 const sc2::Unit* InformationManager::GetBuilder(Building& b, const bool set_job_as_builder)
 {
     const std::vector<UnitMission> acceptable_missions{ UnitMission::Minerals, UnitMission::Proxy };
-    const sc2::Unit* builder_worker = GetClosestUnitInfoWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions)->unit;
+    const sc2::Unit* builder_worker = GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
 
     // if the worker exists (one may not have been found in rare cases)
     if (builder_worker && set_job_as_builder)
@@ -199,7 +199,7 @@ const sc2::Unit * InformationManager::GetClosestUnitWithJob(const sc2::Point2D r
         if (unit_info.mission == unit_mission)
         {
             const double distance = Util::DistSq(reference_point, unit_info.unit->pos);
-            if (!closest_unit || distance < closest_distance)
+            if (distance < closest_distance)
             {
                 closest_unit = unit_info.unit;
                 closest_distance = distance;
@@ -224,6 +224,30 @@ const UnitInfo* InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D
             if (distance < closest_distance)
             {
                 closest_unit = &unit_info_pair.second;
+                closest_distance = distance;
+            }
+        }
+    }
+
+    return closest_unit;
+}
+
+
+const sc2::Unit* InformationManager::GetClosestUnitWithJob(const sc2::Point2D point,
+    const std::vector<UnitMission> mission_vector) const
+{
+    const sc2::Unit * closest_unit = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    {
+        const ::UnitInfo & unit_info = unit_info_pair.second;
+        if (std::find(mission_vector.begin(), mission_vector.end(), unit_info.mission) != mission_vector.end())
+        {
+            const double distance = Util::DistSq(unit_info_pair.second.unit->pos, point);
+            if (distance < closest_distance)
+            {
+                closest_unit = unit_info.unit;
                 closest_distance = distance;
             }
         }
