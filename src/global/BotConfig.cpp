@@ -59,7 +59,7 @@ void BotConfig::ReadConfigFile()
 {
     rapidjson::Document doc;
 
-    RawConfigString = JSONTools::ReadFile(ConfigFileLocation);
+    RawConfigString = JSONTools::ReadFile("data/ByunJR/" + ConfigFileLocation);
 
     if (RawConfigString.length() == 0)
     {

@@ -9,8 +9,8 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Zerg",
-        "MapName"                   : "MechDepotLE"
+        "EnemyRace"                 : "Protoss",
+        "MapName"                   : "OdysseyLE"
     },
 
     "Micro" :
