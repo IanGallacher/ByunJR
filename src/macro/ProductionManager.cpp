@@ -151,7 +151,7 @@ void ProductionManager::MacroUp() {
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // Constantly make SCV's. At this level of play, no reason not to.
-        if (Util::IsTownHall(unit) && unit->orders.size() == 0)
+        if (Util::IsTownHall(unit) && unit->orders.size() == 0 && bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SCV) < 15)
         {
             Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
         }
