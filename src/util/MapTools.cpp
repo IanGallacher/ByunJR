@@ -360,18 +360,46 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
     return least_seen;
 }
 
+bool MapTools::IsTileTypeOf(const int x, const int y, const MapTileType tile_type) const
+{
+    if (tile_type == MapTileType::CantWalk
+     && !bot_.Map().IsWalkable(x, y))
+         return true;;
+    if (tile_type == MapTileType::CantBuild
+     && !bot_.Map().IsBuildable(x, y))
+         return true;
+    if (tile_type == MapTileType::Ramp &&
+        bot_.Map().IsWalkable(x, y) && !bot_.Map().IsBuildable(x, y))
+        return true;
+    return false;
+}
+
 bool MapTools::IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const
 {
-    if(p.x > 0 &&
-        bot_.Map().IsWalkable(p.x-1, p.y) && !bot_.Map().IsBuildable(p.x-1, p.y))
+    if(p.x > 0 && IsTileTypeOf(p.x-1, p.y, tile_type))
         return true;
-    if (p.x < true_map_width_-1 &&
-        bot_.Map().IsWalkable(p.x+1, p.y) && !bot_.Map().IsBuildable(p.x+1, p.y))
+    if (p.x < true_map_width_-1 && IsTileTypeOf(p.x+1, p.y, tile_type))
         return true;
-    if (p.y > 0 &&
-        bot_.Map().IsWalkable(p.x, p.y-1) && !bot_.Map().IsBuildable(p.x, p.y-1))
+    if (p.y > 0 && IsTileTypeOf(p.x, p.y-1, tile_type))
         return true;
-    if (p.y < true_map_height_-1 && bot_.Map().IsWalkable(p.x, p.y+1) && !bot_.Map().IsBuildable(p.x, p.y+1))
+    if (p.y < true_map_height_-1 && IsTileTypeOf(p.x, p.y+1, tile_type))
+        return true;
+    return false;
+}
+
+bool MapTools::IsTileCornerOfTileType(const sc2::Point2DI p, const MapTileType tile_type) const
+{
+    if (p.x > 0 && p.y < true_map_height_ - 1 &&
+        IsTileTypeOf(p.x - 1, p.y + 1, tile_type))
+        return true;
+    if (p.x < true_map_width_ - 1 && p.y < true_map_height_ - 1 &&
+        IsTileTypeOf(p.x + 1, p.y + 1, tile_type))
+        return true;
+    if (p.x > 0 && p.y > 0 &&
+        IsTileTypeOf(p.x - 1, p.y - 1, tile_type))
+        return true;
+    if (p.x < true_map_width_ - 1 && p.y > 0 &&
+        IsTileTypeOf(p.x + 1, p.y - 1, tile_type))
         return true;
     return false;
 }
@@ -397,10 +425,13 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
         return false;
     }
 
-    // if we can't build here, or space is reserved, or it's in the resource box, we can't build here
-    for (int x = startx; x < endx; x++)
+    // if we can't build here, or space is reserved, or it's in the resource box, we can't build here.
+    // Yes, < is correct. Don't use <=.
+    // Due to how starcraft calculates the tile type, things are sort of "shifted down and left" slightly. 
+    // Turn on DrawTileInfo to see the "shifting" in action. 
+    for (int x = startx; x < endx; ++x)
     {
-        for (int y = starty; y < endy; y++)
+        for (int y = starty; y < endy; ++y)
         {
             if (IsTileAdjacentToTileType(sc2::Point2DI(x,y), tile_type))
             {
@@ -411,7 +442,7 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     return false;
 }
 
-sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const
+sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID building_type) const
 {
     sc2::Point2D closest_point(0, 0);
     double closest_distance = std::numeric_limits<double>::max();
@@ -421,15 +452,20 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID build
 
     // No need to iterate through the edges of the map, as the edge can never be part of our wall. 
     // The smallest building is width 2, so shrink the iteration dimensions by that amount. 
-    for (int y = 2; y < (true_map_height_ - 2); y++)
+    for (int y = 2; y < (true_map_height_ - 2); ++y)
     {
-        for (int x = 2; x < (true_map_width_ - 2); x++)
+        for (int x = 2; x < (true_map_width_ - 2); ++x)
         {
             // If we can walk on it, but not build on it, it is most likely a ramp.
             // TODO: That is not actually correct, come up with a beter way to detect ramps. 
             if (IsAnyTileAdjacentToTileType(sc2::Point2DI(x,y),MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
                 && bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(building_type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y))))
             {
+            // The first depot in a wall has to be next to, well, a wall. 
+            // This allows the depot wall to be built correctly on AbyssalReefLE.
+            if (!IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk)
+                && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) == 0)
+                continue;
                 const sc2::Point2D point(x, y);
                 const double distance = Util::DistSq(point, base_location);
                 if (distance < closest_distance)

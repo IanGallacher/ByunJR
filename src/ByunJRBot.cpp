@@ -3,19 +3,18 @@
 
 #include "ByunJRBot.h"
 #include "common/BotAssert.h"
-#include "common/Common.h"
 
 ByunJRBot::ByunJRBot()
-    : map_(*this)
+    : combat_commander_(*this)
+    , information_manager_(*this)
+    , map_(*this)
     , bases_(*this)
+    , strategy_(*this)
     , production_manager_(*this)
     , scout_manager_(*this)
     , proxy_manager_(*this)
-    , workers_(*this)
-    , combat_commander_(*this)
-    , strategy_(*this)
-    , information_manager_(*this)
     , debug_(*this)
+    , workers_(*this)
     , is_willing_to_fight_(true)
 {
     
