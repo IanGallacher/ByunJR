@@ -24,6 +24,7 @@ Strategy::Strategy(const std::string & name, const sc2::Race & race, const Build
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
     , initial_scout_set_(false)
+    , second_proxy_worker_set_(false)
 {
 }
 
@@ -83,19 +84,36 @@ void StrategyManager::SetScoutUnits()
             // if we find a worker (which we should) add it to the scout units
             if (worker_scout)
             {
-                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
+                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Proxy);
                 initial_scout_set_ = true;
             }
-            else
-            {
+        }
+        // Is it time to send the worker to go build the second barracks?
+        if (ShouldSendSecondProxyWorker())
+        {
+            // grab the closest worker to the supply provider to send to scout
+            const ::UnitInfo * proxy_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
+            // if we find a worker (which we should) add it to the scout units
+            if (proxy_worker)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
+                second_proxy_worker_set_ = true;
             }
         }
     }
 }
 
+bool StrategyManager::ShouldSendSecondProxyWorker() const
+{
+    if (Util::GetGameTimeInSeconds(bot_) > 20 && !second_proxy_worker_set_)
+        return true;
+    return false;
+}
+
 bool StrategyManager::ShouldSendInitialScout() const
 {
+    return false;
     switch (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self))
     {
         case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;

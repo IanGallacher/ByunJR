@@ -27,6 +27,7 @@ class StrategyManager
     const BuildOrder                empty_build_order_;
     // Have we sent the scout at the start of the game?
     bool                            initial_scout_set_;
+    bool                            second_proxy_worker_set_;
     bool                            bases_safe_;
 
     UnitPairVector GetProtossBuildOrderGoal() const;
@@ -35,6 +36,7 @@ class StrategyManager
 
     // Functions called by HandleUnitAssignments.
     void SetScoutUnits();
+    bool ShouldSendSecondProxyWorker() const;
     bool ShouldSendInitialScout() const;
     bool AreBasesSafe();
 

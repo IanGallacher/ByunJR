@@ -51,7 +51,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Refinery", "Barracks", "Barracks", "Factory", "Hellion", "Armory", "Armory", "Starport", "FusionCore", "Battlecruiser"] }
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery",  "Barracks", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
         }
     }
 }

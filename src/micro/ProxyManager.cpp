@@ -24,7 +24,7 @@ void ProxyManager::OnStart()
 
 void ProxyManager::OnFrame()
 {
-    ProxyBuildingAtChosenRandomLocation();
+    MoveProxyWorkers();
 }
 
 void ProxyManager::OnUnitCreated(const sc2::Unit* unit)
@@ -61,31 +61,23 @@ void ProxyManager::OnUnitEnterVision(const sc2::Unit* enemy_unit)
 }
 
 // YOU MUST CALL ptd.InitAllValues() before this.
-bool ProxyManager::ProxyBuildingAtChosenRandomLocation()
+bool ProxyManager::MoveProxyWorkers()
 {
     if (!ptd_.ProxyLocationReady())
         return false;
 
-    //if (proxyWorker->pos.x > myVec.x - 1 && proxyWorker->pos.x < myVec.x + 1)
-    //{
-    //    bot_.Workers().finishedWithWorker(proxyWorker);
-    //}
-    //else
-    //{
+    const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
     if (!proxy_worker_)
     {
-        const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, my_vec);
         proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
-        if(!proxy_worker_)
-        {
-            std::cout << "WARNING: PROXY WORKER WAS NOT FOUND." << std::endl;
-            return false;
-        }
         bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
-        Micro::SmartMove(proxy_worker_, sc2::Point2D(my_vec.x, my_vec.y), bot_);
     }
-    //}
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetWorkers())
+    {
+        if(unit->mission == UnitMission::Proxy)
+            Micro::SmartMove(unit->unit, sc2::Point2D(my_vec.x, my_vec.y), bot_);
+    }
 
     return true;
 }
