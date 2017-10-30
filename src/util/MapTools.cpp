@@ -466,8 +466,8 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
                 // The first depot in a wall has to be next to, well, a wall. 
                 // This allows the depot wall to be built correctly on AbyssalReefLE.
                 if (bot_.Config().MapName == "AbyssalReefLE" &&
-                    bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) == 0
-                 && !IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk))
+                    bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 2
+                 && !IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || TerrainHeight(x, y) < 10.5)
                     continue;
 
                 // Don't wall of at Proxima Station's pocket expansion.
