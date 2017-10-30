@@ -67,11 +67,20 @@ void StrategyManager::OnFrame()
             //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LAND,unit->pos);
             }
         }
-        //if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
-        // && unit->health < unit->health_max/5)
-        //{
-        //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP, sc2::Point2D(50,50));
-        //}
+        // Repair battlecruisers that have tactical jumped back to our base. 
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
+         && unit->health != unit->health_max
+            // Square 10 to avoid taking the square root as part of the distance formula. 
+         && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
+        {
+            Micro::SmartRepairWithSCVCount(unit, 8, bot_);
+        }
+        // Once we are done repairing, send that battlecruiser back to the field!
+        else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
+            && unit->health == unit->health_max)
+        {
+            bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);
+        }
     }
 }
 
