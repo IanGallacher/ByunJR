@@ -156,7 +156,7 @@ bool MapTools::IsPowered(const sc2::Point2DI& pos) const
     return false;
 }
 
-float MapTools::TerrainHeight(float x, float y) const
+float MapTools::TerrainHeight(const float x, const float y) const
 {
     return terrain_height_[x][y];
 }
@@ -450,6 +450,8 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
     // Get the closest ramp to our starting base. 
     const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
 
+    const float base_height = TerrainHeight(base_location.x - 6.0f, base_location.y);
+
     // No need to iterate through the edges of the map, as the edge can never be part of our wall. 
     // The smallest building is width 2, so shrink the iteration dimensions by that amount. 
     for (int y = 2; y < (true_map_height_ - 2); ++y)
@@ -459,13 +461,23 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
             // If we can walk on it, but not build on it, it is most likely a ramp.
             // TODO: That is not actually correct, come up with a beter way to detect ramps. 
             if (IsAnyTileAdjacentToTileType(sc2::Point2DI(x,y),MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-                && bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(building_type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y))))
+             && bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(building_type), sc2::Point2D(static_cast<float>(x), static_cast<float>(y))))
             {
-            // The first depot in a wall has to be next to, well, a wall. 
-            // This allows the depot wall to be built correctly on AbyssalReefLE.
-            if (!IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk)
-                && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) == 0)
-                continue;
+                // The first depot in a wall has to be next to, well, a wall. 
+                // This allows the depot wall to be built correctly on AbyssalReefLE.
+                if (bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) == 0
+                 && !IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk))
+                    continue;
+
+                // The wall MUST be at the same terrain height as your base. Otherwise we are accidently walling the low ground. 
+                if (base_height - TerrainHeight(x, y) > 1)
+                    continue;
+
+                // Don't wall of at Proxima Station's pocket expansion.
+                if (bot_.Config().MapName == "ProximaStationLE" && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3
+                 &&(y < 49 || y > 119))
+                    continue;
+
                 const sc2::Point2D point(x, y);
                 const double distance = Util::DistSq(point, base_location);
                 if (distance < closest_distance)
