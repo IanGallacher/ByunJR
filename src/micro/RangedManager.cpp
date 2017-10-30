@@ -53,8 +53,12 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
                 // find the best target for this meleeUnit
                 const sc2::Unit* target = GetTarget(ranged_unit, ranged_unit_targets);
 
+                if(ranged_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER)
+                {
+                    Micro::SmartAttackUnit(ranged_unit, target, bot_);
+                }
                 // attack it
-                if (bot_.Config().KiteWithRangedUnits)
+                else if (bot_.Config().KiteWithRangedUnits)
                 {
                     Micro::SmartKiteTarget(ranged_unit, target, bot_);
                 }
