@@ -118,7 +118,12 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         }
 
         // reserve this building's space
-        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
+        int space_for_add_on = 0;
+        if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS
+         || b.type == sc2::UNIT_TYPEID::TERRAN_FACTORY 
+         || b.type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+            space_for_add_on = 2;
+        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_)+ space_for_add_on, Util::GetUnitTypeHeight(b.type, bot_));
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
