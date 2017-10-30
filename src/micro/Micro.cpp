@@ -202,8 +202,8 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     {
         kite = true;
         flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
-        SmartRunAway(ranged_unit, 20, bot);
-        return;
+        /*SmartRunAway(ranged_unit, 20, bot);
+        return;*/
     }
     else
     {

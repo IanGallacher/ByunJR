@@ -145,6 +145,14 @@ void StrategyManager::SetScoutUnits()
                 bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
+            // grab the closest worker to the supply provider to send to scout
+            const ::UnitInfo * worker_attacker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+
+            // if we find a worker (which we should) add it to the scout units
+            if (worker_scout)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
+            }
         }
         // Is it time to send the worker to go build the second barracks?
         if (ShouldSendSecondProxyWorker())

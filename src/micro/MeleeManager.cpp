@@ -54,6 +54,10 @@ void MeleeManager::AssignTargets(const std::set<const sc2::Unit*> & targets)
                 // find the best target for this meleeUnit
                 const sc2::Unit* target = GetTarget(melee_unit_tag, melee_unit_targets);
 
+                // Sometimes we won't find a unit to attack. 
+                if (!target)
+                    continue;
+
                 // attack it
                 Micro::SmartAttackUnit(melee_unit, target, bot_);
             }
@@ -89,6 +93,10 @@ const sc2::Unit* MeleeManager::GetTarget(const sc2::Unit* melee_unit, const std:
     for (auto & target_unit : targets)
     {
         BOT_ASSERT(target_unit, "null target unit in getTarget");
+
+        // Don't waste time killing buildings until we have a good chance of winning the game from all the workers we have killed
+        if (Util::IsBuilding(target_unit->unit_type) && Util::GetGameTimeInSeconds(bot_) < 400)
+            continue;
 
         const int priority = GetAttackPriority(melee_unit, target_unit);
         const float distance = Util::Dist(melee_unit->pos, target_unit->pos);

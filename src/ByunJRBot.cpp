@@ -16,8 +16,8 @@ ByunJRBot::ByunJRBot()
     , debug_(*this)
     , workers_(*this)
     , is_willing_to_fight_(true)
+    , frame_skip_(0)
 {
-    
 }
 
 void ByunJRBot::OnGameStart() 
@@ -40,6 +40,8 @@ void ByunJRBot::OnGameStart()
 
 void ByunJRBot::OnStep()
 {
+    frame_skip_++;
+    if (frame_skip_ % 2) return;
     Control()->GetObservation();
 
     map_.OnFrame();

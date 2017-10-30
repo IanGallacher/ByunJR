@@ -258,6 +258,8 @@ std::set<const UnitInfo*> UnitInfoManager::GetScouts()
 
 const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
 {
+    // Once a unit is killed, there is no longer a UnitInfo to go with it. 
+    if (!unit->is_alive) return nullptr;
     return &unit_data_[Util::GetPlayer(unit)].GetUnitInfoMap().at(unit->tag);
 }
 
