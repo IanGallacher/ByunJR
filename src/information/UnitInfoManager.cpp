@@ -189,13 +189,13 @@ void UnitInfoManager::DrawSelectedUnitDebugInfo() const
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool completed) const
+size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool include_incomplete_buildings) const
 {
     size_t count = 0;
 
     for (auto & unit : GetUnits(player))
     {
-        if ((!type || type == unit->unit_type) && (!completed || unit->build_progress == 1.0f))
+        if ((!type || type == unit->unit_type) && (include_incomplete_buildings || unit->build_progress == 1.0f))
         {
             count++;
         }
