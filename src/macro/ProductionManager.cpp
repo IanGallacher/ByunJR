@@ -138,9 +138,10 @@ void ProductionManager::PreventSupplyBlock() {
 
     // Build wall if needed.
     if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Enemy) == sc2::Zerg
-        && Util::GetGameTimeInSeconds(bot_) > 100 && !has_completed_wall)
+        && Util::GetGameTimeInSeconds(bot_) > 50 && !has_completed_wall)
     {
         has_completed_wall = true;
+        queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
 }
