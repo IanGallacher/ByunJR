@@ -23,9 +23,10 @@ StrategyBuildOrder::StrategyBuildOrder(const std::string & name, const sc2::Race
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
-    , macro_goal_(Strategy::ReaperRush)
-    , initial_scout_set_(false)
-    , second_proxy_worker_set_(false)
+      , macro_goal_(Strategy::ReaperRush)
+      , initial_scout_set_(false)
+      , second_proxy_worker_set_(false)
+      , bases_safe_(false)
 {
 }
 
@@ -140,7 +141,7 @@ void StrategyManager::SetScoutUnits()
             // if we find a worker (which we should) add it to the scout units
             if (worker_scout)
             {
-                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Proxy);
+                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
         }
@@ -169,7 +170,7 @@ bool StrategyManager::ShouldSendSecondProxyWorker() const
 
 bool StrategyManager::ShouldSendInitialScout() const
 {
-    return false;
+    return true;
     switch (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self))
     {
         case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
