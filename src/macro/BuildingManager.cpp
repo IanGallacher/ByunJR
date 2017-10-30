@@ -140,7 +140,7 @@ void BuildingManager::CheckForDeadTerranBuilders()
 {   // for each building that doesn't have a builder, assign one
     for (Building & b : buildings_)
     {
-        if (b.status != BuildingStatus::Unassigned && b.builderUnit)
+        if (b.status != BuildingStatus::Unassigned && b.builderUnit->is_alive)
         {
             continue;
         }
@@ -195,6 +195,7 @@ void BuildingManager::ConstructAssignedBuildings()
             // it must be the case that something was in the way of building
             else if (b.buildCommandGiven)
             {
+                Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                 // TODO: in here is where we would check to see if the builder died on the way
                 //       or if things are taking too long, or the build location is no longer valid
             }
@@ -367,7 +368,6 @@ void BuildingManager::DrawBuildingInformation()
             bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
 
-
         const std::string job_code = bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit)->GetJobCode();
         if (b.status == BuildingStatus::Unassigned)
         {
@@ -377,12 +377,7 @@ void BuildingManager::DrawBuildingInformation()
         {
             ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnit << " " << job_code << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
-            const float x1 = b.finalPosition.x;
-            const float y1 = b.finalPosition.y;
-            const float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, bot_);
-            const float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, bot_);
-
-            bot_.DebugHelper().DrawSquareOnMap(x1, y1, x2, y2, sc2::Colors::Red);
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
             //bot_.Map().drawLine(b.finalPosition, bot_.GetUnit(b.builderUnitTag)->pos, sc2::Colors::Yellow);
         }
         else if (b.status == BuildingStatus::UnderConstruction)

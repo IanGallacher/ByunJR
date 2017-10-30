@@ -27,6 +27,8 @@ public:
     void DrawSphere(const sc2::Point2D& pos, float radius, const sc2::Color& color = sc2::Colors::White) const;
     void DrawText(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
     void DrawTextScreen(const sc2::Point2D& pos, const std::string& str, const sc2::Color& color = sc2::Colors::White) const;
+    void DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point2D unit_pos, const sc2::Color color = sc2::Colors::White) const;
+    void DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point3D unit_pos, const sc2::Color color = sc2::Colors::White) const;
     void DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const;
     void DrawSphereAroundUnit(const sc2::Unit* uinit, sc2::Color color) const;
 };

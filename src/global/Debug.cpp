@@ -142,11 +142,11 @@ void DebugManager::DrawLine(const sc2::Point2D & min, const sc2::Point2D max, co
 
 void DebugManager::DrawSquareOnMap(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {
-    // Sdd 0.5f to make sure the z coordinate does not intersect with the terrain.
-    const float zcoordx1y1 = 12; // bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1)) + 0.1f;
-    const float zcoordx1y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y2)) + 0.1f;
-    const float zcoordx2y1 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y1)) + 0.1f;
-    const float zcoordx2y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y2)) + 0.1f;
+    // Add 0.5f to make sure the z coordinate does not intersect with the terrain.
+    const float zcoordx1y1 = 12; // bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y1)) + 0.5f;
+    const float zcoordx1y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x1, y2)) + 0.5f;
+    const float zcoordx2y1 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y1)) + 0.5f;
+    const float zcoordx2y2 = 12; //bot_.Observation()->TerrainHeight(sc2::Point2D(x2, y2)) + 0.5f;
     bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x2, y1, zcoordx2y1), color);
     bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, zcoordx1y1), sc2::Point3D(x1, y2, zcoordx1y2), color);
     bot_.Debug()->DebugLineOut(sc2::Point3D(x2, y2, zcoordx2y2), sc2::Point3D(x2, y1, zcoordx2y1), color);
@@ -186,6 +186,29 @@ void DebugManager::DrawText(const sc2::Point2D & pos, const std::string & str, c
 void DebugManager::DrawTextScreen(const sc2::Point2D& pos, const std::string & str, const sc2::Color & color) const
 {
     bot_.Debug()->DebugTextOut(str, pos, color);
+}
+
+void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point2D unit_pos, const sc2::Color color) const
+{
+    DrawBoxAroundUnit(unit_type, sc2::Point3D(unit_pos.x, unit_pos.y, bot_.Map().TerrainHeight(unit_pos.x, unit_pos.y)), color);
+}
+
+void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point3D unit_pos, const sc2::Color color) const
+{
+    // In Starcraft 2, units are square. Get either the width or height, and divide by 2 to get radius. 
+    const float radius = Util::GetUnitTypeHeight(unit_type, bot_)/2;
+
+    sc2::Point3D p_min = unit_pos;
+    p_min.x -= radius;
+    p_min.y -= radius;
+    //p_min.z -= radius;
+
+    sc2::Point3D p_max = unit_pos;
+    p_max.x += radius;
+    p_max.y += radius;
+    p_max.z += radius*2;
+
+    DrawBox(p_min, p_max, color);
 }
 
 void DebugManager::DrawBoxAroundUnit(const sc2::Unit* unit, const sc2::Color color) const
