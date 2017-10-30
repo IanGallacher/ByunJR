@@ -74,7 +74,8 @@ void StrategyManager::OnFrame()
             // Square 10 to avoid taking the square root as part of the distance formula. 
          && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
         {
-            Micro::SmartRepairWithSCVCount(unit, 8, bot_);
+            // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
+            Micro::SmartRepairWithSCVCount(unit, 6, bot_);
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
@@ -212,12 +213,16 @@ const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
     }
 }
 
+
 bool StrategyManager::ShouldExpandNow() const
 {
     const int num_bases = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
                     + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND);
-    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_)
+    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_ && times_expanded_ < 1)
+    {
+        times_expanded_++;
         return true;
+    }
     return false;
 }
 
