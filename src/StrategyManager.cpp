@@ -5,12 +5,12 @@
 #include "util/JSONTools.h"
 #include "util/Util.h"
 
-Strategy::Strategy()
+StrategyBuildOrder::StrategyBuildOrder()
 {
 
 }
 
-Strategy::Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder)
+StrategyBuildOrder::StrategyBuildOrder(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder)
     : name(name)
     , race(race)
     , buildOrder(buildOrder)
@@ -23,6 +23,7 @@ Strategy::Strategy(const std::string & name, const sc2::Race & race, const Build
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
+    , macro_goal_(Strategy::ReaperRush)
     , initial_scout_set_(false)
     , second_proxy_worker_set_(false)
 {
@@ -39,9 +40,12 @@ void StrategyManager::OnFrame()
 {
     // Update variables that we will need later. 
     bases_safe_ = AreBasesSafe();
-
+    RecalculateMacroGoal();
     HandleUnitAssignments();
 
+
+    // At various times we will want to use special abilities of a unit. 
+    // Loop through all our units and see if it is time to use one yet. 
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // Find all the depots and perform some actions on them. 
@@ -60,6 +64,21 @@ void StrategyManager::OnFrame()
             //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LAND,unit->pos);
             }
         }
+    }
+}
+
+void StrategyManager::RecalculateMacroGoal()
+{
+    if (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
+     || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
+        && Util::GetGameTimeInSeconds(bot_) > 240 )
+     || Util::GetGameTimeInSeconds(bot_) > 600)
+    {
+        macro_goal_ = Strategy::BattlecruiserMacro;
     }
 }
 
@@ -170,7 +189,7 @@ const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
     }
     else
     {
-        BOT_ASSERT(false, "Strategy not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
+        BOT_ASSERT(false, "StrategyBuildOrder not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
         return empty_build_order_;
     }
 }
@@ -184,7 +203,12 @@ bool StrategyManager::ShouldExpandNow() const
     return false;
 }
 
-void StrategyManager::AddStrategy(const std::string & name, const Strategy & strategy)
+Strategy StrategyManager::MacroGoal() const
+{
+    return macro_goal_;
+}
+
+void StrategyManager::AddStrategy(const std::string & name, const StrategyBuildOrder & strategy)
 {
     strategies_[name] = strategy;
 }
@@ -222,10 +246,10 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
         return;
     }
 
-    // Parse the Strategy Options
-    if (doc.HasMember("Strategy") && doc["Strategy"].IsObject())
+    // Parse the StrategyBuildOrder Options
+    if (doc.HasMember("StrategyBuildOrder") && doc["StrategyBuildOrder"].IsObject())
     {
-        const rapidjson::Value & strategy = doc["Strategy"];
+        const rapidjson::Value & strategy = doc["StrategyBuildOrder"];
 
         // read in the various strategic elements
         JSONTools::ReadBool("ScoutHarassEnemy", strategy, bot_.Config().ScoutHarassEnemy);
@@ -276,7 +300,7 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
                 }
                 else
                 {
-                    BOT_ASSERT(false, "Strategy must have a Race string: %s", name.c_str());
+                    BOT_ASSERT(false, "StrategyBuildOrder must have a Race string: %s", name.c_str());
                     continue;
                 }
 
@@ -301,7 +325,7 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
                     }
                 }
 
-                AddStrategy(name, Strategy(name, strategy_race, build_order));
+                AddStrategy(name, StrategyBuildOrder(name, strategy_race, build_order));
             }
         }
     }

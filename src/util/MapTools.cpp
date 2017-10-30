@@ -450,7 +450,7 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
     // Get the closest ramp to our starting base. 
     const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
 
-    const float base_height = TerrainHeight(base_location.x - 6.0f, base_location.y);
+    const float base_height = TerrainHeight(base_location.x, base_location.y);
 
     // No need to iterate through the edges of the map, as the edge can never be part of our wall. 
     // The smallest building is width 2, so shrink the iteration dimensions by that amount. 
@@ -469,13 +469,9 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
                  && !IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk))
                     continue;
 
-                // The wall MUST be at the same terrain height as your base. Otherwise we are accidently walling the low ground. 
-                if (base_height - TerrainHeight(x, y) > 1)
-                    continue;
-
                 // Don't wall of at Proxima Station's pocket expansion.
                 if (bot_.Config().MapName == "ProximaStationLE" && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3
-                 &&(y < 49 || y > 119))
+                 &&(y < 49 || y > 119 && TerrainHeight(x, y) > 11))
                     continue;
 
                 const sc2::Point2D point(x, y);

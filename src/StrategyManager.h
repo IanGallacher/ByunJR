@@ -6,7 +6,9 @@ typedef std::vector<UnitPair>               UnitPairVector;
 
 class ByunJRBot;
 
-struct Strategy
+enum class Strategy { ReaperRush, BattlecruiserMacro};
+
+struct StrategyBuildOrder
 {
     std::string name;
     sc2::Race   race;
@@ -14,17 +16,18 @@ struct Strategy
     int         losses;
     BuildOrder  buildOrder;
 
-    Strategy();
-    Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & build_order);
+    StrategyBuildOrder();
+    StrategyBuildOrder(const std::string & name, const sc2::Race & race, const BuildOrder & build_order);
 };
 
 class StrategyManager
 {
     ByunJRBot & bot_;
 
-    std::map<std::string, Strategy> strategies_;
+    std::map<std::string, StrategyBuildOrder> strategies_;
     int                             total_games_played_;
     const BuildOrder                empty_build_order_;
+    Strategy                        macro_goal_;
     // Have we sent the scout at the start of the game?
     bool                            initial_scout_set_;
     bool                            second_proxy_worker_set_;
@@ -45,11 +48,13 @@ public:
 
     void OnStart();
     void OnFrame();
-    void AddStrategy(const std::string & name, const Strategy & strategy);
+    void RecalculateMacroGoal();
+    void AddStrategy(const std::string & name, const StrategyBuildOrder & strategy);
     UnitPairVector GetBuildOrderGoal() const;
     const BuildOrder & GetOpeningBookBuildOrder() const;
     void ReadStrategyFile(const std::string & str);
 
     void HandleUnitAssignments();
     bool ShouldExpandNow() const;
+    Strategy MacroGoal() const;
 };

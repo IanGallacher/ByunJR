@@ -121,7 +121,7 @@ void ProductionManager::PreventSupplyBlock() {
     if ( 
         // If we are at max supply, there is no point in building more depots. 
          bot_.Observation()->GetFoodCap() < 400
-        && (bot_.Observation()->GetFoodUsed() + ProductionCapacity())  // We used to compare only against things that are planned on being made // _planned_production)
+        && (bot_.Observation()->GetFoodUsed() + ProductionCapacity())  // We used to compare only against things that are planned on being made
                                                             // Is greater than 
         >=
         // the player supply capacity, including pylons in production. 
@@ -145,29 +145,48 @@ void ProductionManager::PreventSupplyBlock() {
 // Every frame, see if more depots are required. 
 void ProductionManager::MacroUp() {
     // Macro up.
+    const int scv_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SCV);
+    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+    const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+
     if (bot_.Strategy().ShouldExpandNow())
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
 
-    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    if(bot_.Strategy().MacroGoal() == Strategy::ReaperRush)
     {
-        // Constantly make SCV's. At this level of play, no reason not to.
-        if (Util::IsTownHall(unit) && unit->orders.size() == 0 && bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SCV) < 15)
+        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
-            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
-        }
+            // Constantly make SCV's. At this level of play, no reason not to.
+            // Skip one scv to get the proxy barracks up faster. 
+            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && (scv_count < 15 || barracks_count > 1) && scv_count < base_count * 23)
+            {
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
+            }
 
-        // Get ready to make CattleBruisers
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS && unit->orders.size() == 0)
-        {
-            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_REAPER, bot_);
-            //queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REAPER, 5);
+            // Get ready to make CattleBruisers
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS && unit->orders.size() == 0)
+            {
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_REAPER, bot_);
+                //queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REAPER, 5);
+            }
         }
-
-        // Get ready to make CattleBruisers
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT && unit->orders.size() == 0)
+    }
+    else
+    {
+        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
-            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
-            Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BANSHEE, bot_);
+            // Constantly make SCV's. At this level of play, no reason not to.
+            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && scv_count < base_count * 23)
+            {
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
+            }
+
+            // Get ready to make CattleBruisers
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT && unit->orders.size() == 0)
+            {
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
+            }
         }
     }
 }

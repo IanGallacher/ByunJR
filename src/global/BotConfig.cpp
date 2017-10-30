@@ -149,10 +149,10 @@ void BotConfig::ReadConfigFile()
         JSONTools::ReadString("BotRace", info, player_race);
     }
 
-    // Parse the Strategy Options
-    if (doc.HasMember("Strategy") && doc["Strategy"].IsObject())
+    // Parse the StrategyBuildOrder Options
+    if (doc.HasMember("StrategyBuildOrder") && doc["StrategyBuildOrder"].IsObject())
     {
-        const rapidjson::Value & strategy = doc["Strategy"];
+        const rapidjson::Value & strategy = doc["StrategyBuildOrder"];
 
         // read in the various strategic elements
         JSONTools::ReadBool("TrainingMode", strategy, TrainingMode);
