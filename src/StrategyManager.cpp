@@ -42,14 +42,40 @@ void StrategyManager::OnFrame()
 
     HandleUnitAssignments();
 
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        // Find all the depots and perform some actions on them. 
+        if (Util::IsBuilding(unit->unit_type))
+        {
+            // If the depot may die, go repair it. 
+            if (unit->health != unit->health_max)
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+
+            if (unit->health < unit->health_max/3)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LIFT);
+            }
+            else
+            {
+            //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LAND,unit->pos);
+            }
+        }
+    }
+}
+
+// assigns units to various managers
+void StrategyManager::HandleUnitAssignments()
+{
+    SetScoutUnits();
+
     // Repair any damaged supply depots. If our base is safe, lower the wall. Otherwise, raise the wall. 
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
         // Find all the depots and perform some actions on them. 
-        if (Util::IsSupplyProvider(unit) )
+        if (Util::IsSupplyProvider(unit))
         {
             // If the depot may die, go repair it. 
-            if(unit->health != unit->health_max)
+            if (unit->health != unit->health_max)
                 Micro::SmartRepairWithSCVCount(unit, 2, bot_);
 
             if (bases_safe_)
@@ -62,12 +88,6 @@ void StrategyManager::OnFrame()
             }
         }
     }
-}
-
-// assigns units to various managers
-void StrategyManager::HandleUnitAssignments()
-{
-    SetScoutUnits();
 }
 
 void StrategyManager::SetScoutUnits()
