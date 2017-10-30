@@ -35,7 +35,15 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
     // for each ranged_unit
     for (auto & ranged_unit : ranged_units)
     {
-        BOT_ASSERT(ranged_unit, "melee unit is null");
+        // Run away with the cattlebruisers!
+        if (ranged_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
+            && ranged_unit->health < ranged_unit->health_max / 5)
+        {
+            bot_.Actions()->UnitCommand(ranged_unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP,
+                bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition());
+            bot_.InformationManager().UnitInfo().SetJob(ranged_unit, UnitMission::Wait);
+            continue;
+        }
 
         // if the order is to attack or defend
         if (order_.GetType() == SquadOrderTypes::Attack || order_.GetType() == SquadOrderTypes::Defend)

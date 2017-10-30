@@ -48,14 +48,17 @@ void StrategyManager::OnFrame()
     // Loop through all our units and see if it is time to use one yet. 
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        // Find all the depots and perform some actions on them. 
+        // Emergency repair units and depots.
         if (Util::IsBuilding(unit->unit_type))
         {
-            // If the depot may die, go repair it. 
-            if (unit->health != unit->health_max)
+            // If a depot may die, go repair it. 
+            if(unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED)
+            {
+                if (unit->health != unit->health_max)
                 Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+            }
 
-            if (unit->health < unit->health_max/3)
+            if (unit->health < unit->health_max/3+100)
             {
                 bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LIFT);
             }
@@ -64,6 +67,11 @@ void StrategyManager::OnFrame()
             //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LAND,unit->pos);
             }
         }
+        //if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
+        // && unit->health < unit->health_max/5)
+        //{
+        //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP, sc2::Point2D(50,50));
+        //}
     }
 }
 
@@ -72,7 +80,7 @@ void StrategyManager::RecalculateMacroGoal()
     if (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON)
      || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
      || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
-     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
+    // || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
      || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
      || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
         && Util::GetGameTimeInSeconds(bot_) > 240 )
