@@ -301,7 +301,7 @@ void BuildingManager::CheckForCompletedBuildings()
         {
             continue;
         }
-
+        
         // if the unit has completed
         if (b.buildingUnit->build_progress == 1.0f)
         {
@@ -324,7 +324,6 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::P
 {
     Building b(type, desired_position);
     b.status = BuildingStatus::Unassigned;
-
     buildings_.push_back(b);
 }
 

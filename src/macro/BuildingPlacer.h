@@ -1,9 +1,7 @@
 #pragma once
 #include "macro/Building.h"
 
-class Building;
 class ByunJRBot;
-class BaseLocation;
 
 class BuildingPlacer
 {

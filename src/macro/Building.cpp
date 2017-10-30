@@ -36,7 +36,3 @@ bool Building::operator == (const Building& b)
              && (b.finalPosition.x == finalPosition.x)
              && (b.finalPosition.y == finalPosition.y);
 }
-Building &Building::operator =(const Building &b)
-{
-    return Building();
-}

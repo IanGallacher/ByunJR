@@ -1,8 +1,6 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "macro/BuildingPlacer.h"
-
 class ByunJRBot;
 
 class BuildingManager

@@ -5,9 +5,7 @@ enum class BuildingStatus { Unassigned = 0, Assigned = 1, UnderConstruction = 2,
 
 struct Building
 {
-public:
-
-    const sc2::Point2DI desiredPosition;
+    sc2::Point2DI       desiredPosition;
     sc2::Point2DI       finalPosition;
     sc2::Point2D        position;
     sc2::UnitTypeID     type;
@@ -27,5 +25,4 @@ public:
 
     // equals operator
     bool operator == (const Building & b);
-    Building& operator=(const Building&);
 };
