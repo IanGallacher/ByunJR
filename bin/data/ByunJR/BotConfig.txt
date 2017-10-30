@@ -43,7 +43,7 @@
         "UseAutoObserver"           : true
     },
 
-    "Strategy" :
+    "StrategyBuildOrder":
     {
         "TrainingMode"              : false,
         "ScoutHarassEnemy"          : true,
