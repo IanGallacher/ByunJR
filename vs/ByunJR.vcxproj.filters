@@ -48,9 +48,6 @@
     <ClCompile Include="..\src\micro\Micro.cpp">
       <Filter>micro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\micro\MicroManager.cpp">
-      <Filter>micro</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\micro\ProxyManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
@@ -94,6 +91,12 @@
     <ClCompile Include="..\src\StrategyManager.cpp" />
     <ClCompile Include="..\src\global\Debug.cpp">
       <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ai\Pathfinding.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\micro\CombatMicroManager.cpp">
+      <Filter>micro</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +149,6 @@
     <ClInclude Include="..\src\micro\Micro.h">
       <Filter>micro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\micro\MicroManager.h">
-      <Filter>micro</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\micro\ProxyManager.h">
       <Filter>micro</Filter>
     </ClInclude>
@@ -198,6 +198,12 @@
     <ClInclude Include="..\src\StrategyManager.h" />
     <ClInclude Include="..\src\global\Debug.h">
       <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ai\Pathfinding.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\micro\CombatMicroManager.h">
+      <Filter>micro</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

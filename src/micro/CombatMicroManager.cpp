@@ -1,20 +1,20 @@
 #include "ByunJRBot.h"
 #include "common/BotAssert.h"
 #include "common/Common.h"
-#include "micro/MicroManager.h"
+#include "micro/CombatMicroManager.h"
 #include "util/Util.h"
 
-MicroManager::MicroManager(ByunJRBot & bot)
+CombatMicroManager::CombatMicroManager(ByunJRBot & bot)
     : bot_(bot)
 {
 }
 
-void MicroManager::SetUnits(const std::vector<const sc2::Unit*> & u)
+void CombatMicroManager::SetUnits(const std::vector<const sc2::Unit*> & u)
 {
     units_ = u;
 }
 
-void MicroManager::Execute(const SquadOrder & input_order)
+void CombatMicroManager::Execute(const SquadOrder & input_order)
 {
     // Nothing to do if we have no units
     if (units_.empty() || !(input_order.GetType() == SquadOrderTypes::Attack || input_order.GetType() == SquadOrderTypes::Defend))
@@ -61,12 +61,12 @@ void MicroManager::Execute(const SquadOrder & input_order)
     }
 }
 
-const std::vector<const sc2::Unit*> & MicroManager::GetUnits() const
+const std::vector<const sc2::Unit*> & CombatMicroManager::GetUnits() const
 {
     return units_;
 }
 
-void MicroManager::Regroup(const sc2::Point2D & regroup_position) const
+void CombatMicroManager::Regroup(const sc2::Point2D & regroup_position) const
 {
     const sc2::Point2D our_base_position = bot_.GetStartLocation();
     const int regroup_distance_from_base = bot_.Map().GetGroundDistance(regroup_position, our_base_position);
@@ -74,7 +74,7 @@ void MicroManager::Regroup(const sc2::Point2D & regroup_position) const
     // for each of the units we have
     for (auto & unit : units_)
     {
-        BOT_ASSERT(unit, "null unit in MicroManager regroup");
+        BOT_ASSERT(unit, "null unit in CombatMicroManager regroup");
 
         const int unit_distance_from_base = bot_.Map().GetGroundDistance(unit->pos, our_base_position);
 

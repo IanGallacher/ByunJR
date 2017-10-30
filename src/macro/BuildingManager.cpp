@@ -11,8 +11,6 @@
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
     , debug_mode_(false)
-    , reserved_minerals_(0)
-    , reserved_gas_(0)
 {
 
 }
@@ -120,7 +118,12 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         }
 
         // reserve this building's space
-        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
+        int space_for_add_on = 0;
+        if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS
+         || b.type == sc2::UNIT_TYPEID::TERRAN_FACTORY 
+         || b.type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+            space_for_add_on = 2;
+        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_)+ space_for_add_on, Util::GetUnitTypeHeight(b.type, bot_));
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
@@ -137,7 +140,7 @@ void BuildingManager::CheckForDeadTerranBuilders()
 {   // for each building that doesn't have a builder, assign one
     for (Building & b : buildings_)
     {
-        if (b.status != BuildingStatus::Unassigned && b.builderUnit)
+        if (b.status != BuildingStatus::Unassigned && b.builderUnit->is_alive)
         {
             continue;
         }
@@ -192,6 +195,7 @@ void BuildingManager::ConstructAssignedBuildings()
             // it must be the case that something was in the way of building
             else if (b.buildCommandGiven)
             {
+                Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                 // TODO: in here is where we would check to see if the builder died on the way
                 //       or if things are taking too long, or the build location is no longer valid
             }
@@ -264,10 +268,6 @@ void BuildingManager::CheckForStartedConstruction()
                 {
                     std::cout << "Building mis-match somehow\n";
                 }
-
-                // the resources should now be spent, so unreserve them
-                reserved_minerals_ -= Util::GetUnitTypeMineralPrice(building_started->unit_type, bot_);
-                reserved_gas_      -= Util::GetUnitTypeGasPrice(building_started->unit_type, bot_);
                 
                 // flag it as started and set the buildingUnit
                 b.underConstruction = true;
@@ -288,9 +288,6 @@ void BuildingManager::CheckForStartedConstruction()
                 // put it in the under construction vector
                 b.status = BuildingStatus::UnderConstruction;
 
-                // free this space
-                bot_.InformationManager().BuildingPlacer().FreeTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_), Util::GetUnitTypeHeight(b.type, bot_));
-
                 // only one building will match
                 break;
             }
@@ -310,7 +307,7 @@ void BuildingManager::CheckForCompletedBuildings()
         {
             continue;
         }
-
+        
         // if the unit has completed
         if (b.buildingUnit->build_progress == 1.0f)
         {
@@ -331,12 +328,8 @@ void BuildingManager::CheckForCompletedBuildings()
 // add a new building to be constructed
 void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position)
 {
-    reserved_minerals_  += Util::GetUnitTypeMineralPrice(type, bot_);
-    reserved_gas_       += Util::GetUnitTypeGasPrice(type, bot_);
-
     Building b(type, desired_position);
     b.status = BuildingStatus::Unassigned;
-
     buildings_.push_back(b);
 }
 
@@ -344,16 +337,6 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::P
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
     return bot_.Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
-}
-
-int BuildingManager::GetReservedMinerals() const
-{
-    return reserved_minerals_;
-}
-
-int BuildingManager::GetReservedGas() const
-{
-    return reserved_gas_;
 }
 
 void BuildingManager::DrawBuildingInformation()
@@ -385,7 +368,6 @@ void BuildingManager::DrawBuildingInformation()
             bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
 
-
         const std::string job_code = bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit)->GetJobCode();
         if (b.status == BuildingStatus::Unassigned)
         {
@@ -395,12 +377,7 @@ void BuildingManager::DrawBuildingInformation()
         {
             ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnit << " " << job_code << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
-            const float x1 = b.finalPosition.x;
-            const float y1 = b.finalPosition.y;
-            const float x2 = b.finalPosition.x + Util::GetUnitTypeWidth(b.type, bot_);
-            const float y2 = b.finalPosition.y + Util::GetUnitTypeHeight(b.type, bot_);
-
-            bot_.DebugHelper().DrawSquareOnMap(x1, y1, x2, y2, sc2::Colors::Red);
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
             //bot_.Map().drawLine(b.finalPosition, bot_.GetUnit(b.builderUnitTag)->pos, sc2::Colors::Yellow);
         }
         else if (b.status == BuildingStatus::UnderConstruction)

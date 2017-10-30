@@ -10,11 +10,10 @@
 #include "util/Util.h"
 
 
-
 int main(int argc, char* argv[])
 {
     rapidjson::Document doc;
-    std::string config = JSONTools::ReadFile("BotConfig.txt");
+    std::string config = JSONTools::ReadFile("data/ByunJR/BotConfig.txt");
     if (config.length() == 0)
     {
         std::cerr << "Config file could not be found, and is required for starting the bot\n";
@@ -71,7 +70,7 @@ int main(int argc, char* argv[])
 
             //          Setting this = N means the bot's OnFrame gets called once every N frames
             //          The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(10);
+            coordinator.SetStepSize(1);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;

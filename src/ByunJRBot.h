@@ -34,6 +34,7 @@ class ByunJRBot : public sc2::Agent
     WorkerManager            workers_;
 
     bool                     is_willing_to_fight_;
+    int                      frame_skip_;
 
     void OnError(const std::vector<sc2::ClientError> & client_errors,
                  const std::vector<std::string> & protocol_errors = {});

@@ -94,25 +94,30 @@ void BuildOrderQueue::QueueItem(const BuildOrderItem b)
 
     // update the highest or lowest if it is beaten
     highest_priority_ = (b.priority > highest_priority_) ? b.priority : highest_priority_;
-    lowest_priority_  = (b.priority < lowest_priority_)  ? b.priority : lowest_priority_;
+    lowest_priority_ = (b.priority < lowest_priority_) ? b.priority : lowest_priority_;
 }
 
-void BuildOrderQueue::QueueAsHighestPriority(const sc2::UnitTypeID m, const bool blocking)
+void BuildOrderQueue::QueueItem(const sc2::UnitTypeID unit_type, const int priority)
+{
+    QueueItem(BuildOrderItem(unit_type, priority, true));
+}
+
+void BuildOrderQueue::QueueAsHighestPriority(const sc2::UnitTypeID unit_type, const bool blocking)
 {
     // the new priority will be higher
     const int new_priority = highest_priority_ + default_priority_spacing_;
 
     // queue the item
-    QueueItem(BuildOrderItem(m, new_priority, blocking));
+    QueueItem(BuildOrderItem(unit_type, new_priority, blocking));
 }
 
-void BuildOrderQueue::QueueAsLowestPriority(const sc2::UnitTypeID m, const bool blocking)
+void BuildOrderQueue::QueueAsLowestPriority(const sc2::UnitTypeID unit_type, const bool blocking)
 {
     // the new priority will be higher
     const int new_priority = lowest_priority_ - default_priority_spacing_;
 
     // queue the item
-    QueueItem(BuildOrderItem(m, new_priority, blocking));
+    QueueItem(BuildOrderItem(unit_type, new_priority, blocking));
 }
 
 void BuildOrderQueue::RemoveHighestPriorityItem()
@@ -147,7 +152,7 @@ bool BuildOrderQueue::IsEmpty() const
     return (queue_.size() == 0);
 }
 
-BuildOrderItem BuildOrderQueue::operator [] (int i)
+BuildOrderItem BuildOrderQueue::operator [] (const int i)
 {
     return queue_[i];
 }
@@ -168,7 +173,7 @@ std::string BuildOrderQueue::GetQueueInformation() const
 }
 
 
-BuildOrderItem::BuildOrderItem(sc2::UnitTypeID t, int p, bool b)
+BuildOrderItem::BuildOrderItem(const sc2::UnitTypeID t, const int p, const bool b)
     : type(t)
     , priority(p)
     , blocking(b)

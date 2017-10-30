@@ -32,7 +32,7 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
 // WARNING: DOES NOT INCLUDE FILE EXTENSION
 std::string ProxyTrainingData::GetTrainingDataFileName()
 {
-    return bot_->Config().MapName + "TrainingData";
+    return "data/ByunJR/" + bot_->Config().MapName + "TrainingData";
 }
 
 sc2::Point2DI ProxyTrainingData::FlipCoordinatesIfNecessary(const int x, const int y)

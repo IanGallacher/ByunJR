@@ -2,6 +2,7 @@
 #include "common/Common.h"
 #include "micro/Micro.h"
 #include "util/Util.h"
+#include "ai/Pathfinding.h"
 
 const float dot_radius = 0.1f;
 
@@ -59,7 +60,40 @@ void Micro::SmartAttackMove(const sc2::Unit* attacker, const sc2::Point2D & targ
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target_position);
 }
 
-void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
+void Micro::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
+{
+    // Sometimes after we remove the floating points, it will turn out we are trying to move to is almost the same as our current position.
+    // No need to run the pathfinding algorithm in that case. 
+    if (sc2::Point2DI(unit->pos.x, unit->pos.y)
+     == sc2::Point2DI(target_position.x, target_position.y))
+    {
+        SmartMove(unit, target_position, bot);
+        return;
+    }
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        sc2::Point2DI(target_position.x, target_position.y),
+        bot.InformationManager().GetDPSMap());
+    SmartMove(unit, move_path[0], bot);
+}
+
+void Micro::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBot & bot)
+{
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        run_distance,
+        bot.InformationManager().GetDPSMap());
+    //SmartMove(unit, move_path[0], bot, false);
+    //SmartMove(unit, move_path[1], bot, true);
+    //SmartMove(unit, move_path[2], bot, true);
+    SmartMove(unit, move_path[3], bot, false);
+    //for (const auto & j : move_path)
+    //{
+    //    SmartMove(unit, j, bot, true);
+    //}
+}
+
+void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot, bool queued_command)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays
     bool sent_command_already = false;
@@ -71,7 +105,7 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
         }
     }
     if (sent_command_already == false)
-        bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position);
+        bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position, queued_command);
 }
 
 void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
@@ -90,9 +124,33 @@ void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, Byun
         bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
-void Micro::SmartRepair(const sc2::Unit* unit, const sc2::Unit* & target, ByunJRBot & bot)
+void Micro::SmartRepair(const sc2::Unit* scv, const sc2::Unit* target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
+    bool sent_command_already = false;
+    for (const sc2::UnitOrder the_order : scv->orders)
+    {
+        if (the_order.ability_id == sc2::ABILITY_ID::EFFECT_REPAIR && the_order.target_unit_tag == target->tag)
+        {
+            sent_command_already = true;
+        }
+    }
+    if (sent_command_already == false)
+    bot.Actions()->UnitCommand(scv, sc2::ABILITY_ID::EFFECT_REPAIR, target);
+}
+
+void Micro::SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int num_repair_workers, ByunJRBot & bot)
+{    
+    const int current_repairing_workers = bot.InformationManager().UnitInfo().GetNumRepairWorkers(unit_to_repair);
+    if(current_repairing_workers < num_repair_workers)
+    {
+        // If we are not repairing with enough scv's, send some more to repair.
+        for (int i = 0; i < num_repair_workers - current_repairing_workers; i++)
+        {
+            const sc2::Unit* scv = bot.InformationManager().GetClosestUnitWithJob(unit_to_repair->pos, UnitMission::Minerals);
+            if(scv)
+                bot.InformationManager().UnitInfo().SetJob(scv, UnitMission::Repair, unit_to_repair);
+        }
+    }
 }
 
 void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* target, ByunJRBot & bot)
@@ -133,7 +191,8 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
         kite = false;
     }
 
-    if (Util::IsBuilding(target->unit_type))
+    // Don't kite workers and buildings. 
+    if (Util::IsBuilding(target->unit_type) && !Util::IsWorker(target))
     {
         kite = false;
     }
@@ -141,15 +200,14 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     sc2::Point2D flee_position;
     if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot) + 5.0)
     {
-        //std::cout << Util::EnemyDPSInRange(rangedUnit->pos, bot) << std::endl;
         kite = true;
-        bot.DebugHelper().DrawBoxAroundUnit(ranged_unit, sc2::Colors::Red);
-        flee_position = bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
+        flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
+        /*SmartRunAway(ranged_unit, 20, bot);
+        return;*/
     }
     else
     {
         // kite if we are not close to death.
-        bot.DebugHelper().DrawBoxAroundUnit(ranged_unit, sc2::Colors::Green);
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
     }
 
@@ -158,7 +216,9 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     {
         //fleePosition = rangedUnit->pos - target->pos + rangedUnit->pos;
         bot.DebugHelper().DrawLine(ranged_unit->pos, flee_position);
-        Micro::SmartMove(ranged_unit, flee_position, bot);
+        flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
+        SmartMove(ranged_unit, flee_position, bot);
+        //SmartRunAway(ranged_unit, 20, bot);
     }
     //// otherwise shoot
     else
@@ -179,7 +239,7 @@ void Micro::SmartBuildTag(const sc2::Unit* builder, const sc2::UnitTypeID & buil
     bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), target);
 }
 
-void Micro::SmartTrain(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, ByunJRBot & bot)
+void Micro::SmartTrain(const sc2::Unit* production_building, const sc2::UnitTypeID & type_to_train, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type));
+    bot.Actions()->UnitCommand(production_building, Util::UnitTypeIDToAbilityID(type_to_train));
 }

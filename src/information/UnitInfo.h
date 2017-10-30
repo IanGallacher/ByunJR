@@ -20,7 +20,11 @@ struct UnitInfo
     sc2::UnitTypeID   type;
     float             progress;
     UnitMission       mission;
-    const sc2::Unit*  workerDepot;
+    // If the unit mission is:
+    //   Minerals: missionTarget is the base the worker is currently asigned to mine from.
+    //   Repair: missionTarget is the unit the worker is currently repairing.
+    //   Gas: missionTarget is the refinery the currently mining from.
+    const sc2::Unit*  missionTarget;
 
     UnitInfo()
         : lastHealth(0)

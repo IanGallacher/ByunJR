@@ -25,6 +25,7 @@ class ProductionManager
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
     void             PreventSupplyBlock();
+    void             MacroUp();
     int              ProductionCapacity() const;
     int              GetFreeMinerals() const;
     int              GetFreeGas() const;
@@ -36,7 +37,7 @@ public:
     void             OnStart();
     void             OnFrame();
     void             OnBuildingConstructionComplete(const sc2::Unit* unit);
-    void             OnUnitDestroy(const sc2::Unit* unit);
+    void             OnUnitDestroyed(const sc2::Unit* unit);
     void             DrawProductionInformation() const;
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;

@@ -9,8 +9,8 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Zerg",
-        "MapName"                   : "BloodBoilLE"
+        "EnemyRace"                 : "Protoss",
+        "MapName"                   : "OdysseyLE"
     },
 
     "Micro" :
@@ -43,7 +43,7 @@
         "UseAutoObserver"           : true
     },
 
-    "Strategy" :
+    "StrategyBuildOrder":
     {
         "TrainingMode"              : false,
         "ScoutHarassEnemy"          : true,
@@ -51,7 +51,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["SCV", "SCV", "SCV", "SCV", "Barracks", "SCV", "Refinery",  "SCV", "Refinery", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "Barracks", "SCV", "Reaper", "SCV", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Barracks", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper", "Reaper"] }
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery",  "Barracks", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
         }
     }
 }

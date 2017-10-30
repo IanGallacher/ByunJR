@@ -302,7 +302,8 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const PlayerArrayIndex player
         // get the tile position of the base
         const auto tile = base->GetDepotPosition();
         
-        const bool building_in_the_way = false; // TODO: check if there are any units on the tile
+        const bool building_in_the_way = bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER), 
+                                                                 sc2::Point2D(tile.x, tile.y));
 
         if (building_in_the_way)
         {

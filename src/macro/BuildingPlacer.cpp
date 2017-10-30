@@ -52,7 +52,6 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
 //returns true if we can build this type of unit here with the specified amount of space.
 bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2::UnitTypeID type, const int build_dist) const
 {
-
     //if we can't build here, we of course can't build here with space
     if (!CanBuildHere(bx, by, type))
     {
@@ -68,22 +67,46 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     // define the rectangle of the building spot
     const int startx = bx - (width / 2) - build_dist;
     const int starty = by - (height / 2) - build_dist;
-    const int endx   = bx + (width/2) + build_dist;
+    // endx is not const to account for add-ons. 
+    int endx   = bx + (width/2) + build_dist;
     const int endy   = by + (height/2) + build_dist;
 
-    // TODO: recalculate start and end positions for addons
-
     // if this rectangle doesn't fit on the map we can't build here
-    if (endx < 0 || endy < 0 || startx > bot_.Map().TrueMapWidth() || starty > bot_.Map().TrueMapHeight() || build_dist < 0)
+    if (startx < 0 || starty < 0 || endx > bot_.Map().TrueMapWidth() || endy > bot_.Map().TrueMapHeight() || build_dist < 0)
     {
         return false;
     }
 
-    if (!Util::IsRefineryType(type))
+    // The starcraft 2 api will check every square on the building for us. No need to include it in the following loop. 
+    if(!Buildable(bx, by, type))
+        return false;
+
+    // Account for add-ons.
+    if( type == sc2::UNIT_TYPEID::TERRAN_BARRACKS 
+     || type == sc2::UNIT_TYPEID::TERRAN_FACTORY
+     || type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
     {
-        if (!Buildable(bx, by, type) || reserve_map_[bx][by])
-        {
+        endx += 3;
+
+        // Make sure there is room to build the addon. 
+        if (!Buildable(bx+3, by, type))
             return false;
+    }
+    
+    for(int y = starty; y < endy; ++y)
+    {
+        for(int x  = startx; x < endx; ++x)
+        {
+            // Refineries can only be built in one spot, it does not matter what is next to them. 
+            // Supply depots are usually part of a wall. They have to be built flush with the buildings next to them. 
+            if (!Util::IsRefineryType(type) && type != sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+            {
+                // Make sure we have space for our units to walk through. Don't let them get stuck!
+                if (reserve_map_[x][y])
+                {
+                    return false;
+                }
+            }
         }
     }
 

@@ -19,7 +19,7 @@ public:
     void OnFrame();
     void OnUnitCreated(const sc2::Unit* unit);
     void OnUnitEnterVision(const sc2::Unit* unit);
-    bool ProxyBuildingAtChosenRandomLocation();
+    bool MoveProxyWorkers();
 
     sc2::Point2DI GetProxyLocation();
     ProxyTrainingData& GetProxyTrainingData();

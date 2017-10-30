@@ -20,7 +20,9 @@ bool Util::IsTownHallType(const sc2::UnitTypeID & type)
         case sc2::UNIT_TYPEID::ZERG_HIVE                    : return true;
         case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER         : return true;
         case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND        : return true;
-        case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING  : return true;
+        // There is no point in treating flying buildings like the building type they are supposed to be. 
+        // You can't train units from a flying building. 
+        // case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING  : return true;
         case sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS     : return true;
         case sc2::UNIT_TYPEID::PROTOSS_NEXUS                : return true;
         default: return false;
@@ -55,9 +57,9 @@ bool Util::IsGeyser(const sc2::Unit* unit)
         case sc2::UNIT_TYPEID::NEUTRAL_VESPENEGEYSER        : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_PROTOSSVESPENEGEYSER : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_SPACEPLATFORMGEYSER  : return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERVESPENEGEYSER: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_SHAKURASVESPENEGEYSER: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_RICHVESPENEGEYSER: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERVESPENEGEYSER: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_SHAKURASVESPENEGEYSER: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_RICHVESPENEGEYSER: return true;
         default: return false;
     }
 }
@@ -70,14 +72,14 @@ bool Util::IsMineral(const sc2::Unit* unit)
         case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD750      : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD     : return true;
         case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD750: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD750: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD750: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD750: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD750: return true;
         case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD: return true;
         case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD750: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD: return true;
-        //case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD750: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD: return true;
+        case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD750: return true;
         default: return false;
     }
 }
@@ -209,7 +211,7 @@ float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
     float max_damage = 0.0f;
     for (auto & weapon : weapons)
     {
-        max_damage = weapon.damage_;
+        max_damage = weapon.damage_ * weapon.attacks;
     }
 
     return max_damage;
@@ -496,7 +498,7 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
 int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot)
 {
     float total_dps = 0;
-    for (auto & enemyunit : bot.Observation()->GetUnits())
+    for (auto & enemyunit : bot.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
     {
         double dist = Util::Dist(enemyunit->pos, unit_pos);
         double range = GetAttackRange(enemyunit->unit_type, bot);
@@ -566,7 +568,8 @@ sc2::AbilityID Util::UnitTypeIDToAbilityID(const sc2::UnitTypeID & id)
         case sc2::UNIT_TYPEID::ZERG_BANELINGNEST: return sc2::ABILITY_ID::BUILD_BANELINGNEST; 
         case sc2::UNIT_TYPEID::TERRAN_BARRACKS: return sc2::ABILITY_ID::BUILD_BARRACKS; 
         case sc2::UNIT_TYPEID::TERRAN_BARRACKSREACTOR: return sc2::ABILITY_ID::BUILD_REACTOR_BARRACKS; 
-        case sc2::UNIT_TYPEID::TERRAN_BARRACKSTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB_FACTORY; 
+        case sc2::UNIT_TYPEID::TERRAN_BARRACKSTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB;
+        case sc2::UNIT_TYPEID::TERRAN_TECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB;
         case sc2::UNIT_TYPEID::TERRAN_BUNKER: return sc2::ABILITY_ID::BUILD_BUNKER; 
         case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER: return sc2::ABILITY_ID::BUILD_COMMANDCENTER; 
         case sc2::UNIT_TYPEID::PROTOSS_CYBERNETICSCORE: return sc2::ABILITY_ID::BUILD_CYBERNETICSCORE; 
@@ -576,7 +579,7 @@ sc2::AbilityID Util::UnitTypeIDToAbilityID(const sc2::UnitTypeID & id)
         case sc2::UNIT_TYPEID::ZERG_EXTRACTOR: return sc2::ABILITY_ID::BUILD_EXTRACTOR; 
         case sc2::UNIT_TYPEID::TERRAN_FACTORY: return sc2::ABILITY_ID::BUILD_FACTORY; 
         case sc2::UNIT_TYPEID::TERRAN_FACTORYREACTOR: return sc2::ABILITY_ID::BUILD_REACTOR_FACTORY; 
-        case sc2::UNIT_TYPEID::TERRAN_FACTORYTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB_FACTORY; 
+        case sc2::UNIT_TYPEID::TERRAN_FACTORYTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB;
         case sc2::UNIT_TYPEID::PROTOSS_FLEETBEACON: return sc2::ABILITY_ID::BUILD_FLEETBEACON; 
         case sc2::UNIT_TYPEID::PROTOSS_FORGE: return sc2::ABILITY_ID::BUILD_FORGE; 
         case sc2::UNIT_TYPEID::TERRAN_FUSIONCORE: return sc2::ABILITY_ID::BUILD_FUSIONCORE; 
@@ -607,7 +610,7 @@ sc2::AbilityID Util::UnitTypeIDToAbilityID(const sc2::UnitTypeID & id)
         case sc2::UNIT_TYPEID::PROTOSS_STARGATE: return sc2::ABILITY_ID::BUILD_STARGATE; 
         case sc2::UNIT_TYPEID::TERRAN_STARPORT: return sc2::ABILITY_ID::BUILD_STARPORT; 
         case sc2::UNIT_TYPEID::TERRAN_STARPORTREACTOR: return sc2::ABILITY_ID::BUILD_REACTOR_STARPORT; 
-        case sc2::UNIT_TYPEID::TERRAN_STARPORTTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB_STARPORT; 
+        case sc2::UNIT_TYPEID::TERRAN_STARPORTTECHLAB: return sc2::ABILITY_ID::BUILD_TECHLAB;
         case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT: return sc2::ABILITY_ID::BUILD_SUPPLYDEPOT; 
         case sc2::UNIT_TYPEID::PROTOSS_TEMPLARARCHIVE: return sc2::ABILITY_ID::BUILD_TEMPLARARCHIVE; 
         case sc2::UNIT_TYPEID::PROTOSS_TWILIGHTCOUNCIL: return sc2::ABILITY_ID::BUILD_TWILIGHTCOUNCIL; 
@@ -684,6 +687,10 @@ bool Util::CanAttackAir(std::vector<sc2::Weapon> weapons)
             return true;
     }
     return false;
+}
+int Util::GetGameTimeInSeconds(const sc2::Agent& bot)
+{
+    return bot.Observation()->GetGameLoop() / 22;
 }
 
 bool Util::IsBuilding(const sc2::UnitTypeID & type)

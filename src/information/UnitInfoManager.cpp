@@ -65,7 +65,7 @@ const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(PlayerArrayIndex 
     return units_.at(player);
 }
 
-static std::string GetAbilityText(const sc2::AbilityID ability_id) {
+std::string GetAbilityText(const sc2::AbilityID ability_id) {
     std::string str;
     str += sc2::AbilityTypeToName(ability_id);
     str += " (";
@@ -189,13 +189,13 @@ void UnitInfoManager::DrawSelectedUnitDebugInfo() const
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool completed) const
+size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool include_incomplete_buildings) const
 {
     size_t count = 0;
 
     for (auto & unit : GetUnits(player))
     {
-        if ((!type || type == unit->unit_type) && (!completed || unit->build_progress == 1.0f))
+        if ((!type || type == unit->unit_type) && (include_incomplete_buildings || unit->build_progress == 1.0f))
         {
             count++;
         }
@@ -238,9 +238,10 @@ int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
     return unit_data_[PlayerArrayIndex::Self].GetNumAssignedWorkers(depot);
 }
 
-void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job)
+// mission_target is optional. Only required when a repair target is needed. 
+void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
-    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_);
+    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_, mission_target);
 }
 
 // This can only return your workers, not the enemy workers. 
@@ -257,6 +258,8 @@ std::set<const UnitInfo*> UnitInfoManager::GetScouts()
 
 const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
 {
+    // Once a unit is killed, there is no longer a UnitInfo to go with it. 
+    if (!unit->is_alive) return nullptr;
     return &unit_data_[Util::GetPlayer(unit)].GetUnitInfoMap().at(unit->tag);
 }
 
@@ -324,4 +327,17 @@ const UnitData & UnitInfoManager::GetUnitData(const PlayerArrayIndex player) con
 std::set<const UnitInfo*> UnitInfoManager::GetCombatUnits() const
 {
     return GetUnitData(PlayerArrayIndex::Self).GetCombatUnits();
+}
+
+int UnitInfoManager::GetNumRepairWorkers(const sc2::Unit* unit) const
+{
+    return GetUnitData(PlayerArrayIndex::Self).GetNumRepairWorkers(unit);
+}
+
+// The game considers raised and lowered supply depots as different units. 
+// This gets the total number you have, regardless if they are raised or lower. 
+int UnitInfoManager::GetNumDepots(PlayerArrayIndex self) const
+{
+    return GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+        + GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
 }

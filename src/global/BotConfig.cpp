@@ -50,7 +50,7 @@ BotConfig::BotConfig()
     ColorUnitNearEnemy                  = sc2::Colors::Red;
     ColorUnitNotNearEnemy               = sc2::Colors::Green;
     
-    BuildingSpacing                     = 0;
+    BuildingSpacing                     = 2;
     ProxyLocationX                      = 0;
     ProxyLocationY                      = 0;
 }
@@ -59,7 +59,7 @@ void BotConfig::ReadConfigFile()
 {
     rapidjson::Document doc;
 
-    RawConfigString = JSONTools::ReadFile(ConfigFileLocation);
+    RawConfigString = JSONTools::ReadFile("data/ByunJR/" + ConfigFileLocation);
 
     if (RawConfigString.length() == 0)
     {
@@ -149,10 +149,10 @@ void BotConfig::ReadConfigFile()
         JSONTools::ReadString("BotRace", info, player_race);
     }
 
-    // Parse the Strategy Options
-    if (doc.HasMember("Strategy") && doc["Strategy"].IsObject())
+    // Parse the StrategyBuildOrder Options
+    if (doc.HasMember("StrategyBuildOrder") && doc["StrategyBuildOrder"].IsObject())
     {
-        const rapidjson::Value & strategy = doc["Strategy"];
+        const rapidjson::Value & strategy = doc["StrategyBuildOrder"];
 
         // read in the various strategic elements
         JSONTools::ReadBool("TrainingMode", strategy, TrainingMode);

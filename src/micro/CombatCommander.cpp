@@ -29,7 +29,7 @@ void CombatCommander::OnStart()
     squad_data_.AddSquad("Idle", Squad("Idle", idle_order, IdlePriority, bot_));
 
     // the main attack squad that will pressure the enemy's closest base location
-    SquadOrder mainAttackOrder(SquadOrderTypes::Attack, sc2::Point2D(0.0f, 0.0f), 25, "Attack Enemy Base");
+    SquadOrder mainAttackOrder(SquadOrderTypes::Attack, sc2::Point2D(0.0f, 0.0f), 50, "Attack Enemy Base");
     squad_data_.AddSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority, bot_));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -69,7 +69,7 @@ void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
         }
     }
     
-    const SquadOrder main_attack_order(SquadOrderTypes::Attack, GetMainAttackLocation(), 25, "Attack Enemy Base");
+    const SquadOrder main_attack_order(SquadOrderTypes::Attack, GetMainAttackLocation(), 60, "Attack Enemy Base");
     main_attack_squad.SetSquadOrder(main_attack_order);
 
     squad_data_.OnFrame();

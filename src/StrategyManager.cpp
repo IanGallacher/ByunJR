@@ -5,12 +5,12 @@
 #include "util/JSONTools.h"
 #include "util/Util.h"
 
-Strategy::Strategy()
+StrategyBuildOrder::StrategyBuildOrder()
 {
 
 }
 
-Strategy::Strategy(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder)
+StrategyBuildOrder::StrategyBuildOrder(const std::string & name, const sc2::Race & race, const BuildOrder & buildOrder)
     : name(name)
     , race(race)
     , buildOrder(buildOrder)
@@ -23,9 +23,11 @@ Strategy::Strategy(const std::string & name, const sc2::Race & race, const Build
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
-    , initial_scout_set_(false)
+      , macro_goal_(Strategy::ReaperRush)
+      , initial_scout_set_(false)
+      , second_proxy_worker_set_(false)
+      , bases_safe_(false)
 {
-
 }
 
 void StrategyManager::OnStart()
@@ -33,15 +35,97 @@ void StrategyManager::OnStart()
     ReadStrategyFile(bot_.Config().ConfigFileLocation);
 }
 
+// This strategy code is only for Terran. 
+// This code will not function correctly if playing other races.
 void StrategyManager::OnFrame()
 {
+    // Update variables that we will need later. 
+    bases_safe_ = AreBasesSafe();
+    RecalculateMacroGoal();
+    HandleUnitAssignments();
 
+
+    // At various times we will want to use special abilities of a unit. 
+    // Loop through all our units and see if it is time to use one yet. 
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        // Emergency repair units and depots.
+        if (Util::IsBuilding(unit->unit_type))
+        {
+            // If a depot may die, go repair it. 
+            if(unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED)
+            {
+                if (unit->health != unit->health_max)
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+            }
+
+            if (unit->health < unit->health_max/3+100)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LIFT);
+            }
+            else
+            {
+            //    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::LAND,unit->pos);
+            }
+        }
+        // Repair battlecruisers that have tactical jumped back to our base. 
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
+         && unit->health != unit->health_max
+            // Square 10 to avoid taking the square root as part of the distance formula. 
+         && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
+        {
+            // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
+            Micro::SmartRepairWithSCVCount(unit, 6, bot_);
+        }
+        // Once we are done repairing, send that battlecruiser back to the field!
+        else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
+            && unit->health == unit->health_max)
+        {
+            bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);
+        }
+    }
+}
+
+void StrategyManager::RecalculateMacroGoal()
+{
+    if (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
+    // || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
+     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
+     || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Enemy, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
+        && Util::GetGameTimeInSeconds(bot_) > 240 )
+     || Util::GetGameTimeInSeconds(bot_) > 600)
+    {
+        macro_goal_ = Strategy::BattlecruiserMacro;
+    }
 }
 
 // assigns units to various managers
 void StrategyManager::HandleUnitAssignments()
 {
     SetScoutUnits();
+
+    // Repair any damaged supply depots. If our base is safe, lower the wall. Otherwise, raise the wall. 
+    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    {
+        // Find all the depots and perform some actions on them. 
+        if (Util::IsSupplyProvider(unit))
+        {
+            // If the depot may die, go repair it. 
+            if (unit->health != unit->health_max)
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+
+            if (bases_safe_)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MORPH_SUPPLYDEPOT_LOWER);
+            }
+            else
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MORPH_SUPPLYDEPOT_RAISE);
+            }
+        }
+    }
 }
 
 void StrategyManager::SetScoutUnits()
@@ -61,16 +145,41 @@ void StrategyManager::SetScoutUnits()
                 bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
-            else
-            {
+            // grab the closest worker to the supply provider to send to scout
+            const ::UnitInfo * worker_attacker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
+            // if we find a worker (which we should) add it to the scout units
+            if (worker_scout)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
+            }
+        }
+        // Is it time to send the worker to go build the second barracks?
+        if (ShouldSendSecondProxyWorker())
+        {
+            // grab the closest worker to the supply provider to send to scout
+            const ::UnitInfo * proxy_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+
+            // if we find a worker (which we should) add it to the scout units
+            if (proxy_worker)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
+                second_proxy_worker_set_ = true;
             }
         }
     }
 }
 
+bool StrategyManager::ShouldSendSecondProxyWorker() const
+{
+    if (Util::GetGameTimeInSeconds(bot_) > 20 && !second_proxy_worker_set_)
+        return true;
+    return false;
+}
+
 bool StrategyManager::ShouldSendInitialScout() const
 {
+    return true;
     switch (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self))
     {
         case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
@@ -78,6 +187,22 @@ bool StrategyManager::ShouldSendInitialScout() const
         case sc2::Race::Zerg:    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
         default: return false;
     }
+}
+
+bool StrategyManager::AreBasesSafe()
+{
+    for (const auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    {
+        for (const auto & potential_base : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        {
+            if( Util::IsTownHall(potential_base)
+             && Util::DistSq(potential_base->pos, enemy_unit->pos) < (30*30))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
@@ -91,17 +216,30 @@ const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
     }
     else
     {
-        BOT_ASSERT(false, "Strategy not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
+        BOT_ASSERT(false, "StrategyBuildOrder not found: %s, returning empty initial build order", bot_.Config().StrategyName.c_str());
         return empty_build_order_;
     }
 }
 
+
 bool StrategyManager::ShouldExpandNow() const
 {
+    const int num_bases = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                    + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND);
+    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_ && times_expanded_ < 1)
+    {
+        times_expanded_++;
+        return true;
+    }
     return false;
 }
 
-void StrategyManager::AddStrategy(const std::string & name, const Strategy & strategy)
+Strategy StrategyManager::MacroGoal() const
+{
+    return macro_goal_;
+}
+
+void StrategyManager::AddStrategy(const std::string & name, const StrategyBuildOrder & strategy)
 {
     strategies_[name] = strategy;
 }
@@ -139,10 +277,10 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
         return;
     }
 
-    // Parse the Strategy Options
-    if (doc.HasMember("Strategy") && doc["Strategy"].IsObject())
+    // Parse the StrategyBuildOrder Options
+    if (doc.HasMember("StrategyBuildOrder") && doc["StrategyBuildOrder"].IsObject())
     {
-        const rapidjson::Value & strategy = doc["Strategy"];
+        const rapidjson::Value & strategy = doc["StrategyBuildOrder"];
 
         // read in the various strategic elements
         JSONTools::ReadBool("ScoutHarassEnemy", strategy, bot_.Config().ScoutHarassEnemy);
@@ -193,7 +331,7 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
                 }
                 else
                 {
-                    BOT_ASSERT(false, "Strategy must have a Race string: %s", name.c_str());
+                    BOT_ASSERT(false, "StrategyBuildOrder must have a Race string: %s", name.c_str());
                     continue;
                 }
 
@@ -218,7 +356,7 @@ void StrategyManager::ReadStrategyFile(const std::string & filename)
                     }
                 }
 
-                AddStrategy(name, Strategy(name, strategy_race, build_order));
+                AddStrategy(name, StrategyBuildOrder(name, strategy_race, build_order));
             }
         }
     }

@@ -3,22 +3,21 @@
 
 #include "ByunJRBot.h"
 #include "common/BotAssert.h"
-#include "common/Common.h"
 
 ByunJRBot::ByunJRBot()
-    : map_(*this)
+    : combat_commander_(*this)
+    , information_manager_(*this)
+    , map_(*this)
     , bases_(*this)
+    , strategy_(*this)
     , production_manager_(*this)
     , scout_manager_(*this)
     , proxy_manager_(*this)
-    , workers_(*this)
-    , combat_commander_(*this)
-    , strategy_(*this)
-    , information_manager_(*this)
     , debug_(*this)
+    , workers_(*this)
     , is_willing_to_fight_(true)
+    , frame_skip_(0)
 {
-    
 }
 
 void ByunJRBot::OnGameStart() 
@@ -41,11 +40,13 @@ void ByunJRBot::OnGameStart()
 
 void ByunJRBot::OnStep()
 {
+    frame_skip_++;
+    if (frame_skip_ % 2) return;
     Control()->GetObservation();
 
     map_.OnFrame();
     information_manager_.OnFrame();
-    strategy_.HandleUnitAssignments();
+    strategy_.OnFrame();
 
     bases_.OnFrame();
     strategy_.OnFrame();
@@ -60,8 +61,9 @@ void ByunJRBot::OnStep()
     debug_.DrawAllUnitInformation();
     debug_.DrawResourceDebugInfo();
     debug_.DrawDebugInterface();
-    debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
 
+
+    //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
 
     if (config_.DrawWalkableSectors)
         debug_.DrawMapSectors();
@@ -84,12 +86,8 @@ void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
 void ByunJRBot::OnUnitDestroyed(const sc2::Unit* unit)
 {
     information_manager_.OnUnitDestroyed(unit);
+    production_manager_.OnUnitDestroyed(unit);
 }
-
-//void ByunJRBot::onUnitDestroy(const sc2::Unit* unit)
-//{
-//    //_productionManager.onUnitDestroy(unit);
-//}
 
 void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
     proxy_manager_.OnUnitEnterVision(unit);
