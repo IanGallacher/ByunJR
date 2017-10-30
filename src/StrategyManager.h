@@ -25,7 +25,6 @@ class StrategyManager
     ByunJRBot & bot_;
 
     std::map<std::string, StrategyBuildOrder> strategies_;
-    int                             total_games_played_;
     const BuildOrder                empty_build_order_;
     Strategy                        macro_goal_;
     // Have we sent the scout at the start of the game?
