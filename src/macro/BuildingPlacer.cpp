@@ -251,37 +251,30 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
 {
     sc2::Point2DI closest_geyser(0, 0);
     double min_geyser_distance_from_home = std::numeric_limits<double>::max();
-    const sc2::Point2D home_position = bot_.GetStartLocation();
 
-    for (auto & unit : bot_.Observation()->GetUnits())
+    for (auto & geyser : bot_.Observation()->GetUnits())
     {
-        if (!Util::IsGeyser(unit))
+        if (!Util::IsGeyser(geyser))
         {
             continue;
         }
 
-        const sc2::Point2D geyser_pos(unit->pos);
+        const sc2::Point2D geyser_pos(geyser->pos);
 
-        // check to see if it's next to one of our depots
-        bool near_depot = false;
-        for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        // For each of our bases, see if we can build refineries there. 
+        for (auto & base : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
-            if (Util::IsTownHall(unit) && Util::Dist(unit->pos, geyser_pos) < 10)
+            if ( Util::IsTownHall(base) )
             {
-                near_depot = true;
-            }
-        }
+                const double geyser_distance = Util::Dist(geyser->pos, base->pos);
 
-        if (near_depot)
-        {
-            const double home_distance = Util::Dist(unit->pos, home_position);
-
-            if (home_distance < min_geyser_distance_from_home)
-            {
-                if (bot_.Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                if (geyser_distance < min_geyser_distance_from_home)
                 {
-                    min_geyser_distance_from_home = home_distance;
-                    closest_geyser = sc2::Point2DI(unit->pos.x,unit->pos.y);
+                    if (bot_.Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                    {
+                        min_geyser_distance_from_home = geyser_distance;
+                        closest_geyser = sc2::Point2DI(geyser->pos.x, geyser->pos.y);
+                    }
                 }
             }
         }

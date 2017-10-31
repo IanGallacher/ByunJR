@@ -92,9 +92,8 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
 
 // get a target for the ranged unit to attack
 // TODO: this is the melee targeting code, replace it with something better for ranged units
-const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, const std::vector<const sc2::Unit*> & targets) const
+const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const std::vector<const sc2::Unit*> & targets) const
 {
-    auto ranged_unit = ranged_unit_tag;
     BOT_ASSERT(ranged_unit, "null ranged unit in getTarget");
 
     int lowest_health = std::numeric_limits<int>::max();
@@ -129,7 +128,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, cons
     {
         BOT_ASSERT(target_unit, "null target unit in getTarget");
 
-        const int priority = GetAttackPriority(ranged_unit_tag, target_unit);
+        const int priority = GetAttackPriority(ranged_unit, target_unit);
         const float distance = Util::Dist(ranged_unit->pos, target_unit->pos);
         int f = bot_.Observation()->GetGameLoop();
 
