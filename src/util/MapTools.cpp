@@ -442,7 +442,7 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     return false;
 }
 
-sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID building_type) const
+sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID building_type) const
 {
     sc2::Point2D closest_point(0, 0);
     double closest_distance = std::numeric_limits<double>::max();
@@ -487,5 +487,5 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
             }
         }
     }
-    return closest_point;
+    return sc2::Point2DI(closest_point.x, closest_point.y);
 }

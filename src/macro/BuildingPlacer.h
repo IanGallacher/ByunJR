@@ -30,8 +30,7 @@ public:
     bool            CanBuildHere(int bx, int by, const sc2::UnitTypeID type) const;
     bool            CanBuildHereWithSpace(int bx, int by, const sc2::UnitTypeID type, int build_dist) const;
 
-    // returns a build location near a building's desired location
-    sc2::Point2DI   GetBuildLocationNear(const Building & b, int build_dist) const;
+    sc2::Point2DI   GetBuildLocationNear(const sc2::Point2DI desired_loc, const sc2::UnitTypeID building_type, const int build_dist) const;
 
     void            DrawReservedTiles();
     sc2::Point2DI   GetRefineryPosition() const;

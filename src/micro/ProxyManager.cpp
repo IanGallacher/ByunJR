@@ -69,7 +69,7 @@ bool ProxyManager::MoveProxyWorkers()
     const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
     if (!proxy_worker_)
     {
-        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS, my_vec);
+        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
         proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
         bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
     }

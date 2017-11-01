@@ -1,22 +1,9 @@
 #include "Building.h"
 
-Building::Building() 
-    : desiredPosition   (0,0)
-    , finalPosition     (0,0)
-    , position          (0,0)
-    , type              (0)
-    , buildingUnit      (0)
-    , builderUnit       (0)
-    , lastOrderFrame    (0)
-    , status            (BuildingStatus::Unassigned)
-    , buildCommandGiven (false)
-    , underConstruction (false) 
-{} 
 
 // constructor we use most often
-Building::Building(const sc2::UnitTypeID t, const sc2::Point2DI desired)
-    : desiredPosition   (desired)
-    , finalPosition     (0,0)
+Building::Building(const sc2::UnitTypeID t)
+    : finalPosition     (0,0)
     , position          (0,0)
     , type              (t)
     , buildingUnit      (0)

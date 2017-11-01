@@ -281,38 +281,18 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
         return;
     }
 
-    const sc2::UnitTypeID t = item.type;
+    const sc2::UnitTypeID item_type = item.type;
 
     // if we're dealing with a building
     // TODO: deal with morphed buildings & addons
-    if (Util::IsBuilding(t))
+    if (Util::IsBuilding(item_type))
     {
-        // send the building task to the building manager
-        if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
-        {
-            const sc2::Point2DI proxy_location = bot_.InformationManager().GetProxyLocation();
-            building_manager_.AddBuildingTask(t, proxy_location);
-        }
-        // Once the code to wall in is in place, uncomment this. 
-        else if(t == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3)
-        {
-            const sc2::Point2D p = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(p.x, p.y));
-        }
-        else if(Util::IsTownHallType(t))
-        {
-            sc2::Point2D p = bot_.Bases().GetNextExpansion(PlayerArrayIndex::Self);
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(static_cast<int>(p.x), static_cast<int>(p.y)));
-        }
-        else
-        {
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
-        }
+        building_manager_.AddBuildingTask(item_type);
     }
     // if we're dealing with a non-building unit
     else
     {
-        Micro::SmartTrain(producer, t, bot_);
+        Micro::SmartTrain(producer, item_type, bot_);
     }
 }
 

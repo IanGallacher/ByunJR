@@ -110,7 +110,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            std::cout << "finalplacementlocation" << b.desiredPosition.x << "x " << b.desiredPosition.y << "y " << std::endl;
+            std::cout << "finalplacementlocation" << b.finalPosition.x << "x " << b.finalPosition.y << "y " << std::endl;
         }
 
         b.status = BuildingStatus::Assigned;
@@ -305,9 +305,9 @@ void BuildingManager::CheckForCompletedBuildings()
 #pragma endregion
 
 // Add a new building to be constructed.
-void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position)
+void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type)
 {
-    Building b(type, desired_position);
+    Building b(type);
     b.status = BuildingStatus::Unassigned;
     buildings_.push_back(b);
 }
@@ -385,22 +385,36 @@ std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
 
 sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
 {
-    // TODO: if requires psi and we have no pylons return 0
-
+    sc2::Point2DI desired_loc;
     if (Util::IsRefineryType(b.type))
     {
-        return bot_.InformationManager().BuildingPlacer().GetRefineryPosition();
+        desired_loc =  bot_.InformationManager().BuildingPlacer().GetRefineryPosition();
     }
 
-    if (Util::IsTownHallType(b.type))
+    else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
     {
-        // TODO: fix this so we can actually expand
-        //return bot_.Bases().getNextExpansion(Players::Self);
+        desired_loc = bot_.InformationManager().GetProxyLocation();
     }
 
-    // get a position within our region
-    // TODO: put back in special pylon / cannon spacing
-    return bot_.InformationManager().BuildingPlacer().GetBuildLocationNear(b, bot_.Config().BuildingSpacing);
+    // Make a wall if necessary.
+    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3)
+    {
+        desired_loc = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+    }
+
+    // Find the next expansion location. 
+    else if (Util::IsTownHallType(b.type))
+    {
+        const sc2::Point2D next_expansion_location = bot_.Bases().GetNextExpansion(PlayerArrayIndex::Self);
+        desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
+    }
+    // If no special placement code is required, get a position somewhere in our starting base.
+    else 
+    {
+        sc2::Point2DI desired_loc(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
+    }
+
+    return bot_.InformationManager().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
 }
 
 void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)

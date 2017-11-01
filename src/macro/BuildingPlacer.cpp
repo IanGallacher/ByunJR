@@ -167,13 +167,13 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     return true;
 }
 
-sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const Building & b, const int build_dist) const
+sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const sc2::Point2DI desired_loc, const sc2::UnitTypeID building_type, const int build_dist) const
 {
     Timer t;
     t.Start();
 
     // get the precomputed vector of tile positions which are sorted closes to this location
-    auto & closest_to_building = bot_.Map().GetClosestTilesTo(b.desiredPosition);
+    auto & closest_to_building = bot_.Map().GetClosestTilesTo(desired_loc);
 
     double ms1 = t.GetElapsedTimeInMilliSec();
 
@@ -182,7 +182,7 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const Building & b, const int
     {
         auto & pos = closest_to_building[i];
 
-        if (CanBuildHereWithSpace(pos.x, pos.y, b.type, build_dist))
+        if (CanBuildHereWithSpace(pos.x, pos.y, building_type, build_dist))
         {
             double ms = t.GetElapsedTimeInMilliSec();
             //printf("Building Placer Took %d iterations, lasting %lf ms @ %lf iterations/ms, %lf setup ms\n", (int)i, ms, (i / ms), ms1);

@@ -26,7 +26,7 @@ public:
 
     void                OnStart();
     void                OnFrame();
-    void                AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position);
+    void                AddBuildingTask(const sc2::UnitTypeID & type);
     void                DrawBuildingInformation();
     sc2::Point2DI       GetBuildingLocation(const Building & b) const;
 
