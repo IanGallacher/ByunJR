@@ -55,6 +55,7 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
     return false;
 }
 
+#pragma region The six steps for constructing a building. 
 // STEP 1: If a building has dies during construction, do not attempt to build it again.
 void BuildingManager::StopConstructingDeadBuildings()
 {
@@ -301,6 +302,7 @@ void BuildingManager::CheckForCompletedBuildings()
 
     RemoveBuildings(to_remove);
 }
+#pragma endregion
 
 // Add a new building to be constructed.
 void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position)
