@@ -13,11 +13,11 @@ class BuildingManager
     void            RemoveBuildings(const std::vector<Building> & to_remove);
     bool            IsValidBuildLocation(const int x, const int y, sc2::UnitTypeID type) const;
 
-    void            ValidateWorkersAndBuildings();            // STEP 1
+    void            StopConstructingDeadBuildings();          // STEP 1
     void            AssignWorkersToUnassignedBuildings();     // STEP 2
     void            ConstructAssignedBuildings();             // STEP 3
     void            CheckForStartedConstruction();            // STEP 4
-    void            CheckForDeadTerranBuilders();             // STEP 5
+    void            CheckForDeadBuilders();                   // STEP 5
     void            CheckForCompletedBuildings();             // STEP 6
 
 public:

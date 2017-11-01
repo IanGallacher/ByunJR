@@ -19,12 +19,11 @@ void BuildingManager::OnStart()
 
 }
 
-// gets called every frame from GameCommander
 void BuildingManager::OnFrame()
 {
     for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        // filter out units which aren't buildings under construction
+        // Filter out units which aren't buildings under construction.
         if (Util::IsBuilding(unit->unit_type))
         {
             std::stringstream ss;
@@ -33,12 +32,12 @@ void BuildingManager::OnFrame()
         }
     }
 
-    ValidateWorkersAndBuildings();          // check to see if assigned workers have died en route or while constructing
-    AssignWorkersToUnassignedBuildings();   // assign workers to the unassigned buildings and label them 'planned'    
-    CheckForDeadTerranBuilders();           // if we are terran and a building is under construction without a worker, assign a new one    
-    ConstructAssignedBuildings();           // for each planned building, if the worker isn't constructing, send the command    
-    CheckForStartedConstruction();          // check to see if any buildings have started construction and update data structures    
-    CheckForCompletedBuildings();           // check to see if any buildings have completed and update data structures
+    StopConstructingDeadBuildings();        // Check to see if assigned workers have died en route or while constructing.
+    AssignWorkersToUnassignedBuildings();   // Assign workers to the unassigned buildings and label them 'planned'
+    CheckForDeadBuilders();                 // If we are terran and a building is under construction without a worker, assign a new one.
+    ConstructAssignedBuildings();           // For each planned building, if the worker isn't constructing, send the command.
+    CheckForStartedConstruction();          // Check to see if any buildings have started construction and update data structures.
+    CheckForCompletedBuildings();           // Check to see if any buildings have completed and update data structures.
 
     DrawBuildingInformation();
 }
@@ -56,17 +55,15 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
     return false;
 }
 
-// STEP 1: DO BOOK KEEPING ON WORKERS WHICH MAY HAVE DIED
-void BuildingManager::ValidateWorkersAndBuildings()
+// STEP 1: If a building has dies during construction, do not attempt to build it again.
+void BuildingManager::StopConstructingDeadBuildings()
 {
-    // TODO: if a terran worker dies while constructing and its building
-    //       is under construction, place unit back into buildingsNeedingBuilders
-
     std::vector<Building> to_remove;
 
-    // find any buildings which have become obsolete
+    // Look through all our buildings for ones that died during construction.
     for (auto & b : buildings_)
     {
+        // The building MUST be under construction. If it is not, look for the next one. 
         if (b.status != BuildingStatus::UnderConstruction)
         {
             continue;
@@ -75,6 +72,8 @@ void BuildingManager::ValidateWorkersAndBuildings()
         const auto building_unit = b.buildingUnit;
 
         // TODO: || !b.buildingUnit->getType().isBuilding()
+        BOT_ASSERT(Util::IsBuilding(b.buildingUnit->unit_type), "Error: Tried to assign a builder to a building that already had one ");
+
         if (!building_unit || (building_unit->health <= 0))
         {
             to_remove.push_back(b);
@@ -84,21 +83,22 @@ void BuildingManager::ValidateWorkersAndBuildings()
     RemoveBuildings(to_remove);
 }
 
-// STEP 2: ASSIGN WORKERS TO BUILDINGS WITHOUT THEM
+// STEP 2: Assign workers to buildings without them. 
 void BuildingManager::AssignWorkersToUnassignedBuildings()
 {
-    // for each building that doesn't have a builder, assign one
+    // For each building that doesn't have a builder, assign one.
     for (Building & b : buildings_)
     {
+        // If the building does not yet have a worker assigned to it, go assign one. 
         if (b.status != BuildingStatus::Unassigned)
         {
             continue;
         }
 
-        BOT_ASSERT(b.builderUnit == 0, "Error: Tried to assign a builder to a building that already had one ");
+        // Only assign a worker to the building if it does not yet have one, or the worker died en route. 
+        BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
-
-        // grab a worker unit from WorkerManager which is closest to this final position
+        // Grab a worker unit from WorkerManager which is closest to this final position.
         const sc2::Point2DI test_location = GetBuildingLocation(b);
         if (!bot_.Map().IsOnMap(sc2::Point2D(test_location.x,test_location.y)))
         {
@@ -107,7 +107,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
 
         b.finalPosition = test_location;
 
-        // grab the worker unit from WorkerManager which is closest to this final position
+        // Grab the worker unit from WorkerManager which is closest to this final position.
         const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);
         b.builderUnit = builder_unit_tag;
         if (!b.builderUnit)
@@ -115,7 +115,8 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
             continue;
         }
 
-        // reserve this building's space
+        // Reserve this building's space.
+        // Remember to take add-ons into account!
         int space_for_add_on = 0;
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS
          || b.type == sc2::UNIT_TYPEID::TERRAN_FACTORY 
@@ -125,17 +126,17 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
-            const sc2::Point2DI proxy_location = b.desiredPosition;
-            std::cout << "finalplacementlocation" << proxy_location.x << "x " << proxy_location.y << "y " << std::endl;
+            std::cout << "finalplacementlocation" << b.desiredPosition.x << "x " << b.desiredPosition.y << "y " << std::endl;
         }
 
         b.status = BuildingStatus::Assigned;
     }
 }
 
-// STEP 3: IF OUR WORKERS DIED, ASSIGN THEM AGAIN.
-void BuildingManager::CheckForDeadTerranBuilders()
-{   // for each building that doesn't have a builder, assign one
+// STEP 3: If a worker while trying to build a building, find another worker to use to build the building.
+void BuildingManager::CheckForDeadBuilders()
+{   
+    // For each building that doesn't have a builder, assign one.
     for (Building & b : buildings_)
     {
         if (b.status != BuildingStatus::Unassigned && b.builderUnit->is_alive)
@@ -144,8 +145,8 @@ void BuildingManager::CheckForDeadTerranBuilders()
         }
 
         // grab the worker unit from WorkerManager which is closest to this final position
-        const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);
-        b.builderUnit = builder_unit_tag;
+        const sc2::Unit* builder_unit = bot_.InformationManager().GetBuilder(b);
+        b.builderUnit = builder_unit;
     }
 }
 
@@ -163,44 +164,52 @@ void BuildingManager::ConstructAssignedBuildings()
         const sc2::AbilityID build_ability = Util::UnitTypeIDToAbilityID(b.type);
         const sc2::Unit* builder_unit = b.builderUnit;
 
-        bool is_constructing = false;
 
-        // if we're zerg and the builder unit is null, we assume it morphed into the building
+        // is_construction_in_progress checks and proves that the building construction is actually in progress.
+        // Sometimes a worker will fail to build a building, even if it was previously issued a command to build the building. 
+        // Example: a unit will accidently block placement of a building, preventing the building from ever being built. 
+        bool is_construction_in_progress = false;
+
+        // If we're zerg and the builder unit is null, we assume it morphed into the building.
         if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
         {
             if (!builder_unit)
             {
-                is_constructing = true;
+                is_construction_in_progress = true;
             }
         }
         else
         {
             BOT_ASSERT(builder_unit, "null builder unit");
-            is_constructing = (builder_unit->orders.size() > 0) && (builder_unit->orders[0].ability_id == build_ability);
+            is_construction_in_progress = (builder_unit->orders.size() > 0) && (builder_unit->orders[0].ability_id == build_ability);
         }
 
-        // if that worker is not currently constructing
-        if (!is_constructing)
+        // If the building is not under construction, attempt to begin construction. 
+        if (!is_construction_in_progress)
         {
-            // if we haven't explored the build position, go there
+            // If we haven't explored the build position, go there.
+            // For all current ladder maps, this will always be true. 
+            // We are leaving this in here to insure future compatability (campaign maps, broodwar, etc)
             if (!IsBuildingPositionExplored(b))
             {
                 Micro::SmartMove(builder_unit, sc2::Point2D(b.finalPosition.x,b.finalPosition.y), bot_);
             }
-            // if this is not the first time we've sent this guy to build this
-            // it must be the case that something was in the way of building
+            // If this is not the first time we've sent this guy to build this.
+            // It must be the case that something was in the way of building.
             else if (b.buildCommandGiven)
             {
                 Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                 // TODO: in here is where we would check to see if the builder died on the way
                 //       or if things are taking too long, or the build location is no longer valid
             }
+            // If is_construction_in_progress is not true AND we have already sent a command to build a building, something must have gone wrong. 
+            // Resend the command to build the building.
             else
             {
-                // if it's a refinery, the build command has to be on the geyser unit tag
+                // If it's a refinery, we have to build on a geyser. 
                 if (Util::IsRefineryType(b.type))
                 {
-                    // first we find the geyser at the desired location
+                    // First we find the geyser at the desired location.
                     const sc2::Unit* geyser = nullptr;
                     for (auto & unit : bot_.Observation()->GetUnits())
                     {
@@ -217,35 +226,35 @@ void BuildingManager::ConstructAssignedBuildings()
                     }
                     else
                     {
-                        std::cout << "WARNING: NO VALID GEYSER UNIT FOUND TO BUILD ON, SKIPPING REFINERY\n";
+                        std::cout << "WARNING: NO VALID GEYSER UNIT FOUND TO BUILD ON, SKIPPING REFINERY" << std::endl;
                     }
                 }
-                // if it's not a refinery, we build right on the position
+                // If it's not a refinery, we build right on the position.
                 else
                 {
                     Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                 }
 
-                // set the flag to true
+                // Don't spam build commands. 
                 b.buildCommandGiven = true;
             }
         }
     }
 }
 
-// STEP 5: UPDATE DATA STRUCTURES FOR BUILDINGS STARTING CONSTRUCTION
+// STEP 5: Update data structures for buildings starting construction.
 void BuildingManager::CheckForStartedConstruction()
 {
-    // for each building unit which is being constructed
+    // For each building unit which is being constructed.
     for (auto & building_started : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
     {
-        // filter out units which aren't buildings under construction
+        // Filter out units which aren't buildings under construction.
         if (!Util::IsBuilding(building_started->unit_type) || building_started->build_progress == 0.0f || building_started->build_progress == 1.0f)
         {
             continue;
         }
 
-        // check all our building status objects to see if we have a match and if we do, update it
+        // Check all our building status objects to see if we have a match and if we do, update it.
 
         for (auto & b : buildings_)
         {
@@ -254,49 +263,49 @@ void BuildingManager::CheckForStartedConstruction()
                 continue;
             }
 
-            // check if the positions match
+            // Check if the positions match.
             const float dx = b.finalPosition.x - building_started->pos.x;
             const float dy = b.finalPosition.y - building_started->pos.y;
 
             if (dx*dx + dy*dy < 1)
             {
-                if (b.buildingUnit != 0)
+                if (b.buildingUnit != nullptr)
                 {
-                    std::cout << "Building mis-match somehow\n";
+                    std::cout << "Starting construction on a building that was already assigned a partially completed building." << std::endl;
                 }
                 
-                // flag it as started and set the buildingUnit
+                // Flag it as started and set the buildingUnit.
                 b.underConstruction = true;
                 b.buildingUnit = building_started;
 
-                // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
+                // If we are zerg, the buildingUnit now becomes nullptr since it's destroyed.
                 if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
                 {
-                    b.builderUnit = 0;
+                    b.builderUnit = nullptr;
                 }
                 else if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
                 {
                     // Protoss does not need to keep the worker around after starting construction.
                     bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
-                    b.builderUnit = 0;
+                    b.builderUnit = nullptr;
                 }
 
-                // put it in the under construction vector
+                // Mark the building as "under construction"
                 b.status = BuildingStatus::UnderConstruction;
 
-                // only one building will match
+                // Once we find a building that matches, stop looking for additional matches. 
                 break;
             }
         }
     }
 }
 
-// STEP 6: CHECK FOR COMPLETED BUILDINGS
+// STEP 6: Check for completed buildings.
 void BuildingManager::CheckForCompletedBuildings()
 {
     std::vector<Building> to_remove;
 
-    // for each of our buildings under construction
+    // For each of our buildings under construction.
     for (auto & b : buildings_)
     {
         if (b.status != BuildingStatus::UnderConstruction || !b.buildingUnit)
@@ -304,16 +313,16 @@ void BuildingManager::CheckForCompletedBuildings()
             continue;
         }
         
-        // if the unit has completed
+        // If the building has completed.
         if (b.buildingUnit->build_progress == 1.0f)
         {
-            // if we are terran, give the worker back to worker manager
+            // If we are Terran, give the worker back to worker manager.
             if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
             {
                 bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
             }
 
-            // remove this unit from the under construction vector
+            // This building is completed, no need to ever attempt construction again.
             to_remove.push_back(b);
         }
     }
@@ -321,7 +330,7 @@ void BuildingManager::CheckForCompletedBuildings()
     RemoveBuildings(to_remove);
 }
 
-// add a new building to be constructed
+// Add a new building to be constructed.
 void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::Point2DI& desired_position)
 {
     Building b(type, desired_position);
@@ -329,7 +338,7 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type, const sc2::P
     buildings_.push_back(b);
 }
 
-// TODO: may need to iterate over all tiles of the building footprint
+// TODO: may need to iterate over all tiles of the building footprint.
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
     return bot_.Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
