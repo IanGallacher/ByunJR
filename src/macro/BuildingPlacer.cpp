@@ -15,6 +15,60 @@ void BuildingPlacer::OnStart()
     reserve_map_ = std::vector< std::vector<bool> >(bot_.Map().TrueMapWidth(), std::vector<bool>(bot_.Map().TrueMapHeight(), false));
 }
 
+void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
+{
+    // Remember to take add-ons into account!
+    int space_for_add_on = 0;
+    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+        space_for_add_on = 2;
+
+    const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
+    const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
+    const size_t rwidth = reserve_map_.size();
+    const size_t rheight = reserve_map_[0].size();
+    for (size_t x = building_location.x; x < building_location.x + building_width && x < rwidth; x++)
+    {
+        for (size_t y = building_location.y; y < building_location.y + building_height && y < rheight; y++)
+        {
+            reserve_map_[x][y] = true;
+        }
+    }
+}
+
+void BuildingPlacer::FreeTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
+{
+    // Remember to take add-ons into account!
+    int space_for_add_on = 0;
+    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+        space_for_add_on = 2;
+
+    const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
+    const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
+
+    const int rwidth = static_cast<int>(reserve_map_.size());
+    const int rheight = static_cast<int>(reserve_map_[0].size());
+
+    for (size_t x = building_location.x; x < building_location.x + building_width && x < rwidth; x++)
+    {
+        for (size_t y = building_location.y; y < building_location.y + building_height && y < rheight; y++)
+        {
+            reserve_map_[x][y] = false;
+        }
+    }
+}
+
+bool BuildingPlacer::IsReserved(const int x, const int y) const
+{
+    const int rwidth = static_cast<int>(reserve_map_.size());
+    const int rheight = static_cast<int>(reserve_map_[0].size());
+    if (x < 0 || y < 0 || x >= rwidth || y >= rheight)
+    {
+        return false;
+    }
+
+    return reserve_map_[x][y];
+}
+
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 {
     return bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->IsInResourceBox(x, y);
@@ -193,19 +247,6 @@ bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID t
     return true;
 }
 
-void BuildingPlacer::ReserveTiles(const int bx, const int by, const int width, const int height)
-{
-    const size_t rwidth = reserve_map_.size();
-    const size_t rheight = reserve_map_[0].size();
-    for (size_t x = bx; x < bx + width && x < rwidth; x++)
-    {
-        for (size_t y = by; y < by + height && y < rheight; y++)
-        {
-            reserve_map_[x][y] = true;
-        }
-    }
-}
-
 void BuildingPlacer::DrawReservedTiles()
 {
     if (!bot_.Config().DrawReservedBuildingTiles)
@@ -229,20 +270,6 @@ void BuildingPlacer::DrawReservedTiles()
 
                 bot_.DebugHelper().DrawBox(x1, y1, x2, y2, sc2::Colors::Yellow);
             }
-        }
-    }
-}
-
-void BuildingPlacer::FreeTiles(const int bx, const int by, const int width, const int height)
-{
-    const int rwidth = static_cast<int>(reserve_map_.size());
-    const int rheight = static_cast<int>(reserve_map_[0].size());
-
-    for (int x = bx; x < bx + width && x < rwidth; x++)
-    {
-        for (int y = by; y < by + height && y < rheight; y++)
-        {
-            reserve_map_[x][y] = false;
         }
     }
 }
@@ -281,17 +308,5 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
     }
 
     return closest_geyser;
-}
-
-bool BuildingPlacer::IsReserved(const int x, const int y) const
-{
-    const int rwidth = static_cast<int>(reserve_map_.size());
-    const int rheight = static_cast<int>(reserve_map_[0].size());
-    if (x < 0 || y < 0 || x >= rwidth || y >= rheight)
-    {
-        return false;
-    }
-
-    return reserve_map_[x][y];
 }
 

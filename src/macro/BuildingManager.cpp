@@ -64,14 +64,10 @@ void BuildingManager::StopConstructingDeadBuildings()
     for (auto & b : buildings_)
     {
         // The building MUST be under construction. If it is not, look for the next one. 
-        if (b.status != BuildingStatus::UnderConstruction)
-        {
-            continue;
-        }
+        if (b.status != BuildingStatus::UnderConstruction) continue;
 
         const auto building_unit = b.buildingUnit;
 
-        // TODO: || !b.buildingUnit->getType().isBuilding()
         BOT_ASSERT(Util::IsBuilding(b.buildingUnit->unit_type), "Error: Tried to assign a builder to a building that already had one ");
 
         if (!building_unit || (building_unit->health <= 0))
@@ -90,10 +86,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
     for (Building & b : buildings_)
     {
         // If the building does not yet have a worker assigned to it, go assign one. 
-        if (b.status != BuildingStatus::Unassigned)
-        {
-            continue;
-        }
+        if (b.status != BuildingStatus::Unassigned) continue;
 
         // Only assign a worker to the building if it does not yet have one, or the worker died en route. 
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
@@ -101,28 +94,18 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         // Grab a worker unit from WorkerManager which is closest to this final position.
         const sc2::Point2DI test_location = GetBuildingLocation(b);
         if (!bot_.Map().IsOnMap(sc2::Point2D(test_location.x,test_location.y)))
-        {
             continue;
-        }
 
         b.finalPosition = test_location;
 
         // Grab the worker unit from WorkerManager which is closest to this final position.
         const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);
         b.builderUnit = builder_unit_tag;
-        if (!b.builderUnit)
-        {
+        if (!b.builderUnit) 
             continue;
-        }
 
         // Reserve this building's space.
-        // Remember to take add-ons into account!
-        int space_for_add_on = 0;
-        if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS
-         || b.type == sc2::UNIT_TYPEID::TERRAN_FACTORY 
-         || b.type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-            space_for_add_on = 2;
-        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.finalPosition.x, b.finalPosition.y, Util::GetUnitTypeWidth(b.type, bot_)+ space_for_add_on, Util::GetUnitTypeHeight(b.type, bot_));
+        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
@@ -134,15 +117,13 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
 }
 
 // STEP 3: If a worker while trying to build a building, find another worker to use to build the building.
+//         This is different from step 2 because we don't need to look for a building placement location a second time. 
 void BuildingManager::CheckForDeadBuilders()
 {   
     // For each building that doesn't have a builder, assign one.
     for (Building & b : buildings_)
     {
-        if (b.status != BuildingStatus::Unassigned && b.builderUnit->is_alive)
-        {
-            continue;
-        }
+        if (b.status != BuildingStatus::Unassigned && b.builderUnit->is_alive) continue;
 
         // grab the worker unit from WorkerManager which is closest to this final position
         const sc2::Unit* builder_unit = bot_.InformationManager().GetBuilder(b);
@@ -155,10 +136,7 @@ void BuildingManager::ConstructAssignedBuildings()
 {
     for (auto & b : buildings_)
     {
-        if (b.status != BuildingStatus::Assigned)
-        {
-            continue;
-        }
+        if (b.status != BuildingStatus::Assigned) continue;
 
         // TODO: not sure if this is the correct way to tell if the building is constructing
         const sc2::AbilityID build_ability = Util::UnitTypeIDToAbilityID(b.type);
@@ -258,10 +236,7 @@ void BuildingManager::CheckForStartedConstruction()
 
         for (auto & b : buildings_)
         {
-            if (b.status != BuildingStatus::Assigned)
-            {
-                continue;
-            }
+            if (b.status != BuildingStatus::Assigned) continue;
 
             // Check if the positions match.
             const float dx = b.finalPosition.x - building_started->pos.x;
@@ -308,11 +283,8 @@ void BuildingManager::CheckForCompletedBuildings()
     // For each of our buildings under construction.
     for (auto & b : buildings_)
     {
-        if (b.status != BuildingStatus::UnderConstruction || !b.buildingUnit)
-        {
-            continue;
-        }
-        
+        if (b.status != BuildingStatus::UnderConstruction || !b.buildingUnit) continue; 
+
         // If the building has completed.
         if (b.buildingUnit->build_progress == 1.0f)
         {
