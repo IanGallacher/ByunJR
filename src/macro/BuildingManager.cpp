@@ -150,7 +150,7 @@ void BuildingManager::CheckForDeadBuilders()
     }
 }
 
-// STEP 4: ISSUE CONSTRUCTION ORDERS TO ASSIGN BUILDINGS AS NEEDED
+// STEP 4: Issue construction orders. 
 void BuildingManager::ConstructAssignedBuildings()
 {
     for (auto & b : buildings_)
