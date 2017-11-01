@@ -56,15 +56,11 @@ void ProductionManager::OnBuildingConstructionComplete(const sc2::Unit* unit) {
     }
 }
 
-// on unit destroy
-void ProductionManager::OnUnitDestroyed(const sc2::Unit* unit)
+void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
-    int space_for_add_on = 0;
-    if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-        space_for_add_on = 2;
     // The building is dead! We can build where it used to be!
-    if(Util::IsBuilding(unit->unit_type))
-        bot_.InformationManager().BuildingPlacer().FreeTiles(unit->pos.x, unit->pos.y, Util::GetUnitTypeWidth(unit->unit_type, bot_) + space_for_add_on, Util::GetUnitTypeHeight(unit->unit_type, bot_));
+    if(Util::IsBuilding(building->unit_type))
+        bot_.InformationManager().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
 }
 
 // Called every frame.
