@@ -176,7 +176,7 @@ void ProductionManager::MacroUp() {
             }
         }
     }
-    else
+    else if(bot_.Strategy().MacroGoal() == Strategy::BattlecruiserMacro)
     {
         for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
@@ -191,6 +191,19 @@ void ProductionManager::MacroUp() {
             {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
+            }
+
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS);
+            }
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANVEHICLEANDSHIPPLATING);
+            }
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_FUSIONCORE && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_BATTLECRUISERWEAPONREFIT);
             }
         }
     }
