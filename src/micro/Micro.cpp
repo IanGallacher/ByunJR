@@ -193,7 +193,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     }
 
     // Don't kite workers and buildings. 
-    if (Util::IsBuilding(target->unit_type) && !Util::IsWorker(target))
+    if (Util::IsBuilding(target->unit_type) || Util::IsWorker(target))
     {
         kite = false;
     }
