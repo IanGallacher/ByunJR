@@ -75,7 +75,7 @@ void StrategyManager::OnFrame()
          && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
         {
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
-            Micro::SmartRepairWithSCVCount(unit, 6, bot_);
+            Micro::SmartRepairWithSCVCount(unit, 2, bot_);
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
