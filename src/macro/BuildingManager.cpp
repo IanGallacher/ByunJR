@@ -10,7 +10,6 @@
 
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
-    , debug_mode_(false)
 {
 
 }
@@ -98,7 +97,6 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
 
         BOT_ASSERT(b.builderUnit == 0, "Error: Tried to assign a builder to a building that already had one ");
 
-        if (debug_mode_) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab a worker unit from WorkerManager which is closest to this final position
         const sc2::Point2DI test_location = GetBuildingLocation(b);
@@ -144,8 +142,6 @@ void BuildingManager::CheckForDeadTerranBuilders()
         {
             continue;
         }
-
-        if (debug_mode_) { printf("Assigning Worker To: %s", sc2::UnitTypeToName(b.type)); }
 
         // grab the worker unit from WorkerManager which is closest to this final position
         const sc2::Unit* builder_unit_tag = bot_.InformationManager().GetBuilder(b);

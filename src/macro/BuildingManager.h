@@ -9,8 +9,6 @@ class BuildingManager
 
     std::vector<Building> buildings_;
 
-    bool            debug_mode_;
-
     bool            IsBuildingPositionExplored(const Building & b) const;
     void            RemoveBuildings(const std::vector<Building> & to_remove);
     bool            IsValidBuildLocation(const int x, const int y, sc2::UnitTypeID type) const;
