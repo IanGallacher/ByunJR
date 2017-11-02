@@ -90,6 +90,7 @@ public:
     bool IsTileTypeOf(const int x, const int y, const MapTileType tile_type) const;
     bool IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const;
     bool IsTileCornerOfTileType(const sc2::Point2DI p, const MapTileType tile_type) const;
+    bool IsTileCornerReserved(const sc2::Point2DI p) const;;
     bool IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type,
                                      sc2::UnitTypeID building_type) const;
     sc2::Point2DI GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
