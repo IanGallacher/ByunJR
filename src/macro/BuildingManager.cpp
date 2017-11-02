@@ -147,11 +147,9 @@ void BuildingManager::ConstructAssignedBuildings()
             const sc2::AbilityID build_ability = Util::UnitTypeIDToAbilityID(b.type);
             const sc2::Unit* builder_unit = b.builderUnit;
 
-
             // We are unable to find a worker for the building. Don't try to attempt if we don't have a worker.
             // This handles the situation where a Zerg worker morphs into a building (destroys the worker)
             if (!builder_unit) return;
-
 
             // is_construction_in_progress checks and proves that the building construction is actually in progress.
             // Sometimes a worker will fail to build a building, even if it was previously issued a command to build the building. 

@@ -132,7 +132,7 @@ void BaseLocationManager::OnFrame()
     }
 
     // for each unit on the map, update which base location it may be occupying
-    for (auto & unit : bot_.Observation()->GetUnits(sc2::Unit::Alliance::Ally))
+    for (auto & unit : bot_.Observation()->GetUnits())
     {
         // we only care about buildings on the ground
         if (!Util::IsBuilding(unit->unit_type) || unit->is_flying)
@@ -234,7 +234,6 @@ void BaseLocationManager::OnFrame()
     }
 
     // draw the debug information for each base location
-    
 }
 
 BaseLocation* BaseLocationManager::GetBaseLocation(const sc2::Point2D & pos) const
@@ -299,16 +298,14 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const PlayerArrayIndex player
             continue;
         }
 
-        // get the tile position of the base
-        const auto tile = base->GetDepotPosition();
-        
-        const bool building_in_the_way = bot_.Query()->Placement(Util::UnitTypeIDToAbilityID(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER), 
-                                                                 sc2::Point2D(tile.x, tile.y));
-
-        if (building_in_the_way)
+        if (base->IsOccupiedByPlayer(PlayerArrayIndex::Self)
+         || base->IsOccupiedByPlayer(PlayerArrayIndex::Enemy))
         {
             continue;
         }
+
+        // get the tile position of the base
+        const auto tile = base->GetDepotPosition();
 
         // the base's distance from our main nexus
         const int distance_from_home = bot_.Query()->PathingDistance(tile, home_base->GetPosition());

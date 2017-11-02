@@ -226,9 +226,7 @@ const BuildOrder & StrategyManager::GetOpeningBookBuildOrder() const
 
 bool StrategyManager::ShouldExpandNow() const
 {
-    const int num_bases = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                    + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND);
-    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_)
+    if (bot_.Observation()->GetMinerals() > 400 && bases_safe_)
     {
         return true;
     }

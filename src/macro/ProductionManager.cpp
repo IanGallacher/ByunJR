@@ -161,7 +161,11 @@ void ProductionManager::MacroUp() {
     const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
 
-    if (bot_.Strategy().ShouldExpandNow())
+    if (bot_.Strategy().ShouldExpandNow()
+        // Don't queue more bases than you have minerals for.
+     && queue_.GetItemsInQueueOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
+        < bot_.Observation()->GetMinerals() / 400)
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
     }
@@ -176,7 +180,7 @@ void ProductionManager::MacroUp() {
         {
             // Constantly make SCV's. At this level of play, no reason not to.
             // Skip one scv to get the proxy barracks up faster. 
-            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && (scv_count < 15 || barracks_count > 1) && scv_count < base_count * 23)
+            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && (scv_count < 15 || barracks_count > 1) && scv_count < base_count * 23 && scv_count < 80)
             {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
             }
@@ -194,7 +198,7 @@ void ProductionManager::MacroUp() {
         for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
             // Constantly make SCV's. At this level of play, no reason not to.
-            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && scv_count < base_count * 23)
+            if (Util::IsTownHall(unit) && unit->orders.size() == 0 && scv_count < base_count * 23 && scv_count < 80)
             {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_SCV, bot_);
             }
@@ -202,11 +206,9 @@ void ProductionManager::MacroUp() {
             // Get ready to make CattleBruisers
             if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT && unit->orders.size() == 0)
             {
-                std::cout << "MakingTECHLAB" << std::endl;
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
             }
-
             if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
             {
                 bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS);
@@ -219,6 +221,11 @@ void ProductionManager::MacroUp() {
             {
                 bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_BATTLECRUISERWEAPONREFIT);
             }
+
+            if (base_count > 1 && TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_STARPORT) < base_count - 1)
+            {
+                queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_STARPORT, 2);
+            } 
         }
     }
 }
