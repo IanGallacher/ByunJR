@@ -263,10 +263,10 @@ void BuildingPlacer::DrawReservedTiles()
         {
             if (reserve_map_[x][y] || IsInResourceBox(x, y))
             {
-                const float x1 = x * 32 + 8;
-                const float y1 = y*32 + 8;
-                const float x2 = (x+1)*32 - 8;
-                const float y2 = (y+1)*32 - 8;
+                const float x1 = x+0.5;
+                const float y1 = y+0.5;
+                const float x2 = x-0.5;
+                const float y2 = y-0.5;
 
                 bot_.DebugHelper().DrawBox(x1, y1, x2, y2, sc2::Colors::Yellow);
             }
