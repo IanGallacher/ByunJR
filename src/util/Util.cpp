@@ -683,7 +683,7 @@ bool Util::CanAttackAir(std::vector<sc2::Weapon> weapons)
 {
     for(auto const &  w : weapons)
     {
-        if(w.type == sc2::Weapon::TargetType::Air)
+        if(w.type == sc2::Weapon::TargetType::Air || w.type == sc2::Weapon::TargetType::Any)
             return true;
     }
     return false;
