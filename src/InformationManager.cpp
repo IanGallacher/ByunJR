@@ -303,6 +303,12 @@ const sc2::Unit* InformationManager::GetClosestNotOptimalRefinery(const sc2::Uni
 
     return closest_refinery;
 }
+
+size_t UnitInfoManager::UnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+{
+    return bot_.ProductionManager().NumberOfUnitsInProductionOfType(unit_type);
+}
+
 vvi InformationManager::GetDPSMap() const
 {
     return dps_map_;

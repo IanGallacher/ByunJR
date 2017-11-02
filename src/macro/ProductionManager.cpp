@@ -14,17 +14,6 @@ ProductionManager::ProductionManager(ByunJRBot & bot)
 
 }
 
-void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
-{
-    queue_.ClearAll();
-
-    for (size_t i(0); i<build_order.Size(); ++i)
-    {
-        queue_.QueueAsLowestPriority(build_order[i], true);
-    }
-}
-
-
 void ProductionManager::OnStart()
 {
     planned_supply_depots_ = 0;
@@ -61,6 +50,16 @@ void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
     // The building is dead! We can build where it used to be!
     if(Util::IsBuilding(building->unit_type))
         bot_.InformationManager().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
+}
+
+void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
+{
+    queue_.ClearAll();
+
+    for (size_t i(0); i<build_order.Size(); ++i)
+    {
+        queue_.QueueAsLowestPriority(build_order[i], true);
+    }
 }
 
 // Called every frame.
@@ -113,6 +112,11 @@ void ProductionManager::ManageBuildOrderQueue()
     }
 }
 
+size_t ProductionManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+{
+    return building_manager_.NumberOfUnitsInProductionOfType(unit_type);
+}
+
 bool has_completed_wall = false;
 // Every frame, see if more depots are required. 
 void ProductionManager::PreventSupplyBlock() {
@@ -142,6 +146,13 @@ void ProductionManager::PreventSupplyBlock() {
     }
 }
 
+int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
+{
+    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, unit_type)
+        + queue_.GetItemsInQueueOfType(unit_type)
+        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(unit_type);
+}
+
 // Every frame, see if more depots are required. 
 void ProductionManager::MacroUp() {
     // Macro up.
@@ -151,7 +162,13 @@ void ProductionManager::MacroUp() {
     const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
 
     if (bot_.Strategy().ShouldExpandNow())
+    {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
+    }
+    if(base_count > 1 && TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < base_count*2)
+    {
+        queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
+    }
 
     if(bot_.Strategy().MacroGoal() == Strategy::ReaperRush)
     {
@@ -185,6 +202,7 @@ void ProductionManager::MacroUp() {
             // Get ready to make CattleBruisers
             if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT && unit->orders.size() == 0)
             {
+                std::cout << "MakingTECHLAB" << std::endl;
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
             }

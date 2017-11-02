@@ -131,6 +131,11 @@ const BaseLocationManager & ByunJRBot::Bases() const
     return bases_;
 }
 
+const ProductionManager & ByunJRBot::ProductionManager() const
+{
+    return production_manager_;
+}
+
 ScoutManager & ByunJRBot::Scout()
 {
     return scout_manager_;

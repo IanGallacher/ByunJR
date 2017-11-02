@@ -55,6 +55,16 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
     return false;
 }
 
+size_t BuildingManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+{
+    size_t count = 0;
+    for (const auto & b : buildings_)
+    {
+        if (b.type == unit_type) ++count;
+    }
+    return count;
+}
+
 #pragma region The six steps for constructing a building. 
 // STEP 1: If a building has dies during construction, do not attempt to build it again.
 void BuildingManager::StopConstructingDeadBuildings()

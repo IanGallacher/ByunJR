@@ -135,7 +135,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
                 // Only look for workers that are close to the battlecruiser. 
                 if (distance > 7) continue;
                 // Prioritise the units that can attack us. Otherwise we can simply use the generic code to find a target. 
-                if (!Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[ranged_unit->unit_type].weapons))
+                if (!Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons))
                     continue;
                 if (!best_target || target_unit->health+target_unit->shield < lowest_health)
                 {

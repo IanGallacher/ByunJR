@@ -31,7 +31,6 @@ class StrategyManager
     bool                            initial_scout_set_;
     bool                            second_proxy_worker_set_;
     bool                            bases_safe_;
-    mutable int                     times_expanded_ = 0;
 
     UnitPairVector GetProtossBuildOrderGoal() const;
     UnitPairVector GetTerranBuildOrderGoal() const;

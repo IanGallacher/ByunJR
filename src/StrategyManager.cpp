@@ -228,9 +228,8 @@ bool StrategyManager::ShouldExpandNow() const
 {
     const int num_bases = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
                     + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND);
-    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_ && times_expanded_ < 1)
+    if (bot_.Observation()->GetMinerals() > 400 && num_bases < 3 && bases_safe_)
     {
-        times_expanded_++;
         return true;
     }
     return false;

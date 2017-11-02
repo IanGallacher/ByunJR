@@ -142,6 +142,16 @@ void BuildOrderQueue::RemoveCurrentHighestPriorityItem()
     lowest_priority_  = queue_.empty() ? 0 : lowest_priority_;
 }
 
+int BuildOrderQueue::GetItemsInQueueOfType(sc2::UnitTypeID unit_type) const
+{
+    int return_val = 0;
+    for (const auto & ele : queue_)
+    {
+        if (ele.type == unit_type) return_val++;
+    }
+    return return_val;
+}
+
 size_t BuildOrderQueue::Size() const
 {
     return queue_.size();

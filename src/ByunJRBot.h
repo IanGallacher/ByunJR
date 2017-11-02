@@ -53,6 +53,7 @@ public:
 
           BotConfig & Config();
     const BaseLocationManager & Bases() const;
+    const ProductionManager & ProductionManager() const;
     ScoutManager & Scout();
     DebugManager& DebugHelper();
     InformationManager & InformationManager();

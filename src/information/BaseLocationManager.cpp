@@ -311,7 +311,7 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const PlayerArrayIndex player
         }
 
         // the base's distance from our main nexus
-        const int distance_from_home = home_base->GetGroundDistance(tile);
+        const int distance_from_home = bot_.Query()->PathingDistance(tile, home_base->GetPosition());
 
         // if it is not connected, continue
         if (distance_from_home < 0)

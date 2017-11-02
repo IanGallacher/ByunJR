@@ -31,6 +31,7 @@ public:
     sc2::Point2DI       GetBuildingLocation(const Building & b) const;
 
     bool                IsBeingBuilt(sc2::UnitTypeID type);
+    size_t              NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
 
     std::vector<sc2::UnitTypeID> BuildingsQueued() const;
 };

@@ -36,6 +36,8 @@ public:
     void RemoveHighestPriorityItem();                                        // removes the highest priority item
     void RemoveCurrentHighestPriorityItem();
 
+    int GetItemsInQueueOfType(sc2::UnitTypeID unit_type) const;
+
     size_t Size() const;                                                     // returns the size of the queue
 
     bool IsEmpty() const;
