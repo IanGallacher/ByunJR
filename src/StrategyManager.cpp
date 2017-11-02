@@ -74,8 +74,12 @@ void StrategyManager::OnFrame()
             // Square 10 to avoid taking the square root as part of the distance formula. 
          && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
         {
+            if(bases_safe_)
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
-            Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+            if (!bases_safe_)
+            // If we are in critical danger, pull all the boys!
+                Micro::SmartRepairWithSCVCount(unit, 10, bot_);
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
