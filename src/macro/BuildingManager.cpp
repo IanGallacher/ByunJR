@@ -347,7 +347,7 @@ void BuildingManager::DrawBuildingInformation()
             dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
             bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
-        const UnitInfo* u = bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit);
+        const UnitInfo* u = b.builderUnit ? bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
         const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
         if (b.status == BuildingStatus::Unassigned)
         {
