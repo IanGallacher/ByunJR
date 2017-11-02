@@ -95,7 +95,8 @@ void Micro::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBo
 
 void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot, bool queued_command)
 {
-    // Prevent sending duplicate commands to give an accurate APM measurement in replays
+    // Prevent sending duplicate commands to give an accurate APM measurement in replays.
+    // Spamming every frame also causes bugs in the sc2 engine. 
     bool sent_command_already = false;
     for (sc2::UnitOrder the_order : unit->orders)
     {
@@ -108,9 +109,10 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
         bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position, queued_command);
 }
 
-void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
+ void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
 {
-    // Prevent sending duplicate commands to give an accurate APM measurement in replays
+     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
+     // Spamming every frame also causes bugs in the sc2 engine. 
     bool sent_command_already = false;
     for (sc2::UnitOrder the_order : unit->orders)
     {
@@ -174,7 +176,8 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     //}
 
     bool kite(true);
-    const double dist(bot.Map().GetGroundDistance(ranged_unit->pos, target->pos));
+    //const double dist(bot.Map().GetGroundDistance(ranged_unit->pos, target->pos));
+    const double dist(bot.Query()->PathingDistance(ranged_unit, target->pos));
     const double speed(bot.Observation()->GetUnitTypeData()[ranged_unit->unit_type].movement_speed);
 
 
@@ -192,7 +195,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     }
 
     // Don't kite workers and buildings. 
-    if (Util::IsBuilding(target->unit_type) && !Util::IsWorker(target))
+    if (Util::IsBuilding(target->unit_type) || Util::IsWorker(target))
     {
         kite = false;
     }
@@ -231,12 +234,34 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
 
 void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Point2D pos, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
+    // Prevent sending duplicate commands to give an accurate APM measurement in replays.
+    // Spamming every frame also causes bugs in the sc2 engine. 
+    bool sent_command_already = false;
+    for (sc2::UnitOrder the_order : builder->orders)
+    {
+        if (the_order.ability_id == Util::UnitTypeIDToAbilityID(building_type))
+        {
+            sent_command_already = true;
+        }
+    }
+    if (sent_command_already == false)
+        bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
 }
 
-void Micro::SmartBuildTag(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, ByunJRBot & bot)
+void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, ByunJRBot & bot)
 {
-    bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), target);
+    // Prevent sending duplicate commands to give an accurate APM measurement in replays.
+    // Spamming every frame also causes bugs in the sc2 engine. 
+    bool sent_command_already = false;
+    for (sc2::UnitOrder the_order : builder->orders)
+    {
+        if (the_order.ability_id == Util::UnitTypeIDToAbilityID(building_type))
+        {
+            sent_command_already = true;
+        }
+    }
+    if (sent_command_already == false)
+        bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), target);
 }
 
 void Micro::SmartTrain(const sc2::Unit* production_building, const sc2::UnitTypeID & type_to_train, ByunJRBot & bot)

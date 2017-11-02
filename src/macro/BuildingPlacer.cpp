@@ -15,6 +15,60 @@ void BuildingPlacer::OnStart()
     reserve_map_ = std::vector< std::vector<bool> >(bot_.Map().TrueMapWidth(), std::vector<bool>(bot_.Map().TrueMapHeight(), false));
 }
 
+void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
+{
+    // Remember to take add-ons into account!
+    int space_for_add_on = 0;
+    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+        space_for_add_on = 2;
+
+    const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
+    const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
+    const size_t rwidth = reserve_map_.size();
+    const size_t rheight = reserve_map_[0].size();
+    for (size_t x = building_location.x; x < building_location.x + building_width && x < rwidth; x++)
+    {
+        for (size_t y = building_location.y; y < building_location.y + building_height && y < rheight; y++)
+        {
+            reserve_map_[x][y] = true;
+        }
+    }
+}
+
+void BuildingPlacer::FreeTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
+{
+    // Remember to take add-ons into account!
+    int space_for_add_on = 0;
+    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+        space_for_add_on = 2;
+
+    const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
+    const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
+
+    const int rwidth = static_cast<int>(reserve_map_.size());
+    const int rheight = static_cast<int>(reserve_map_[0].size());
+
+    for (size_t x = building_location.x; x < building_location.x + building_width && x < rwidth; x++)
+    {
+        for (size_t y = building_location.y; y < building_location.y + building_height && y < rheight; y++)
+        {
+            reserve_map_[x][y] = false;
+        }
+    }
+}
+
+bool BuildingPlacer::IsReserved(const int x, const int y) const
+{
+    const int rwidth = static_cast<int>(reserve_map_.size());
+    const int rheight = static_cast<int>(reserve_map_[0].size());
+    if (x < 0 || y < 0 || x >= rwidth || y >= rheight)
+    {
+        return false;
+    }
+
+    return reserve_map_[x][y];
+}
+
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 {
     return bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->IsInResourceBox(x, y);
@@ -113,13 +167,13 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     return true;
 }
 
-sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const Building & b, const int build_dist) const
+sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const sc2::Point2DI desired_loc, const sc2::UnitTypeID building_type, const int build_dist) const
 {
     Timer t;
     t.Start();
 
     // get the precomputed vector of tile positions which are sorted closes to this location
-    auto & closest_to_building = bot_.Map().GetClosestTilesTo(b.desiredPosition);
+    auto & closest_to_building = bot_.Map().GetClosestTilesTo(desired_loc);
 
     double ms1 = t.GetElapsedTimeInMilliSec();
 
@@ -128,7 +182,7 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const Building & b, const int
     {
         auto & pos = closest_to_building[i];
 
-        if (CanBuildHereWithSpace(pos.x, pos.y, b.type, build_dist))
+        if (CanBuildHereWithSpace(pos.x, pos.y, building_type, build_dist))
         {
             double ms = t.GetElapsedTimeInMilliSec();
             //printf("Building Placer Took %d iterations, lasting %lf ms @ %lf iterations/ms, %lf setup ms\n", (int)i, ms, (i / ms), ms1);
@@ -193,19 +247,6 @@ bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID t
     return true;
 }
 
-void BuildingPlacer::ReserveTiles(const int bx, const int by, const int width, const int height)
-{
-    const size_t rwidth = reserve_map_.size();
-    const size_t rheight = reserve_map_[0].size();
-    for (size_t x = bx; x < bx + width && x < rwidth; x++)
-    {
-        for (size_t y = by; y < by + height && y < rheight; y++)
-        {
-            reserve_map_[x][y] = true;
-        }
-    }
-}
-
 void BuildingPlacer::DrawReservedTiles()
 {
     if (!bot_.Config().DrawReservedBuildingTiles)
@@ -222,27 +263,13 @@ void BuildingPlacer::DrawReservedTiles()
         {
             if (reserve_map_[x][y] || IsInResourceBox(x, y))
             {
-                const float x1 = x * 32 + 8;
-                const float y1 = y*32 + 8;
-                const float x2 = (x+1)*32 - 8;
-                const float y2 = (y+1)*32 - 8;
+                const float x1 = x+0.5;
+                const float y1 = y+0.5;
+                const float x2 = x-0.5;
+                const float y2 = y-0.5;
 
                 bot_.DebugHelper().DrawBox(x1, y1, x2, y2, sc2::Colors::Yellow);
             }
-        }
-    }
-}
-
-void BuildingPlacer::FreeTiles(const int bx, const int by, const int width, const int height)
-{
-    const int rwidth = static_cast<int>(reserve_map_.size());
-    const int rheight = static_cast<int>(reserve_map_[0].size());
-
-    for (int x = bx; x < bx + width && x < rwidth; x++)
-    {
-        for (int y = by; y < by + height && y < rheight; y++)
-        {
-            reserve_map_[x][y] = false;
         }
     }
 }
@@ -251,54 +278,35 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
 {
     sc2::Point2DI closest_geyser(0, 0);
     double min_geyser_distance_from_home = std::numeric_limits<double>::max();
-    const sc2::Point2D home_position = bot_.GetStartLocation();
 
-    for (auto & unit : bot_.Observation()->GetUnits())
+    for (auto & geyser : bot_.Observation()->GetUnits())
     {
-        if (!Util::IsGeyser(unit))
+        if (!Util::IsGeyser(geyser))
         {
             continue;
         }
 
-        const sc2::Point2D geyser_pos(unit->pos);
+        const sc2::Point2D geyser_pos(geyser->pos);
 
-        // check to see if it's next to one of our depots
-        bool near_depot = false;
-        for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        // For each of our bases, see if we can build refineries there. 
+        for (auto & base : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
-            if (Util::IsTownHall(unit) && Util::Dist(unit->pos, geyser_pos) < 10)
+            if ( Util::IsTownHall(base) )
             {
-                near_depot = true;
-            }
-        }
+                const double geyser_distance = Util::Dist(geyser->pos, base->pos);
 
-        if (near_depot)
-        {
-            const double home_distance = Util::Dist(unit->pos, home_position);
-
-            if (home_distance < min_geyser_distance_from_home)
-            {
-                if (bot_.Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                if (geyser_distance < min_geyser_distance_from_home)
                 {
-                    min_geyser_distance_from_home = home_distance;
-                    closest_geyser = sc2::Point2DI(unit->pos.x,unit->pos.y);
+                    if (bot_.Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                    {
+                        min_geyser_distance_from_home = geyser_distance;
+                        closest_geyser = sc2::Point2DI(geyser->pos.x, geyser->pos.y);
+                    }
                 }
             }
         }
     }
 
     return closest_geyser;
-}
-
-bool BuildingPlacer::IsReserved(const int x, const int y) const
-{
-    const int rwidth = static_cast<int>(reserve_map_.size());
-    const int rheight = static_cast<int>(reserve_map_[0].size());
-    if (x < 0 || y < 0 || x >= rwidth || y >= rheight)
-    {
-        return false;
-    }
-
-    return reserve_map_[x][y];
 }
 

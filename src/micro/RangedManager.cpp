@@ -60,6 +60,9 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
                 if(ranged_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER)
                 {
                     Micro::SmartAttackUnit(ranged_unit, target, bot_);
+                    // YAMATO THOSE GUYS WHO CAN SHOOT US!
+                    if(Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target->unit_type].weapons))
+                        bot_.Actions()->UnitCommand(ranged_unit, sc2::ABILITY_ID::EFFECT_YAMATOGUN, target);
                 }
                 // attack it
                 else if (bot_.Config().KiteWithRangedUnits)
@@ -92,9 +95,8 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
 
 // get a target for the ranged unit to attack
 // TODO: this is the melee targeting code, replace it with something better for ranged units
-const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, const std::vector<const sc2::Unit*> & targets) const
+const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const std::vector<const sc2::Unit*> & targets) const
 {
-    auto ranged_unit = ranged_unit_tag;
     BOT_ASSERT(ranged_unit, "null ranged unit in getTarget");
 
     int lowest_health = std::numeric_limits<int>::max();
@@ -121,6 +123,28 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, cons
             }
         }
     }
+
+    if (bot_.InformationManager().GetDPSMap()[ranged_unit->pos.y][ranged_unit->pos.x] < 12)
+    {
+        for (auto & target_unit : targets)
+        {
+            if (ranged_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER)
+            {
+                const float distance = Util::Dist(ranged_unit->pos, target_unit->pos);
+
+                // Only look for workers that are close to the battlecruiser. 
+                if (distance > 7) continue;
+                // Prioritise the units that can attack us. Otherwise we can simply use the generic code to find a target. 
+                if (!Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[ranged_unit->unit_type].weapons))
+                    continue;
+                if (!best_target || target_unit->health+target_unit->shield < lowest_health)
+                {
+                    lowest_health = target_unit->health+target_unit->shield;
+                    best_target = target_unit;
+                }
+            }
+        }
+    }
     // The reaper is safe and has a low health worker it wants to attack. 
     if (best_target) return best_target;
 
@@ -129,7 +153,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit_tag, cons
     {
         BOT_ASSERT(target_unit, "null target unit in getTarget");
 
-        const int priority = GetAttackPriority(ranged_unit_tag, target_unit);
+        const int priority = GetAttackPriority(ranged_unit, target_unit);
         const float distance = Util::Dist(ranged_unit->pos, target_unit->pos);
         int f = bot_.Observation()->GetGameLoop();
 

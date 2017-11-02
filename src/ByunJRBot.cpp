@@ -71,9 +71,6 @@ void ByunJRBot::OnStep()
     if (config_.DrawTileInfo)
         debug_.DrawMapWalkableTiles();
 
-    // sc2::Point2D f = map_.GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-    //debug_.DrawBox(f.x, f.y, f.x + 2, f.y + 2, sc2::Colors::Red);
-
     Debug()->SendDebug();
 }
 

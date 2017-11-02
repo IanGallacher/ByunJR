@@ -56,15 +56,11 @@ void ProductionManager::OnBuildingConstructionComplete(const sc2::Unit* unit) {
     }
 }
 
-// on unit destroy
-void ProductionManager::OnUnitDestroyed(const sc2::Unit* unit)
+void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
-    int space_for_add_on = 0;
-    if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-        space_for_add_on = 2;
     // The building is dead! We can build where it used to be!
-    if(Util::IsBuilding(unit->unit_type))
-        bot_.InformationManager().BuildingPlacer().FreeTiles(unit->pos.x, unit->pos.y, Util::GetUnitTypeWidth(unit->unit_type, bot_) + space_for_add_on, Util::GetUnitTypeHeight(unit->unit_type, bot_));
+    if(Util::IsBuilding(building->unit_type))
+        bot_.InformationManager().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
 }
 
 // Called every frame.
@@ -176,7 +172,7 @@ void ProductionManager::MacroUp() {
             }
         }
     }
-    else
+    else if(bot_.Strategy().MacroGoal() == Strategy::BattlecruiserMacro)
     {
         for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
         {
@@ -191,6 +187,19 @@ void ProductionManager::MacroUp() {
             {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
+            }
+
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS);
+            }
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANVEHICLEANDSHIPPLATING);
+            }
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_FUSIONCORE && unit->orders.size() == 0)
+            {
+                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_BATTLECRUISERWEAPONREFIT);
             }
         }
     }
@@ -272,38 +281,18 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
         return;
     }
 
-    const sc2::UnitTypeID t = item.type;
+    const sc2::UnitTypeID item_type = item.type;
 
     // if we're dealing with a building
     // TODO: deal with morphed buildings & addons
-    if (Util::IsBuilding(t))
+    if (Util::IsBuilding(item_type))
     {
-        // send the building task to the building manager
-        if (t == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
-        {
-            const sc2::Point2DI proxy_location = bot_.InformationManager().GetProxyLocation();
-            building_manager_.AddBuildingTask(t, proxy_location);
-        }
-        // Once the code to wall in is in place, uncomment this. 
-        else if(t == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3)
-        {
-            const sc2::Point2D p = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(p.x, p.y));
-        }
-        else if(Util::IsTownHallType(t))
-        {
-            sc2::Point2D p = bot_.Bases().GetNextExpansion(PlayerArrayIndex::Self);
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(static_cast<int>(p.x), static_cast<int>(p.y)));
-        }
-        else
-        {
-            building_manager_.AddBuildingTask(t, sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y));
-        }
+        building_manager_.AddBuildingTask(item_type);
     }
     // if we're dealing with a non-building unit
     else
     {
-        Micro::SmartTrain(producer, t, bot_);
+        Micro::SmartTrain(producer, item_type, bot_);
     }
 }
 

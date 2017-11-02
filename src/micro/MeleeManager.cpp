@@ -85,9 +85,30 @@ const sc2::Unit* MeleeManager::GetTarget(const sc2::Unit* melee_unit, const std:
 {
     BOT_ASSERT(melee_unit, "null melee unit in getTarget");
 
-    int high_priority = 0;
+    int lowest_health = std::numeric_limits<int>::max();
+    int high_priority = std::numeric_limits<int>::max();
     double closest_dist = std::numeric_limits<double>::max();
-    const sc2::Unit* closest_target = nullptr;
+    const sc2::Unit* best_target = nullptr;
+
+    // If our reaper is currently safe, go kill some workers.
+    if (bot_.InformationManager().GetDPSMap()[melee_unit->pos.y][melee_unit->pos.x] < 12)
+    {
+        for (auto & target_unit : targets)
+        {
+            if (Util::IsWorker(target_unit))
+            {
+                const float distance = Util::Dist(melee_unit->pos, target_unit->pos);
+
+                // Only look for workers that are close to the reaper. 
+                if (distance > 7) continue;
+                if (!best_target || target_unit->health < lowest_health)
+                {
+                    lowest_health = target_unit->health;
+                    best_target = target_unit;
+                }
+            }
+        }
+    }
 
     // for each target possiblity
     for (auto & target_unit : targets)
@@ -102,15 +123,16 @@ const sc2::Unit* MeleeManager::GetTarget(const sc2::Unit* melee_unit, const std:
         const float distance = Util::Dist(melee_unit->pos, target_unit->pos);
 
         // if it's a higher priority, or it's closer, set it
-        if (!closest_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))
+        if (!best_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))
         {
             closest_dist = distance;
             high_priority = priority;
-            closest_target = target_unit;
+            best_target = target_unit;
         }
     }
 
-    return closest_target;
+
+    return best_target;
 }
 
 // get the attack priority of a type in relation to a zergling

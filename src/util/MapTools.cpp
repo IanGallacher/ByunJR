@@ -404,6 +404,24 @@ bool MapTools::IsTileCornerOfTileType(const sc2::Point2DI p, const MapTileType t
     return false;
 }
 
+bool MapTools::IsTileCornerReserved(const sc2::Point2DI p) const
+{
+    if (p.x > 0 && p.y < true_map_height_ - 1 &&
+        bot_.InformationManager().BuildingPlacer().IsReserved(p.x - 2, p.y + 2))
+        return true;
+    if (p.x < true_map_width_ - 1 && p.y < true_map_height_ - 1 &&
+        bot_.InformationManager().BuildingPlacer().IsReserved(p.x + 2, p.y + 2))
+        return true;
+    if (p.x > 0 && p.y > 0 &&
+        bot_.InformationManager().BuildingPlacer().IsReserved(p.x - 2, p.y - 2))
+        return true;
+    if (p.x < true_map_width_ - 1 && p.y > 0 &&
+        bot_.InformationManager().BuildingPlacer().IsReserved(p.x + 2, p.y - 2))
+        return true;
+    return false;
+}
+
+
 bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type, const sc2::UnitTypeID building_type) const
 {
     const int width = Util::GetUnitTypeWidth(building_type, bot_);
@@ -442,7 +460,7 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     return false;
 }
 
-sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID building_type) const
+sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID building_type) const
 {
     sc2::Point2D closest_point(0, 0);
     double closest_distance = std::numeric_limits<double>::max();
@@ -467,7 +485,8 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
                 // This allows the depot wall to be built correctly on AbyssalReefLE.
                 if (bot_.Config().MapName == "AbyssalReefLE" &&
                     bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 2
-                 && !IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || TerrainHeight(x, y) < 10.5)
+                 && !(IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || IsTileCornerReserved(sc2::Point2DI(x, y)))
+                 || TerrainHeight(x, y) < 10.5)
                     continue;
 
                 // Don't wall of at Proxima Station's pocket expansion.
@@ -487,5 +506,5 @@ sc2::Point2D MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeID
             }
         }
     }
-    return closest_point;
+    return sc2::Point2DI(closest_point.x, closest_point.y);
 }

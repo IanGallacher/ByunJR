@@ -90,9 +90,10 @@ public:
     bool IsTileTypeOf(const int x, const int y, const MapTileType tile_type) const;
     bool IsTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type) const;
     bool IsTileCornerOfTileType(const sc2::Point2DI p, const MapTileType tile_type) const;
+    bool IsTileCornerReserved(const sc2::Point2DI p) const;;
     bool IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type,
                                      sc2::UnitTypeID building_type) const;
-    sc2::Point2D  GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
+    sc2::Point2DI GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
 
     // returns a list of all tiles on the map, sorted by 4-direcitonal walk distance from the given position
     const std::vector<sc2::Point2DI>& GetClosestTilesTo(const sc2::Point2DI& pos) const;

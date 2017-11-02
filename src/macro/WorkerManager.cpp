@@ -65,20 +65,16 @@ void WorkerManager::AssignGasWorkers() const
             for (int i=0; i<(refinery->ideal_harvesters - num_assigned); ++i)
             {
                 // Find the closest mining scv to the refinery.
-                const ::UnitInfo* gas_worker_info = bot_.InformationManager().GetClosestUnitInfoWithJob(refinery->pos, UnitMission::Minerals);
-                if (gas_worker_info)
-                {
-                    const sc2::Unit* gas_worker = gas_worker_info->unit;
-                    if (!gas_worker) continue;
-                    bot_.InformationManager().UnitInfo().SetJob(gas_worker, UnitMission::Gas);
-                    // Once a unit starts gathering resources, we don't send another command to gather resources. 
-                    // If a unit is already gathering minerals, he won't start mining gas. 
-                    // As a temporary work around, we send the gather command once they get assigned to a geyser. 
-                    // A side effect of this system is the workers will never look for a more optimal mineral field to gather from. 
-                    // TODO: Come up with a better system. 
-                    bot_.Actions()->UnitCommand(gas_worker, sc2::ABILITY_ID::SMART, refinery);
-                    Micro::SmartRightClick(gas_worker, refinery, bot_);
-                }
+                const sc2::Unit* gas_worker = bot_.InformationManager().GetClosestUnitWithJob(refinery->pos, UnitMission::Minerals);
+                if (!gas_worker) continue;
+                bot_.InformationManager().UnitInfo().SetJob(gas_worker, UnitMission::Gas);
+                // Once a unit starts gathering resources, we don't send another command to gather resources. 
+                // If a unit is already gathering minerals, he won't start mining gas. 
+                // As a temporary work around, we send the gather command once they get assigned to a geyser. 
+                // A side effect of this system is the workers will never look for a more optimal mineral field to gather from. 
+                // TODO: Come up with a better system. 
+                bot_.Actions()->UnitCommand(gas_worker, sc2::ABILITY_ID::SMART, refinery);
+                Micro::SmartRightClick(gas_worker, refinery, bot_);
             }
         }
     }

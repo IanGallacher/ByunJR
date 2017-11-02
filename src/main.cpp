@@ -68,8 +68,8 @@ int main(int argc, char* argv[])
 
             coordinator.SetRealtime(false);
 
-            //          Setting this = N means the bot's OnFrame gets called once every N frames
-            //          The bot may crash or do unexpected things if its logic is not called every frame
+            // Setting this = N means the bot's OnFrame gets called once every N frames
+            // The bot may crash or do unexpected things if its logic is not called every frame
             coordinator.SetStepSize(1);
 
             // Add the custom bot, it will control the players.

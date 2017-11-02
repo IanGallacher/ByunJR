@@ -15,6 +15,6 @@ namespace Micro
     void SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int num_repair_workers, ByunJRBot & bot);
     void SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* target, ByunJRBot& bot);
     void SmartBuild     (const sc2::Unit* builder, const sc2::UnitTypeID& building_type, const sc2::Point2D pos, ByunJRBot& bot);
-    void SmartBuildTag  (const sc2::Unit* builder, const sc2::UnitTypeID& building_type, const sc2::Unit* target, ByunJRBot& bot);
+    void SmartBuildGeyser  (const sc2::Unit* builder, const sc2::UnitTypeID& building_type, const sc2::Unit* target, ByunJRBot& bot);
     void SmartTrain     (const sc2::Unit* production_building, const sc2::UnitTypeID& type_to_train, ByunJRBot& bot);
 };

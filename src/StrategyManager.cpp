@@ -74,8 +74,12 @@ void StrategyManager::OnFrame()
             // Square 10 to avoid taking the square root as part of the distance formula. 
          && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition()) < 10*10)
         {
+            if(bases_safe_)
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
-            Micro::SmartRepairWithSCVCount(unit, 6, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+            if (!bases_safe_)
+            // If we are in critical danger, pull all the boys!
+                Micro::SmartRepairWithSCVCount(unit, 10, bot_);
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
@@ -136,36 +140,34 @@ void StrategyManager::SetScoutUnits()
         // Should we send the initial scout?
         if (ShouldSendInitialScout())
         {
-            // grab the closest worker to the supply provider to send to scout
             const ::UnitInfo * worker_scout = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
-            // if we find a worker (which we should) add it to the scout units
+            // If we find a worker (which we should) add it to the Scouting units.
             if (worker_scout)
             {
                 bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
-            // grab the closest worker to the supply provider to send to scout
-            const ::UnitInfo * worker_attacker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
-            // if we find a worker (which we should) add it to the scout units
-            if (worker_scout)
+            // Add a second worker to scout in order to harass the enemy after we find their base. 
+            const ::UnitInfo * worker_attacker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+            if (worker_attacker)
             {
                 bot_.InformationManager().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
             }
         }
-        // Is it time to send the worker to go build the second barracks?
-        if (ShouldSendSecondProxyWorker())
-        {
-            // grab the closest worker to the supply provider to send to scout
-            const ::UnitInfo * proxy_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+    }
+    // Is it time to send the worker to go build the second barracks?
+    if (ShouldSendSecondProxyWorker())
+    {
+        // Grab the closest worker to our base.
+        const ::UnitInfo * proxy_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
-            // if we find a worker (which we should) add it to the scout units
-            if (proxy_worker)
-            {
-                bot_.InformationManager().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
-                second_proxy_worker_set_ = true;
-            }
+        // If we find a worker (which we should) go send it out to proxy.
+        if (proxy_worker)
+        {
+            bot_.InformationManager().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
+            second_proxy_worker_set_ = true;
         }
     }
 }
