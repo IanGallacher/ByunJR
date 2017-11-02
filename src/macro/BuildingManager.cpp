@@ -148,24 +148,15 @@ void BuildingManager::ConstructAssignedBuildings()
             const sc2::Unit* builder_unit = b.builderUnit;
 
 
+            // We are unable to find a worker for the building. Don't try to attempt if we don't have a worker.
+            // This handles the situation where a Zerg worker morphs into a building (destroys the worker)
+            if (!builder_unit) return;
+
+
             // is_construction_in_progress checks and proves that the building construction is actually in progress.
             // Sometimes a worker will fail to build a building, even if it was previously issued a command to build the building. 
             // Example: a unit will accidently block placement of a building, preventing the building from ever being built. 
-            bool is_construction_in_progress = false;
-
-            // If we're zerg and the builder unit is null, we assume it morphed into the building.
-            if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
-            {
-                if (!builder_unit)
-                {
-                    is_construction_in_progress = true;
-                }
-            }
-            else
-            {
-                BOT_ASSERT(builder_unit, "null builder unit");
-                is_construction_in_progress = (builder_unit->orders.size() > 0) && (builder_unit->orders[0].ability_id == build_ability);
-            }
+            bool is_construction_in_progress = (builder_unit->orders.size() > 0) && (builder_unit->orders[0].ability_id == build_ability);
 
             // If the building is not under construction, attempt to begin construction. 
             if (!is_construction_in_progress)
