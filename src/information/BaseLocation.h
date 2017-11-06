@@ -20,8 +20,8 @@ class BaseLocation
     std::vector<sc2::Point2D>                mineral_positions_;
     std::vector<sc2::Point2D>                geyser_positions_;
 
-    std::map<PlayerArrayIndex, bool>         is_player_occupying_;
-    std::map<PlayerArrayIndex, bool>         is_player_start_location_;
+    std::map<sc2::Unit::Alliance, bool>         is_player_occupying_;
+    std::map<sc2::Unit::Alliance, bool>         is_player_start_location_;
         
     int                                      baseID;
     float                                    left_;
@@ -44,11 +44,11 @@ public:
     const sc2::Point2D & GetPosition() const;
     const std::vector<const sc2::Unit*>& GetGeysers() const;
     const std::vector<const sc2::Unit*>& GetMinerals() const;
-    bool IsOccupiedByPlayer(PlayerArrayIndex player) const;
+    bool IsOccupiedByPlayer(sc2::Unit::Alliance player) const;
     bool IsExplored() const;
     bool IsInResourceBox(int x, int y) const;
 
-    void SetPlayerOccupying(PlayerArrayIndex player, bool occupying);
+    void SetPlayerOccupying(sc2::Unit::Alliance player, bool occupying);
 
     const std::vector<sc2::Point2DI> & GetClosestTiles() const;
 

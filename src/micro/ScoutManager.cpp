@@ -52,7 +52,7 @@ void ScoutManager::MoveScouts()
         if (!scout || scout->unit->health <= 0) { return; }
 
         // get the enemy base location, if we have one
-        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
         // If we know where the enemy region is, use the scouts to harass the enemy workers.
         if (enemy_base_location)
@@ -88,7 +88,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
     float min_dist = std::numeric_limits<float>::max();
 
     // for each enemy worker
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::IsWorker(unit))
         {
@@ -106,7 +106,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
 }
 bool ScoutManager::EnemyWorkerInRadiusOf(const sc2::Point2D & pos) const
 {
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::IsWorker(unit) && Util::Dist(unit->pos, pos) < 10)
         {

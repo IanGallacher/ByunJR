@@ -26,14 +26,15 @@ void InformationManager::OnStart()
     {
         if (player_info.player_id == player_id)
         {
-            player_race_[static_cast<int>(PlayerArrayIndex::Self)] = player_info.race_actual;
+            player_race_[player_info.player_id] = player_info.race_actual;
         }
         else
         {
-            player_race_[static_cast<int>(PlayerArrayIndex::Enemy)] = player_info.race_requested;
+            player_race_[player_info.player_id] = player_info.race_requested;
         }
     }
-
+    dps_map_ = vvi{};
+    dps_map_.clear();
     for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
     {
         dps_map_.push_back(std::vector<int>());
@@ -60,7 +61,7 @@ void InformationManager::OnFrame()
     unit_info_.OnFrame();
 
     // Reset dps_map_
-    for (const auto & unit : unit_info_.GetUnits(PlayerArrayIndex::Enemy))
+    for (const auto & unit : unit_info_.GetUnits(sc2::Unit::Alliance::Enemy))
     {
         for (int y = 0; y < dps_map_.size(); ++y)
         {
@@ -72,7 +73,7 @@ void InformationManager::OnFrame()
     }
 
     // Update dps_map_
-    for(const auto & unit : unit_info_.GetUnits(PlayerArrayIndex::Enemy))
+    for(const auto & unit : unit_info_.GetUnits(sc2::Unit::Alliance::Enemy))
     {
         const int damage = Util::GetAttackDamage(unit->unit_type, bot_);
         if (damage == 0) continue;
@@ -117,11 +118,10 @@ sc2::Point2DI InformationManager::GetProxyLocation() const
     return bot_.GetProxyManager().GetProxyLocation();
 }
 
-// TODO: Figure out my race
-const sc2::Race & InformationManager::GetPlayerRace(PlayerArrayIndex player) const
+const sc2::Race & InformationManager::GetPlayerRace(uint32_t player) const
 {
-    BOT_ASSERT(player == PlayerArrayIndex::Self || player == PlayerArrayIndex::Enemy, "invalid player for GetPlayerRace");
-    return player_race_[static_cast<int>(player)];
+    BOT_ASSERT(player < 1 || player_race_.size(), "invalid player for GetPlayerRace");
+    return player_race_.at(player);
 }
 
 const sc2::Unit* InformationManager::GetBuilder(Building& b, const bool set_job_as_builder)
@@ -144,7 +144,7 @@ const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_u
     const sc2::Unit* closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
         ||  unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
@@ -171,7 +171,7 @@ const ::UnitInfo * InformationManager::GetClosestUnitInfoWithJob(const sc2::Poin
     const ::UnitInfo * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self))
     {
         const ::UnitInfo & unit_info = unit_info_pair.second;
         if (unit_info.mission == unit_mission)
@@ -193,7 +193,7 @@ const sc2::Unit * InformationManager::GetClosestUnitWithJob(const sc2::Point2D r
     const sc2::Unit * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self))
     {
         const ::UnitInfo & unit_info = unit_info_pair.second;
         if (unit_info.mission == unit_mission)
@@ -216,7 +216,7 @@ const UnitInfo* InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D
     const ::UnitInfo * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self))
     {
         if (std::find(mission_vector.begin(), mission_vector.end(), unit_info_pair.second.mission) != mission_vector.end())
         {
@@ -239,7 +239,7 @@ const sc2::Unit* InformationManager::GetClosestUnitWithJob(const sc2::Point2D po
     const sc2::Unit * closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self))
+    for (auto & unit_info_pair : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self))
     {
         const ::UnitInfo & unit_info = unit_info_pair.second;
         if (std::find(mission_vector.begin(), mission_vector.end(), unit_info.mission) != mission_vector.end())
@@ -262,7 +262,7 @@ const sc2::Unit* InformationManager::GetClosestUnitOfType(const sc2::Unit* refer
     const sc2::Unit* closest_unit = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
 
-    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         if (unit->unit_type == reference_type_id)
         {
@@ -283,7 +283,7 @@ const sc2::Unit* InformationManager::GetClosestNotOptimalRefinery(const sc2::Uni
     const sc2::Unit* closest_refinery = nullptr;
     double closest_distance = std::numeric_limits<double>::max();
     // Find all our refineries. If they not full, fill em up.
-    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
         {

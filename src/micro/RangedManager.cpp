@@ -40,7 +40,7 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
             && ranged_unit->health < ranged_unit->health_max / 5)
         {
             bot_.Actions()->UnitCommand(ranged_unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP,
-                bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition());
+                bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition());
             bot_.InformationManager().UnitInfo().SetJob(ranged_unit, UnitMission::Wait);
             continue;
         }

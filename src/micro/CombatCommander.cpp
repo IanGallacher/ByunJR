@@ -90,7 +90,7 @@ bool CombatCommander::ShouldWeStartAttacking() const
 
 sc2::Point2D CombatCommander::GetMainAttackLocation() const
 {
-    const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+    const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
     // First choice: Attack an enemy region if we can see units inside it
     if (enemy_base_location)
@@ -106,7 +106,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
 
         // First choice: attack the known enemy base location. 
         // if it has been explored, go there if there are any visible enemy units there
-        for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+        for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
         {
             if (Util::Dist(enemy_unit->pos, enemy_base_position) < 25)
             {
@@ -117,7 +117,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
     }
 
     // Second choice: Attack known enemy buildings
-    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Enemy))
+    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Enemy))
     {
         const UnitInfo & ui = kv.second;
 
@@ -128,7 +128,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
     }
 
     // Third choice: Attack visible enemy units that aren't overlords
-    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (enemy_unit->unit_type != sc2::UNIT_TYPEID::ZERG_OVERLORD)
         {

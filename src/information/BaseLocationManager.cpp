@@ -12,12 +12,12 @@ BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
 void BaseLocationManager::OnStart()
 {
     tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.Map().TrueMapWidth(), std::vector<BaseLocation*>(bot_.Map().TrueMapHeight(), nullptr));
-    player_starting_base_locations_[PlayerArrayIndex::Self]  = nullptr;
-    player_starting_base_locations_[PlayerArrayIndex::Enemy] = nullptr; 
+    player_starting_base_locations_[sc2::Unit::Alliance::Self]  = nullptr;
+    player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = nullptr; 
 
     // construct the sets of occupied base locations
-    occupied_base_locations_[PlayerArrayIndex::Self] = std::set<const BaseLocation*>();
-    occupied_base_locations_[PlayerArrayIndex::Enemy] = std::set<const BaseLocation*>();
+    occupied_base_locations_[sc2::Unit::Alliance::Self] = std::set<const BaseLocation*>();
+    occupied_base_locations_[sc2::Unit::Alliance::Enemy] = std::set<const BaseLocation*>();
     enemy_base_scouted_ = false;
     
     // a BaseLocation will be anything where there are minerals to mine
@@ -86,7 +86,7 @@ void BaseLocationManager::OnStart()
         // if it's our starting location, set the pointer
         if (base_location.IsPlayerStartLocation())
         {
-            player_starting_base_locations_[PlayerArrayIndex::Self] = &base_location;
+            player_starting_base_locations_[sc2::Unit::Alliance::Self] = &base_location;
         }
 
         // If there is only one enemy spawn location, we know where the enemy is. 
@@ -95,7 +95,7 @@ void BaseLocationManager::OnStart()
         {
             // Make sure that there really only is one enemy base. 
             assert(enemy_base_scouted_ == false);
-            player_starting_base_locations_[PlayerArrayIndex::Enemy] = &base_location;
+            player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = &base_location;
             enemy_base_scouted_ = true;
         }
     }
@@ -127,8 +127,8 @@ void BaseLocationManager::OnFrame()
     // reset the player occupation information for each location
     for (auto & base_location : base_location_data_)
     {
-        base_location.SetPlayerOccupying(PlayerArrayIndex::Self, false);
-        base_location.SetPlayerOccupying(PlayerArrayIndex::Enemy, false);
+        base_location.SetPlayerOccupying(sc2::Unit::Alliance::Self, false);
+        base_location.SetPlayerOccupying(sc2::Unit::Alliance::Enemy, false);
     }
 
     // for each unit on the map, update which base location it may be occupying
@@ -149,7 +149,7 @@ void BaseLocationManager::OnFrame()
     }
 
     // update enemy base occupations
-    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Enemy))
+    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Enemy))
     {
         const UnitInfo & ui = kv.second;
 
@@ -162,7 +162,7 @@ void BaseLocationManager::OnFrame()
 
         if (base_location != nullptr)
         {
-            base_location->SetPlayerOccupying(PlayerArrayIndex::Enemy, true);
+            base_location->SetPlayerOccupying(sc2::Unit::Alliance::Enemy, true);
         }
     }
 
@@ -171,20 +171,20 @@ void BaseLocationManager::OnFrame()
     if (!enemy_base_scouted_)
     {
         // 1. we've seen the enemy base directly, so the baselocation will know the enemy location.
-        if (player_starting_base_locations_[PlayerArrayIndex::Enemy] == nullptr)
+        if (player_starting_base_locations_[sc2::Unit::Alliance::Enemy] == nullptr)
         {
             for (auto & base_location : base_location_data_)
             {
                 if (base_location.IsPlayerStartLocation())
                 {
-                     player_starting_base_locations_[PlayerArrayIndex::Enemy] = &base_location;
+                     player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = &base_location;
                      enemy_base_scouted_ = true;
                 }
             }
         }
     
         // 2. we've explored every other start location and haven't seen the enemy yet
-        if (player_starting_base_locations_[PlayerArrayIndex::Enemy] == nullptr)
+        if (player_starting_base_locations_[sc2::Unit::Alliance::Enemy] == nullptr)
         {
             const int num_start_locations = static_cast<int>(GetStartingBaseLocations().size());
             int num_explored_locations = 0;
@@ -210,26 +210,26 @@ void BaseLocationManager::OnFrame()
             // if we have explored all but one location, then the unexplored one is the enemy start location
             if (num_explored_locations == num_start_locations - 1 && unexplored != nullptr)
             {
-                player_starting_base_locations_[PlayerArrayIndex::Enemy] = unexplored;
-                unexplored->SetPlayerOccupying(PlayerArrayIndex::Enemy, true);
+                player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = unexplored;
+                unexplored->SetPlayerOccupying(sc2::Unit::Alliance::Enemy, true);
                 enemy_base_scouted_ = true;
             }
         }
     }
 
     // update the occupied base locations for each player
-    occupied_base_locations_[PlayerArrayIndex::Self] = std::set<const BaseLocation*>();
-    occupied_base_locations_[PlayerArrayIndex::Enemy] = std::set<const BaseLocation*>();
+    occupied_base_locations_[sc2::Unit::Alliance::Self] = std::set<const BaseLocation*>();
+    occupied_base_locations_[sc2::Unit::Alliance::Enemy] = std::set<const BaseLocation*>();
     for (auto & base_location : base_location_data_)
     {
-        if (base_location.IsOccupiedByPlayer(PlayerArrayIndex::Self))
+        if (base_location.IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
         {
-            occupied_base_locations_[PlayerArrayIndex::Self].insert(&base_location);
+            occupied_base_locations_[sc2::Unit::Alliance::Self].insert(&base_location);
         }
 
-        if (base_location.IsOccupiedByPlayer(PlayerArrayIndex::Enemy))
+        if (base_location.IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
         {
-            occupied_base_locations_[PlayerArrayIndex::Enemy].insert(&base_location);
+            occupied_base_locations_[sc2::Unit::Alliance::Enemy].insert(&base_location);
         }
     }
 
@@ -256,7 +256,7 @@ void BaseLocationManager::DrawBaseLocations()
     }
 
     // draw a purple sphere at the next expansion location
-    const sc2::Point2D next_expansion_position = GetNextExpansion(PlayerArrayIndex::Self);
+    const sc2::Point2D next_expansion_position = GetNextExpansion(sc2::Unit::Alliance::Self);
 
     bot_.DebugHelper().DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
     bot_.DebugHelper().DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
@@ -272,17 +272,17 @@ const std::vector<const BaseLocation*> & BaseLocationManager::GetStartingBaseLoc
     return starting_base_locations_;
 }
 
-const BaseLocation* BaseLocationManager::GetPlayerStartingBaseLocation(const PlayerArrayIndex player) const
+const BaseLocation* BaseLocationManager::GetPlayerStartingBaseLocation(const sc2::Unit::Alliance player) const
 {
     return player_starting_base_locations_.at(player);
 }
 
-const std::set<const BaseLocation*> & BaseLocationManager::GetOccupiedBaseLocations(const PlayerArrayIndex player) const
+const std::set<const BaseLocation*> & BaseLocationManager::GetOccupiedBaseLocations(const sc2::Unit::Alliance player) const
 {
     return occupied_base_locations_.at(player);
 }
 
-sc2::Point2D BaseLocationManager::GetNextExpansion(const PlayerArrayIndex player) const
+sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance player) const
 {
     const BaseLocation* home_base = GetPlayerStartingBaseLocation(player);
     const BaseLocation* closest_base = nullptr;
@@ -298,8 +298,8 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const PlayerArrayIndex player
             continue;
         }
 
-        if (base->IsOccupiedByPlayer(PlayerArrayIndex::Self)
-         || base->IsOccupiedByPlayer(PlayerArrayIndex::Enemy))
+        if (base->IsOccupiedByPlayer(sc2::Unit::Alliance::Self)
+         || base->IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
         {
             continue;
         }

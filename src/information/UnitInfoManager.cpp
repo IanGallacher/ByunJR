@@ -36,12 +36,12 @@ void UnitInfoManager::OnUnitDestroyed(const sc2::Unit* unit)
 
 void UnitInfoManager::UpdateUnitInfo()
 {
-    units_[PlayerArrayIndex::Self].clear();
-    units_[PlayerArrayIndex::Enemy].clear();
+    units_[sc2::Unit::Alliance::Self].clear();
+    units_[sc2::Unit::Alliance::Enemy].clear();
 
     for (auto & unit : bot_.Observation()->GetUnits())
     {
-        if (Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy)
+        if (Util::GetPlayer(unit) == sc2::Unit::Alliance::Self || Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy)
         {
             UpdateUnit(unit);
             units_[Util::GetPlayer(unit)].push_back(unit);
@@ -49,16 +49,16 @@ void UnitInfoManager::UpdateUnitInfo()
     }
 
     // remove bad enemy units
-    unit_data_[PlayerArrayIndex::Self].RemoveBadUnits();
-    unit_data_[PlayerArrayIndex::Enemy].RemoveBadUnits();
+    unit_data_[sc2::Unit::Alliance::Self].RemoveBadUnits();
+    unit_data_[sc2::Unit::Alliance::Enemy].RemoveBadUnits();
 }
 
-const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const PlayerArrayIndex player) const
+const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const sc2::Unit::Alliance player) const
 {
     return GetUnitData(player).GetUnitInfoMap();
 }
 
-const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(PlayerArrayIndex player) const
+const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(sc2::Unit::Alliance player) const
 {
     BOT_ASSERT(units_.find(player) != units_.end(), "Couldn't find player units: %d", player);
 
@@ -189,7 +189,7 @@ void UnitInfoManager::DrawSelectedUnitDebugInfo() const
 }
 
 // passing in a unit type of 0 returns a count of all units
-size_t UnitInfoManager::GetUnitTypeCount(const PlayerArrayIndex player, const sc2::UnitTypeID type, const bool include_incomplete_buildings) const
+size_t UnitInfoManager::GetUnitTypeCount(const sc2::Unit::Alliance player, const sc2::UnitTypeID type, const bool include_incomplete_buildings) const
 {
     size_t count = 0;
 
@@ -216,8 +216,8 @@ void UnitInfoManager::DrawUnitInformation() const
     // for each unit in the queue
     for (int t(0); t < 255; t++)
     {
-        const int num_units =      unit_data_.at(PlayerArrayIndex::Self).GetNumUnits(t);
-        const int num_dead_units =  unit_data_.at(PlayerArrayIndex::Enemy).GetNumDeadUnits(t);
+        const int num_units =      unit_data_.at(sc2::Unit::Alliance::Self).GetNumUnits(t);
+        const int num_dead_units =  unit_data_.at(sc2::Unit::Alliance::Enemy).GetNumDeadUnits(t);
 
         // if there exist units in the vector
         if (num_units > 0)
@@ -226,7 +226,7 @@ void UnitInfoManager::DrawUnitInformation() const
         }
     }
     
-    for (auto & kv : GetUnitData(PlayerArrayIndex::Enemy).GetUnitInfoMap())
+    for (auto & kv : GetUnitData(sc2::Unit::Alliance::Enemy).GetUnitInfoMap())
     {
         bot_.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
         bot_.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
@@ -235,7 +235,7 @@ void UnitInfoManager::DrawUnitInformation() const
 
 int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
 {
-    return unit_data_[PlayerArrayIndex::Self].GetNumAssignedWorkers(depot);
+    return unit_data_[sc2::Unit::Alliance::Self].GetNumAssignedWorkers(depot);
 }
 
 // mission_target is optional. Only required when a repair target is needed. 
@@ -247,13 +247,13 @@ void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const
 // This can only return your workers, not the enemy workers. 
 std::set<const UnitInfo*> UnitInfoManager::GetWorkers()
 {
-    return unit_data_[PlayerArrayIndex::Self].GetWorkers();
+    return unit_data_[sc2::Unit::Alliance::Self].GetWorkers();
 }
 
 // This can only return your scouts, not the enemy scouts. 
 std::set<const UnitInfo*> UnitInfoManager::GetScouts()
 {
-    return unit_data_[PlayerArrayIndex::Self].GetScouts();
+    return unit_data_[sc2::Unit::Alliance::Self].GetScouts();
 }
 
 const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
@@ -265,7 +265,7 @@ const UnitInfo* UnitInfoManager::GetUnitInfo(const sc2::Unit* unit)
 
 void UnitInfoManager::UpdateUnit(const sc2::Unit* unit)
 {
-    if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
+    if (!(Util::GetPlayer(unit) == sc2::Unit::Alliance::Self || Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy))
     {
         return;
     }
@@ -277,7 +277,7 @@ void UnitInfoManager::UpdateUnit(const sc2::Unit* unit)
 bool UnitInfoManager::IsValidUnit(const sc2::Unit* unit)
 {
     // we only care about our units and enemy units
-    if (!(Util::GetPlayer(unit) == PlayerArrayIndex::Self || Util::GetPlayer(unit) == PlayerArrayIndex::Enemy))
+    if (!(Util::GetPlayer(unit) == sc2::Unit::Alliance::Self || Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy))
     {
         return false;
     }
@@ -298,7 +298,7 @@ bool UnitInfoManager::IsValidUnit(const sc2::Unit* unit)
     return true;
 }
 
-void UnitInfoManager::GetNearbyForce(std::vector<UnitInfo> & unit_info, sc2::Point2D p, const PlayerArrayIndex player, const float radius) const
+void UnitInfoManager::GetNearbyForce(std::vector<UnitInfo> & unit_info, sc2::Point2D p, const sc2::Unit::Alliance player, const float radius) const
 {
     bool has_bunker = false;
     // for each unit we know about for that player
@@ -317,7 +317,7 @@ void UnitInfoManager::GetNearbyForce(std::vector<UnitInfo> & unit_info, sc2::Poi
 }
 
 // Shorthand for the weird syntax required to get the unit data. This is available only inside this function. 
-const UnitData & UnitInfoManager::GetUnitData(const PlayerArrayIndex player) const
+const UnitData & UnitInfoManager::GetUnitData(const sc2::Unit::Alliance player) const
 {
     return unit_data_.find(player)->second;
 }
@@ -326,18 +326,18 @@ const UnitData & UnitInfoManager::GetUnitData(const PlayerArrayIndex player) con
 // unitData does not publicly expose this function to prevent accidental requsting of the set of enemy combat units. 
 std::set<const UnitInfo*> UnitInfoManager::GetCombatUnits() const
 {
-    return GetUnitData(PlayerArrayIndex::Self).GetCombatUnits();
+    return GetUnitData(sc2::Unit::Alliance::Self).GetCombatUnits();
 }
 
 int UnitInfoManager::GetNumRepairWorkers(const sc2::Unit* unit) const
 {
-    return GetUnitData(PlayerArrayIndex::Self).GetNumRepairWorkers(unit);
+    return GetUnitData(sc2::Unit::Alliance::Self).GetNumRepairWorkers(unit);
 }
 
 // The game considers raised and lowered supply depots as different units. 
 // This gets the total number you have, regardless if they are raised or lower. 
-int UnitInfoManager::GetNumDepots(PlayerArrayIndex self) const
+int UnitInfoManager::GetNumDepots(sc2::Unit::Alliance self) const
 {
-    return GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-        + GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
+    return GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+        + GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
 }

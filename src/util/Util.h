@@ -14,7 +14,7 @@ namespace Util
         IsUnit(sc2::UNIT_TYPEID type);
     };
 
-    PlayerArrayIndex GetPlayer(const sc2::Unit* unit);
+    sc2::Unit::Alliance GetPlayer(const sc2::Unit* unit);
     bool IsCombatUnit(const sc2::Unit* unit);
     bool IsCombatUnitType(const sc2::UnitTypeID type);
     bool IsSupplyProvider(const sc2::Unit* unit);

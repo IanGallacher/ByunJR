@@ -71,7 +71,7 @@ bool BuildingPlacer::IsReserved(const int x, const int y) const
 
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 {
-    return bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->IsInResourceBox(x, y);
+    return bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->IsInResourceBox(x, y);
 }
 
 // makes final checks to see if a building can be built at a certain location
@@ -217,8 +217,8 @@ bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc
         // dimensions of the base location
         const int bx1 = static_cast<int>(base->GetDepotPosition().x);
         const int by1 = static_cast<int>(base->GetDepotPosition().y);
-        const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self)), bot_);
-        const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self)), bot_);
+        const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
+        const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
 
         // conditions for non-overlap are easy
         const bool no_overlap = (tx2 < bx1) || (tx1 > bx2) || (ty2 < by1) || (ty1 > by2);
@@ -289,7 +289,7 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
         const sc2::Point2D geyser_pos(geyser->pos);
 
         // For each of our bases, see if we can build refineries there. 
-        for (auto & base : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        for (auto & base : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
         {
             if ( Util::IsTownHall(base) )
             {

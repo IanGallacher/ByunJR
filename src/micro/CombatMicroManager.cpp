@@ -28,7 +28,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     std::set<const sc2::Unit*> nearby_enemies;
 
     // Get all relavant units that are close to our combat unit.
-    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::Dist(enemy_unit->pos, order_.GetPosition()) < order_.GetRadius())
         {
@@ -43,7 +43,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     //        auto unit = bot_.unitTag;
     //        BOT_ASSERT(unit, "null unit in attack");
 
-    //        for (auto & enemyUnit : bot_.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+    //        for (auto & enemyUnit : bot_.InformationManager().UnitInfo().getUnits(sc2::Unit::Alliance::Enemy))
     //        {
     //            if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
     //            {

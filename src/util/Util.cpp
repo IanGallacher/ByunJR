@@ -231,25 +231,25 @@ bool Util::IsDetectorType(const sc2::UnitTypeID & type)
     }
 }
 
-PlayerArrayIndex Util::GetPlayer(const sc2::Unit* unit)
+sc2::Unit::Alliance Util::GetPlayer(const sc2::Unit* unit)
 {
-    if (!unit) { return PlayerArrayIndex::Error; }
+    if (!unit) { return sc2::Unit::Alliance(0); }
     if (unit->alliance == sc2::Unit::Alliance::Self)
     {
-        return PlayerArrayIndex::Self;
+        return sc2::Unit::Alliance::Self;
     }
 
     else if (unit->alliance == sc2::Unit::Alliance::Enemy)
     {
-        return PlayerArrayIndex::Enemy;
+        return sc2::Unit::Alliance::Enemy;
     }
 
     else if (unit->alliance == sc2::Unit::Alliance::Neutral)
     {
-        return PlayerArrayIndex::Neutral;
+        return sc2::Unit::Alliance::Neutral;
     }
 
-    return PlayerArrayIndex::Error;
+    return sc2::Unit::Alliance(0);
 }
 
 bool Util::IsCombatUnitType(const sc2::UnitTypeID type)
@@ -498,7 +498,7 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
 int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot)
 {
     float total_dps = 0;
-    for (auto & enemyunit : bot.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & enemyunit : bot.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         double dist = Util::Dist(enemyunit->pos, unit_pos);
         double range = GetAttackRange(enemyunit->unit_type, bot);

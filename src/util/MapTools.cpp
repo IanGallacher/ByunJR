@@ -343,7 +343,7 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 {
     int min_seen = std::numeric_limits<int>::max();
     sc2::Point2DI least_seen(0, 0);
-    const BaseLocation* base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self);
+    const BaseLocation* base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
 
     for (auto& tile : base_location->GetClosestTiles())
     {
@@ -466,7 +466,7 @@ sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeI
     double closest_distance = std::numeric_limits<double>::max();
 
     // Get the closest ramp to our starting base. 
-    const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition();
+    const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition();
 
     const float base_height = TerrainHeight(base_location.x, base_location.y);
 
@@ -484,14 +484,14 @@ sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeI
                 // The first depot in a wall has to be next to, well, a wall. 
                 // This allows the depot wall to be built correctly on AbyssalReefLE.
                 if (bot_.Config().MapName == "AbyssalReefLE" &&
-                    bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 2
+                    bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 2
                  && !(IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || IsTileCornerReserved(sc2::Point2DI(x, y)))
                  || TerrainHeight(x, y) < 10.5)
                     continue;
 
                 // Don't wall of at Proxima Station's pocket expansion.
                 if (bot_.Config().MapName == "ProximaStationLE" 
-                    && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3
+                    && bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
                  && ((y < 49 || y > 119) || TerrainHeight(x, y) < 10.5))
                     continue;
 

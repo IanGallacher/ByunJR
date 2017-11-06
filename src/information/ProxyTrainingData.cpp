@@ -13,7 +13,7 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     playable_max_ = bot.Observation()->GetGameInfo().playable_max;
     playable_min_ = bot.Observation()->GetGameInfo().playable_min;
 
-    player_start_y_ = (int)bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition().y;
+    player_start_y_ = (int)bot.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition().y;
     // This won't work for four player maps.
     enemy_start_y_ = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 

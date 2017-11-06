@@ -14,7 +14,7 @@ struct UnitInfo
 
     float             lastHealth;
     float             lastShields;
-    PlayerArrayIndex  player;
+    sc2::Unit::Alliance  player;
     const sc2::Unit*  unit;
     sc2::Point3D      lastPosition;
     sc2::UnitTypeID   type;
@@ -28,7 +28,7 @@ struct UnitInfo
 
     UnitInfo()
         : lastHealth(0)
-        , player(PlayerArrayIndex::Error)
+        , player(sc2::Unit::Alliance (0))
         , lastPosition(sc2::Point3D(0, 0, 0))
         , type(0)
         , mission(UnitMission::Idle)

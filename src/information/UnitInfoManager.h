@@ -9,15 +9,15 @@ class UnitInfoManager
 {
     ByunJRBot &              bot_;
 
-    std::map<PlayerArrayIndex, UnitData> unit_data_;
+    std::map<sc2::Unit::Alliance, UnitData> unit_data_;
 
-    std::map<PlayerArrayIndex, std::vector<const sc2::Unit*>> units_;
+    std::map<sc2::Unit::Alliance, std::vector<const sc2::Unit*>> units_;
 
     void                    UpdateUnit(const sc2::Unit* unit);
     void                    UpdateUnitInfo();
     bool                    IsValidUnit(const sc2::Unit* unit);
     
-    const UnitData &        GetUnitData(PlayerArrayIndex player) const;
+    const UnitData &        GetUnitData(sc2::Unit::Alliance player) const;
 
     void DrawSelectedUnitDebugInfo() const;
 
@@ -29,13 +29,13 @@ public:
     void                    OnFrame();
     void                    OnUnitDestroyed(const sc2::Unit* unit);
 
-    const std::vector<const sc2::Unit*>& GetUnits(PlayerArrayIndex player) const;
+    const std::vector<const sc2::Unit*>& GetUnits(sc2::Unit::Alliance player) const;
 
-    size_t                  GetUnitTypeCount(PlayerArrayIndex player, sc2::UnitTypeID type, bool completed = true) const;
+    size_t                  GetUnitTypeCount(sc2::Unit::Alliance player, sc2::UnitTypeID type, bool completed = true) const;
 
-    void                    GetNearbyForce(std::vector<UnitInfo>& unit_info, sc2::Point2D p, PlayerArrayIndex player, float radius) const;
+    void                    GetNearbyForce(std::vector<UnitInfo>& unit_info, sc2::Point2D p, sc2::Unit::Alliance player, float radius) const;
 
-    const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap(PlayerArrayIndex player) const;
+    const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap(sc2::Unit::Alliance player) const;
 
     //bool                  enemyHasCloakedUnits() const;
     void                    DrawUnitInformation() const;
@@ -46,6 +46,6 @@ public:
     const UnitInfo* GetUnitInfo(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetCombatUnits() const;
     int GetNumRepairWorkers(const sc2::Unit* unit) const;
-    int GetNumDepots(PlayerArrayIndex self) const;
+    int GetNumDepots(sc2::Unit::Alliance self) const;
     size_t UnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
 };

@@ -34,8 +34,8 @@ void WorkerManager::AssignIdleWorkers() const
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
-        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Scout
-            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Proxy)
+        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self).at(worker_info->unit->tag).mission == UnitMission::Scout
+            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self).at(worker_info->unit->tag).mission == UnitMission::Proxy)
         {
             continue;
         }
@@ -53,7 +53,7 @@ void WorkerManager::AssignIdleWorkers() const
 void WorkerManager::AssignGasWorkers() const
 {
     // for each unit we have
-    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // if that unit is a refinery
         if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))

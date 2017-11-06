@@ -10,12 +10,12 @@ class ByunJRBot;
 // Only include InformationManager, and use it to get and set specific information about the game.
 class InformationManager
 {
-    ByunJRBot &              bot_;
-    BuildingPlacer           building_placer_;
-    UnitInfoManager          unit_info_;
+    ByunJRBot &                     bot_;
+    BuildingPlacer                  building_placer_;
+    UnitInfoManager                 unit_info_;
 
-    sc2::Race                player_race_[2];
-    vvi                      dps_map_;
+    std::map<uint32_t, sc2::Race>   player_race_;
+    vvi                             dps_map_;
 
 public:
     InformationManager(ByunJRBot & bot);
@@ -29,7 +29,7 @@ public:
     sc2::Point2DI GetProxyLocation() const;
 
     const sc2::Unit* GetBuilder(Building& b, bool set_job_as_builder = true);
-    const sc2::Race & GetPlayerRace(PlayerArrayIndex player) const;
+    const sc2::Race & GetPlayerRace(uint32_t player) const;
 
     const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;
     const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const UnitMission) const;

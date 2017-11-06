@@ -16,7 +16,7 @@ DebugManager::DebugManager(ByunJRBot & bot)
 
 void DebugManager::DrawResourceDebugInfo() const
 {
-    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
 
     for (auto const & unit_info : ui)
     {
@@ -100,7 +100,7 @@ void DebugManager::DrawMapWalkableTiles() const
 void DebugManager::DrawAllUnitInformation() const
 {
     std::stringstream ss;
-    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
 
     ss << "Workers: " << ui.size() << std::endl;
 

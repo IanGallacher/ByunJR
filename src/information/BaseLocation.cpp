@@ -16,11 +16,11 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
     , top_                  (std::numeric_limits<float>::lowest())
     , bottom_               (std::numeric_limits<float>::max())
 {
-    is_player_start_location_[PlayerArrayIndex::Self] = false;
+    is_player_start_location_[sc2::Unit::Alliance::Self] = false;
     // Enemy start locations are simply POTENTIAL spawn locations.
-    is_player_start_location_[PlayerArrayIndex::Enemy] = false;
-    is_player_occupying_[PlayerArrayIndex::Self] = false;
-    is_player_occupying_[PlayerArrayIndex::Enemy] = false;
+    is_player_start_location_[sc2::Unit::Alliance::Enemy] = false;
+    is_player_occupying_[sc2::Unit::Alliance::Self] = false;
+    is_player_occupying_[sc2::Unit::Alliance::Enemy] = false;
 
     float resource_center_x = 0;
     float resource_center_y = 0;
@@ -72,7 +72,7 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
         if (ContainsPosition(pos))
         {
             is_start_location_ = true;
-            is_player_start_location_[PlayerArrayIndex::Enemy] = true;
+            is_player_start_location_[sc2::Unit::Alliance::Enemy] = true;
             depot_position_ = pos;
         }
     }
@@ -80,11 +80,11 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
     // if this base location position is near our own resource depot, it's our start location
     for (auto & unit : bot_.Observation()->GetUnits())
     {
-        if (Util::GetPlayer(unit) == PlayerArrayIndex::Self && Util::IsTownHall(unit) && ContainsPosition(unit->pos))
+        if (Util::GetPlayer(unit) == sc2::Unit::Alliance::Self && Util::IsTownHall(unit) && ContainsPosition(unit->pos))
         {
-            is_player_start_location_[PlayerArrayIndex::Self] = true;
+            is_player_start_location_[sc2::Unit::Alliance::Self] = true;
             is_start_location_ = true;
-            is_player_occupying_[PlayerArrayIndex::Self] = true;
+            is_player_occupying_[sc2::Unit::Alliance::Self] = true;
             break;
         }
     }
@@ -106,12 +106,12 @@ const sc2::Point2D & BaseLocation::GetDepotPosition() const
     return GetPosition();
 }
 
-void BaseLocation::SetPlayerOccupying(const PlayerArrayIndex player, const bool occupying)
+void BaseLocation::SetPlayerOccupying(const sc2::Unit::Alliance player, const bool occupying)
 {
     is_player_occupying_[player] = occupying;
 
     // if this base is a start location that's occupied by the enemy, it's that enemy's start location
-    if (occupying && player == PlayerArrayIndex::Enemy && IsStartLocation() && is_player_start_location_[player] == false)
+    if (occupying && player == sc2::Unit::Alliance::Enemy && IsStartLocation() && is_player_start_location_[player] == false)
     {
         is_player_start_location_[player] = true;
     }
@@ -122,7 +122,7 @@ bool BaseLocation::IsInResourceBox(const int x, const int y) const
     return x >= left_ && x < right_ && y < top_ && y >= bottom_;
 }
 
-bool BaseLocation::IsOccupiedByPlayer(const PlayerArrayIndex player) const
+bool BaseLocation::IsOccupiedByPlayer(const sc2::Unit::Alliance player) const
 {
     return is_player_occupying_.at(player);
 }
@@ -132,15 +132,15 @@ bool BaseLocation::IsExplored() const
     return false;
 }
 // isPlayerStartLocation returns if you spawned at the given location. 
-// isPlayerStartLocation.at(PlayerArrayIndex::Enemy) only gives POTENTIAL enemy spawn locations. 
+// isPlayerStartLocation.at(sc2::Unit::Alliance::Enemy) only gives POTENTIAL enemy spawn locations. 
 // For clarity, there is a seprate function for that. 
 bool BaseLocation::IsPlayerStartLocation() const
 {
-    return is_player_start_location_.at(PlayerArrayIndex::Self);
+    return is_player_start_location_.at(sc2::Unit::Alliance::Self);
 }
 bool BaseLocation::IsPotentialEnemyStartLocation() const
 {
-    return is_player_start_location_.at(PlayerArrayIndex::Enemy);
+    return is_player_start_location_.at(sc2::Unit::Alliance::Enemy);
 }
 
 bool BaseLocation::IsMineralOnly() const
@@ -201,12 +201,12 @@ void BaseLocation::Draw()
     ss << "Geysers:      " << geyser_positions_.size() << std::endl;
     ss << "Occupied By:  ";
 
-    if (IsOccupiedByPlayer(PlayerArrayIndex::Self))
+    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
     {
         ss << "Self ";
     }
 
-    if (IsOccupiedByPlayer(PlayerArrayIndex::Enemy))
+    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
     {
         ss << "Enemy ";
     }

@@ -27,9 +27,10 @@ void ByunJRBot::OnGameStart()
     // Ignore file extension of the local_map_path.
     config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
-    strategy_.OnStart();
     map_.OnStart();
     information_manager_.OnStart();
+
+    strategy_.OnStart();
     bases_.OnStart();
 
     production_manager_.OnStart();
