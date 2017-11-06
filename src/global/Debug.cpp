@@ -26,7 +26,7 @@ void DebugManager::DrawResourceDebugInfo() const
         //auto depot = bot_.GetUnit(workerData.getWorkerDepot(workerTag));
         //if (depot)
         //{
-        //    bot_.Map().drawLine(bot_.GetUnit(workerTag)->pos, depot->pos);
+        //    bot_.InformationManager().Map().drawLine(bot_.GetUnit(workerTag)->pos, depot->pos);
         //}
     }
 }
@@ -46,16 +46,16 @@ void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
 
 void DebugManager::DrawMapSectors() const
 {
-    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
         {
-            if (!bot_.Map().IsOnMap(x, y))
+            if (!bot_.InformationManager().Map().IsOnMap(x, y))
             {
                 continue;
             }
             std::stringstream ss;
-            ss << bot_.Map().GetSectorNumber(x, y);
+            ss << bot_.InformationManager().Map().GetSectorNumber(x, y);
             bot_.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, max_z_ + 0.1f), sc2::Colors::Yellow);
         }
     }
@@ -64,16 +64,16 @@ void DebugManager::DrawMapSectors() const
 void DebugManager::DrawMapWalkableTiles() const
 {
     const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
-    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
         {
-            if (!bot_.Map().IsOnMap(x, y))
+            if (!bot_.InformationManager().Map().IsOnMap(x, y))
             {
                 continue;
             }
-            sc2::Color color = bot_.Map().IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
-            if (bot_.Map().IsWalkable(x, y) && !bot_.Map().IsBuildable(x, y))
+            sc2::Color color = bot_.InformationManager().Map().IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
+            if (bot_.InformationManager().Map().IsWalkable(x, y) && !bot_.InformationManager().Map().IsBuildable(x, y))
             {
                 color = sc2::Colors::Yellow;
             }
@@ -93,7 +93,7 @@ void DebugManager::DrawMapWalkableTiles() const
 //        std::stringstream ss;
 //        ss << "Workers: " << getNumAssignedWorkers(base);
 //
-//        bot_.Map().drawText(base->pos, ss.str());
+//        bot_.InformationManager().Map().drawText(base->pos, ss.str());
 //    }
 //}
 
@@ -190,7 +190,7 @@ void DebugManager::DrawTextScreen(const sc2::Point2D& pos, const std::string & s
 
 void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point2D unit_pos, const sc2::Color color) const
 {
-    DrawBoxAroundUnit(unit_type, sc2::Point3D(unit_pos.x, unit_pos.y, bot_.Map().TerrainHeight(unit_pos.x, unit_pos.y)), color);
+    DrawBoxAroundUnit(unit_type, sc2::Point3D(unit_pos.x, unit_pos.y, bot_.InformationManager().Map().TerrainHeight(unit_pos.x, unit_pos.y)), color);
 }
 
 void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point3D unit_pos, const sc2::Color color) const

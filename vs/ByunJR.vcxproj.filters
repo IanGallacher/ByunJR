@@ -66,9 +66,6 @@
     <ClCompile Include="..\src\macro\Building.cpp">
       <Filter>macro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\util\MapTools.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\macro\WorkerManager.cpp">
       <Filter>macro</Filter>
     </ClCompile>
@@ -97,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="..\src\micro\CombatMicroManager.cpp">
       <Filter>micro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\information\MapTools.cpp">
+      <Filter>information</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,9 +170,6 @@
     <ClInclude Include="..\src\common\Common.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\MapTools.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\macro\WorkerManager.h">
       <Filter>macro</Filter>
     </ClInclude>
@@ -204,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="..\src\micro\CombatMicroManager.h">
       <Filter>micro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\information\MapTools.h">
+      <Filter>information</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

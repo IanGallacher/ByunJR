@@ -7,8 +7,6 @@
 ByunJRBot::ByunJRBot()
     : combat_commander_(*this)
     , information_manager_(*this)
-    , map_(*this)
-    , bases_(*this)
     , strategy_(*this)
     , production_manager_(*this)
     , scout_manager_(*this)
@@ -27,11 +25,9 @@ void ByunJRBot::OnGameStart()
     // Ignore file extension of the local_map_path.
     config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
-    map_.OnStart();
     information_manager_.OnStart();
 
     strategy_.OnStart();
-    bases_.OnStart();
 
     production_manager_.OnStart();
     scout_manager_.OnStart();
@@ -45,11 +41,9 @@ void ByunJRBot::OnStep()
     if (frame_skip_ % 2) return;
     Control()->GetObservation();
 
-    map_.OnFrame();
     information_manager_.OnFrame();
     strategy_.OnFrame();
 
-    bases_.OnFrame();
     strategy_.OnFrame();
     workers_.OnFrame();
 
@@ -112,11 +106,6 @@ BotConfig & ByunJRBot::Config()
      return config_;
 }
 
-const MapTools & ByunJRBot::Map() const
-{
-    return map_;
-}
-
 const StrategyManager & ByunJRBot::Strategy() const
 {
     return strategy_;
@@ -125,11 +114,6 @@ const StrategyManager & ByunJRBot::Strategy() const
 InformationManager & ByunJRBot::InformationManager()
 {
     return information_manager_;
-}
-
-const BaseLocationManager & ByunJRBot::Bases() const
-{
-    return bases_;
 }
 
 const ProductionManager & ByunJRBot::ProductionManager() const

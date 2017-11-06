@@ -11,7 +11,7 @@ BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
 
 void BaseLocationManager::OnStart()
 {
-    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.Map().TrueMapWidth(), std::vector<BaseLocation*>(bot_.Map().TrueMapHeight(), nullptr));
+    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.InformationManager().Map().TrueMapWidth(), std::vector<BaseLocation*>(bot_.InformationManager().Map().TrueMapHeight(), nullptr));
     player_starting_base_locations_[sc2::Unit::Alliance::Self]  = nullptr;
     player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = nullptr; 
 
@@ -46,7 +46,7 @@ void BaseLocationManager::OnStart()
             if (dist < cluster_distance)
             {
                 // now do a more expensive ground distance check
-                const float ground_dist = dist; //bot_.Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
+                const float ground_dist = dist; //bot_.InformationManager().Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
                 if (ground_dist >= 0 && ground_dist < cluster_distance)
                 {
                     cluster.push_back(resource);
@@ -101,9 +101,9 @@ void BaseLocationManager::OnStart()
     }
 
     // construct the map of tile positions to base locations
-    for (float x=0; x < bot_.Map().TrueMapWidth(); ++x)
+    for (float x=0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
     {
-        for (int y=0; y < bot_.Map().TrueMapHeight(); ++y)
+        for (int y=0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
         {
             for (auto & base_location : base_location_data_)
             {
@@ -238,7 +238,7 @@ void BaseLocationManager::OnFrame()
 
 BaseLocation* BaseLocationManager::GetBaseLocation(const sc2::Point2D & pos) const
 {
-    if (!bot_.Map().IsOnMap(pos)) { std::cout << "Warning: requeste base location not on map" << std::endl; return nullptr; }
+    if (!bot_.InformationManager().Map().IsOnMap(pos)) { std::cout << "Warning: requeste base location not on map" << std::endl; return nullptr; }
 
     return tile_base_locations_[static_cast<int>(pos.x)][static_cast<int>(pos.y)];
 }

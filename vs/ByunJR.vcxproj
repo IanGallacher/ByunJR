@@ -436,6 +436,7 @@
     <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\information\BaseLocation.cpp" />
     <ClCompile Include="..\src\information\BaseLocationManager.cpp" />
+    <ClCompile Include="..\src\information\MapTools.cpp" />
     <ClCompile Include="..\src\information\ProxyTrainingData.cpp" />
     <ClCompile Include="..\src\information\UnitData.cpp" />
     <ClCompile Include="..\src\information\UnitInfoManager.cpp" />
@@ -460,7 +461,6 @@
     <ClCompile Include="..\src\StrategyManager.cpp" />
     <ClCompile Include="..\src\util\DistanceMap.cpp" />
     <ClCompile Include="..\src\util\JSONTools.cpp" />
-    <ClCompile Include="..\src\util\MapTools.cpp" />
     <ClCompile Include="..\src\util\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -474,6 +474,7 @@
     <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\information\BaseLocation.h" />
     <ClInclude Include="..\src\information\BaseLocationManager.h" />
+    <ClInclude Include="..\src\information\MapTools.h" />
     <ClInclude Include="..\src\information\ProxyTrainingData.h" />
     <ClInclude Include="..\src\information\UnitData.h" />
     <ClInclude Include="..\src\information\UnitInfo.h" />
@@ -498,7 +499,6 @@
     <ClInclude Include="..\src\StrategyManager.h" />
     <ClInclude Include="..\src\util\DistanceMap.h" />
     <ClInclude Include="..\src\util\JSONTools.h" />
-    <ClInclude Include="..\src\util\MapTools.h" />
     <ClInclude Include="..\src\util\Timer.hpp" />
     <ClInclude Include="..\src\util\Util.h" />
   </ItemGroup>

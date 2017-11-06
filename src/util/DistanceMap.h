@@ -1,4 +1,8 @@
 #pragma once
+#include "common/Common.h"
+
+class ByunJRBot;
+
 class DistanceMap 
 {
     int width_;

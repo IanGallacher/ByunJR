@@ -9,7 +9,9 @@
 
 InformationManager::InformationManager(ByunJRBot & bot)
     : bot_(bot)
+    , bases_(bot)
     , building_placer_(bot)
+    , map_(bot)
     , unit_info_(bot)
 {
 
@@ -17,28 +19,30 @@ InformationManager::InformationManager(ByunJRBot & bot)
 
 void InformationManager::OnStart()
 {
+    map_.OnStart();
     building_placer_.OnStart();
     unit_info_.OnStart();
+    bases_.OnStart();
 
-    // get my race
+    // WARNING: Will only support two player games. 
     const auto player_id = bot_.Observation()->GetPlayerID();
     for (auto & player_info : bot_.Observation()->GetGameInfo().player_info)
     {
         if (player_info.player_id == player_id)
         {
-            player_race_[player_info.player_id] = player_info.race_actual;
+            player_race_[sc2::Unit::Alliance::Self] = player_info.race_actual;
         }
         else
         {
-            player_race_[player_info.player_id] = player_info.race_requested;
+            player_race_[sc2::Unit::Alliance::Enemy] = player_info.race_requested;
         }
     }
     dps_map_ = vvi{};
     dps_map_.clear();
-    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
     {
         dps_map_.push_back(std::vector<int>());
-        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
         {
             // There is an inherit "danger" for traveling through any square. 
             // Don't use 0, otherwise we won't find the "shortest and safest path"
@@ -58,7 +62,9 @@ void InformationManager::OnUnitDestroyed(const sc2::Unit* unit)
 
 void InformationManager::OnFrame()
 {
+    map_.OnFrame();
     unit_info_.OnFrame();
+    bases_.OnFrame();
 
     // Reset dps_map_
     for (const auto & unit : unit_info_.GetUnits(sc2::Unit::Alliance::Enemy))
@@ -93,19 +99,29 @@ void InformationManager::OnFrame()
         }
     }
 
-    for (int y = 0; y < bot_.Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_.Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
         {
-            if (!bot_.Map().IsWalkable(x, y))
+            if (!bot_.InformationManager().Map().IsWalkable(x, y))
                 dps_map_[y][x] = 999;
         }
     }
 }
 
+const BaseLocationManager & InformationManager::Bases() const
+{
+    return bases_;
+}
+
 BuildingPlacer & InformationManager::BuildingPlacer()
 {
     return building_placer_;
+}
+
+const MapTools & InformationManager::Map() const
+{
+    return map_;
 }
 
 UnitInfoManager & InformationManager::UnitInfo()
@@ -118,7 +134,7 @@ sc2::Point2DI InformationManager::GetProxyLocation() const
     return bot_.GetProxyManager().GetProxyLocation();
 }
 
-const sc2::Race & InformationManager::GetPlayerRace(uint32_t player) const
+const sc2::Race & InformationManager::GetPlayerRace(sc2::Unit::Alliance player) const
 {
     BOT_ASSERT(player < 1 || player_race_.size(), "invalid player for GetPlayerRace");
     return player_race_.at(player);

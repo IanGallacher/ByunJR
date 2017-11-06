@@ -3,17 +3,17 @@
 #include <sc2api/sc2_api.h>
 
 #include "InformationManager.h"
+#include "StrategyManager.h"
 #include "global/BotConfig.h"
 #include "global/Debug.h"
-#include "StrategyManager.h"
+#include "information/BaseLocationManager.h"
+#include "information/MapTools.h"
 #include "macro/BuildingManager.h"
 #include "macro/ProductionManager.h"
 #include "micro/ProxyManager.h"
 #include "macro/WorkerManager.h"
 #include "micro/ScoutManager.h"
 #include "micro/CombatCommander.h"
-#include "information/BaseLocationManager.h"
-#include "util/MapTools.h"
 
 #define DllExport   __declspec( dllexport )  
 
@@ -22,8 +22,6 @@ class ByunJRBot : public sc2::Agent
     CombatCommander          combat_commander_;
     InformationManager       information_manager_;
 
-    MapTools                 map_;
-    BaseLocationManager      bases_;
     StrategyManager          strategy_;
     BotConfig                config_;
 
@@ -52,12 +50,10 @@ public:
     void Resign();
 
           BotConfig & Config();
-    const BaseLocationManager & Bases() const;
     const ProductionManager & ProductionManager() const;
     ScoutManager & Scout();
     DebugManager& DebugHelper();
     InformationManager & InformationManager();
-    const MapTools & Map() const;
     ProxyManager & GetProxyManager();
     const StrategyManager & Strategy() const;
     sc2::Point2D GetStartLocation() const;

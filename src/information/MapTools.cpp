@@ -2,9 +2,9 @@
 #include <fstream>
 
 #include "ByunJRBot.h"
-#include "common/Common.h"
 #include "common/BotAssert.h"
-#include "util/MapTools.h"
+#include "common/Common.h"
+#include "information/MapTools.h"
 #include "util/Util.h"
 
 const size_t LegalActions = 4;
@@ -343,7 +343,7 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 {
     int min_seen = std::numeric_limits<int>::max();
     sc2::Point2DI least_seen(0, 0);
-    const BaseLocation* base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
+    const BaseLocation* base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
 
     for (auto& tile : base_location->GetClosestTiles())
     {
@@ -363,13 +363,13 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 bool MapTools::IsTileTypeOf(const int x, const int y, const MapTileType tile_type) const
 {
     if (tile_type == MapTileType::CantWalk
-     && !bot_.Map().IsWalkable(x, y))
+     && !bot_.InformationManager().Map().IsWalkable(x, y))
          return true;;
     if (tile_type == MapTileType::CantBuild
-     && !bot_.Map().IsBuildable(x, y))
+     && !bot_.InformationManager().Map().IsBuildable(x, y))
          return true;
     if (tile_type == MapTileType::Ramp &&
-        bot_.Map().IsWalkable(x, y) && !bot_.Map().IsBuildable(x, y))
+        bot_.InformationManager().Map().IsWalkable(x, y) && !bot_.InformationManager().Map().IsBuildable(x, y))
         return true;
     return false;
 }
@@ -438,7 +438,7 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     // TODO: recalculate start and end positions for addons
 
     // if this rectangle doesn't fit on the map we can't build here
-    if (endx < 0 || endy < 0 || startx > bot_.Map().TrueMapWidth() || starty > bot_.Map().TrueMapHeight())
+    if (endx < 0 || endy < 0 || startx > bot_.InformationManager().Map().TrueMapWidth() || starty > bot_.InformationManager().Map().TrueMapHeight())
     {
         return false;
     }
@@ -466,7 +466,7 @@ sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeI
     double closest_distance = std::numeric_limits<double>::max();
 
     // Get the closest ramp to our starting base. 
-    const sc2::Point2D base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition();
+    const sc2::Point2D base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition();
 
     const float base_height = TerrainHeight(base_location.x, base_location.y);
 

@@ -31,7 +31,7 @@ void ProxyManager::OnUnitCreated(const sc2::Unit* unit)
 {
     if (bot_.Config().TrainingMode && unit->unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !first_reaper_created_)
     {
-        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
+        const BaseLocation* enemy_base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
         bot_.Resign();
         ptd_.RecordResult(static_cast<int>(bot_.Query()->PathingDistance(unit, enemy_base_location->GetPosition())));

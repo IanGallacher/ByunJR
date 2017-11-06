@@ -90,7 +90,7 @@ bool CombatCommander::ShouldWeStartAttacking() const
 
 sc2::Point2D CombatCommander::GetMainAttackLocation() const
 {
-    const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
+    const BaseLocation* enemy_base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
     // First choice: Attack an enemy region if we can see units inside it
     if (enemy_base_location)
@@ -99,7 +99,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
         //const sc2::Point2D enemyBasePosition = bot_.Observation()->GetGameInfo().enemy_start_locations[0];//enemyBaseLocation->getPosition();
 
         // If the enemy base hasn't been seen yet, go there.
-        if (!bot_.Map().IsExplored(enemy_base_position))
+        if (!bot_.InformationManager().Map().IsExplored(enemy_base_position))
         {
             return enemy_base_position;
         }
@@ -140,7 +140,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
     return sc2::Point2D(0, 0);
 
     // Fourth choice: We can't see anything so explore the map attacking along the way
-    //return bot_.Map().getLeastRecentlySeenPosition();
+    //return bot_.InformationManager().Map().getLeastRecentlySeenPosition();
 }
 
 //
@@ -194,7 +194,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
 //    Squad & scoutDefenseSquad = squadData.getSquad("ScoutDefense");
 //
 //    // get the region that our base is located in
-//    const BaseLocation* myBaseLocation = bot_.Bases().getPlayerStartingBaseLocation(Players::Self);
+//    const BaseLocation* myBaseLocation = bot_.InformationManager().Bases().getPlayerStartingBaseLocation(Players::Self);
 //    BOT_ASSERT(myBaseLocation, "null self base location");
 //
 //    // get all of the enemy units in this region
@@ -257,8 +257,8 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
 //    }
 //
 //    // for each of our occupied regions
-//    const BaseLocation* enemyBaseLocation = bot_.Bases().getPlayerStartingBaseLocation(Players::Enemy);
-//    for (const BaseLocation* myBaseLocation : bot_.Bases().getOccupiedBaseLocations(Players::Self))
+//    const BaseLocation* enemyBaseLocation = bot_.InformationManager().Bases().getPlayerStartingBaseLocation(Players::Enemy);
+//    for (const BaseLocation* myBaseLocation : bot_.InformationManager().Bases().getOccupiedBaseLocations(Players::Self))
 //    {
 //        // don't defend inside the enemy region, this will end badly when we are stealing gas or cannon rushing
 //        if (myBaseLocation == enemyBaseLocation)

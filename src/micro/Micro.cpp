@@ -176,7 +176,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     //}
 
     bool kite(true);
-    //const double dist(bot.Map().GetGroundDistance(ranged_unit->pos, target->pos));
+    //const double dist(bot.InformationManager().Map().GetGroundDistance(ranged_unit->pos, target->pos));
     const double dist(bot.Query()->PathingDistance(ranged_unit, target->pos));
     const double speed(bot.Observation()->GetUnitTypeData()[ranged_unit->unit_type].movement_speed);
 

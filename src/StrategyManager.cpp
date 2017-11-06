@@ -72,7 +72,7 @@ void StrategyManager::OnFrame()
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
          && unit->health != unit->health_max
             // Square 10 to avoid taking the square root as part of the distance formula. 
-         && Util::DistSq(unit->pos,bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition()) < 10*10)
+         && Util::DistSq(unit->pos,bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition()) < 10*10)
         {
             if(bases_safe_)
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 

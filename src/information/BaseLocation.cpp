@@ -64,7 +64,7 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
 
     // compute this BaseLocation's DistanceMap, which will compute the ground distance
     // from the center of its recourses to every other tile on the map
-    distance_map_ = bot_.Map().GetDistanceMap(sc2::Point2DI(center_of_resources_.x, center_of_resources_.y));
+    distance_map_ = bot_.InformationManager().Map().GetDistanceMap(sc2::Point2DI(center_of_resources_.x, center_of_resources_.y));
 
     // check to see if this is a start location for the map
     for (auto & pos : bot_.Observation()->GetGameInfo().enemy_start_locations)
@@ -150,7 +150,7 @@ bool BaseLocation::IsMineralOnly() const
 
 bool BaseLocation::ContainsPosition(const sc2::Point2D & pos) const
 {
-    if (!bot_.Map().IsOnMap(pos) || (pos.x == 0 && pos.y == 0))
+    if (!bot_.InformationManager().Map().IsOnMap(pos) || (pos.x == 0 && pos.y == 0))
     {
         return false;
     }

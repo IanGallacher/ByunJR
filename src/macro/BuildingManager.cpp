@@ -103,7 +103,7 @@ void BuildingManager::FindBuildingLocation()
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
         b.finalPosition = GetBuildingLocation(b);
-        BOT_ASSERT(bot_.Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
+        BOT_ASSERT(bot_.InformationManager().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
         bot_.InformationManager().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
@@ -315,7 +315,7 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type)
 // TODO: may need to iterate over all tiles of the building footprint.
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
-    return bot_.Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
+    return bot_.InformationManager().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
 }
 
 void BuildingManager::DrawBuildingInformation()
@@ -399,13 +399,13 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
     // Make a wall if necessary.
     else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
     {
-        desired_loc = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+        desired_loc = bot_.InformationManager().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
     }
 
     // Find the next expansion location. 
     else if (Util::IsTownHallType(b.type))
     {
-        const sc2::Point2D next_expansion_location = bot_.Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
+        const sc2::Point2D next_expansion_location = bot_.InformationManager().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
         desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
     }
     // If no special placement code is required, get a position somewhere in our starting base.

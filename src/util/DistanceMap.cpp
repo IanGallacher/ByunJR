@@ -35,8 +35,8 @@ const std::vector<sc2::Point2DI>& DistanceMap::GetSortedTiles() const
 void DistanceMap::ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI & start_tile)
 {
     start_tile_ = start_tile;
-    width_ = bot.Map().TrueMapWidth();
-    height_ = bot.Map().TrueMapHeight();
+    width_ = bot.InformationManager().Map().TrueMapWidth();
+    height_ = bot.InformationManager().Map().TrueMapHeight();
     dist_ = vvi (width_, std::vector<int>(height_, -1));
     sorted_tile_positions_.reserve(width_ * height_);
 
@@ -58,7 +58,7 @@ void DistanceMap::ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI & start
             const sc2::Point2DI next_tile(tile.x + actionX[a], tile.y + actionY[a]);
 
             // if the new tile is inside the map bounds, is walkable, and has not been visited yet, set the distance of its parent + 1
-            if (bot.Map().IsWalkable(next_tile) && GetDistance(next_tile) == -1)
+            if (bot.InformationManager().Map().IsWalkable(next_tile) && GetDistance(next_tile) == -1)
             {
                 dist_[static_cast<int>(next_tile.x)][static_cast<int>(next_tile.y)] = dist_[(int)tile.x][(int)tile.y] + 1;
                 fringe.push_back(next_tile);

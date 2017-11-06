@@ -52,7 +52,7 @@ void ScoutManager::MoveScouts()
         if (!scout || scout->unit->health <= 0) { return; }
 
         // get the enemy base location, if we have one
-        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
+        const BaseLocation* enemy_base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
         // If we know where the enemy region is, use the scouts to harass the enemy workers.
         if (enemy_base_location)
@@ -65,12 +65,12 @@ void ScoutManager::MoveScouts()
         {
             scout_status_ = "Enemy base unknown, exploring";
 
-            //for (const BaseLocation* startLocation : bot_.Bases().getStartingBaseLocations())
+            //for (const BaseLocation* startLocation : bot_.InformationManager().Bases().getStartingBaseLocations())
             for (const sc2::Point2D start_location : bot_.Observation()->GetGameInfo().enemy_start_locations)
             {
                 // if we haven't explored it yet then scout it out
                 // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
-                if (!bot_.Map().IsExplored(start_location))
+                if (!bot_.InformationManager().Map().IsExplored(start_location))
                 {
                     Micro::SmartMove(scout->unit, start_location, bot_);
                     return;

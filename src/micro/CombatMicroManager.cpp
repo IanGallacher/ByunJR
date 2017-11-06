@@ -69,14 +69,14 @@ const std::vector<const sc2::Unit*> & CombatMicroManager::GetUnits() const
 void CombatMicroManager::Regroup(const sc2::Point2D & regroup_position) const
 {
     const sc2::Point2D our_base_position = bot_.GetStartLocation();
-    const int regroup_distance_from_base = bot_.Map().GetGroundDistance(regroup_position, our_base_position);
+    const int regroup_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(regroup_position, our_base_position);
 
     // for each of the units we have
     for (auto & unit : units_)
     {
         BOT_ASSERT(unit, "null unit in CombatMicroManager regroup");
 
-        const int unit_distance_from_base = bot_.Map().GetGroundDistance(unit->pos, our_base_position);
+        const int unit_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(unit->pos, our_base_position);
 
         // if the unit is outside the regroup area
         if (unit_distance_from_base > regroup_distance_from_base)
