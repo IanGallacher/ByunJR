@@ -129,11 +129,6 @@ UnitInfoManager & InformationManager::UnitInfo()
     return unit_info_;
 }
 
-sc2::Point2DI InformationManager::GetProxyLocation() const
-{
-    return bot_.GetProxyManager().GetProxyLocation();
-}
-
 const sc2::Race & InformationManager::GetPlayerRace(sc2::Unit::Alliance player) const
 {
     BOT_ASSERT(player < 1 || player_race_.size(), "invalid player for GetPlayerRace");

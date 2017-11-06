@@ -393,7 +393,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
 
     else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
     {
-        desired_loc = bot_.InformationManager().GetProxyLocation();
+        desired_loc = bot_.GetProxyManager().GetProxyLocation();
     }
 
     // Make a wall if necessary.

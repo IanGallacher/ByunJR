@@ -34,8 +34,6 @@ public:
     const MapTools & Map() const;
     UnitInfoManager & UnitInfo();
 
-    sc2::Point2DI GetProxyLocation() const;
-
     const sc2::Unit* GetBuilder(Building& b, bool set_job_as_builder = true);
     const sc2::Race & GetPlayerRace(sc2::Unit::Alliance player) const;
 
