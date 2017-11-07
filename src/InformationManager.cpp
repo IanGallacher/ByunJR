@@ -10,7 +10,6 @@
 InformationManager::InformationManager(ByunJRBot & bot)
     : bot_(bot)
     , bases_(bot)
-    , building_placer_(bot)
     , map_(bot)
     , unit_info_(bot)
 {
@@ -20,7 +19,6 @@ InformationManager::InformationManager(ByunJRBot & bot)
 void InformationManager::OnStart()
 {
     map_.OnStart();
-    building_placer_.OnStart();
     unit_info_.OnStart();
     bases_.OnStart();
 
@@ -112,11 +110,6 @@ void InformationManager::OnFrame()
 const BaseLocationManager & InformationManager::Bases() const
 {
     return bases_;
-}
-
-BuildingPlacer & InformationManager::BuildingPlacer()
-{
-    return building_placer_;
 }
 
 const MapTools & InformationManager::Map() const

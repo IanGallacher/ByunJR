@@ -106,7 +106,7 @@ BotConfig & ByunJRBot::Config()
      return config_;
 }
 
-const StrategyManager & ByunJRBot::Strategy() const
+StrategyManager & ByunJRBot::Strategy()
 {
     return strategy_;
 }

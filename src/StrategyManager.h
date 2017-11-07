@@ -25,6 +25,7 @@ class StrategyManager
     ByunJRBot & bot_;
 
     std::map<std::string, StrategyBuildOrder> strategies_;
+    BuildingPlacer                  building_placer_;
     const BuildOrder                empty_build_order_;
     Strategy                        macro_goal_;
     // Have we sent the scout at the start of the game?
@@ -47,6 +48,8 @@ public:
 
     void OnStart();
     void OnFrame();
+    BuildingPlacer & BuildingPlacer();
+
     void RecalculateMacroGoal();
     void AddStrategy(const std::string & name, const StrategyBuildOrder & strategy);
     UnitPairVector GetBuildOrderGoal() const;

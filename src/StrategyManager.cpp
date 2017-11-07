@@ -23,16 +23,18 @@ StrategyBuildOrder::StrategyBuildOrder(const std::string & name, const sc2::Race
 // constructor
 StrategyManager::StrategyManager(ByunJRBot & bot)
     : bot_(bot)
-      , macro_goal_(Strategy::ReaperRush)
-      , initial_scout_set_(false)
-      , second_proxy_worker_set_(false)
-      , bases_safe_(false)
+    , building_placer_(bot)
+    , macro_goal_(Strategy::ReaperRush)
+    , initial_scout_set_(false)
+    , second_proxy_worker_set_(false)
+    , bases_safe_(false)
 {
 }
 
 void StrategyManager::OnStart()
 {
     ReadStrategyFile(bot_.Config().ConfigFileLocation);
+    building_placer_.OnStart();
 }
 
 // This strategy code is only for Terran. 
@@ -88,6 +90,11 @@ void StrategyManager::OnFrame()
             bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);
         }
     }
+}
+
+BuildingPlacer & StrategyManager::BuildingPlacer()
+{
+    return building_placer_;
 }
 
 void StrategyManager::RecalculateMacroGoal()

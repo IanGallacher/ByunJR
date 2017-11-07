@@ -55,7 +55,7 @@ public:
     DebugManager& DebugHelper();
     InformationManager & InformationManager();
     ProxyManager & GetProxyManager();
-    const StrategyManager & Strategy() const;
+    StrategyManager & Strategy();
     sc2::Point2D GetStartLocation() const;
 };
 

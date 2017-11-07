@@ -14,7 +14,6 @@ class InformationManager
 {
     ByunJRBot &                     bot_;
     BaseLocationManager             bases_;
-    BuildingPlacer                  building_placer_;
     MapTools                        map_;
     UnitInfoManager                 unit_info_;
 
@@ -30,7 +29,6 @@ public:
     void OnFrame();
 
     const BaseLocationManager & Bases() const;
-    BuildingPlacer & BuildingPlacer();
     const MapTools & Map() const;
     UnitInfoManager & UnitInfo();
 

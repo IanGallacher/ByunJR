@@ -49,7 +49,7 @@ void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
     // The building is dead! We can build where it used to be!
     if(Util::IsBuilding(building->unit_type))
-        bot_.InformationManager().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
+        bot_.Strategy().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
 }
 
 void ProductionManager::SetBuildOrder(const BuildOrder & build_order)

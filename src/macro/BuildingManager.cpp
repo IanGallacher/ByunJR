@@ -106,7 +106,7 @@ void BuildingManager::FindBuildingLocation()
         BOT_ASSERT(bot_.InformationManager().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
-        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
+        bot_.Strategy().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
@@ -320,7 +320,7 @@ bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 
 void BuildingManager::DrawBuildingInformation()
 {
-    bot_.InformationManager().BuildingPlacer().DrawReservedTiles();
+    bot_.Strategy().BuildingPlacer().DrawReservedTiles();
 
     if (!bot_.Config().DrawBuildingInfo)
     {
@@ -388,7 +388,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
     sc2::Point2DI desired_loc;
     if (Util::IsRefineryType(b.type))
     {
-        desired_loc =  bot_.InformationManager().BuildingPlacer().GetRefineryPosition();
+        desired_loc =  bot_.Strategy().BuildingPlacer().GetRefineryPosition();
     }
 
     else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
@@ -414,7 +414,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
         desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
     }
 
-    return bot_.InformationManager().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
+    return bot_.Strategy().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
 }
 
 void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
@@ -432,5 +432,5 @@ void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
 
 bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
 {
-    return bot_.InformationManager().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
 }
