@@ -1,7 +1,7 @@
 #pragma once
 #include "common/Common.h"
 
-class ByunJRBot;
+class MapTools;
 
 class DistanceMap 
 {
@@ -15,7 +15,7 @@ class DistanceMap
 public:
     
     DistanceMap();
-    void ComputeDistanceMap(ByunJRBot& bot, const sc2::Point2DI& start_tile);
+    void ComputeDistanceMap(const MapTools& map, const sc2::Point2DI& start_tile);
 
     int GetDistance(int tile_x, int tile_y) const;
     int GetDistance(const sc2::Point2DI& pos) const;
@@ -23,6 +23,4 @@ public:
     // given a position, get the position we should move to to minimize distance
     const std::vector<sc2::Point2DI>& GetSortedTiles() const;
     const sc2::Point2DI& GetStartTile() const;
-
-    void Draw(ByunJRBot& bot) const;
 };

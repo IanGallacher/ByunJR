@@ -12,8 +12,9 @@ const int actionX[LegalActions] ={1, -1, 0, 0};
 const int actionY[LegalActions] ={0, 0, 1, -1};
 
 // constructor for MapTools
-MapTools::MapTools(ByunJRBot& bot)
+MapTools::MapTools(sc2::Agent& bot, InformationManager& info)
     : bot_     (bot)
+    , information_manager_(info)
     , true_map_width_   (0)
     , true_map_height_  (0)
     , max_z_    (0.0f)
@@ -186,7 +187,7 @@ const DistanceMap& MapTools::GetDistanceMap(const sc2::Point2DI& tile) const
     if (all_maps_.find(int_tile) == all_maps_.end())
     {
         all_maps_[int_tile] = DistanceMap();
-        all_maps_[int_tile].ComputeDistanceMap(bot_, tile);
+        all_maps_[int_tile].ComputeDistanceMap(*this, tile);
     }
 
     return all_maps_[int_tile];
@@ -334,6 +335,11 @@ int MapTools::PlayableMapHeight() const
 #pragma endregion
 
 
+const std::vector<sc2::Point2DI>& MapTools::GetClosestTilesTo(const sc2::Point2D& pos) const
+{
+    return GetDistanceMap(sc2::Point2DI(pos.x, pos.y)).GetSortedTiles();
+}
+
 const std::vector<sc2::Point2DI>& MapTools::GetClosestTilesTo(const sc2::Point2DI& pos) const
 {
     return GetDistanceMap(pos).GetSortedTiles();
@@ -343,9 +349,8 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 {
     int min_seen = std::numeric_limits<int>::max();
     sc2::Point2DI least_seen(0, 0);
-    const BaseLocation* base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
-
-    for (auto& tile : base_location->GetClosestTiles())
+    const BaseLocation* base_location = information_manager_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
+    for ( const auto& tile : GetClosestTilesTo(base_location->GetPosition()) )
     {
         BOT_ASSERT(IsOnMap(tile), "How is this tile not valid?");
 
@@ -363,13 +368,13 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
 bool MapTools::IsTileTypeOf(const int x, const int y, const MapTileType tile_type) const
 {
     if (tile_type == MapTileType::CantWalk
-     && !bot_.InformationManager().Map().IsWalkable(x, y))
+     && !information_manager_.Map().IsWalkable(x, y))
          return true;;
     if (tile_type == MapTileType::CantBuild
-     && !bot_.InformationManager().Map().IsBuildable(x, y))
+     && !information_manager_.Map().IsBuildable(x, y))
          return true;
     if (tile_type == MapTileType::Ramp &&
-        bot_.InformationManager().Map().IsWalkable(x, y) && !bot_.InformationManager().Map().IsBuildable(x, y))
+        information_manager_.Map().IsWalkable(x, y) && !information_manager_.Map().IsBuildable(x, y))
         return true;
     return false;
 }
@@ -406,28 +411,25 @@ bool MapTools::IsTileCornerOfTileType(const sc2::Point2DI p, const MapTileType t
 
 bool MapTools::IsTileCornerReserved(const sc2::Point2DI p) const
 {
-    if (p.x > 0 && p.y < true_map_height_ - 1 &&
-        bot_.Strategy().BuildingPlacer().IsReserved(p.x - 2, p.y + 2))
-        return true;
-    if (p.x < true_map_width_ - 1 && p.y < true_map_height_ - 1 &&
-        bot_.Strategy().BuildingPlacer().IsReserved(p.x + 2, p.y + 2))
-        return true;
-    if (p.x > 0 && p.y > 0 &&
-        bot_.Strategy().BuildingPlacer().IsReserved(p.x - 2, p.y - 2))
-        return true;
-    if (p.x < true_map_width_ - 1 && p.y > 0 &&
-        bot_.Strategy().BuildingPlacer().IsReserved(p.x + 2, p.y - 2))
-        return true;
+    //if (p.x > 0 && p.y < true_map_height_ - 1 &&
+    //    bot_.Strategy().BuildingPlacer().IsReserved(p.x - 2, p.y + 2))
+    //    return true;
+    //if (p.x < true_map_width_ - 1 && p.y < true_map_height_ - 1 &&
+    //    bot_.Strategy().BuildingPlacer().IsReserved(p.x + 2, p.y + 2))
+    //    return true;
+    //if (p.x > 0 && p.y > 0 &&
+    //    bot_.Strategy().BuildingPlacer().IsReserved(p.x - 2, p.y - 2))
+    //    return true;
+    //if (p.x < true_map_width_ - 1 && p.y > 0 &&
+    //    bot_.Strategy().BuildingPlacer().IsReserved(p.x + 2, p.y - 2))
+    //    return true;
     return false;
 }
-
 
 bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileType tile_type, const sc2::UnitTypeID building_type) const
 {
     const int width = Util::GetUnitTypeWidth(building_type, bot_);
     const int height = Util::GetUnitTypeHeight(building_type, bot_);
-
-    // TODO: make sure we leave space for add-ons. These types of units can have addons:
 
     // define the rectangle of the building spot
     const int startx = p.x-width/2;
@@ -435,10 +437,8 @@ bool MapTools::IsAnyTileAdjacentToTileType(const sc2::Point2DI p, const MapTileT
     const int endx = p.x + width/2;
     const int endy = p.y + height/2;
 
-    // TODO: recalculate start and end positions for addons
-
     // if this rectangle doesn't fit on the map we can't build here
-    if (endx < 0 || endy < 0 || startx > bot_.InformationManager().Map().TrueMapWidth() || starty > bot_.InformationManager().Map().TrueMapHeight())
+    if (endx < 0 || endy < 0 || startx > information_manager_.Map().TrueMapWidth() || starty > information_manager_.Map().TrueMapHeight())
     {
         return false;
     }
@@ -466,7 +466,7 @@ sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeI
     double closest_distance = std::numeric_limits<double>::max();
 
     // Get the closest ramp to our starting base. 
-    const sc2::Point2D base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition();
+    const sc2::Point2D base_location = information_manager_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition();
 
     const float base_height = TerrainHeight(base_location.x, base_location.y);
 
@@ -483,17 +483,17 @@ sc2::Point2DI MapTools::GetNextCoordinateToWallWithBuilding(const sc2::UnitTypeI
             {
                 // The first depot in a wall has to be next to, well, a wall. 
                 // This allows the depot wall to be built correctly on AbyssalReefLE.
-                if (bot_.Config().MapName == "AbyssalReefLE" &&
-                    bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 2
-                 && !(IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || IsTileCornerReserved(sc2::Point2DI(x, y)))
-                 || TerrainHeight(x, y) < 10.5)
-                    continue;
+                //if (bot_.Config().MapName == "AbyssalReefLE" &&
+                //    information_manager_.UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 2
+                // && !(IsTileCornerOfTileType( sc2::Point2DI(x, y), MapTileType::CantWalk) || IsTileCornerReserved(sc2::Point2DI(x, y)))
+                // || TerrainHeight(x, y) < 10.5)
+                //    continue;
 
-                // Don't wall of at Proxima Station's pocket expansion.
-                if (bot_.Config().MapName == "ProximaStationLE" 
-                    && bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
-                 && ((y < 49 || y > 119) || TerrainHeight(x, y) < 10.5))
-                    continue;
+                //// Don't wall of at Proxima Station's pocket expansion.
+                //if (bot_.Config().MapName == "ProximaStationLE" 
+                //    && information_manager_.UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
+                // && ((y < 49 || y > 119) || TerrainHeight(x, y) < 10.5))
+                //    continue;
 
                 const sc2::Point2D point(x, y);
                 const double distance = Util::DistSq(point, base_location);

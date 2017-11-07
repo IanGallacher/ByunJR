@@ -61,6 +61,100 @@ void DebugManager::DrawMapSectors() const
     }
 }
 
+void DebugManager::DrawBaseLocations() const
+{
+
+    for (auto & base_location : bot_.InformationManager().Bases().GetBaseLocations())
+    {
+        //base_location->Draw();
+    }
+
+    // draw a purple sphere at the next expansion location
+    const sc2::Point2D next_expansion_position = bot_.InformationManager().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
+
+    bot_.DebugHelper().DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
+    bot_.DebugHelper().DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
+}
+//
+//
+//void BaseLocation::Draw()
+//{
+//    bot_.DebugHelper().DrawSphere(center_of_resources_, 1.0f, sc2::Colors::Yellow);
+//
+//    std::stringstream ss;
+//    ss << "BaseLocation: " << baseID << std::endl;
+//    ss << "Start Loc:    " << (IsStartLocation() ? "true" : "false") << std::endl;
+//    ss << "Minerals:     " << mineral_positions_.size() << std::endl;
+//    ss << "Geysers:      " << geyser_positions_.size() << std::endl;
+//    ss << "Occupied By:  ";
+//
+//    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
+//    {
+//        ss << "Self ";
+//    }
+//
+//    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
+//    {
+//        ss << "Enemy ";
+//    }
+//
+//    bot_.DebugHelper().DrawText(sc2::Point2D(left_, top_ + 3), ss.str().c_str());
+//    bot_.DebugHelper().DrawText(sc2::Point2D(left_, bottom_), ss.str().c_str());
+//
+//    // draw the base bounding box
+//    bot_.DebugHelper().DrawBox(left_, top_, right_, bottom_);
+//
+//    for (float x = left_; x < right_; ++x)
+//    {
+//        bot_.DebugHelper().DrawLine(x, top_, x, bottom_, sc2::Color(160, 160, 160));
+//    }
+//
+//    for (float y = bottom_; y<top_; ++y)
+//    {
+//        bot_.DebugHelper().DrawLine(left_, y, right_, y, sc2::Color(160, 160, 160));
+//    }
+//
+//    for (auto & mineral_pos : mineral_positions_)
+//    {
+//        bot_.DebugHelper().DrawSphere(mineral_pos, 1.0f, sc2::Colors::Teal);
+//    }
+//
+//    for (auto & geyser_pos : geyser_positions_)
+//    {
+//        bot_.DebugHelper().DrawSphere(geyser_pos, 1.0f, sc2::Colors::Green);
+//    }
+//
+//    if (is_start_location_)
+//    {
+//        bot_.DebugHelper().DrawSphere(depot_position_, 1.0f, sc2::Colors::Red);
+//    }
+//
+//    const float cc_width = 5;
+//    const float cc_height = 4;
+//    const sc2::Point2D boxtl = depot_position_ - sc2::Point2D(cc_width / 2, -cc_height / 2);
+//    const sc2::Point2D boxbr = depot_position_ + sc2::Point2D(cc_width / 2, -cc_height / 2);
+//
+//    bot_.DebugHelper().DrawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
+//
+//    //m_distanceMap.draw(bot_);
+//}
+//
+//void DistanceMap::Draw(ByunJRBot & bot) const
+//{
+//    const int tiles_to_draw = 200;
+//    for (size_t i(0); i < tiles_to_draw; ++i)
+//    {
+//        auto & tile = sorted_tile_positions_[i];
+//        const int dist = GetDistance(tile.x, tile.y);
+//
+//        const sc2::Point2D text_pos(tile.x + 0.5f, tile.y + 0.5f);
+//        std::stringstream ss;
+//        ss << dist;
+//
+//        bot.DebugHelper().DrawText(text_pos, ss.str());
+//    }
+//}
+
 void DebugManager::DrawMapWalkableTiles() const
 {
     const sc2::Point2D camera = bot_.Observation()->GetCameraPos();

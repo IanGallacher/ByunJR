@@ -43,4 +43,5 @@ public:
     size_t           NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
+
 };

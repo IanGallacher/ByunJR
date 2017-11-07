@@ -51,12 +51,12 @@ public:
     int GetMineralsLost() const;
     int GetNumUnits(sc2::UnitTypeID t) const;
     int GetNumDeadUnits(sc2::UnitTypeID t) const;
-    int GetNumAssignedWorkers(const sc2::Unit* depot);
+    int GetNumAssignedWorkers(const sc2::Unit* depot) const;
     const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap() const;
     std::set<const UnitInfo*> GetCombatUnits() const;
 
     // mission_target is the additional information that some jobs require. Minerals requires a base, gas requires a geyser, etc. 
-    void SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot& bot, const sc2::Unit* mission_target=nullptr);
+    void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target=nullptr);
     size_t GetNumWorkers() const;
     void ClearPreviousJob(const sc2::Unit* unit);
     std::set<const UnitInfo*> GetWorkers() const;

@@ -150,7 +150,7 @@ int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
 {
     return bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
         + queue_.GetItemsInQueueOfType(unit_type)
-        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(unit_type);
+        + NumberOfUnitsInProductionOfType(unit_type);
 }
 
 // Every frame, see if more depots are required. 
@@ -164,7 +164,7 @@ void ProductionManager::MacroUp() {
     if (bot_.Strategy().ShouldExpandNow()
         // Don't queue more bases than you have minerals for.
      && queue_.GetItemsInQueueOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
+        + NumberOfUnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
         < bot_.Observation()->GetMinerals() / 400)
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);

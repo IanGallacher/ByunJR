@@ -215,8 +215,8 @@ bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc
     for (const BaseLocation* base : bot_.InformationManager().Bases().GetBaseLocations())
     {
         // dimensions of the base location
-        const int bx1 = static_cast<int>(base->GetDepotPosition().x);
-        const int by1 = static_cast<int>(base->GetDepotPosition().y);
+        const int bx1 = static_cast<int>(base->GetTownHallPosition().x);
+        const int by1 = static_cast<int>(base->GetTownHallPosition().y);
         const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
         const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
 

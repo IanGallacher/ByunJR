@@ -66,6 +66,11 @@ void ByunJRBot::OnStep()
     if (config_.DrawTileInfo)
         debug_.DrawMapWalkableTiles();
 
+    if (config_.DrawBaseLocationInfo)
+    {
+        return;
+    }
+
     Debug()->SendDebug();
 }
 

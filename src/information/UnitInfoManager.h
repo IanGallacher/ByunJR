@@ -4,10 +4,9 @@
 #include "macro/WorkerManager.h"
 #include "information/UnitData.h"
 
-class ByunJRBot;
 class UnitInfoManager 
 {
-    ByunJRBot &              bot_;
+    sc2::Agent &            bot_;
 
     std::map<sc2::Unit::Alliance, UnitData> unit_data_;
 
@@ -15,7 +14,6 @@ class UnitInfoManager
 
     void                    UpdateUnit(const sc2::Unit* unit);
     void                    UpdateUnitInfo();
-    bool                    IsValidUnit(const sc2::Unit* unit);
     
     const UnitData &        GetUnitData(sc2::Unit::Alliance player) const;
 
@@ -23,7 +21,7 @@ class UnitInfoManager
 
 public:
 
-    UnitInfoManager(ByunJRBot & bot);
+    UnitInfoManager(sc2::Agent & bot);
 
     void                    OnStart();
     void                    OnFrame();
@@ -38,8 +36,8 @@ public:
     const std::map<sc2::Tag, UnitInfo>& GetUnitInfoMap(sc2::Unit::Alliance player) const;
 
     //bool                  enemyHasCloakedUnits() const;
-    void                    DrawUnitInformation() const;
-    int GetNumAssignedWorkers(const sc2::Unit* depot);
+    void DrawUnitInformation() const;
+    int GetNumAssignedWorkers(const sc2::Unit* depot) const;
     void SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target=nullptr);
     std::set<const UnitInfo*> GetWorkers();
     std::set<const UnitInfo*> GetScouts();
@@ -47,5 +45,4 @@ public:
     std::set<const UnitInfo*> GetCombatUnits() const;
     int GetNumRepairWorkers(const sc2::Unit* unit) const;
     int GetNumDepots(sc2::Unit::Alliance self) const;
-    size_t UnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
 };

@@ -3,15 +3,17 @@
 #include "information/BaseLocationManager.h"
 #include "util/Util.h"
  
-BaseLocationManager::BaseLocationManager(ByunJRBot & bot)
+BaseLocationManager::BaseLocationManager(sc2::Agent & bot, const MapTools & map)
     : bot_(bot)
+    , map_(map)
 {
     
 }
 
 void BaseLocationManager::OnStart()
 {
-    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(bot_.InformationManager().Map().TrueMapWidth(), std::vector<BaseLocation*>(bot_.InformationManager().Map().TrueMapHeight(), nullptr));
+    // Make a vector of vectors to represent the map.
+    tile_base_locations_ = std::vector<std::vector<BaseLocation*>>(map_.TrueMapWidth(), std::vector<BaseLocation*>(map_.TrueMapHeight(), nullptr));
     player_starting_base_locations_[sc2::Unit::Alliance::Self]  = nullptr;
     player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = nullptr; 
 
@@ -101,9 +103,9 @@ void BaseLocationManager::OnStart()
     }
 
     // construct the map of tile positions to base locations
-    for (float x=0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
+    for (float x=0; x < map_.TrueMapWidth(); ++x)
     {
-        for (int y=0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
+        for (int y=0; y < map_.TrueMapHeight(); ++y)
         {
             for (auto & base_location : base_location_data_)
             {
@@ -120,10 +122,8 @@ void BaseLocationManager::OnStart()
     }
 }
 
-void BaseLocationManager::OnFrame()
+void BaseLocationManager::OnFrame(InformationManager & info)
 {   
-    DrawBaseLocations();
-
     // reset the player occupation information for each location
     for (auto & base_location : base_location_data_)
     {
@@ -149,7 +149,7 @@ void BaseLocationManager::OnFrame()
     }
 
     // update enemy base occupations
-    for (const auto & kv : bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Enemy))
+    for (const auto & kv : info.UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Enemy))
     {
         const UnitInfo & ui = kv.second;
 
@@ -238,28 +238,9 @@ void BaseLocationManager::OnFrame()
 
 BaseLocation* BaseLocationManager::GetBaseLocation(const sc2::Point2D & pos) const
 {
-    if (!bot_.InformationManager().Map().IsOnMap(pos)) { std::cout << "Warning: requeste base location not on map" << std::endl; return nullptr; }
+    if (!map_.IsOnMap(pos)) { std::cout << "Warning: requested base location not on map" << std::endl; return nullptr; }
 
     return tile_base_locations_[static_cast<int>(pos.x)][static_cast<int>(pos.y)];
-}
-
-void BaseLocationManager::DrawBaseLocations()
-{
-    if (!bot_.Config().DrawBaseLocationInfo)
-    {
-        return;
-    }
-
-    for (auto & base_location : base_location_data_)
-    {
-        base_location.Draw();
-    }
-
-    // draw a purple sphere at the next expansion location
-    const sc2::Point2D next_expansion_position = GetNextExpansion(sc2::Unit::Alliance::Self);
-
-    bot_.DebugHelper().DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
-    bot_.DebugHelper().DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
 }
 
 const std::vector<const BaseLocation*> & BaseLocationManager::GetBaseLocations() const
@@ -305,7 +286,7 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance pla
         }
 
         // get the tile position of the base
-        const auto tile = base->GetDepotPosition();
+        const auto tile = base->GetTownHallPosition();
 
         // the base's distance from our main nexus
         const int distance_from_home = bot_.Query()->PathingDistance(tile, home_base->GetPosition());
@@ -323,5 +304,5 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance pla
         }
     }
 
-    return closest_base ? closest_base->GetDepotPosition() : sc2::Point2D(0.0f, 0.0f);
+    return closest_base ? closest_base->GetTownHallPosition() : sc2::Point2D(0.0f, 0.0f);
 }

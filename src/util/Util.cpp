@@ -133,22 +133,22 @@ bool Util::IsIdle(const sc2::Unit* unit)
     return unit->orders.empty();
 }
 
-int Util::GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
+int Util::GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const sc2::Agent & bot)
 {
     return bot.Observation()->GetUnitTypeData()[type].mineral_cost;
 }
 
-int Util::GetUnitTypeGasPrice(const sc2::UnitTypeID type, const ByunJRBot & bot)
+int Util::GetUnitTypeGasPrice(const sc2::UnitTypeID type, const sc2::Agent & bot)
 {
     return bot.Observation()->GetUnitTypeData()[type].vespene_cost;
 }
 
-int Util::GetUnitTypeWidth(const sc2::UnitTypeID type, const ByunJRBot & bot)
+int Util::GetUnitTypeWidth(const sc2::UnitTypeID type, const sc2::Agent & bot)
 {
     return static_cast<int>(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
 
-int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const ByunJRBot & bot)
+int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const sc2::Agent & bot)
 {
     return static_cast<int>(2 * bot.Observation()->GetAbilityData()[UnitTypeIDToAbilityID(type)].footprint_radius);
 }
@@ -178,7 +178,7 @@ bool Util::IsDetector(const sc2::Unit* unit)
     return IsDetectorType(unit->unit_type);
 }
 
-float Util::GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot)
+float Util::GetAttackRange(const sc2::UnitTypeID & type, sc2::Agent & bot)
 {
     auto & weapons = bot.Observation()->GetUnitTypeData()[type].weapons;
     
@@ -199,7 +199,7 @@ float Util::GetAttackRange(const sc2::UnitTypeID & type, ByunJRBot & bot)
     return max_range;
 }
 
-float Util::GetAttackDamage(const sc2::UnitTypeID & type, ByunJRBot & bot)
+float Util::GetAttackDamage(const sc2::UnitTypeID & type, sc2::Agent & bot)
 {
     auto & weapons = bot.Observation()->GetUnitTypeData()[type].weapons;
 
@@ -756,7 +756,7 @@ bool Util::IsBuilding(const sc2::UnitTypeID & type)
 
 // checks where a given unit can make a given unit type now
 // this is done by iterating its legal abilities for the build command to make the unit
-bool Util::UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, ByunJRBot & bot)
+bool Util::UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, sc2::Agent & bot)
 {
     sc2::AvailableAbilities available_abilities = bot.Query()->GetAbilitiesForUnit(unit);
     

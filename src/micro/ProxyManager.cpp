@@ -71,8 +71,11 @@ bool ProxyManager::MoveProxyWorkers()
     {
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
         proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
-        bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
+
+        if (proxy_worker_)
+            bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
     }
+
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetWorkers())
     {
         if(unit->mission == UnitMission::Proxy)

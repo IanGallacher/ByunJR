@@ -106,20 +106,30 @@ int UnitData::GetNumDeadUnits(const sc2::UnitTypeID t) const
     return num_dead_units_[t];
 }
 
-int UnitData::GetNumAssignedWorkers(const sc2::Unit* depot)
+int UnitData::GetNumAssignedWorkers(const sc2::Unit* depot) const
 {
     if (Util::IsTownHall(depot))
     {
         // If the base does not yet exist in base_worker_count_, it gets set to 0. 
-        base_worker_count_[depot->tag];
+        // Only check the map once to see if the value exists. 
+        // We can't use a simple .at() or bracket notation in order to keep this function const.
+        std::map<sc2::Tag, int>::const_iterator iter = base_worker_count_.find(depot->tag);
+        if (iter != base_worker_count_.end())
+        {
+            return iter->second;
+        }
     }
     else if (Util::IsRefinery(depot))
     {
         // If the refinery does not yet exist in refinery_worker_count, it gets set to 0. 
-        return refinery_worker_count_[depot->tag];
+        std::map<sc2::Tag, int>::const_iterator iter = refinery_worker_count_.find(depot->tag);
+        if (iter != refinery_worker_count_.end())
+        {
+            return iter->second;
+        }
     }
 
-    // when all else fails, return 0
+    // If there are no workers currently assigned to the depot, return 0.
     return 0;
 }
 
@@ -134,7 +144,7 @@ std::set<const UnitInfo*> UnitData::GetCombatUnits() const
 }
 
 // jobUnitTag is optional.
-void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & bot, const sc2::Unit* mission_target)
+void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
     ClearPreviousJob(unit);
 
@@ -143,49 +153,44 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, ByunJRBot & 
     // Update the information about the current job. 
     if (job == UnitMission::Minerals)
     {
-        // Check if there is a mineral available to send the worker to.
-        const sc2::Unit* base = bot.InformationManager().GetClosestBase(unit);
-
         // We don't need to print an error. If we have lost all our bases, there is no point in assigning workers to minerals. 
         // Simply check to see if we have any bases to prevent crashes before assigning workers to mine at the given base. 
-        if (!base) return;
+        if (!mission_target) return;
 
         // If we haven't assigned anything to this depot yet, set its worker count to 0.
-        if (base_worker_count_.find(base->tag) == base_worker_count_.end())
+        if (base_worker_count_.find(mission_target->tag) == base_worker_count_.end())
         {
-            base_worker_count_[base->tag] = 0;
+            base_worker_count_[mission_target->tag] = 0;
         }
 
         // add the depot to our set of depots
         depots_.insert(&unit_info_map_[unit->tag]);
 
         // Increase the worker count of this depot.
-        base_worker_count_[base->tag]++;
+        base_worker_count_[mission_target->tag]++;
         worker_depot_map_[unit->tag] = unit;
     }
     else if (job == UnitMission::Gas)
     {
-        // The Gas worker we are assigning should already 
-        const sc2::Unit* refinery = bot.InformationManager().GetClosestNotOptimalRefinery(unit);
-        if (!refinery)
+        if (!mission_target) // mission_target is the refinery to gather resources from. 
         {
             std::cout << "WARNING: Attempted assigning worker to refinery when there are no available refineries.";
             // Avoid repeating error messages by attempting to assign the worker we were given to minerals. 
-            SetJob(unit, UnitMission::Minerals, bot);
+            SetJob(unit, UnitMission::Minerals);
             return;
         }
 
         // If we haven't assigned any workers to this refinery yet set count to 0.
-        if (refinery_worker_count_.find(refinery->tag) == refinery_worker_count_.end())
+        if (refinery_worker_count_.find(mission_target->tag) == refinery_worker_count_.end())
         {
-            refinery_worker_count_[refinery->tag] = 0;
+            refinery_worker_count_[mission_target->tag] = 0;
         }
         // Increase the count of workers assigned to this refinery.
-        refinery_worker_count_[refinery->tag] += 1;
+        refinery_worker_count_[mission_target->tag] += 1;
 
         // Well, it looks like everything is alls et. Time to assign the worker to the refinery.
         worker_refinery_map_[unit->tag] = unit;
-        ui.missionTarget = refinery;
+        ui.missionTarget = mission_target;
     }
     else if (job == UnitMission::Attack)
     {

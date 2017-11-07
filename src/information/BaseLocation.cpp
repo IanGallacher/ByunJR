@@ -7,7 +7,7 @@
 
 const int NearBaseLocationTileDistance = 20;
 
-BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<const sc2::Unit*> & resources)
+BaseLocation::BaseLocation(sc2::Agent & bot, const int baseID, const std::vector<const sc2::Unit*> & resources)
     : bot_(bot)
     , baseID               (baseID)
     , is_start_location_      (false)
@@ -62,10 +62,6 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
 
     center_of_resources_ = sc2::Point2D(left_ + (right_-left_)/2.0f, top_ + (bottom_-top_)/2.0f);
 
-    // compute this BaseLocation's DistanceMap, which will compute the ground distance
-    // from the center of its recourses to every other tile on the map
-    distance_map_ = bot_.InformationManager().Map().GetDistanceMap(sc2::Point2DI(center_of_resources_.x, center_of_resources_.y));
-
     // check to see if this is a start location for the map
     for (auto & pos : bot_.Observation()->GetGameInfo().enemy_start_locations)
     {
@@ -90,18 +86,18 @@ BaseLocation::BaseLocation(ByunJRBot & bot, const int baseID, const std::vector<
     }
     
     // if it's not a start location, we need to calculate the depot position
-    if (!IsStartLocation())
-    {
-        // the position of the depot will be the closest spot we can build one from the resource center
-        for (auto & tile : GetClosestTiles())
-        {
-            // TODO: depotPosition = depot position for this base location
-        }
-    }
+    //if (!IsStartLocation())
+    //{
+    //    // the position of the depot will be the closest spot we can build one from the resource center
+    //    for (auto & tile : GetClosestTiles())
+    //    {
+    //        // TODO: depotPosition = depot position for this base location
+    //    }
+    //}
 }
 
-// TODO: calculate the actual depot position
-const sc2::Point2D & BaseLocation::GetDepotPosition() const
+// TODO: calculate the actual town hall position
+const sc2::Point2D & BaseLocation::GetTownHallPosition() const
 {
     return GetPosition();
 }
@@ -131,13 +127,15 @@ bool BaseLocation::IsExplored() const
 {
     return false;
 }
-// isPlayerStartLocation returns if you spawned at the given location. 
-// isPlayerStartLocation.at(sc2::Unit::Alliance::Enemy) only gives POTENTIAL enemy spawn locations. 
+
+// IsPlayerStartLocation returns if you spawned at the given location. 
+// IsPlayerStartLocation.at(sc2::Unit::Alliance::Enemy) only gives POTENTIAL enemy spawn locations. 
 // For clarity, there is a seprate function for that. 
 bool BaseLocation::IsPlayerStartLocation() const
 {
     return is_player_start_location_.at(sc2::Unit::Alliance::Self);
 }
+
 bool BaseLocation::IsPotentialEnemyStartLocation() const
 {
     return is_player_start_location_.at(sc2::Unit::Alliance::Enemy);
@@ -148,13 +146,9 @@ bool BaseLocation::IsMineralOnly() const
     return GetGeysers().empty();
 }
 
+// Warning: does not check to see if the tile is on the map. 
 bool BaseLocation::ContainsPosition(const sc2::Point2D & pos) const
 {
-    if (!bot_.InformationManager().Map().IsOnMap(pos) || (pos.x == 0 && pos.y == 0))
-    {
-        return false;
-    }
-
     return GetGroundDistance(pos) < NearBaseLocationTileDistance;
 }
 
@@ -183,71 +177,4 @@ int BaseLocation::GetGroundDistance(const sc2::Point2D & pos) const
 bool BaseLocation::IsStartLocation() const
 {
     return is_start_location_;
-}
-
-const std::vector<sc2::Point2DI> & BaseLocation::GetClosestTiles() const
-{
-    return distance_map_.GetSortedTiles();
-}
-
-void BaseLocation::Draw()
-{
-    bot_.DebugHelper().DrawSphere(center_of_resources_, 1.0f, sc2::Colors::Yellow);
-
-    std::stringstream ss;
-    ss << "BaseLocation: " << baseID << std::endl;
-    ss << "Start Loc:    " << (IsStartLocation() ? "true" : "false") << std::endl;
-    ss << "Minerals:     " << mineral_positions_.size() << std::endl;
-    ss << "Geysers:      " << geyser_positions_.size() << std::endl;
-    ss << "Occupied By:  ";
-
-    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
-    {
-        ss << "Self ";
-    }
-
-    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
-    {
-        ss << "Enemy ";
-    }
-
-    bot_.DebugHelper().DrawText(sc2::Point2D(left_, top_+3), ss.str().c_str());
-    bot_.DebugHelper().DrawText(sc2::Point2D(left_, bottom_), ss.str().c_str());
-
-    // draw the base bounding box
-    bot_.DebugHelper().DrawBox(left_, top_, right_, bottom_);
-
-    for (float x=left_; x < right_; ++x)
-    {
-        bot_.DebugHelper().DrawLine(x, top_, x, bottom_, sc2::Color(160, 160, 160));
-    }
-
-    for (float y=bottom_; y<top_; ++y)
-    {
-        bot_.DebugHelper().DrawLine(left_, y, right_, y, sc2::Color(160, 160, 160));
-    }
-
-    for (auto & mineral_pos : mineral_positions_)
-    {
-        bot_.DebugHelper().DrawSphere(mineral_pos, 1.0f, sc2::Colors::Teal);
-    }
-
-    for (auto & geyser_pos : geyser_positions_)
-    {
-        bot_.DebugHelper().DrawSphere(geyser_pos, 1.0f, sc2::Colors::Green);
-    }
-
-    if (is_start_location_)
-    {
-        bot_.DebugHelper().DrawSphere(depot_position_, 1.0f, sc2::Colors::Red);
-    }
-    
-    const float cc_width = 5;
-    const float cc_height = 4;
-    const sc2::Point2D boxtl = depot_position_ - sc2::Point2D(cc_width/2, -cc_height/2);
-    const sc2::Point2D boxbr = depot_position_ + sc2::Point2D(cc_width/2, -cc_height/2);
-
-    bot_.DebugHelper().DrawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
-
-    //m_distanceMap.draw(bot_);
 }

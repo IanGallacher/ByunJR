@@ -6,7 +6,7 @@
 #include "information/UnitInfoManager.h"
 #include "util/Util.h"
 
-UnitInfoManager::UnitInfoManager(ByunJRBot & bot)
+UnitInfoManager::UnitInfoManager(sc2::Agent & bot)
     : bot_(bot)
 {
 
@@ -204,44 +204,74 @@ size_t UnitInfoManager::GetUnitTypeCount(const sc2::Unit::Alliance player, const
     return count;
 }
 
-void UnitInfoManager::DrawUnitInformation() const
+// Does not look for flying bases. Only landed bases. 
+const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_unit) const
 {
-    if (!bot_.Config().DrawEnemyUnitInfo)
+    const sc2::Unit* closest_unit = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+
+    for (auto unit : unit_info_.GetUnits(sc2::Unit::Alliance::Self))
     {
-        return;
-    }
-
-    std::stringstream ss;
-
-    // for each unit in the queue
-    for (int t(0); t < 255; t++)
-    {
-        const int num_units =      unit_data_.at(sc2::Unit::Alliance::Self).GetNumUnits(t);
-        const int num_dead_units =  unit_data_.at(sc2::Unit::Alliance::Enemy).GetNumDeadUnits(t);
-
-        // if there exist units in the vector
-        if (num_units > 0)
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
+            || unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
         {
-            ss << num_units << "   " << num_dead_units << "   " << sc2::UnitTypeToName(t) << std::endl;
+            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
+            if (!closest_unit || distance < closest_distance)
+            {
+                closest_unit = unit;
+                closest_distance = distance;
+            }
         }
     }
-    
-    for (auto & kv : GetUnitData(sc2::Unit::Alliance::Enemy).GetUnitInfoMap())
-    {
-        bot_.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
-        bot_.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
-    }
+
+    return closest_unit;
 }
 
-int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot)
+void UnitInfoManager::DrawUnitInformation() const
 {
-    return unit_data_[sc2::Unit::Alliance::Self].GetNumAssignedWorkers(depot);
+    //if (!bot_.Config().DrawEnemyUnitInfo)
+    //{
+    //    return;
+    //}
+
+    //std::stringstream ss;
+
+    //// for each unit in the queue
+    //for (int t(0); t < 255; t++)
+    //{
+    //    const int num_units =      unit_data_.at(sc2::Unit::Alliance::Self).GetNumUnits(t);
+    //    const int num_dead_units =  unit_data_.at(sc2::Unit::Alliance::Enemy).GetNumDeadUnits(t);
+
+    //    // if there exist units in the vector
+    //    if (num_units > 0)
+    //    {
+    //        ss << num_units << "   " << num_dead_units << "   " << sc2::UnitTypeToName(t) << std::endl;
+    //    }
+    //}
+    //
+    //for (auto & kv : GetUnitData(sc2::Unit::Alliance::Enemy).GetUnitInfoMap())
+    //{
+    //    bot_.Debug()->DebugSphereOut(kv.second.lastPosition, 0.5f);
+    //    bot_.Debug()->DebugTextOut(sc2::UnitTypeToName(kv.second.type), kv.second.lastPosition);
+    //}
 }
 
-// mission_target is optional. Only required when a repair target is needed. 
+int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot) const
+{
+    return unit_data_.at(sc2::Unit::Alliance::Self).GetNumAssignedWorkers(depot);
+}
+
+// mission_target is optional. Only required when a repair target is needed, or setting a worker to mine gas or minerals. 
+// If we are mining minerals, mission_target is the command center to mine from.  
+// If we are mining gas, mission_target is the refinery to gather from. 
 void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
-    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, bot_, mission_target);
+    unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, mission_target);
 }
 
 // This can only return your workers, not the enemy workers. 
@@ -271,31 +301,6 @@ void UnitInfoManager::UpdateUnit(const sc2::Unit* unit)
     }
 
     unit_data_[Util::GetPlayer(unit)].UpdateUnit(unit);
-}
-
-// is the unit valid?
-bool UnitInfoManager::IsValidUnit(const sc2::Unit* unit)
-{
-    // we only care about our units and enemy units
-    if (!(Util::GetPlayer(unit) == sc2::Unit::Alliance::Self || Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy))
-    {
-        return false;
-    }
-
-    // if it's a weird unit, don't bother
-    if (unit->unit_type == sc2::UNIT_TYPEID::ZERG_EGG || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA)
-    {
-        return false;
-    }
-
-    // if the position isn't valid throw it out
-    if (!bot_.InformationManager().Map().IsOnMap(unit->pos))
-    {
-        return false;
-    }
-    
-    // s'all good baby baby
-    return true;
 }
 
 void UnitInfoManager::GetNearbyForce(std::vector<UnitInfo> & unit_info, sc2::Point2D p, const sc2::Unit::Alliance player, const float radius) const

@@ -4,20 +4,22 @@
 
 #include "util/DistanceMap.h"
 
-class ByunJRBot;
+class InformationManager;
 
 class MapTools
 {
-    ByunJRBot& bot_;
+    sc2::Agent & bot_;
+    InformationManager & information_manager_;
+
     int     true_map_width_;
     int     true_map_height_;
     int     playable_map_height_;
     int     playable_map_width_;
     float   max_z_;
     int     frame_;
-    
 
     // a cache of already computed distance maps, which is mutable since it only acts as a cache
+    // sc2::Point2DI is not yet compatible with std::map. Because of that, we are forced to use a pair.
     mutable std::map<std::pair<int, int>, DistanceMap>   all_maps_;   
 
     std::vector<std::vector<bool>>  walkable_;          // whether a tile is buildable (includes static resources)
@@ -43,7 +45,7 @@ class MapTools
 
 public:
 
-    MapTools(ByunJRBot& bot);
+    MapTools(sc2::Agent& bot, InformationManager& info);
 
     void    OnStart();
     void    OnFrame();
@@ -95,7 +97,8 @@ public:
                                      sc2::UnitTypeID building_type) const;
     sc2::Point2DI GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
 
-    // returns a list of all tiles on the map, sorted by 4-direcitonal walk distance from the given position
+    // Returns a list of all tiles on the map, sorted by 4-direcitonal walk distance from the given position.
+    const std::vector<sc2::Point2DI>& GetClosestTilesTo(const sc2::Point2D & pos) const;
     const std::vector<sc2::Point2DI>& GetClosestTilesTo(const sc2::Point2DI& pos) const;
 };
 

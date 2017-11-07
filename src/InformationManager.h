@@ -11,9 +11,10 @@ class ByunJRBot;
 // Only include InformationManager, and use it to get and set specific information about the game.
 class InformationManager
 {
-    ByunJRBot &                     bot_;
-    BaseLocationManager             bases_;
+    // map_ must be be before bases_ in order to satisfy dependancies.
+    sc2::Agent &                    bot_;
     MapTools                        map_;
+    BaseLocationManager             bases_;
     UnitInfoManager                 unit_info_;
 
 
@@ -21,7 +22,7 @@ class InformationManager
     vvi                             dps_map_;
 
 public:
-    InformationManager(ByunJRBot & bot);
+    InformationManager(sc2::Agent & bot);
     void OnStart();
     void OnUnitCreated(const sc2::Unit* unit);
     void OnUnitDestroyed(const sc2::Unit* unit);
@@ -41,6 +42,6 @@ public:
     const sc2::Unit* GetClosestUnitWithJob(const sc2::Point2D point,
                                            const std::vector<UnitMission> mission_vector) const;
     const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
-    const sc2::Unit* GetClosestNotOptimalRefinery(const sc2::Unit* reference_unit) const;
+    const sc2::Unit* GetClosestNotSaturatedRefinery(const sc2::Unit* reference_unit) const;
     vvi GetDPSMap() const;
 };
