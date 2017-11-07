@@ -4,7 +4,6 @@
 #include "information/BaseLocationManager.h"
 #include "information/MapTools.h"
 #include "information/UnitInfoManager.h"
-#include "macro/BuildingPlacer.h"
 
 class ByunJRBot;
 

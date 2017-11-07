@@ -1,4 +1,5 @@
 #pragma once
+#include "macro/BuildingPlacer.h"
 #include "macro/BuildOrder.h"
 
 typedef std::pair<sc2::UnitTypeID, size_t>  UnitPair;
