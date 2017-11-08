@@ -1,7 +1,6 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "common/Common.h"
 #include "information/BaseLocation.h"
 #include "util/Util.h"
 
