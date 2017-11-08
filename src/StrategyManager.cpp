@@ -104,7 +104,7 @@ void StrategyManager::RecalculateMacroGoal()
      || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
     // || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
      || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
-     || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
+     || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
         && Util::GetGameTimeInSeconds(bot_) > 240 )
      || Util::GetGameTimeInSeconds(bot_) > 600)
     {
