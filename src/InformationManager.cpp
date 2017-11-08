@@ -2,8 +2,6 @@
 
 #include "ByunJRBot.h"
 #include "InformationManager.h"
-#include "common/BotAssert.h"
-#include "common/Common.h"
 #include "information/unitInfo.h"
 #include "util/Util.h"
 
@@ -125,7 +123,7 @@ UnitInfoManager & InformationManager::UnitInfo()
 
 const sc2::Race & InformationManager::GetPlayerRace(sc2::Unit::Alliance player) const
 {
-    BOT_ASSERT(player < 1 || player_race_.size(), "invalid player for GetPlayerRace");
+    assert(player < 1 || player_race_.size(), "invalid player for GetPlayerRace");
     return player_race_.at(player);
 }
 
@@ -219,6 +217,8 @@ const sc2::Unit* InformationManager::GetClosestUnitWithJob(const sc2::Point2D po
     for (auto & unit_info_pair : unit_info_.GetUnitInfoMap(sc2::Unit::Alliance::Self))
     {
         const ::UnitInfo & unit_info = unit_info_pair.second;
+        // Buildings are part of the unit info map, but they do not have jobs. 
+        if (!Util::IsWorkerType(unit_info.type)) continue;
         if (std::find(mission_vector.begin(), mission_vector.end(), unit_info.mission) != mission_vector.end())
         {
             const double distance = Util::DistSq(unit_info_pair.second.unit->pos, point);
