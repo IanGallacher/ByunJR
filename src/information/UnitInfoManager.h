@@ -43,4 +43,6 @@ public:
     std::set<const UnitInfo*> GetCombatUnits() const;
     int GetNumRepairWorkers(const sc2::Unit* unit) const;
     int GetNumDepots(sc2::Unit::Alliance self) const;
+    const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit, sc2::Unit::Alliance base_owner) const;
+    const sc2::Unit* GetClosestNotSaturatedRefinery(const sc2::Unit* reference_unit) const;
 };

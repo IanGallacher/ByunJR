@@ -127,34 +127,6 @@ const sc2::Race & InformationManager::GetPlayerRace(sc2::Unit::Alliance player) 
     return player_race_.at(player);
 }
 
-// Does not look for flying bases. Only landed bases. 
-const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_unit) const
-{
-    const sc2::Unit* closest_unit = nullptr;
-    double closest_distance = std::numeric_limits<double>::max();
-
-    for (auto unit : unit_info_.GetUnits(sc2::Unit::Alliance::Self))
-    {
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
-            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
-            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
-            || unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
-        {
-            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
-            if (!closest_unit || distance < closest_distance)
-            {
-                closest_unit = unit;
-                closest_distance = distance;
-            }
-        }
-    }
-
-    return closest_unit;
-}
-
 const ::UnitInfo * InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const
 {
     const ::UnitInfo * closest_unit = nullptr;
@@ -267,33 +239,6 @@ const sc2::Unit* InformationManager::GetClosestUnitOfType(const sc2::Unit* refer
     }
 
     return closest_unit;
-}
-
-const sc2::Unit* InformationManager::GetClosestNotSaturatedRefinery(const sc2::Unit* reference_unit) const
-{
-    const sc2::Unit* closest_refinery = nullptr;
-    double closest_distance = std::numeric_limits<double>::max();
-
-    for (const auto refinery : unit_info_.GetUnits(sc2::Unit::Alliance::Self))
-    {
-        if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
-        {
-            int num_assigned = unit_info_.GetNumAssignedWorkers(refinery);
-
-
-            if (0 < (refinery->ideal_harvesters - num_assigned))
-            {
-                const double distance = Util::DistSq(refinery->pos, reference_unit->pos);
-                if (!closest_refinery || distance < closest_distance)
-                {
-                    closest_refinery = refinery;
-                    closest_distance = distance;
-                }
-            }
-        }
-    }
-
-    return closest_refinery;
 }
 
 vvi InformationManager::GetDPSMap() const

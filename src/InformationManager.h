@@ -34,13 +34,11 @@ public:
 
     const sc2::Race & GetPlayerRace(sc2::Unit::Alliance player) const;
 
-    const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;
     const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const UnitMission) const;
     const sc2::Unit* GetClosestUnitWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const;
     const ::UnitInfo* GetClosestUnitInfoWithJob(const sc2::Point2D point, const std::vector<UnitMission> mission) const;
     const sc2::Unit* GetClosestUnitWithJob(const sc2::Point2D point,
                                            const std::vector<UnitMission> mission_vector) const;
     const sc2::Unit* GetClosestUnitOfType(const sc2::Unit* unit, const sc2::UnitTypeID) const;
-    const sc2::Unit* GetClosestNotSaturatedRefinery(const sc2::Unit* reference_unit) const;
     vvi GetDPSMap() const;
 };

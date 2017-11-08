@@ -240,8 +240,16 @@ int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot) const
 // If we are mining gas, mission_target is the refinery to gather from. 
 void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
-// add informationmanager get base
+    if (job == UnitMission::Minerals && !mission_target)
+    {
+        mission_target = GetClosestBase(unit, sc2::Unit::Alliance::Self);
+    }
+    else if (job == UnitMission::Gas && !mission_target)
+    {
+        mission_target = GetClosestNotSaturatedRefinery(unit);
+    }
     unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, mission_target);
+
 }
 
 // This can only return your workers, not the enemy workers. 
@@ -314,5 +322,59 @@ int UnitInfoManager::GetNumRepairWorkers(const sc2::Unit* unit) const
 int UnitInfoManager::GetNumDepots(sc2::Unit::Alliance self) const
 {
     return GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-        + GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
+         + GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED);
+}
+// Does not look for flying bases. Only landed bases. 
+const sc2::Unit* UnitInfoManager::GetClosestBase(const sc2::Unit* reference_unit, sc2::Unit::Alliance base_owner) const
+{
+    const sc2::Unit* closest_unit = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+
+    for (auto unit : GetUnits(base_owner))
+    {
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
+            || unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
+        {
+            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
+            if (!closest_unit || distance < closest_distance)
+            {
+                closest_unit = unit;
+                closest_distance = distance;
+            }
+        }
+    }
+
+    return closest_unit;
+}
+
+const sc2::Unit* UnitInfoManager::GetClosestNotSaturatedRefinery(const sc2::Unit* reference_unit) const
+{
+    const sc2::Unit* closest_refinery = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
+
+    for (const auto refinery : GetUnits(sc2::Unit::Alliance::Self))
+    {
+        if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
+        {
+            int num_assigned = GetNumAssignedWorkers(refinery);
+
+
+            if (0 < (refinery->ideal_harvesters - num_assigned))
+            {
+                const double distance = Util::DistSq(refinery->pos, reference_unit->pos);
+                if (!closest_refinery || distance < closest_distance)
+                {
+                    closest_refinery = refinery;
+                    closest_distance = distance;
+                }
+            }
+        }
+    }
+
+    return closest_refinery;
 }
