@@ -17,13 +17,13 @@ void BaseLocationManager::OnStart()
     player_starting_base_locations_[sc2::Unit::Alliance::Self]  = nullptr;
     player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = nullptr; 
 
-    // construct the sets of occupied base locations
+    // Construct the sets of occupied base locations.
     occupied_base_locations_[sc2::Unit::Alliance::Self] = std::set<const BaseLocation*>();
     occupied_base_locations_[sc2::Unit::Alliance::Enemy] = std::set<const BaseLocation*>();
     enemy_base_scouted_ = false;
     
-    // a BaseLocation will be anything where there are minerals to mine
-    // so we will first look over all minerals and cluster them based on some distance
+    // A BaseLocation will be anything where there are minerals to mine.
+    // So we will first look over all minerals and cluster them based on some distance.
     const int cluster_distance = 15;
     
     // Stores each cluster of resources based on some ground distance.
@@ -33,9 +33,6 @@ void BaseLocationManager::OnStart()
     // For every mineral field and gas geyser out there, add it to a resource cluster.
     for (auto resource : bot_.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
     {
-        // skip minerals that don't have more than 100 starting minerals
-        // these are probably stupid map-blocking minerals to confuse us.
-
         // Skip any unit that is not a gas geyser or mineral field.
         if (!Util::IsMineral(resource) && !Util::IsGeyser(resource)) continue;
 
@@ -44,10 +41,10 @@ void BaseLocationManager::OnStart()
         {
             const float dist = Util::Dist(resource->pos, Util::CalcCenterOfUnitGroup(cluster));
             
-            // quick initial air distance check to eliminate most resources
+            // Quick initial air distance check to eliminate most resources.
             if (dist < cluster_distance)
             {
-                // now do a more expensive ground distance check
+                // Now do a more expensive ground distance check.
                 const float ground_dist = dist; //bot_.InformationManager().Map().getGroundDistance(mineral.pos, Util::CalcCenterOfUnitGroup(cluster));
                 if (ground_dist >= 0 && ground_dist < cluster_distance)
                 {
@@ -101,7 +98,7 @@ void BaseLocationManager::OnStart()
         }
     }
 
-    // construct the map of tile positions to base locations
+    // Construct the map of tile positions to base locations.
     for (float x=0; x < map_.TrueMapWidth(); ++x)
     {
         for (int y=0; y < map_.TrueMapHeight(); ++y)
@@ -123,17 +120,17 @@ void BaseLocationManager::OnStart()
 
 void BaseLocationManager::OnFrame(InformationManager & info)
 {   
-    // reset the player occupation information for each location
+    // Reset the player occupation information for each location.
     for (auto & base_location : base_location_data_)
     {
         base_location.SetPlayerOccupying(sc2::Unit::Alliance::Self, false);
         base_location.SetPlayerOccupying(sc2::Unit::Alliance::Enemy, false);
     }
 
-    // for each unit on the map, update which base location it may be occupying
+    // For each unit on the map, update which base locations are occupied.
     for (auto & unit : bot_.Observation()->GetUnits())
     {
-        // we only care about buildings on the ground
+        // We only care about buildings on the ground.
         if (!Util::IsBuilding(unit->unit_type) || unit->is_flying)
         {
             continue;
@@ -147,7 +144,7 @@ void BaseLocationManager::OnFrame(InformationManager & info)
         }
     }
 
-    // update enemy base occupations
+    // Update enemy base occupations.
     for (const auto & kv : info.UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Enemy))
     {
         const UnitInfo & ui = kv.second;
@@ -206,7 +203,7 @@ void BaseLocationManager::OnFrame(InformationManager & info)
                 }
             }
 
-            // if we have explored all but one location, then the unexplored one is the enemy start location
+            // If we have explored all but one location, then the unexplored one is the enemy start location.
             if (num_explored_locations == num_start_locations - 1 && unexplored != nullptr)
             {
                 player_starting_base_locations_[sc2::Unit::Alliance::Enemy] = unexplored;
@@ -216,7 +213,7 @@ void BaseLocationManager::OnFrame(InformationManager & info)
         }
     }
 
-    // update the occupied base locations for each player
+    // Update the occupied base locations for each player.
     occupied_base_locations_[sc2::Unit::Alliance::Self] = std::set<const BaseLocation*>();
     occupied_base_locations_[sc2::Unit::Alliance::Enemy] = std::set<const BaseLocation*>();
     for (auto & base_location : base_location_data_)
@@ -231,8 +228,6 @@ void BaseLocationManager::OnFrame(InformationManager & info)
             occupied_base_locations_[sc2::Unit::Alliance::Enemy].insert(&base_location);
         }
     }
-
-    // draw the debug information for each base location
 }
 
 BaseLocation* BaseLocationManager::GetBaseLocation(const sc2::Point2D & pos) const
@@ -272,7 +267,7 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance pla
     
     for (auto & base : GetBaseLocations())
     {
-        // skip mineral only and starting locations (TODO: fix this)
+        // Skip mineral only and starting locations (TODO: fix this)
         if (base->IsMineralOnly() || base->IsStartLocation())
         {
             continue;
@@ -284,13 +279,13 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance pla
             continue;
         }
 
-        // get the tile position of the base
+        // Get the tile position of the base.
         const auto tile = base->GetTownHallPosition();
 
-        // the base's distance from our main nexus
+        // The base's distance from our main Town Hall.
         const int distance_from_home = bot_.Query()->PathingDistance(tile, home_base->GetPosition());
 
-        // if it is not connected, continue
+        // If it is not connected, continue.
         if (distance_from_home < 0)
         {
             continue;
