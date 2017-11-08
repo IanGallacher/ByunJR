@@ -45,7 +45,7 @@ namespace Util
     sc2::UnitTypeID GetSupplyProvider(const sc2::Race & race);
     std::string GetStringFromRace(const sc2::Race & race);
     sc2::Race GetRaceFromString(const std::string & race);
-    sc2::Point2D CalcCenter(const std::vector<const sc2::Unit*>& units);
+    sc2::Point2D CalcCenterOfUnitGroup(const std::vector<const sc2::Unit*>& units);
     sc2::UnitTypeID GetUnitTypeIDFromName(const sc2::ObservationInterface * obs, const std::string & name);
 
     float Dist(const int x1, const int y1, const int x2, const int y2);

@@ -182,7 +182,7 @@ bool Squad::IsUnitNearEnemy(const sc2::Unit* unit) const
     return false;
 }
 
-sc2::Point2D Squad::CalcCenter() const
+sc2::Point2D Squad::CalcCenterOfUnitGroup() const
 {
     if (units_.empty())
     {

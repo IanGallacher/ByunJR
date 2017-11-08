@@ -49,7 +49,7 @@ public:
     void SetPriority(const size_t & priority);
     const std::string & GetName() const;
 
-    sc2::Point2D CalcCenter() const;
+    sc2::Point2D CalcCenterOfUnitGroup() const;
     sc2::Point2D CalcRegroupPosition() const;
 
     const std::set<const sc2::Unit*>& GetUnits() const;

@@ -42,13 +42,13 @@ void BaseLocationManager::OnStart()
         bool found_cluster = false;
         for (auto & cluster : resource_clusters)
         {
-            const float dist = Util::Dist(resource->pos, Util::CalcCenter(cluster));
+            const float dist = Util::Dist(resource->pos, Util::CalcCenterOfUnitGroup(cluster));
             
             // quick initial air distance check to eliminate most resources
             if (dist < cluster_distance)
             {
                 // now do a more expensive ground distance check
-                const float ground_dist = dist; //bot_.InformationManager().Map().getGroundDistance(mineral.pos, Util::CalcCenter(cluster));
+                const float ground_dist = dist; //bot_.InformationManager().Map().getGroundDistance(mineral.pos, Util::CalcCenterOfUnitGroup(cluster));
                 if (ground_dist >= 0 && ground_dist < cluster_distance)
                 {
                     cluster.push_back(resource);

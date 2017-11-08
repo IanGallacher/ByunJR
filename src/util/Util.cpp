@@ -154,7 +154,7 @@ int Util::GetUnitTypeHeight(const sc2::UnitTypeID type, const sc2::Agent & bot)
 }
 
 
-sc2::Point2D Util::CalcCenter(const std::vector<const sc2::Unit*>& units)
+sc2::Point2D Util::CalcCenterOfUnitGroup(const std::vector<const sc2::Unit*>& units)
 {
     if (units.empty())
     {
@@ -779,6 +779,4 @@ bool Util::UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & ty
     }
 
     return false;
-
-
 }

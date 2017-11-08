@@ -19,12 +19,11 @@ void UnitInfoManager::OnFrame()
     // If units are created or modified, update the unitInfo object.
     UpdateUnitInfo();
 
-    //m_workers.OnFrame();
     DrawUnitInformation();
     DrawSelectedUnitDebugInfo();
 }
 
-// If units die, update the unitInfo object.
+// If units die, update the unit_data_ object.
 void UnitInfoManager::OnUnitDestroyed(const sc2::Unit* unit)
 {
     unit_data_[Util::GetPlayer(unit)].KillUnit(unit);
