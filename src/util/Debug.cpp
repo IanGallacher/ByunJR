@@ -1,32 +1,31 @@
 #include <sstream>
 #include <vector>
 
-#include "ByunJRBot.h"
-#include "common/Common.h"
-#include "global/Debug.h"
+#include "util/Debug.h"
 #include "util/Util.h"
 
 
 float max_z_ = 11;
 
-DebugManager::DebugManager(ByunJRBot & bot)
+DebugManager::DebugManager(sc2::Agent & bot, InformationManager & information_manager)
     : bot_(bot)
+    , information_manager_(information_manager)
 {
 }
 
 void DebugManager::DrawResourceDebugInfo() const
 {
-    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = information_manager_.UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
 
     for (auto const & unit_info : ui)
     {
         if (Util::IsBuilding(unit_info.second.unit->unit_type)) continue;
-        bot_.DebugHelper().DrawText(unit_info.second.unit->pos, unit_info.second.GetJobCode());
+        DrawText(unit_info.second.unit->pos, unit_info.second.GetJobCode());
 
         //auto depot = bot_.GetUnit(workerData.getWorkerDepot(workerTag));
         //if (depot)
         //{
-        //    bot_.InformationManager().Map().drawLine(bot_.GetUnit(workerTag)->pos, depot->pos);
+        //    information_manager_.Map().drawLine(bot_.GetUnit(workerTag)->pos, depot->pos);
         //}
     }
 }
@@ -46,16 +45,16 @@ void DebugManager::DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const
 
 void DebugManager::DrawMapSectors() const
 {
-    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < information_manager_.Map().TrueMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < information_manager_.Map().TrueMapWidth(); ++x)
         {
-            if (!bot_.InformationManager().Map().IsOnMap(x, y))
+            if (!information_manager_.Map().IsOnMap(x, y))
             {
                 continue;
             }
             std::stringstream ss;
-            ss << bot_.InformationManager().Map().GetSectorNumber(x, y);
+            ss << information_manager_.Map().GetSectorNumber(x, y);
             bot_.Debug()->DebugTextOut(ss.str(), sc2::Point3D(x + 0.5f, y + 0.5f, max_z_ + 0.1f), sc2::Colors::Yellow);
         }
     }
@@ -63,23 +62,23 @@ void DebugManager::DrawMapSectors() const
 
 void DebugManager::DrawBaseLocations() const
 {
-    for (auto & base_location : bot_.InformationManager().Bases().GetBaseLocations())
+    for (auto & base_location : information_manager_.Bases().GetBaseLocations())
     {
         DrawBaseLocation(*base_location);
     }
 
     // draw a purple sphere at the next expansion location
-    const sc2::Point2D next_expansion_position = bot_.InformationManager().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
+    const sc2::Point2D next_expansion_position = information_manager_.Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
 
-    bot_.DebugHelper().DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
-    bot_.DebugHelper().DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
+    DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
+    DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
 }
 
 
 void DebugManager::DrawBaseLocation(const BaseLocation & base_location) const 
 {
     const sc2::Point2D base_pos = base_location.GetPosition();
-    bot_.DebugHelper().DrawSphere(base_pos, 1.0f, sc2::Colors::Yellow);
+    DrawSphere(base_pos, 1.0f, sc2::Colors::Yellow);
 
     std::stringstream ss;
     ss << "Start Loc:    " << (base_location.IsStartLocation() ? "true" : "false") << std::endl;
@@ -97,23 +96,23 @@ void DebugManager::DrawBaseLocation(const BaseLocation & base_location) const
         ss << "Enemy ";
     }
 
-    bot_.DebugHelper().DrawText(base_pos, ss.str().c_str());
+    DrawText(base_pos, ss.str().c_str());
 
-    bot_.DebugHelper().DrawBoxAroundUnit(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, base_pos);
+    DrawBoxAroundUnit(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, base_pos);
 
     for (auto & mineral : base_location.GetMinerals())
     {
-        bot_.DebugHelper().DrawSphere(mineral->pos, 1.0f, sc2::Colors::Teal);
+        DrawSphere(mineral->pos, 1.0f, sc2::Colors::Teal);
     }
 
     for (auto & geyser : base_location.GetGeysers())
     {
-        bot_.DebugHelper().DrawSphere(geyser->pos, 1.0f, sc2::Colors::Green);
+        DrawSphere(geyser->pos, 1.0f, sc2::Colors::Green);
     }
 
     if (base_location.IsStartLocation())
     {
-        bot_.DebugHelper().DrawSphere(base_location.GetPosition(), 1.0f, sc2::Colors::Red);
+        DrawSphere(base_location.GetPosition(), 1.0f, sc2::Colors::Red);
     }
 
     //m_distanceMap.draw(bot_);
@@ -138,16 +137,16 @@ void DebugManager::DrawBaseLocation(const BaseLocation & base_location) const
 void DebugManager::DrawMapWalkableTiles() const
 {
     const sc2::Point2D camera = bot_.Observation()->GetCameraPos();
-    for (int y = 0; y < bot_.InformationManager().Map().TrueMapHeight(); ++y)
+    for (int y = 0; y < information_manager_.Map().TrueMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_.InformationManager().Map().TrueMapWidth(); ++x)
+        for (int x = 0; x < information_manager_.Map().TrueMapWidth(); ++x)
         {
-            if (!bot_.InformationManager().Map().IsOnMap(x, y))
+            if (!information_manager_.Map().IsOnMap(x, y))
             {
                 continue;
             }
-            sc2::Color color = bot_.InformationManager().Map().IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
-            if (bot_.InformationManager().Map().IsWalkable(x, y) && !bot_.InformationManager().Map().IsBuildable(x, y))
+            sc2::Color color = information_manager_.Map().IsWalkable(x, y) ? sc2::Colors::Green : sc2::Colors::Red;
+            if (information_manager_.Map().IsWalkable(x, y) && !information_manager_.Map().IsBuildable(x, y))
             {
                 color = sc2::Colors::Yellow;
             }
@@ -167,14 +166,14 @@ void DebugManager::DrawMapWalkableTiles() const
 //        std::stringstream ss;
 //        ss << "Workers: " << getNumAssignedWorkers(base);
 //
-//        bot_.InformationManager().Map().drawText(base->pos, ss.str());
+//        information_manager_.Map().drawText(base->pos, ss.str());
 //    }
 //}
 
 void DebugManager::DrawAllUnitInformation() const
 {
     std::stringstream ss;
-    const std::map<sc2::Tag, UnitInfo> ui = bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
+    const std::map<sc2::Tag, UnitInfo> ui = information_manager_.UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self);
 
     ss << "Workers: " << ui.size() << std::endl;
 
@@ -186,22 +185,7 @@ void DebugManager::DrawAllUnitInformation() const
         ss << unit_info.second.GetJobCode() << " " << unit_info.first << std::endl;
     }
 
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
-}
-
-void DebugManager::DrawDebugInterface() const
-{
-    DrawGameInformation();
-}
-
-void DebugManager::DrawGameInformation() const
-{
-    std::stringstream ss;
-    // ss << "Players: " << std::endl;
-    ss << "Strategy: " << bot_.Config().StrategyName << std::endl;
-    ss << "Map Name: " << bot_.Config().MapName << std::endl;
-    // ss << "Time: " << std::endl;
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.75f, 0.1f), ss.str());
+    DrawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
 }
 
 void DebugManager::DrawLine(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
@@ -264,7 +248,7 @@ void DebugManager::DrawTextScreen(const sc2::Point2D& pos, const std::string & s
 
 void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point2D unit_pos, const sc2::Color color) const
 {
-    DrawBoxAroundUnit(unit_type, sc2::Point3D(unit_pos.x, unit_pos.y, bot_.InformationManager().Map().TerrainHeight(unit_pos.x, unit_pos.y)), color);
+    DrawBoxAroundUnit(unit_type, sc2::Point3D(unit_pos.x, unit_pos.y, information_manager_.Map().TerrainHeight(unit_pos.x, unit_pos.y)), color);
 }
 
 void DebugManager::DrawBoxAroundUnit(const sc2::UnitTypeID unit_type, const sc2::Point3D unit_pos, const sc2::Color color) const

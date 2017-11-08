@@ -5,7 +5,6 @@
 #include "InformationManager.h"
 #include "StrategyManager.h"
 #include "global/BotConfig.h"
-#include "global/Debug.h"
 #include "information/BaseLocationManager.h"
 #include "information/MapTools.h"
 #include "macro/BuildingManager.h"
@@ -14,6 +13,7 @@
 #include "macro/WorkerManager.h"
 #include "micro/ScoutManager.h"
 #include "micro/CombatCommander.h"
+#include "util/Debug.h"
 
 #define DllExport   __declspec( dllexport )  
 
@@ -21,6 +21,7 @@ class ByunJRBot : public sc2::Agent
 {
     CombatCommander          combat_commander_;
     InformationManager       information_manager_;
+    DebugManager             debug_;
 
     StrategyManager          strategy_;
     BotConfig                config_;
@@ -28,7 +29,6 @@ class ByunJRBot : public sc2::Agent
     ProductionManager        production_manager_;
     ScoutManager             scout_manager_;
     ProxyManager             proxy_manager_;
-    DebugManager             debug_;
     WorkerManager            workers_;
 
     bool                     is_willing_to_fight_;

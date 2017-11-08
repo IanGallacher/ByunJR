@@ -86,9 +86,6 @@
     </ClCompile>
     <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\StrategyManager.cpp" />
-    <ClCompile Include="..\src\global\Debug.cpp">
-      <Filter>global</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ai\Pathfinding.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -97,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="..\src\information\MapTools.cpp">
       <Filter>information</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util\Debug.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -193,9 +193,6 @@
     </ClInclude>
     <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
-    <ClInclude Include="..\src\global\Debug.h">
-      <Filter>global</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ai\Pathfinding.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -204,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="..\src\information\MapTools.h">
       <Filter>information</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util\Debug.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

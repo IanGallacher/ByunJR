@@ -5,8 +5,6 @@
 #include "information/MapTools.h"
 #include "information/UnitInfoManager.h"
 
-class ByunJRBot;
-
 // InformationManager is not inside the information folder in order to remind people not to include individual things from the information folder.
 // Only include InformationManager, and use it to get and set specific information about the game.
 class InformationManager

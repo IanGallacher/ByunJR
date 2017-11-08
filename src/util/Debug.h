@@ -1,12 +1,13 @@
 #pragma once
-
-class ByunJRBot;
+#include "InformationManager.h"
 
 class DebugManager
 {
-    ByunJRBot &                 bot_;
+    // Debug functions require mutable agents.
+    sc2::Agent & bot_;
+    InformationManager & information_manager_;
 public:
-    DebugManager(ByunJRBot & bot);
+    DebugManager(sc2::Agent & bot, InformationManager & information_manager);
     void DrawResourceDebugInfo() const;
     void DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const;
     void DrawMapSectors() const;
@@ -14,8 +15,6 @@ public:
     void DrawBaseLocation(const BaseLocation & base_location) const;
     void DrawMapWalkableTiles() const;
     void DrawAllUnitInformation() const;
-    void DrawDebugInterface() const;
-    void DrawGameInformation() const;
 
 
     // Debug Helper functions

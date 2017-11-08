@@ -1,6 +1,5 @@
 #include <sc2api/sc2_api.h>
 
-#include "ByunJRBot.h"
 #include "InformationManager.h"
 #include "information/unitInfo.h"
 #include "util/Util.h"

@@ -6,12 +6,13 @@
 
 ByunJRBot::ByunJRBot()
     : combat_commander_(*this)
+    // Remember to init information_manager_ before debug_!
     , information_manager_(*this)
+    , debug_(*this, information_manager_)
     , strategy_(*this)
     , production_manager_(*this)
     , scout_manager_(*this)
     , proxy_manager_(*this)
-    , debug_(*this)
     , workers_(*this)
     , is_willing_to_fight_(true)
     , frame_skip_(0)
@@ -55,7 +56,6 @@ void ByunJRBot::OnStep()
 
     debug_.DrawAllUnitInformation();
     debug_.DrawResourceDebugInfo();
-    debug_.DrawDebugInterface();
 
 
     //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());

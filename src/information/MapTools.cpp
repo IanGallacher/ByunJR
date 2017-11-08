@@ -1,7 +1,9 @@
 #include <sstream>
 #include <fstream>
+#include "InformationManager.h"
 
-#include "ByunJRBot.h"
+#include "information/BaseLocation.h"
+#include "information/BaseLocationManager.h"
 #include "information/MapTools.h"
 #include "util/Util.h"
 
@@ -57,20 +59,18 @@ void MapTools::OnStart()
 
 void MapTools::OnFrame()
 {
- /*   frame++;
+    frame_++;
 
-    for (int x=0; x<m_width; ++x)
+    for (int x=0; x<true_map_width_; ++x)
     {
-        for (int y=0; y<m_height; ++y)
+        for (int y=0; y<true_map_height_; ++y)
         {
-            if (isVisible(sc2::Point2DI((float)x, (float)y)))
+            if (IsVisible(sc2::Point2D(x, y)))
             {
-                lastSeen[x][y] = frame;
+                last_seen_[x][y] = frame_;
             }
         }
     }
-
-    draw();*/
 }
 
 void MapTools::ComputeConnectivity()
