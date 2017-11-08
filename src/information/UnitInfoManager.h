@@ -1,7 +1,6 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "macro/WorkerManager.h"
 #include "information/UnitData.h"
 
 class UnitInfoManager 
@@ -20,7 +19,6 @@ class UnitInfoManager
     void DrawSelectedUnitDebugInfo() const;
 
 public:
-
     UnitInfoManager(sc2::Agent & bot);
 
     void                    OnStart();

@@ -2,8 +2,6 @@
 #include <fstream>
 
 #include "ByunJRBot.h"
-#include "common/BotAssert.h"
-#include "common/Common.h"
 #include "information/MapTools.h"
 #include "util/Util.h"
 
@@ -26,14 +24,14 @@ void MapTools::OnStart()
 {
     true_map_width_  = bot_.Observation()->GetGameInfo().width;
     true_map_height_ = bot_.Observation()->GetGameInfo().height;
-    BOT_ASSERT(true_map_width_ != 0, "True map width is zero!");
-    BOT_ASSERT(true_map_height_ != 0, "Play area height is zero!");
+    assert(true_map_width_ != 0, "True map width is zero!");
+    assert(true_map_height_ != 0, "Play area height is zero!");
 
 
     playable_map_width_ = static_cast<int>(bot_.Observation()->GetGameInfo().playable_max.x - bot_.Observation()->GetGameInfo().playable_min.x);
     playable_map_height_ = static_cast<int>(bot_.Observation()->GetGameInfo().playable_max.y - bot_.Observation()->GetGameInfo().playable_min.y);
-    BOT_ASSERT(playable_map_width_ != 0, "Play area with is zero!");
-    BOT_ASSERT(playable_map_height_ != 0, "Play area height is zero!");
+    assert(playable_map_width_ != 0, "Play area with is zero!");
+    assert(playable_map_height_ != 0, "Play area height is zero!");
 
 
     walkable_        = vvb(true_map_width_, std::vector<bool>(true_map_height_, true));
@@ -346,7 +344,7 @@ sc2::Point2DI MapTools::GetLeastRecentlySeenPosition() const
     const BaseLocation* base_location = information_manager_.Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self);
     for ( const auto& tile : GetClosestTilesTo(base_location->GetPosition()) )
     {
-        BOT_ASSERT(IsOnMap(tile), "How is this tile not valid?");
+        assert(IsOnMap(tile), "How is this tile not valid?");
 
         const int last_seen = last_seen_[static_cast<int>(tile.x)][static_cast<int>(tile.y)];
         if (last_seen < min_seen)

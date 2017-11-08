@@ -1,8 +1,5 @@
 #include <sstream>
 
-#include "ByunJRBot.h"
-#include "common/Common.h"
-#include "common/BotAssert.h"
 #include "information/UnitInfoManager.h"
 #include "util/Util.h"
 
@@ -60,7 +57,7 @@ const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const sc2::U
 
 const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(sc2::Unit::Alliance player) const
 {
-    BOT_ASSERT(units_.find(player) != units_.end(), "Couldn't find player units: %d", player);
+    assert(units_.find(player) != units_.end(), "Couldn't find player units: %d", player);
 
     return units_.at(player);
 }
@@ -204,34 +201,6 @@ size_t UnitInfoManager::GetUnitTypeCount(const sc2::Unit::Alliance player, const
     return count;
 }
 
-// Does not look for flying bases. Only landed bases. 
-const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_unit) const
-{
-    const sc2::Unit* closest_unit = nullptr;
-    double closest_distance = std::numeric_limits<double>::max();
-
-    for (auto unit : unit_info_.GetUnits(sc2::Unit::Alliance::Self))
-    {
-        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
-            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
-            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
-            || unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
-            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
-        {
-            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
-            if (!closest_unit || distance < closest_distance)
-            {
-                closest_unit = unit;
-                closest_distance = distance;
-            }
-        }
-    }
-
-    return closest_unit;
-}
-
 void UnitInfoManager::DrawUnitInformation() const
 {
     //if (!bot_.Config().DrawEnemyUnitInfo)
@@ -271,6 +240,7 @@ int UnitInfoManager::GetNumAssignedWorkers(const sc2::Unit* depot) const
 // If we are mining gas, mission_target is the refinery to gather from. 
 void UnitInfoManager::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
+// add informationmanager get base
     unit_data_[Util::GetPlayer(unit)].SetJob(unit, job, mission_target);
 }
 

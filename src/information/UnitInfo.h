@@ -1,10 +1,6 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "common/Common.h"
-
-
-
 enum class UnitMission { Idle, Wait, Move, Minerals, Gas, Build, Attack, Defend, Harass, Repair, Scout, Proxy };
 
 struct UnitInfo

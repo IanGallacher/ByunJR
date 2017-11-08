@@ -32,7 +32,6 @@ public:
     const MapTools & Map() const;
     UnitInfoManager & UnitInfo();
 
-    const sc2::Unit* GetBuilder(Building& b, bool set_job_as_builder = true);
     const sc2::Race & GetPlayerRace(sc2::Unit::Alliance player) const;
 
     const sc2::Unit* GetClosestBase(const sc2::Unit* reference_unit) const;

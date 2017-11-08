@@ -2,7 +2,6 @@
 #include <sc2api/sc2_api.h>
 
 #include "information/UnitInfo.h"
-#include "macro/Building.h"
 
 typedef std::vector<UnitInfo> UnitInfoVector;
 

@@ -125,7 +125,14 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         if (b.status == BuildingStatus::Unassigned || !b.builderUnit || !b.builderUnit->is_alive)
         {
             // Grab the worker unit from WorkerManager which is closest to this final position.
-            b.builderUnit = bot_.InformationManager().GetBuilder(b);
+            const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
+            b.builderUnit = bot_.InformationManager().GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
+            
+            // if the worker exists (one may not have been found in rare cases)
+            if (b.builderUnit)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+            }
 
             // If all our workers are dead or preocupied, no worries, we can try again next game loop.
             if (!b.builderUnit || !b.builderUnit->is_alive)

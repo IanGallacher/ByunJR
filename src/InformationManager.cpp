@@ -127,18 +127,32 @@ const sc2::Race & InformationManager::GetPlayerRace(sc2::Unit::Alliance player) 
     return player_race_.at(player);
 }
 
-const sc2::Unit* InformationManager::GetBuilder(Building& b, const bool set_job_as_builder)
+// Does not look for flying bases. Only landed bases. 
+const sc2::Unit* InformationManager::GetClosestBase(const sc2::Unit* reference_unit) const
 {
-    const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
-    const sc2::Unit* builder_worker = GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
+    const sc2::Unit* closest_unit = nullptr;
+    double closest_distance = std::numeric_limits<double>::max();
 
-    // if the worker exists (one may not have been found in rare cases)
-    if (builder_worker && set_job_as_builder)
+    for (auto unit : unit_info_.GetUnits(sc2::Unit::Alliance::Self))
     {
-        unit_info_.SetJob(builder_worker, UnitMission::Build);
+        if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND
+            || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS
+            || unit->unit_type == sc2::UNIT_TYPEID::PROTOSS_NEXUS
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HATCHERY
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_LAIR
+            || unit->unit_type == sc2::UNIT_TYPEID::ZERG_HIVE)
+        {
+            const double distance = Util::DistSq(unit->pos, reference_unit->pos);
+            if (!closest_unit || distance < closest_distance)
+            {
+                closest_unit = unit;
+                closest_distance = distance;
+            }
+        }
     }
 
-    return builder_worker;
+    return closest_unit;
 }
 
 const ::UnitInfo * InformationManager::GetClosestUnitInfoWithJob(const sc2::Point2D reference_point, const UnitMission unit_mission) const

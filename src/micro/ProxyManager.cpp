@@ -70,7 +70,8 @@ bool ProxyManager::MoveProxyWorkers()
     if (!proxy_worker_)
     {
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-        proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
+        const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
+        proxy_worker_ = bot_.InformationManager().GetClosestUnitWithJob(sc2::Point2D(my_vec.x, my_vec.y), acceptable_missions);
 
         if (proxy_worker_)
             bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
