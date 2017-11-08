@@ -11,6 +11,7 @@ public:
     void DrawEnemyDPSMap(std::vector<std::vector<int>> dps_map) const;
     void DrawMapSectors() const;
     void DrawBaseLocations() const;
+    void DrawBaseLocation(const BaseLocation & base_location) const;
     void DrawMapWalkableTiles() const;
     void DrawAllUnitInformation() const;
     void DrawDebugInterface() const;

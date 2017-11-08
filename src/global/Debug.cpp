@@ -63,10 +63,9 @@ void DebugManager::DrawMapSectors() const
 
 void DebugManager::DrawBaseLocations() const
 {
-
     for (auto & base_location : bot_.InformationManager().Bases().GetBaseLocations())
     {
-        //base_location->Draw();
+        DrawBaseLocation(*base_location);
     }
 
     // draw a purple sphere at the next expansion location
@@ -75,69 +74,50 @@ void DebugManager::DrawBaseLocations() const
     bot_.DebugHelper().DrawSphere(next_expansion_position, 1, sc2::Colors::Purple);
     bot_.DebugHelper().DrawText(next_expansion_position, "Next Expansion Location", sc2::Colors::Purple);
 }
-//
-//
-//void BaseLocation::Draw()
-//{
-//    bot_.DebugHelper().DrawSphere(center_of_resources_, 1.0f, sc2::Colors::Yellow);
-//
-//    std::stringstream ss;
-//    ss << "BaseLocation: " << baseID << std::endl;
-//    ss << "Start Loc:    " << (IsStartLocation() ? "true" : "false") << std::endl;
-//    ss << "Minerals:     " << mineral_positions_.size() << std::endl;
-//    ss << "Geysers:      " << geyser_positions_.size() << std::endl;
-//    ss << "Occupied By:  ";
-//
-//    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
-//    {
-//        ss << "Self ";
-//    }
-//
-//    if (IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
-//    {
-//        ss << "Enemy ";
-//    }
-//
-//    bot_.DebugHelper().DrawText(sc2::Point2D(left_, top_ + 3), ss.str().c_str());
-//    bot_.DebugHelper().DrawText(sc2::Point2D(left_, bottom_), ss.str().c_str());
-//
-//    // draw the base bounding box
-//    bot_.DebugHelper().DrawBox(left_, top_, right_, bottom_);
-//
-//    for (float x = left_; x < right_; ++x)
-//    {
-//        bot_.DebugHelper().DrawLine(x, top_, x, bottom_, sc2::Color(160, 160, 160));
-//    }
-//
-//    for (float y = bottom_; y<top_; ++y)
-//    {
-//        bot_.DebugHelper().DrawLine(left_, y, right_, y, sc2::Color(160, 160, 160));
-//    }
-//
-//    for (auto & mineral_pos : mineral_positions_)
-//    {
-//        bot_.DebugHelper().DrawSphere(mineral_pos, 1.0f, sc2::Colors::Teal);
-//    }
-//
-//    for (auto & geyser_pos : geyser_positions_)
-//    {
-//        bot_.DebugHelper().DrawSphere(geyser_pos, 1.0f, sc2::Colors::Green);
-//    }
-//
-//    if (is_start_location_)
-//    {
-//        bot_.DebugHelper().DrawSphere(depot_position_, 1.0f, sc2::Colors::Red);
-//    }
-//
-//    const float cc_width = 5;
-//    const float cc_height = 4;
-//    const sc2::Point2D boxtl = depot_position_ - sc2::Point2D(cc_width / 2, -cc_height / 2);
-//    const sc2::Point2D boxbr = depot_position_ + sc2::Point2D(cc_width / 2, -cc_height / 2);
-//
-//    bot_.DebugHelper().DrawBox(boxtl.x, boxtl.y, boxbr.x, boxbr.y, sc2::Colors::Red);
-//
-//    //m_distanceMap.draw(bot_);
-//}
+
+
+void DebugManager::DrawBaseLocation(const BaseLocation & base_location) const 
+{
+    const sc2::Point2D base_pos = base_location.GetPosition();
+    bot_.DebugHelper().DrawSphere(base_pos, 1.0f, sc2::Colors::Yellow);
+
+    std::stringstream ss;
+    ss << "Start Loc:    " << (base_location.IsStartLocation() ? "true" : "false") << std::endl;
+    ss << "Minerals:     " << base_location.GetMinerals().size() << std::endl;
+    ss << "Geysers:      " << base_location.GetGeysers().size() << std::endl;
+    ss << "Occupied By:  ";
+
+    if (base_location.IsOccupiedByPlayer(sc2::Unit::Alliance::Self))
+    {
+        ss << "Self ";
+    }
+
+    if (base_location.IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
+    {
+        ss << "Enemy ";
+    }
+
+    bot_.DebugHelper().DrawText(base_pos, ss.str().c_str());
+
+    bot_.DebugHelper().DrawBoxAroundUnit(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, base_pos);
+
+    for (auto & mineral : base_location.GetMinerals())
+    {
+        bot_.DebugHelper().DrawSphere(mineral->pos, 1.0f, sc2::Colors::Teal);
+    }
+
+    for (auto & geyser : base_location.GetGeysers())
+    {
+        bot_.DebugHelper().DrawSphere(geyser->pos, 1.0f, sc2::Colors::Green);
+    }
+
+    if (base_location.IsStartLocation())
+    {
+        bot_.DebugHelper().DrawSphere(base_location.GetPosition(), 1.0f, sc2::Colors::Red);
+    }
+
+    //m_distanceMap.draw(bot_);
+}
 //
 //void DistanceMap::Draw(ByunJRBot & bot) const
 //{
