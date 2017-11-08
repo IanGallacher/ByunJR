@@ -6,9 +6,8 @@
 
 const int NearBaseLocationTileDistance = 20;
 
-BaseLocation::BaseLocation(sc2::Agent & bot, const int baseID, const std::vector<const sc2::Unit*> & resources)
+BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*> & resources)
     : bot_(bot)
-    , baseID               (baseID)
     , is_start_location_      (false)
     , left_                 (std::numeric_limits<float>::max())
     , right_                (std::numeric_limits<float>::lowest())
@@ -30,7 +29,6 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const int baseID, const std::vector
         if (Util::IsMineral(resource))
         {
             minerals_.push_back(resource);
-            mineral_positions_.push_back(resource->pos);
 
             // add the position of the minerals to the center
             resource_center_x += resource->pos.x;
@@ -39,7 +37,6 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const int baseID, const std::vector
         else
         {
             geysers_.push_back(resource);
-            geyser_positions_.push_back(resource->pos);
 
             // pull the resource center toward the geyser if it exists
             resource_center_x += resource->pos.x;

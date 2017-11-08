@@ -12,13 +12,9 @@ class BaseLocation
     std::vector<const sc2::Unit*>            geysers_;
     std::vector<const sc2::Unit*>            minerals_;
 
-    std::vector<sc2::Point2D>                mineral_positions_;
-    std::vector<sc2::Point2D>                geyser_positions_;
-
     std::map<sc2::Unit::Alliance, bool>      is_player_occupying_;
     std::map<sc2::Unit::Alliance, bool>      is_player_start_location_;
         
-    int                                      baseID;
     float                                    left_;
     float                                    right_;
     float                                    top_;
@@ -26,7 +22,7 @@ class BaseLocation
     bool                                     is_start_location_;
     
 public:
-    BaseLocation(sc2::Agent & bot, int baseID, const std::vector<const sc2::Unit*> & resources);
+    BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*> & resources);
     
     int GetGroundDistance(const sc2::Point2D & pos) const;
     bool IsStartLocation() const;

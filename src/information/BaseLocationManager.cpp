@@ -66,12 +66,11 @@ void BaseLocationManager::OnStart()
     }
 
     // add the base locations if there are more than 4 resouces in the cluster
-    int baseID = 0;
     for (auto & cluster : resource_clusters)
     {
         if (cluster.size() > 4)
         {
-            base_location_data_.push_back(BaseLocation(bot_, baseID++, cluster));
+            base_location_data_.push_back(BaseLocation(bot_, cluster));
         }
     }
 

@@ -29,7 +29,6 @@ void UnitInfoManager::OnUnitDestroyed(const sc2::Unit* unit)
     unit_data_[Util::GetPlayer(unit)].KillUnit(unit);
 }
 
-
 void UnitInfoManager::UpdateUnitInfo()
 {
     units_[sc2::Unit::Alliance::Self].clear();
