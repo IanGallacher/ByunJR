@@ -15,7 +15,6 @@ class MapTools
     int     true_map_height_;
     int     playable_map_height_;
     int     playable_map_width_;
-    float   max_z_;
     int     frame_;
 
     // a cache of already computed distance maps, which is mutable since it only acts as a cache

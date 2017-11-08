@@ -17,7 +17,6 @@ MapTools::MapTools(sc2::Agent& bot, InformationManager& info)
     , information_manager_(info)
     , true_map_width_   (0)
     , true_map_height_  (0)
-    , max_z_    (0.0f)
     , frame_   (0)
 {
 
@@ -53,11 +52,6 @@ void MapTools::OnStart()
             walkable_[x][y]         = buildable_[x][y] || Util::Pathable(bot_.Observation()->GetGameInfo(), sc2::Point2D(x, y));
             terrain_height_[x][y]   = bot_.Observation()->TerrainHeight(sc2::Point2D(x, y));
         }
-    }
-
-    for (auto& unit : bot_.Observation()->GetUnits(sc2::Unit::Alliance::Neutral))
-    {
-        max_z_ = std::max(unit->pos.z, max_z_);
     }
 
     ComputeConnectivity();
