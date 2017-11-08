@@ -23,14 +23,14 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*>
     float resource_center_x = 0;
     float resource_center_y = 0;
 
-    // add each of the resources to its corresponding container
+    // Add each of the resources to its corresponding container.
     for (auto & resource : resources)
     {
         if (Util::IsMineral(resource))
         {
             minerals_.push_back(resource);
 
-            // add the position of the minerals to the center
+            // Add the position of the minerals to the center.
             resource_center_x += resource->pos.x;
             resource_center_y += resource->pos.y;
         }
@@ -38,12 +38,12 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*>
         {
             geysers_.push_back(resource);
 
-            // pull the resource center toward the geyser if it exists
+            // Pull the resource center toward the geyser if it exists.
             resource_center_x += resource->pos.x;
             resource_center_y += resource->pos.y;
         }
 
-        // set the limits of the base location bounding box
+        // Set the limits of the base location bounding box.
         const float res_width = 1;
         const float res_height = 0.5;
 
@@ -53,12 +53,12 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*>
         bottom_ = std::min(bottom_, resource->pos.y - res_height);
     }
 
-    // calculate the center of the resources
+    // Calculate the center of the resources.
     size_t num_resources = minerals_.size() + geysers_.size();
 
     center_of_resources_ = sc2::Point2D(left_ + (right_-left_)/2.0f, top_ + (bottom_-top_)/2.0f);
 
-    // check to see if this is a start location for the map
+    // Check to see if this is a start location for the map.
     for (auto & pos : bot_.Observation()->GetGameInfo().enemy_start_locations)
     {
         if (ContainsPosition(pos))
@@ -69,7 +69,7 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*>
         }
     }
     
-    // if this base location position is near our own resource depot, it's our start location
+    // If this base location position is near our own resource depot, it's our start location.
     for (auto & unit : bot_.Observation()->GetUnits())
     {
         if (Util::GetPlayer(unit) == sc2::Unit::Alliance::Self && Util::IsTownHall(unit) && ContainsPosition(unit->pos))
@@ -92,7 +92,7 @@ BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*>
     //}
 }
 
-// TODO: calculate the actual town hall position
+// TODO: Calculate the actual town hall position.
 const sc2::Point2D & BaseLocation::GetTownHallPosition() const
 {
     return GetPosition();
@@ -102,7 +102,7 @@ void BaseLocation::SetPlayerOccupying(const sc2::Unit::Alliance player, const bo
 {
     is_player_occupying_[player] = occupying;
 
-    // if this base is a start location that's occupied by the enemy, it's that enemy's start location
+    // If this base is a start location that's occupied by the enemy, it's that enemy's start location.
     if (occupying && player == sc2::Unit::Alliance::Enemy && IsStartLocation() && is_player_start_location_[player] == false)
     {
         is_player_start_location_[player] = true;
