@@ -267,12 +267,6 @@ sc2::Point2D BaseLocationManager::GetNextExpansion(const sc2::Unit::Alliance pla
     
     for (auto & base : GetBaseLocations())
     {
-        // Skip mineral only and starting locations (TODO: fix this)
-        if (base->IsMineralOnly() || base->IsStartLocation())
-        {
-            continue;
-        }
-
         if (base->IsOccupiedByPlayer(sc2::Unit::Alliance::Self)
          || base->IsOccupiedByPlayer(sc2::Unit::Alliance::Enemy))
         {
