@@ -1,7 +1,9 @@
 #include <iostream>
 #include <sc2api/sc2_api.h>
+#include <sc2utils/sc2_manage_process.h>
 
-#include "InformationManager.h"
+#include "ByunJRBot.h"
+#include "common/BotAssert.h"
 #include "util/Util.h"
 
 Util::IsUnit::IsUnit(sc2::UNIT_TYPEID type) 
@@ -378,7 +380,7 @@ sc2::Race Util::GetRaceFromString(const std::string & race_in)
         return sc2::Race::Random;
     }
 
-    assert(false, "Unknown Race: ", race.c_str());
+    BOT_ASSERT(false, "Unknown Race: ", race.c_str());
     return sc2::Race::Terran;
 }
 
@@ -493,10 +495,10 @@ sc2::UnitTypeID Util::WhatBuilds(const sc2::UnitTypeID & type)
     }
 }
 
-int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, InformationManager & info, sc2::Agent bot)
+int Util::EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot)
 {
     float total_dps = 0;
-    for (auto & enemyunit : info.UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
+    for (auto & enemyunit : bot.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         double dist = Util::Dist(enemyunit->pos, unit_pos);
         double range = GetAttackRange(enemyunit->unit_type, bot);
@@ -693,7 +695,6 @@ int Util::GetGameTimeInSeconds(const sc2::Agent& bot)
 
 bool Util::IsBuilding(const sc2::UnitTypeID & type)
 {
-    // Use bot.Observation()->GetUnitTypeData() instead.
     switch (type.ToType()) 
     {
         case sc2::UNIT_TYPEID::TERRAN_ARMORY:           return true; 
@@ -739,16 +740,14 @@ bool Util::IsBuilding(const sc2::UnitTypeID & type)
         case sc2::UNIT_TYPEID::TERRAN_STARPORT:         return true; 
         case sc2::UNIT_TYPEID::TERRAN_STARPORTREACTOR:  return true; 
         case sc2::UNIT_TYPEID::TERRAN_STARPORTTECHLAB:  return true; 
-        case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT:      return true;
-        case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED:      return true;
+        case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT:      return true; 
         case sc2::UNIT_TYPEID::PROTOSS_TEMPLARARCHIVE:  return true; 
         case sc2::UNIT_TYPEID::PROTOSS_TWILIGHTCOUNCIL: return true; 
         case sc2::UNIT_TYPEID::ZERG_ULTRALISKCAVERN:    return true; 
         case sc2::UNIT_TYPEID::ZERG_HIVE:               return true; 
         case sc2::UNIT_TYPEID::ZERG_LAIR:               return true; 
         case sc2::UNIT_TYPEID::ZERG_GREATERSPIRE:       return true; 
-        case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND:   return true;
-        case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING:   return true;
+        case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND:   return true; 
         case sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS: return true;  
 
         default: return false;

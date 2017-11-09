@@ -1,7 +1,9 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-extern class InformationManager;
+#include "common/Common.h"
+
+class ByunJRBot;
 
 namespace Util
 {
@@ -34,7 +36,7 @@ namespace Util
     
     bool UnitCanBuildTypeNow(const sc2::Unit* unit, const sc2::UnitTypeID & type, sc2::Agent & bot);
     sc2::UnitTypeID WhatBuilds(const sc2::UnitTypeID & type);
-    int EnemyDPSInRange(const sc2::Point3D unit_pos, InformationManager & info, sc2::Agent bot);
+    int EnemyDPSInRange(const sc2::Point3D unit_pos, ByunJRBot & bot);
     int GetUnitTypeWidth(const sc2::UnitTypeID type, const sc2::Agent & bot);
     int GetUnitTypeHeight(const sc2::UnitTypeID type, const sc2::Agent & bot);
     int GetUnitTypeMineralPrice(const sc2::UnitTypeID type, const sc2::Agent & bot);
