@@ -7,12 +7,20 @@
 UnitInfoManager::UnitInfoManager(sc2::Agent & bot)
     : bot_(bot)
 {
-
+    // Prevent null reference exceptions down the line. 
+    unit_data_[sc2::Unit::Alliance::Self] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Ally] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Neutral] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Enemy] = UnitData();
 }
 
 void UnitInfoManager::OnStart()
 {
-
+    // Prevent null reference exceptions down the line. 
+    unit_data_[sc2::Unit::Alliance::Self] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Ally] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Neutral] = UnitData();
+    unit_data_[sc2::Unit::Alliance::Enemy] = UnitData();
 }
 
 void UnitInfoManager::OnFrame()
