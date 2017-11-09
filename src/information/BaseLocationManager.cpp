@@ -62,7 +62,7 @@ void BaseLocationManager::OnStart()
         }
     }
 
-    // add the base locations if there are more than 4 resouces in the cluster
+    // Add the base location if there are more than 4 resouces in the cluster.
     for (auto & cluster : resource_clusters)
     {
         if (cluster.size() > 4)
@@ -71,17 +71,17 @@ void BaseLocationManager::OnStart()
         }
     }
 
-    // construct the vectors of base location pointers, this is safe since they will never change
+    // Construct the vectors of base location pointers, this is safe since they will never change.
     for (auto & base_location : base_location_data_)
     {
-        base_location_ptrs_.push_back(&base_location);
-        // if it's a start location, add it to the start locations
+        base_locations_.push_back(&base_location);
+        // If it's a start location, add it to the start locations.
         if (base_location.IsStartLocation())
         {
             starting_base_locations_.push_back(&base_location);
         }
 
-        // if it's our starting location, set the pointer
+        // If it's our starting location, mark it as such.
         if (base_location.IsPlayerStartLocation())
         {
             player_starting_base_locations_[sc2::Unit::Alliance::Self] = &base_location;
@@ -239,7 +239,7 @@ BaseLocation* BaseLocationManager::GetBaseLocation(const sc2::Point2D & pos) con
 
 const std::vector<const BaseLocation*> & BaseLocationManager::GetBaseLocations() const
 {
-    return base_location_ptrs_;
+    return base_locations_;
 }
 
 const std::vector<const BaseLocation*> & BaseLocationManager::GetStartingBaseLocations() const

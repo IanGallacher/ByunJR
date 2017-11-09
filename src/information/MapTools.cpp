@@ -8,8 +8,8 @@
 #include "util/Util.h"
 
 const size_t LegalActions = 4;
-const int actionX[LegalActions] ={1, -1, 0, 0};
-const int actionY[LegalActions] ={0, 0, 1, -1};
+const int actionX[LegalActions] = {1, -1, 0, 0};
+const int actionY[LegalActions] = {0, 0, 1, -1};
 
 // constructor for MapTools
 MapTools::MapTools(sc2::Agent& bot, InformationManager& info)

@@ -12,7 +12,7 @@ class BaseLocationManager
     const MapTools & map_;
 
     std::vector<BaseLocation>                                    base_location_data_;
-    std::vector<const BaseLocation*>                             base_location_ptrs_;
+    std::vector<const BaseLocation*>                             base_locations_;
     std::vector<const BaseLocation*>                             starting_base_locations_;
     std::map<sc2::Unit::Alliance, const BaseLocation*>           player_starting_base_locations_;
     std::map<sc2::Unit::Alliance, std::set<const BaseLocation*>> occupied_base_locations_;
