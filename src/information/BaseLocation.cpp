@@ -4,7 +4,7 @@
 #include "information/BaseLocation.h"
 #include "util/Util.h"
 
-const int NearBaseLocationTileDistance = 20;
+const int NearBaseLocationTileDistance = 5;
 
 BaseLocation::BaseLocation(sc2::Agent & bot, const std::vector<const sc2::Unit*> & resources)
     : bot_(bot)
@@ -160,7 +160,6 @@ const std::vector<const sc2::Unit*>& BaseLocation::GetMinerals() const
 
 const sc2::Point2D & BaseLocation::GetPosition() const
 {
-    //return depotPosition;
     return center_of_resources_;
 }
 
