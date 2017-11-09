@@ -16,6 +16,9 @@ public:
     void DrawMapWalkableTiles() const;
     void DrawAllUnitInformation() const;
 
+    void DrawAllSelectedUnitsDebugInfo() const;
+    void DrawUnitDebugInfo(const sc2::Unit * unit) const;
+
 
     // Debug Helper functions
     void DrawLine(float x1, float y1, float x2, float y2, const sc2::Color& color = sc2::Colors::White) const;

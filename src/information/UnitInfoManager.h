@@ -14,8 +14,6 @@ class UnitInfoManager
     
     const UnitData &        GetUnitData(sc2::Unit::Alliance player) const;
 
-    void DrawSelectedUnitDebugInfo() const;
-
 public:
     UnitInfoManager(sc2::Agent & bot);
 

@@ -188,6 +188,130 @@ void DebugManager::DrawAllUnitInformation() const
     DrawTextScreen(sc2::Point2D(0.75f, 0.2f), ss.str());
 }
 
+void DebugManager::DrawAllSelectedUnitsDebugInfo() const
+{
+    const sc2::Unit* unit = nullptr;
+    for (const sc2::Unit* unit : bot_.Observation()->GetUnits())
+    {
+        if (unit->is_selected && unit->alliance == sc2::Unit::Self) {
+            DrawUnitDebugInfo(unit);
+        }
+    }
+}
+
+std::string GetAbilityText(const sc2::AbilityID ability_id) {
+    std::string str;
+    str += sc2::AbilityTypeToName(ability_id);
+    str += " (";
+    str += std::to_string(uint32_t(ability_id));
+    str += ")";
+    return str;
+}
+
+void DebugManager::DrawUnitDebugInfo(const sc2::Unit* unit) const
+{
+    if (!unit) { return; }
+
+    auto query = bot_.Query();
+    auto abilities = bot_.Observation()->GetAbilityData();
+
+    std::string debug_txt = UnitTypeToName(unit->unit_type);
+    if (debug_txt.length() < 1)
+    {
+        debug_txt = "(Unknown name)";
+        assert(0);
+    }
+    debug_txt += " (" + std::to_string(unit->unit_type) + ")";
+
+    sc2::AvailableAbilities available_abilities = query->GetAbilitiesForUnit(unit);
+    if (available_abilities.abilities.size() < 1)
+    {
+        std::cout << "No abilities available for this unit" << std::endl;
+    }
+    else
+    {
+        for (const sc2::AvailableAbility & available_ability : available_abilities.abilities)
+        {
+            if (available_ability.ability_id >= abilities.size()) { continue; }
+
+            const sc2::AbilityData & ability = abilities[available_ability.ability_id];
+
+            debug_txt += GetAbilityText(ability.ability_id) + "\n";
+        }
+    }
+    bot_.Debug()->DebugTextOut(debug_txt, unit->pos, sc2::Colors::Green);
+
+    // Show the direction of the unit.
+    sc2::Point3D p1; // Use this to show target distance.
+    {
+        const float length = 5.0f;
+        sc2::Point3D p0 = unit->pos;
+        p0.z += 0.1f; // Raise the line off the ground a bit so it renders more clearly.
+        p1 = unit->pos;
+        assert(unit->facing >= 0.0f && unit->facing < 6.29f);
+        p1.x += length * std::cos(unit->facing);
+        p1.y += length * std::sin(unit->facing);
+        bot_.Debug()->DebugLineOut(p0, p1, sc2::Colors::Yellow);
+    }
+
+    // Box around the unit.
+    {
+        sc2::Point3D p_min = unit->pos;
+        p_min.x -= 2.0f;
+        p_min.y -= 2.0f;
+        p_min.z -= 2.0f;
+        sc2::Point3D p_max = unit->pos;
+        p_max.x += 2.0f;
+        p_max.y += 2.0f;
+        p_max.z += 2.0f;
+        bot_.Debug()->DebugBoxOut(p_min, p_max, sc2::Colors::Blue);
+    }
+
+    // Sphere around the unit.
+    {
+        sc2::Point3D p = unit->pos;
+        p.z += 0.1f; // Raise the line off the ground a bit so it renders more clearly.
+        bot_.Debug()->DebugSphereOut(p, 1.25f, sc2::Colors::Purple);
+    }
+
+    // Pathing query to get the target.
+    bool has_target = false;
+    sc2::Point3D target;
+    std::string target_info;
+    for (const sc2::UnitOrder& unit_order : unit->orders)
+    {
+        // TODO: Need to determine if there is a target point, no target point, or the target is a unit/snapshot.
+        target.x = unit_order.target_pos.x;
+        target.y = unit_order.target_pos.y;
+        target.z = p1.z;
+        has_target = true;
+
+        target_info = "Target:\n";
+        if (unit_order.target_unit_tag != 0x0LL) {
+            target_info += "Tag: " + std::to_string(unit_order.target_unit_tag) + "\n";
+        }
+        if (unit_order.progress != 0.0f && unit_order.progress != 1.0f) {
+            target_info += "Progress: " + std::to_string(unit_order.progress) + "\n";
+        }
+
+        // Perform the pathing query.
+        {
+            const float distance = query->PathingDistance(unit->pos, target);
+            target_info += "\nPathing dist: " + std::to_string(distance);
+        }
+
+        break;
+    }
+
+    if (has_target)
+    {
+        sc2::Point3D p = target;
+        p.z += 0.1f; // Raise the line off the ground a bit so it renders more clearly.
+        bot_.Debug()->DebugSphereOut(target, 1.25f, sc2::Colors::Blue);
+        bot_.Debug()->DebugTextOut(target_info, p1, sc2::Colors::Yellow);
+    }
+}
+
 void DebugManager::DrawLine(const float x1, const float y1, const float x2, const float y2, const sc2::Color & color) const
 {
     bot_.Debug()->DebugLineOut(sc2::Point3D(x1, y1, max_z_ + 0.2f), sc2::Point3D(x2, y2, max_z_ + 0.2f), color);

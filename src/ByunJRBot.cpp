@@ -69,6 +69,8 @@ void ByunJRBot::OnStep()
     if (config_.DrawBaseLocationInfo)
         debug_.DrawBaseLocations();
 
+    debug_.DrawAllSelectedUnitsDebugInfo();
+
     Debug()->SendDebug();
 }
 
