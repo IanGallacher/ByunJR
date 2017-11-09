@@ -58,7 +58,7 @@ void StrategyManager::OnFrame()
             if(unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED)
             {
                 if (unit->health != unit->health_max)
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
             }
 
             if (unit->health < unit->health_max/3+100)
@@ -78,10 +78,10 @@ void StrategyManager::OnFrame()
         {
             if(bases_safe_)
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
             if (!bases_safe_)
             // If we are in critical danger, pull all the boys!
-                Micro::SmartRepairWithSCVCount(unit, 10, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 10, bot_.InformationManager());
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
@@ -125,7 +125,7 @@ void StrategyManager::HandleUnitAssignments()
         {
             // If the depot may die, go repair it. 
             if (unit->health != unit->health_max)
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_);
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
 
             if (bases_safe_)
             {
