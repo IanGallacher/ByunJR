@@ -1,8 +1,9 @@
 #include <map>
 
+#include "ByunJRBot.h"
 #include "ai/Pathfinding.h"
+#include "micro/Micro.h"
 #include "util/Timer.hpp"
-
 
 inline std::pair<sc2::Point2DI, int> Pathfinding::BestPotentialPair(const std::pair<sc2::Point2DI, int> fallback_pair) const
 {
@@ -223,4 +224,39 @@ bool Pathfinding::TestDjikstra()
         return true;
     }
     return false;
+}
+
+void Pathfinding::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
+{
+    // Sometimes after we remove the floating points, it will turn out we are trying to move to is almost the same as our current position.
+    // No need to run the pathfinding algorithm in that case. 
+    if (sc2::Point2DI(unit->pos.x, unit->pos.y)
+        == sc2::Point2DI(target_position.x, target_position.y))
+    {
+        Micro::SmartMove(unit, target_position, bot);
+        return;
+    }
+
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        sc2::Point2DI(target_position.x, target_position.y),
+        bot.InformationManager().GetDPSMap());
+    Micro::SmartMove(unit, move_path[0], bot);
+}
+
+
+void Pathfinding::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBot & bot)
+{
+    Pathfinding p;
+    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
+        run_distance,
+        bot.InformationManager().GetDPSMap());
+    //SmartMove(unit, move_path[0], bot, false);
+    //SmartMove(unit, move_path[1], bot, true);
+    //SmartMove(unit, move_path[2], bot, true);
+    Micro::SmartMove(unit, move_path[3], bot, false);
+    //for (const auto & j : move_path)
+    //{
+    //    SmartMove(unit, j, bot, true);
+    //}
 }
