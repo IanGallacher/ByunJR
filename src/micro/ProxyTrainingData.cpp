@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "information/ProxyTrainingData.h"
+#include "micro/ProxyTrainingData.h"
 
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)

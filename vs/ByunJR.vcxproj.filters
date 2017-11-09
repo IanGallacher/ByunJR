@@ -81,9 +81,6 @@
     <ClCompile Include="..\src\information\UnitData.cpp">
       <Filter>information</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\information\ProxyTrainingData.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\InformationManager.cpp" />
     <ClCompile Include="..\src\StrategyManager.cpp" />
     <ClCompile Include="..\src\ai\Pathfinding.cpp">
@@ -97,6 +94,9 @@
     </ClCompile>
     <ClCompile Include="..\src\util\Debug.cpp">
       <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\micro\ProxyTrainingData.cpp">
+      <Filter>micro</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,9 +188,6 @@
     <ClInclude Include="..\src\information\UnitInfo.h">
       <Filter>information</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\information\ProxyTrainingData.h">
-      <Filter>information</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\InformationManager.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
     <ClInclude Include="..\src\ai\Pathfinding.h">
@@ -204,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="..\src\util\Debug.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\micro\ProxyTrainingData.h">
+      <Filter>micro</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
