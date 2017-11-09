@@ -119,7 +119,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Libraries\SC2API_Binary_vs2017\lib\;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectDir)..\src;C:\Libraries\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\src;C:\Libraries\SC2API_Binary_vs2017\include;$(IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LadderDebugDLL|x64'">
     <LibraryPath>C:\Libraries\SC2API_Binary_vs2017\lib\;$(LibraryPath)</LibraryPath>
@@ -143,8 +143,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\TechLab</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Debug/</AssemblerListingLocation>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -432,12 +431,6 @@
     <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\common\BotAssert.cpp" />
     <ClCompile Include="..\src\global\BotConfig.cpp" />
-    <ClCompile Include="..\src\InformationManager.cpp" />
-    <ClCompile Include="..\src\information\BaseLocation.cpp" />
-    <ClCompile Include="..\src\information\BaseLocationManager.cpp" />
-    <ClCompile Include="..\src\information\MapTools.cpp" />
-    <ClCompile Include="..\src\information\UnitData.cpp" />
-    <ClCompile Include="..\src\information\UnitInfoManager.cpp" />
     <ClCompile Include="..\src\macro\Building.cpp" />
     <ClCompile Include="..\src\macro\BuildingManager.cpp" />
     <ClCompile Include="..\src\macro\BuildingPlacer.cpp" />
@@ -458,10 +451,16 @@
     <ClCompile Include="..\src\micro\SquadData.cpp" />
     <ClCompile Include="..\src\micro\SquadOrder.cpp" />
     <ClCompile Include="..\src\StrategyManager.cpp" />
-    <ClCompile Include="..\src\util\Debug.cpp" />
-    <ClCompile Include="..\src\util\DistanceMap.cpp" />
-    <ClCompile Include="..\src\util\JSONTools.cpp" />
-    <ClCompile Include="..\src\util\Util.cpp" />
+    <ClCompile Include="..\src\TechLab\InformationManager.cpp" />
+    <ClCompile Include="..\src\TechLab\information\BaseLocation.cpp" />
+    <ClCompile Include="..\src\TechLab\information\BaseLocationManager.cpp" />
+    <ClCompile Include="..\src\TechLab\information\MapTools.cpp" />
+    <ClCompile Include="..\src\TechLab\information\UnitData.cpp" />
+    <ClCompile Include="..\src\TechLab\information\UnitInfoManager.cpp" />
+    <ClCompile Include="..\src\TechLab\util\Debug.cpp" />
+    <ClCompile Include="..\src\TechLab\util\DistanceMap.cpp" />
+    <ClCompile Include="..\src\TechLab\util\JSONTools.cpp" />
+    <ClCompile Include="..\src\TechLab\util\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ai\GeneticAlgorithm.h" />
@@ -470,13 +469,6 @@
     <ClInclude Include="..\src\common\BotAssert.h" />
     <ClInclude Include="..\src\common\Common.h" />
     <ClInclude Include="..\src\global\BotConfig.h" />
-    <ClInclude Include="..\src\InformationManager.h" />
-    <ClInclude Include="..\src\information\BaseLocation.h" />
-    <ClInclude Include="..\src\information\BaseLocationManager.h" />
-    <ClInclude Include="..\src\information\MapTools.h" />
-    <ClInclude Include="..\src\information\UnitData.h" />
-    <ClInclude Include="..\src\information\UnitInfo.h" />
-    <ClInclude Include="..\src\information\UnitInfoManager.h" />
     <ClInclude Include="..\src\macro\Building.h" />
     <ClInclude Include="..\src\macro\BuildingManager.h" />
     <ClInclude Include="..\src\macro\BuildingPlacer.h" />
@@ -496,11 +488,21 @@
     <ClInclude Include="..\src\micro\SquadData.h" />
     <ClInclude Include="..\src\micro\SquadOrder.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
-    <ClInclude Include="..\src\util\Debug.h" />
-    <ClInclude Include="..\src\util\DistanceMap.h" />
-    <ClInclude Include="..\src\util\JSONTools.h" />
-    <ClInclude Include="..\src\util\Timer.hpp" />
-    <ClInclude Include="..\src\util\Util.h" />
+    <ClInclude Include="..\src\TechLab\InformationManager.h" />
+    <ClInclude Include="..\src\TechLab\information\BaseLocation.h" />
+    <ClInclude Include="..\src\TechLab\information\BaseLocationManager.h" />
+    <ClInclude Include="..\src\TechLab\information\MapTools.h" />
+    <ClInclude Include="..\src\TechLab\information\UnitData.h" />
+    <ClInclude Include="..\src\TechLab\information\UnitInfo.h" />
+    <ClInclude Include="..\src\TechLab\information\UnitInfoManager.h" />
+    <ClInclude Include="..\src\TechLab\util\Debug.h" />
+    <ClInclude Include="..\src\TechLab\util\DistanceMap.h" />
+    <ClInclude Include="..\src\TechLab\util\JSONTools.h" />
+    <ClInclude Include="..\src\TechLab\util\Timer.hpp" />
+    <ClInclude Include="..\src\TechLab\util\Util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\TechLab\.git" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

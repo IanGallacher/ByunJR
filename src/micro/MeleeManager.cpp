@@ -1,7 +1,8 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "micro/MeleeManager.h"
-#include "util/Util.h"
 
 
 MeleeManager::MeleeManager(ByunJRBot & bot)

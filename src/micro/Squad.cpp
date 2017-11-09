@@ -1,8 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/Squad.h"
-#include "util/Util.h"
 
 Squad::Squad(ByunJRBot & bot)
     : bot_(bot)

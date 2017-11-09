@@ -4,10 +4,11 @@
 #include <sc2utils/sc2_manage_process.h>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/JSONTools.h"
+#include "TechLab/util/Util.h"
+
 #include "ai/GeneticAlgorithm.h"
 #include "rapidjson/document.h"
-#include "util/JSONTools.h"
-#include "util/Util.h"
 
 
 int main(int argc, char* argv[])

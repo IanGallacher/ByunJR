@@ -2,18 +2,19 @@
 
 #include <sc2api/sc2_api.h>
 
-#include "InformationManager.h"
+#include "TechLab/InformationManager.h"
+#include "TechLab/information/BaseLocationManager.h"
+#include "TechLab/util/Debug.h"
+#include "TechLab/information/MapTools.h"
+
 #include "StrategyManager.h"
 #include "global/BotConfig.h"
-#include "information/BaseLocationManager.h"
-#include "information/MapTools.h"
 #include "macro/BuildingManager.h"
 #include "macro/ProductionManager.h"
 #include "micro/ProxyManager.h"
 #include "macro/WorkerManager.h"
 #include "micro/ScoutManager.h"
 #include "micro/CombatCommander.h"
-#include "util/Debug.h"
 
 #define DllExport   __declspec( dllexport )  
 

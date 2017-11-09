@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "information/UnitInfo.h"
+#include "TechLab/information/UnitInfo.h"
 
 typedef std::vector<UnitInfo> UnitInfoVector;
 

@@ -1,9 +1,10 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "micro/SquadData.h"
-#include "util/Util.h"
 
 SquadData::SquadData(ByunJRBot& bot)
     : bot_(bot)

@@ -1,10 +1,10 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "common/Common.h"
+#include "TechLab/util/Util.h"
+
 #include "micro/ScoutManager.h"
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 ScoutManager::ScoutManager(ByunJRBot & bot)
     : bot_                (bot)

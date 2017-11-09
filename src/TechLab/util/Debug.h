@@ -1,5 +1,5 @@
 #pragma once
-#include "InformationManager.h"
+#include "TechLab/InformationManager.h"
 
 class DebugManager
 {

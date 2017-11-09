@@ -1,10 +1,11 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/CombatCommander.h"
-#include "util/Util.h"
 
 const size_t IdlePriority = 0;
 const size_t AttackPriority = 1;

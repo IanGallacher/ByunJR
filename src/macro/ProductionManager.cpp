@@ -1,10 +1,11 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/Common.h"
 #include "macro/ProductionManager.h"
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 ProductionManager::ProductionManager(ByunJRBot & bot)
     : bot_             (bot)

@@ -1,8 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/CombatMicroManager.h"
-#include "util/Util.h"
 
 CombatMicroManager::CombatMicroManager(ByunJRBot & bot)
     : bot_(bot)
@@ -35,6 +36,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
             nearby_enemies.insert(enemy_unit);
         }
     }
+    Util::EnemyDPSInRange(sc2::Point3D(30,30,10), bot_);
     // otherwise we want to see everything on the way as well
     //if (order.getType() == SquadOrderTypes::Attack)
     //{

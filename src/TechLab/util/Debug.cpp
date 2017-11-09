@@ -1,8 +1,8 @@
 #include <sstream>
 #include <vector>
 
-#include "util/Debug.h"
-#include "util/Util.h"
+#include "TechLab/util/Debug.h"
+#include "TechLab/util/Util.h"
 
 
 float max_z_ = 11;

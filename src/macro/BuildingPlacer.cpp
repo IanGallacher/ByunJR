@@ -1,8 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+#include "TechLab/util/Timer.hpp"
+
 #include "common/Common.h"
 #include "macro/BuildingPlacer.h"
-#include "util/Util.h"
-#include "util/Timer.hpp"
 
 BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
     : bot_(bot)

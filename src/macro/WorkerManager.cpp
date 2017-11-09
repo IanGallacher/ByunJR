@@ -1,11 +1,12 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
+#include "common/BotAssert.h"
 #include "common/Common.h"
 #include "macro/Building.h"
 #include "macro/WorkerManager.h"
-#include "util/Util.h"
-#include "common/BotAssert.h"
 
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : bot_ (bot)

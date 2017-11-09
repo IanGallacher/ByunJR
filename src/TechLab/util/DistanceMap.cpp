@@ -1,9 +1,10 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/DistanceMap.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
-#include "util/DistanceMap.h"
-#include "util/Util.h"
 
 const size_t LegalActions = 4;
 const int actionX[LegalActions] = {1, -1, 0, 0};

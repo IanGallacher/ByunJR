@@ -1,6 +1,6 @@
 #include "ByunJRBot.h"
-#include "information/UnitData.h"
-#include "util/Util.h"
+#include "TechLab/information/UnitData.h"
+#include "TechLab/util/Util.h"
 
 UnitData::UnitData()
     : minerals_lost_(0)

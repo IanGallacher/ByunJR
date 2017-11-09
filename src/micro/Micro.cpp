@@ -1,9 +1,10 @@
 // Huge thanks to UAlbertaBot for laying the framework and designing most of these functions!
 
 #include "ByunJRBot.h"
-#include "InformationManager.h"
+#include "TechLab/InformationManager.h"
+#include "TechLab/util/Util.h"
+
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, sc2::Agent & bot)
 {
@@ -123,7 +124,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
 
     sc2::Point2D flee_position;
     // If we are in danger of dieing, run back to home base!
-    if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot.InformationManager(), bot) + 5.0)
+    if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot) + 5.0)
     {
         // Run away no matter what the other logic above says to do. 
         should_flee = true;

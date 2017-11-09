@@ -1,11 +1,11 @@
 #include <sstream>
 #include <fstream>
-#include "InformationManager.h"
 
-#include "information/BaseLocation.h"
-#include "information/BaseLocationManager.h"
-#include "information/MapTools.h"
-#include "util/Util.h"
+#include "TechLab/InformationManager.h"
+#include "TechLab/information/BaseLocation.h"
+#include "TechLab/information/BaseLocationManager.h"
+#include "TechLab/information/MapTools.h"
+#include "TechLab/util/Util.h"
 
 const size_t LegalActions = 4;
 const int actionX[LegalActions] = {1, -1, 0, 0};

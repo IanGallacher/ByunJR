@@ -1,7 +1,8 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "micro/RangedManager.h"
-#include "util/Util.h"
 
 RangedManager::RangedManager(ByunJRBot & bot)
     : CombatMicroManager(bot)

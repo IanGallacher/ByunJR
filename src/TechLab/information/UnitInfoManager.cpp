@@ -1,7 +1,7 @@
 #include <sstream>
 
-#include "information/UnitInfoManager.h"
-#include "util/Util.h"
+#include "TechLab/information/UnitInfoManager.h"
+#include "TechLab/util/Util.h"
 
 UnitInfoManager::UnitInfoManager(sc2::Agent & bot)
     : bot_(bot)

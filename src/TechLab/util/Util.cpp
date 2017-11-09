@@ -3,8 +3,9 @@
 #include <sc2utils/sc2_manage_process.h>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
-#include "util/Util.h"
 
 Util::IsUnit::IsUnit(sc2::UNIT_TYPEID type) 
     : type(type) 

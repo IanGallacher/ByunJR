@@ -1,9 +1,10 @@
 #include <iostream>
 
+#include "TechLab/util/JSONTools.h"
+#include "TechLab/util/Util.h"
+
 #include "global/BotConfig.h"
 #include "rapidjson/document.h"
-#include "util/JSONTools.h"
-#include "util/Util.h"
 
 
 BotConfig::BotConfig()

@@ -1,7 +1,7 @@
 #pragma once
 #include <sc2api/sc2_api.h>
 
-#include "information/UnitData.h"
+#include "TechLab/information/UnitData.h"
 
 class UnitInfoManager 
 {

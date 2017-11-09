@@ -1,9 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/JSONTools.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
-#include "common/Common.h"
 #include "StrategyManager.h"
-#include "util/JSONTools.h"
-#include "util/Util.h"
 
 StrategyBuildOrder::StrategyBuildOrder()
 {

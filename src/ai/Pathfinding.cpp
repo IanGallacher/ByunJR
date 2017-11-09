@@ -1,9 +1,10 @@
 #include <map>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Timer.hpp"
+
 #include "ai/Pathfinding.h"
 #include "micro/Micro.h"
-#include "util/Timer.hpp"
 
 inline std::pair<sc2::Point2DI, int> Pathfinding::BestPotentialPair(const std::pair<sc2::Point2DI, int> fallback_pair) const
 {
