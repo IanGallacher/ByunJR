@@ -36,15 +36,12 @@ class UnitData
     int                                    minerals_lost_;
     int                                    gas_lost_;
 
-    bool BadUnitInfo(const UnitInfo & ui) const;
-
 public:
 
     UnitData();
 
     void UpdateUnit(const sc2::Unit* unit);
     void KillUnit(const sc2::Unit* unit);
-    void RemoveBadUnits();
 
     int GetGasLost() const;
     int GetMineralsLost() const;

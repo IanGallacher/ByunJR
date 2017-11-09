@@ -58,29 +58,6 @@ void UnitData::KillUnit(const sc2::Unit* unit)
     unit_info_map_.erase(unit->tag); 
 }
 
-void UnitData::RemoveBadUnits()
-{
-    for (auto iter = unit_info_map_.begin(); iter != unit_info_map_.end();)
-    {
-        if (BadUnitInfo(iter->second))
-        {
-            num_units_[iter->second.type]--;
-            iter = unit_info_map_.erase(iter);
-            combat_units_.erase(&iter->second);
-            workers_.erase(&iter->second);
-        }
-        else
-        {
-            iter++;
-        }
-    }
-}
-
-bool UnitData::BadUnitInfo(const UnitInfo & ui) const
-{
-    return false;
-}
-
 size_t UnitData::GetNumWorkers() const
 {
     return workers_.size();
@@ -143,7 +120,7 @@ std::set<const UnitInfo*> UnitData::GetCombatUnits() const
     return combat_units_;
 }
 
-// jobUnitTag is optional.
+// mission_target is optional.
 void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::Unit* mission_target)
 {
     ClearPreviousJob(unit);
@@ -163,7 +140,7 @@ void UnitData::SetJob(const sc2::Unit* unit, const UnitMission job, const sc2::U
             base_worker_count_[mission_target->tag] = 0;
         }
 
-        // add the depot to our set of depots
+        // Add the depot to our set of depots.
         depots_.insert(&unit_info_map_[unit->tag]);
 
         // Increase the worker count of this depot.

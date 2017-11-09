@@ -39,10 +39,6 @@ void UnitInfoManager::UpdateUnitInfo()
             UpdateUnit(unit);
         }        
     }
-
-    // remove bad enemy units
-    unit_data_[sc2::Unit::Alliance::Self].RemoveBadUnits();
-    unit_data_[sc2::Unit::Alliance::Enemy].RemoveBadUnits();
 }
 
 const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const sc2::Unit::Alliance player) const
