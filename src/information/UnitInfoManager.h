@@ -9,8 +9,6 @@ class UnitInfoManager
 
     std::map<sc2::Unit::Alliance, UnitData> unit_data_;
 
-    std::map<sc2::Unit::Alliance, std::vector<const sc2::Unit*>> units_;
-
     void                    UpdateUnit(const sc2::Unit* unit);
     void                    UpdateUnitInfo();
     
@@ -25,7 +23,7 @@ public:
     void                    OnFrame();
     void                    OnUnitDestroyed(const sc2::Unit* unit);
 
-    const std::vector<const sc2::Unit*>& GetUnits(sc2::Unit::Alliance player) const;
+    const std::vector<const sc2::Unit*> GetUnits(sc2::Unit::Alliance player) const;
 
     size_t                  GetUnitTypeCount(sc2::Unit::Alliance player, sc2::UnitTypeID type, bool completed = true) const;
 

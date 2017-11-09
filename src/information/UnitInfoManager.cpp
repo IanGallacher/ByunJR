@@ -1,3 +1,4 @@
+#include <iostream>
 #include <sstream>
 
 #include "information/UnitInfoManager.h"
@@ -31,15 +32,11 @@ void UnitInfoManager::OnUnitDestroyed(const sc2::Unit* unit)
 
 void UnitInfoManager::UpdateUnitInfo()
 {
-    units_[sc2::Unit::Alliance::Self].clear();
-    units_[sc2::Unit::Alliance::Enemy].clear();
-
     for (auto & unit : bot_.Observation()->GetUnits())
     {
         if (Util::GetPlayer(unit) == sc2::Unit::Alliance::Self || Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy)
         {
             UpdateUnit(unit);
-            units_[Util::GetPlayer(unit)].push_back(unit);
         }        
     }
 
@@ -53,11 +50,9 @@ const std::map<sc2::Tag, UnitInfo>& UnitInfoManager::GetUnitInfoMap(const sc2::U
     return GetUnitData(player).GetUnitInfoMap();
 }
 
-const std::vector<const sc2::Unit*>& UnitInfoManager::GetUnits(sc2::Unit::Alliance player) const
+const std::vector<const sc2::Unit*> UnitInfoManager::GetUnits(sc2::Unit::Alliance player) const
 {
-    assert(units_.find(player) != units_.end(), "Couldn't find player units: %d", player);
-
-    return units_.at(player);
+    return bot_.Observation()->GetUnits(player);
 }
 
 std::string GetAbilityText(const sc2::AbilityID ability_id) {
