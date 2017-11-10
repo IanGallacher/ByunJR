@@ -1,8 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/CombatMicroManager.h"
-#include "util/Util.h"
 
 CombatMicroManager::CombatMicroManager(ByunJRBot & bot)
     : bot_(bot)
@@ -28,13 +29,14 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     std::set<const sc2::Unit*> nearby_enemies;
 
     // Get all relavant units that are close to our combat unit.
-    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Enemy))
+    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::Dist(enemy_unit->pos, order_.GetPosition()) < order_.GetRadius())
         {
             nearby_enemies.insert(enemy_unit);
         }
     }
+    Util::EnemyDPSInRange(sc2::Point3D(30,30,10), bot_);
     // otherwise we want to see everything on the way as well
     //if (order.getType() == SquadOrderTypes::Attack)
     //{
@@ -43,7 +45,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     //        auto unit = bot_.unitTag;
     //        BOT_ASSERT(unit, "null unit in attack");
 
-    //        for (auto & enemyUnit : bot_.InformationManager().UnitInfo().getUnits(PlayerArrayIndex::Enemy))
+    //        for (auto & enemyUnit : bot_.InformationManager().UnitInfo().getUnits(sc2::Unit::Alliance::Enemy))
     //        {
     //            if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
     //            {
@@ -69,14 +71,14 @@ const std::vector<const sc2::Unit*> & CombatMicroManager::GetUnits() const
 void CombatMicroManager::Regroup(const sc2::Point2D & regroup_position) const
 {
     const sc2::Point2D our_base_position = bot_.GetStartLocation();
-    const int regroup_distance_from_base = bot_.Map().GetGroundDistance(regroup_position, our_base_position);
+    const int regroup_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(regroup_position, our_base_position);
 
     // for each of the units we have
     for (auto & unit : units_)
     {
         BOT_ASSERT(unit, "null unit in CombatMicroManager regroup");
 
-        const int unit_distance_from_base = bot_.Map().GetGroundDistance(unit->pos, our_base_position);
+        const int unit_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(unit->pos, our_base_position);
 
         // if the unit is outside the regroup area
         if (unit_distance_from_base > regroup_distance_from_base)

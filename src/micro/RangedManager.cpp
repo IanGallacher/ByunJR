@@ -1,7 +1,8 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "micro/RangedManager.h"
-#include "util/Util.h"
 
 RangedManager::RangedManager(ByunJRBot & bot)
     : CombatMicroManager(bot)
@@ -40,7 +41,7 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
             && ranged_unit->health < ranged_unit->health_max / 5)
         {
             bot_.Actions()->UnitCommand(ranged_unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP,
-                bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition());
+                bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition());
             bot_.InformationManager().UnitInfo().SetJob(ranged_unit, UnitMission::Wait);
             continue;
         }
@@ -166,7 +167,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
             continue;
 
         // If there are ranged units on high ground we can't see, we can't attack them back.
-        if(!bot_.Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit))
+        if(!bot_.InformationManager().Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit))
             continue;
         
         if (!best_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))

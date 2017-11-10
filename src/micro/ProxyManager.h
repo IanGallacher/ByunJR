@@ -1,5 +1,5 @@
 #pragma once
-#include "information/ProxyTrainingData.h"
+#include "micro/ProxyTrainingData.h"
 
 class ByunJRBot;
 
@@ -10,8 +10,6 @@ class ProxyManager
     bool                 proxy_under_attack_;
     bool                 first_reaper_created_;
     ProxyTrainingData    ptd_;
-    // bool              loggedResult;
-
 
 public:
     ProxyManager(ByunJRBot & bot);

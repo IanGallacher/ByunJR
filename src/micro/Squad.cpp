@@ -1,8 +1,9 @@
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "micro/Squad.h"
-#include "util/Util.h"
 
 Squad::Squad(ByunJRBot & bot)
     : bot_(bot)
@@ -102,7 +103,7 @@ void Squad::SetNearEnemyUnits()
         near_enemy_[unit->tag] = IsUnitNearEnemy(unit);
 
         sc2::Color color = near_enemy_[unit->tag] ? bot_.Config().ColorUnitNearEnemy : bot_.Config().ColorUnitNotNearEnemy;
-        //bot_.Map().drawSphereAroundUnit(unitTag, color);
+        //bot_.InformationManager().Map().drawSphereAroundUnit(unitTag, color);
     }
 }
 
@@ -173,7 +174,7 @@ bool Squad::IsUnitNearEnemy(const sc2::Unit* unit) const
 
     for (auto & unit : bot_.Observation()->GetUnits())
     {
-        if ((Util::GetPlayer(unit) == PlayerArrayIndex::Enemy) && (Util::Dist(unit->pos, unit->pos) < 20))
+        if ((Util::GetPlayer(unit) == sc2::Unit::Alliance::Enemy) && (Util::Dist(unit->pos, unit->pos) < 20))
         {
             return true;
         }
@@ -182,7 +183,7 @@ bool Squad::IsUnitNearEnemy(const sc2::Unit* unit) const
     return false;
 }
 
-sc2::Point2D Squad::CalcCenter() const
+sc2::Point2D Squad::CalcCenterOfUnitGroup() const
 {
     if (units_.empty())
     {
@@ -239,7 +240,7 @@ const sc2::Unit* Squad::UnitClosestToEnemy() const
         BOT_ASSERT(unit, "null unit");
 
         // the distance to the order position
-        const int dist = bot_.Map().GetGroundDistance(unit->pos, order_.GetPosition());
+        const int dist = bot_.InformationManager().Map().GetGroundDistance(unit->pos, order_.GetPosition());
 
         if (dist != -1 && (!closest || dist < closest_dist))
         {

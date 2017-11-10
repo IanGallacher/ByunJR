@@ -1,12 +1,13 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/BotAssert.h"
 #include "common/Common.h"
 #include "macro/Building.h"
 #include "macro/BuildingManager.h"
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
@@ -21,7 +22,7 @@ void BuildingManager::OnStart()
 
 void BuildingManager::OnFrame()
 {
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Filter out units which aren't buildings under construction.
         if (Util::IsBuilding(unit->unit_type))
@@ -103,10 +104,10 @@ void BuildingManager::FindBuildingLocation()
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
         b.finalPosition = GetBuildingLocation(b);
-        BOT_ASSERT(bot_.Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
+        BOT_ASSERT(bot_.InformationManager().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
-        bot_.InformationManager().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
+        bot_.Strategy().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
 
         if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
         {
@@ -125,7 +126,14 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         if (b.status == BuildingStatus::Unassigned || !b.builderUnit || !b.builderUnit->is_alive)
         {
             // Grab the worker unit from WorkerManager which is closest to this final position.
-            b.builderUnit = bot_.InformationManager().GetBuilder(b);
+            const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
+            b.builderUnit = bot_.InformationManager().GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
+            
+            // if the worker exists (one may not have been found in rare cases)
+            if (b.builderUnit)
+            {
+                bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+            }
 
             // If all our workers are dead or preocupied, no worries, we can try again next game loop.
             if (!b.builderUnit || !b.builderUnit->is_alive)
@@ -225,7 +233,7 @@ void BuildingManager::ConstructAssignedBuildings()
 void BuildingManager::CheckForStartedConstruction()
 {
     // For each building unit which is being constructed.
-    for (auto & building_started : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto & building_started : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Filter out units which aren't buildings under construction.
         if (!Util::IsBuilding(building_started->unit_type) || building_started->build_progress == 0.0f || building_started->build_progress == 1.0f)
@@ -255,11 +263,11 @@ void BuildingManager::CheckForStartedConstruction()
                 b.buildingUnit = building_started;
 
                 // If we are zerg, the buildingUnit now becomes nullptr since it's destroyed.
-                if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Zerg)
+                if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Zerg)
                 {
                     b.builderUnit = nullptr;
                 }
-                else if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Protoss)
+                else if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Protoss)
                 {
                     // Protoss does not need to keep the worker around after starting construction.
                     bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
@@ -290,7 +298,7 @@ void BuildingManager::CheckForCompletedBuildings()
         if (b.buildingUnit->build_progress == 1.0f)
         {
             // If we are Terran, give the worker back to worker manager.
-            if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Self) == sc2::Race::Terran)
+            if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Terran)
             {
                 bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
             }
@@ -315,12 +323,12 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type)
 // TODO: may need to iterate over all tiles of the building footprint.
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
-    return bot_.Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
+    return bot_.InformationManager().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
 }
 
 void BuildingManager::DrawBuildingInformation()
 {
-    bot_.InformationManager().BuildingPlacer().DrawReservedTiles();
+    bot_.Strategy().BuildingPlacer().DrawReservedTiles();
 
     if (!bot_.Config().DrawBuildingInfo)
     {
@@ -388,24 +396,24 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
     sc2::Point2DI desired_loc;
     if (Util::IsRefineryType(b.type))
     {
-        desired_loc =  bot_.InformationManager().BuildingPlacer().GetRefineryPosition();
+        desired_loc =  bot_.Strategy().BuildingPlacer().GetRefineryPosition();
     }
 
     else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
     {
-        desired_loc = bot_.InformationManager().GetProxyLocation();
+        desired_loc = bot_.GetProxyManager().GetProxyLocation();
     }
 
     // Make a wall if necessary.
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(PlayerArrayIndex::Self) < 3)
+    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
     {
-        desired_loc = bot_.Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+        desired_loc = bot_.InformationManager().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
     }
 
     // Find the next expansion location. 
     else if (Util::IsTownHallType(b.type))
     {
-        const sc2::Point2D next_expansion_location = bot_.Bases().GetNextExpansion(PlayerArrayIndex::Self);
+        const sc2::Point2D next_expansion_location = bot_.InformationManager().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
         desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
     }
     // If no special placement code is required, get a position somewhere in our starting base.
@@ -414,7 +422,7 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
         desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
     }
 
-    return bot_.InformationManager().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
+    return bot_.Strategy().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
 }
 
 void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
@@ -432,5 +440,5 @@ void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
 
 bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
 {
-    return bot_.InformationManager().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
 }

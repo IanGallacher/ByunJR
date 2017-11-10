@@ -31,7 +31,7 @@ void ProxyManager::OnUnitCreated(const sc2::Unit* unit)
 {
     if (bot_.Config().TrainingMode && unit->unit_type == sc2::UNIT_TYPEID::TERRAN_REAPER && !first_reaper_created_)
     {
-        const BaseLocation* enemy_base_location = bot_.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Enemy);
+        const BaseLocation* enemy_base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
         bot_.Resign();
         ptd_.RecordResult(static_cast<int>(bot_.Query()->PathingDistance(unit, enemy_base_location->GetPosition())));
@@ -43,7 +43,7 @@ void ProxyManager::OnUnitEnterVision(const sc2::Unit* enemy_unit)
 {
     if (!proxy_worker_) return;
     // TODO: Optimize this code to only search buildings, not every single unit a player owns.
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || unit->tag == proxy_worker_->tag)
         {
@@ -70,9 +70,13 @@ bool ProxyManager::MoveProxyWorkers()
     if (!proxy_worker_)
     {
         Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-        proxy_worker_ = bot_.InformationManager().GetBuilder(b, false);
-        bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
+        const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
+        proxy_worker_ = bot_.InformationManager().GetClosestUnitWithJob(sc2::Point2D(my_vec.x, my_vec.y), acceptable_missions);
+
+        if (proxy_worker_)
+            bot_.InformationManager().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
     }
+
     for (const auto & unit : bot_.InformationManager().UnitInfo().GetWorkers())
     {
         if(unit->mission == UnitMission::Proxy)

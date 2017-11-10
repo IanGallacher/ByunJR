@@ -6,14 +6,13 @@
 
 ByunJRBot::ByunJRBot()
     : combat_commander_(*this)
+    // Remember to init information_manager_ before debug_!
     , information_manager_(*this)
-    , map_(*this)
-    , bases_(*this)
+    , debug_(*this, information_manager_)
     , strategy_(*this)
     , production_manager_(*this)
     , scout_manager_(*this)
     , proxy_manager_(*this)
-    , debug_(*this)
     , workers_(*this)
     , is_willing_to_fight_(true)
     , frame_skip_(0)
@@ -27,10 +26,9 @@ void ByunJRBot::OnGameStart()
     // Ignore file extension of the local_map_path.
     config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
-    strategy_.OnStart();
-    map_.OnStart();
     information_manager_.OnStart();
-    bases_.OnStart();
+
+    strategy_.OnStart();
 
     production_manager_.OnStart();
     scout_manager_.OnStart();
@@ -44,11 +42,9 @@ void ByunJRBot::OnStep()
     if (frame_skip_ % 2) return;
     Control()->GetObservation();
 
-    map_.OnFrame();
     information_manager_.OnFrame();
     strategy_.OnFrame();
 
-    bases_.OnFrame();
     strategy_.OnFrame();
     workers_.OnFrame();
 
@@ -60,7 +56,6 @@ void ByunJRBot::OnStep()
 
     debug_.DrawAllUnitInformation();
     debug_.DrawResourceDebugInfo();
-    debug_.DrawDebugInterface();
 
 
     //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
@@ -70,6 +65,11 @@ void ByunJRBot::OnStep()
 
     if (config_.DrawTileInfo)
         debug_.DrawMapWalkableTiles();
+
+    if (config_.DrawBaseLocationInfo)
+        debug_.DrawBaseLocations();
+
+    debug_.DrawAllSelectedUnitsDebugInfo();
 
     Debug()->SendDebug();
 }
@@ -111,12 +111,7 @@ BotConfig & ByunJRBot::Config()
      return config_;
 }
 
-const MapTools & ByunJRBot::Map() const
-{
-    return map_;
-}
-
-const StrategyManager & ByunJRBot::Strategy() const
+StrategyManager & ByunJRBot::Strategy()
 {
     return strategy_;
 }
@@ -124,11 +119,6 @@ const StrategyManager & ByunJRBot::Strategy() const
 InformationManager & ByunJRBot::InformationManager()
 {
     return information_manager_;
-}
-
-const BaseLocationManager & ByunJRBot::Bases() const
-{
-    return bases_;
 }
 
 const ProductionManager & ByunJRBot::ProductionManager() const

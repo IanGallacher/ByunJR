@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\ByunJRBot.cpp" />
     <ClCompile Include="..\src\ai\GeneticAlgorithm.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -51,46 +49,14 @@
     <ClCompile Include="..\src\micro\ProxyManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\util\JSONTools.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\util\Util.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\util\DistanceMap.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\common\BotAssert.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="..\src\macro\Building.cpp">
       <Filter>macro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\util\MapTools.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\macro\WorkerManager.cpp">
       <Filter>macro</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\information\BaseLocationManager.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\information\UnitInfoManager.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\information\BaseLocation.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\information\UnitData.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\information\ProxyTrainingData.cpp">
-      <Filter>information</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\InformationManager.cpp" />
-    <ClCompile Include="..\src\StrategyManager.cpp" />
-    <ClCompile Include="..\src\global\Debug.cpp">
-      <Filter>global</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ai\Pathfinding.cpp">
       <Filter>AI</Filter>
@@ -98,9 +64,44 @@
     <ClCompile Include="..\src\micro\CombatMicroManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\micro\ProxyTrainingData.cpp">
+      <Filter>micro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\InformationManager.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\information\BaseLocation.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\information\BaseLocationManager.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\information\MapTools.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\information\UnitData.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\information\UnitInfoManager.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\util\Debug.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\util\DistanceMap.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\util\JSONTools.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TechLab\util\Util.cpp">
+      <Filter>TechLab</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\StrategyManager.cpp" />
+    <ClCompile Include="..\src\ByunJRBot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\ai\GeneticAlgorithm.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -152,52 +153,14 @@
     <ClInclude Include="..\src\micro\ProxyManager.h">
       <Filter>micro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\DistanceMap.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\util\JSONTools.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\util\Timer.hpp">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\util\Util.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\common\BotAssert.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="..\src\common\Common.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\MapTools.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\macro\WorkerManager.h">
       <Filter>macro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\BaseLocation.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\BaseLocationManager.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\UnitInfoManager.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\UnitData.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\UnitInfo.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\information\ProxyTrainingData.h">
-      <Filter>information</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\InformationManager.h" />
-    <ClInclude Include="..\src\StrategyManager.h" />
-    <ClInclude Include="..\src\global\Debug.h">
-      <Filter>global</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ai\Pathfinding.h">
       <Filter>AI</Filter>
@@ -205,11 +168,49 @@
     <ClInclude Include="..\src\micro\CombatMicroManager.h">
       <Filter>micro</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\micro\ProxyTrainingData.h">
+      <Filter>micro</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\InformationManager.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\BaseLocation.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\BaseLocationManager.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\MapTools.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\UnitData.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\UnitInfo.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\information\UnitInfoManager.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\util\Debug.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\util\DistanceMap.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\util\JSONTools.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\util\Timer.hpp">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TechLab\util\Util.h">
+      <Filter>TechLab</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ByunJRBot.h" />
+    <ClInclude Include="..\src\StrategyManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="util">
-      <UniqueIdentifier>{64c41955-1af5-48ab-8112-a76378485f76}</UniqueIdentifier>
-    </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{1cc43733-1dd7-4b34-b6e6-e60f0567751e}</UniqueIdentifier>
     </Filter>
@@ -225,8 +226,13 @@
     <Filter Include="macro">
       <UniqueIdentifier>{fb64eecf-b7bb-4ce5-ba5a-62a0d45b2d30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="information">
-      <UniqueIdentifier>{fe0b9a50-fcf1-4a6a-9b41-18beec6378d3}</UniqueIdentifier>
+    <Filter Include="TechLab">
+      <UniqueIdentifier>{0256bdb9-0622-4a5c-b551-c0b3be2f7570}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\TechLab\.git">
+      <Filter>TechLab</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -2,8 +2,7 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "common/BotAssert.h"
-#include "information/ProxyTrainingData.h"
+#include "micro/ProxyTrainingData.h"
 
 // The bot is not fully setup when the default constructor is called. Therefore, we need to have a seprate init function.
 void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
@@ -13,16 +12,16 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     playable_max_ = bot.Observation()->GetGameInfo().playable_max;
     playable_min_ = bot.Observation()->GetGameInfo().playable_min;
 
-    player_start_y_ = (int)bot.Bases().GetPlayerStartingBaseLocation(PlayerArrayIndex::Self)->GetPosition().y;
+    player_start_y_ = (int)bot.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition().y;
     // This won't work for four player maps.
     enemy_start_y_ = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-    result_.resize(bot_->Map().PlayableMapHeight());
+    result_.resize(bot_->InformationManager().Map().PlayableMapHeight());
     for (auto &row : result_)
     {
-        row.resize(bot_->Map().PlayableMapWidth());
+        row.resize(bot_->InformationManager().Map().PlayableMapWidth());
     }
 
     LoadProxyTrainingData();
@@ -45,8 +44,8 @@ sc2::Point2DI ProxyTrainingData::FlipCoordinatesIfNecessary(const int x, const i
     }
     else
     {
-        return_val.x = (bot_->Map().PlayableMapWidth() - x);
-        return_val.y = (bot_->Map().PlayableMapHeight() - y);
+        return_val.x = (bot_->InformationManager().Map().PlayableMapWidth() - x);
+        return_val.y = (bot_->InformationManager().Map().PlayableMapHeight() - y);
     }
     return return_val;
 }
@@ -67,7 +66,11 @@ sc2::Point2DI ProxyTrainingData::GetProxyLocation()
 // Returns the best proxy location in "True Map Space"
 sc2::Point2DI ProxyTrainingData::GetBestProxyLocation()
 {
-    BOT_ASSERT(best_proxy_loc_.x != 0 || best_proxy_loc_.y != 0, "Please setup the proxy location values before trying to retrieve them.");
+    if (best_proxy_loc_.x == 0 || best_proxy_loc_.y == 0)
+    {
+        std::cout << "Please setup the proxy location values before trying to retrieve them." << std::endl;
+        return 0;
+    }
 
     const sc2::Point2DI best_loc = FlipCoordinatesIfNecessary(best_proxy_loc_.x, best_proxy_loc_.y);
 
@@ -233,7 +236,7 @@ void ProxyTrainingData::RecordResult(const int fitness)
 // This function takes the parameters in "True Map Space"
 bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 {
-    if (bot_->Map().CanBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
+    if (bot_->InformationManager().Map().CanBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;
     return false;
 }
@@ -241,9 +244,9 @@ bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 // If we can't build at the chosen location, update that information in our data structure.
 void ProxyTrainingData::TestAllPointsOnMap()
 {
-    for (int y = 0; y < bot_->Map().PlayableMapHeight(); ++y)
+    for (int y = 0; y < bot_->InformationManager().Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_->Map().PlayableMapWidth(); ++x)
+        for (int x = 0; x < bot_->InformationManager().Map().PlayableMapWidth(); ++x)
         {
             if (!IsProxyLocationValid(x + static_cast<int>(playable_min_.x), y + static_cast<int>(playable_min_.y)))
             {
@@ -258,16 +261,16 @@ void ProxyTrainingData::TestAllPointsOnMap()
 // Example: If reduction_factor is 1, keep everything. 
 void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
 {
-    BOT_ASSERT(reduction_factor > 0, "reductionFactor must be one or bigger");
+    assert(reduction_factor > 0, "reductionFactor must be one or bigger");
 
     // If reductionFactor is one, nothing will change.
     // Save time by skipping the rest of the function.
     if (reduction_factor == 1) { return; }
 
     int valid_location_number = 0;
-    for (int y = 0; y < bot_->Map().PlayableMapHeight(); ++y)
+    for (int y = 0; y < bot_->InformationManager().Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_->Map().PlayableMapWidth(); ++x)
+        for (int x = 0; x < bot_->InformationManager().Map().PlayableMapWidth(); ++x)
         {
             // keep only 1/reductionfactor valid entries. 
             // We are only interested in the untested locations.

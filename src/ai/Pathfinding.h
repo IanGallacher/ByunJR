@@ -1,9 +1,9 @@
 #pragma once
-#include <vector>
 #include <map>
+#include <unordered_set>
+#include <vector>
 
 #include <sc2api/sc2_api.h>
-#include <unordered_set>
 
 namespace std
 {
@@ -11,7 +11,10 @@ namespace std
     {
         size_t operator()(const sc2::Point2DI& k) const
         {
+            // This is probably a better hash function to use in the future. 
             // return (53 + hash<int>(k.x)) * 53 + hash<int>(k.y);
+
+            // For now, this hash function is good enough for our uses. 
             return k.x * 10000 + k.y;
         }
     };
@@ -38,4 +41,6 @@ public:
     std::vector<sc2::Point2D> DjikstraLimit(const sc2::Point2DI start_point, const int max_run_dist,
                                             const std::vector<std::vector<int>>& map_to_path);
     bool TestDjikstra();
+    void SmartPathfind(const sc2::Unit * unit, const sc2::Point2D & target_position, ByunJRBot & bot);
+    void SmartRunAway(const sc2::Unit * unit, const int run_distance, ByunJRBot & bot);
 };

@@ -1,48 +1,17 @@
+// Huge thanks to UAlbertaBot for laying the framework and designing most of these functions!
+
 #include "ByunJRBot.h"
-#include "common/Common.h"
+#include "TechLab/InformationManager.h"
+#include "TechLab/util/Util.h"
+
 #include "micro/Micro.h"
-#include "util/Util.h"
-#include "ai/Pathfinding.h"
 
-const float dot_radius = 0.1f;
-
-void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, ByunJRBot & bot)
+void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, sc2::Agent & bot)
 {
-    //UAB_ASSERT(attacker, "SmartAttackUnit: Attacker not valid");
-    //UAB_ASSERT(target, "SmartAttackUnit: Target not valid");
+    assert(attacker, "SmartAttackUnit: Attacker not valid");
+    assert(target, "SmartAttackUnit: Target not valid");
 
-    //if (!attacker || !target)
-    //{
-    //    return;
-    //}
-
-    //// if we have issued a command to this unit already this frame, ignore this one
-    //if (attacker->getLastCommandFrame() >= BWAPI::Broodwar->getFrameCount() || attacker->isAttackFrame())
-    //{
-    //    return;
-    //}
-
-    //// get the unit's current command
-    //BWAPI::UnitCommand currentCommand(attacker->getLastCommand());
-
-    //// if we've already told this unit to attack this target, ignore this command
-    //if (currentCommand.getType() == BWAPI::UnitCommandTypes::Attack_Unit &&    currentCommand.getTarget() == target)
-    //{
-    //    return;
-    //}
-
-    //// if nothing prevents it, attack the target
-    //attacker->attack(target);
-    //TotalCommands++;
-
-    //if (Config::Debug::DrawUnitTargetInfo)
-    //{
-    //    BWAPI::Broodwar->drawCircleMap(attacker->getPosition(), dotRadius, BWAPI::Colors::Red, true);
-    //    BWAPI::Broodwar->drawCircleMap(target->getPosition(), dotRadius, BWAPI::Colors::Red, true);
-    //    BWAPI::Broosmdwar->drawLineMap(attacker->getPosition(), target->getPosition(), BWAPI::Colors::Red);
-    //}
-
-    // Prevent sending duplicate commands to give an accurate APM measurement in replays
+    // Prevent sending duplicate commands to prevent strange errors and give an accurate APM measurement in replays
     bool sent_command_already = false;
     for (const sc2::UnitOrder the_order : attacker->orders)
     {
@@ -55,45 +24,12 @@ void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, 
         bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target);
 }
 
-void Micro::SmartAttackMove(const sc2::Unit* attacker, const sc2::Point2D & target_position, ByunJRBot & bot)
+void Micro::SmartAttackMove(const sc2::Unit* attacker, const sc2::Point2D & target_position, sc2::Agent & bot)
 {
     bot.Actions()->UnitCommand(attacker, sc2::ABILITY_ID::ATTACK_ATTACK, target_position);
 }
 
-void Micro::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot)
-{
-    // Sometimes after we remove the floating points, it will turn out we are trying to move to is almost the same as our current position.
-    // No need to run the pathfinding algorithm in that case. 
-    if (sc2::Point2DI(unit->pos.x, unit->pos.y)
-     == sc2::Point2DI(target_position.x, target_position.y))
-    {
-        SmartMove(unit, target_position, bot);
-        return;
-    }
-    Pathfinding p;
-    std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
-        sc2::Point2DI(target_position.x, target_position.y),
-        bot.InformationManager().GetDPSMap());
-    SmartMove(unit, move_path[0], bot);
-}
-
-void Micro::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBot & bot)
-{
-    Pathfinding p;
-    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
-        run_distance,
-        bot.InformationManager().GetDPSMap());
-    //SmartMove(unit, move_path[0], bot, false);
-    //SmartMove(unit, move_path[1], bot, true);
-    //SmartMove(unit, move_path[2], bot, true);
-    SmartMove(unit, move_path[3], bot, false);
-    //for (const auto & j : move_path)
-    //{
-    //    SmartMove(unit, j, bot, true);
-    //}
-}
-
-void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, ByunJRBot & bot, bool queued_command)
+void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_position, sc2::Agent & bot, bool queued_command)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
@@ -109,7 +45,7 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
         bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::MOVE, target_position, queued_command);
 }
 
- void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, ByunJRBot & bot)
+ void Micro::SmartRightClick(const sc2::Unit* unit, const sc2::Unit* target, sc2::Agent & bot)
 {
      // Prevent sending duplicate commands to give an accurate APM measurement in replays.
      // Spamming every frame also causes bugs in the sc2 engine. 
@@ -126,7 +62,7 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
         bot.Actions()->UnitCommand(unit, sc2::ABILITY_ID::SMART, target);
 }
 
-void Micro::SmartRepair(const sc2::Unit* scv, const sc2::Unit* target, ByunJRBot & bot)
+void Micro::SmartRepair(const sc2::Unit* scv, const sc2::Unit* target, sc2::Agent & bot)
 {
     bool sent_command_already = false;
     for (const sc2::UnitOrder the_order : scv->orders)
@@ -140,99 +76,82 @@ void Micro::SmartRepair(const sc2::Unit* scv, const sc2::Unit* target, ByunJRBot
     bot.Actions()->UnitCommand(scv, sc2::ABILITY_ID::EFFECT_REPAIR, target);
 }
 
-void Micro::SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int num_repair_workers, ByunJRBot & bot)
+void Micro::SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int num_repair_workers, InformationManager & info)
 {    
-    const int current_repairing_workers = bot.InformationManager().UnitInfo().GetNumRepairWorkers(unit_to_repair);
+    const int current_repairing_workers = info.UnitInfo().GetNumRepairWorkers(unit_to_repair);
     if(current_repairing_workers < num_repair_workers)
     {
         // If we are not repairing with enough scv's, send some more to repair.
         for (int i = 0; i < num_repair_workers - current_repairing_workers; i++)
         {
-            const sc2::Unit* scv = bot.InformationManager().GetClosestUnitWithJob(unit_to_repair->pos, UnitMission::Minerals);
+            const sc2::Unit* scv = info.GetClosestUnitWithJob(unit_to_repair->pos, UnitMission::Minerals);
             if(scv)
-                bot.InformationManager().UnitInfo().SetJob(scv, UnitMission::Repair, unit_to_repair);
+                info.UnitInfo().SetJob(scv, UnitMission::Repair, unit_to_repair);
         }
     }
 }
 
+
+// Warning: This funcition has no discrestion in what it kites. Be careful to not attack overlords with reapers!
 void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* target, ByunJRBot & bot)
 {
-    //UAB_ASSERT(rangedUnit, "SmartKiteTarget: Unit not valid");
-    //UAB_ASSERT(target, "SmartKiteTarget: Target not valid");
+    assert(ranged_unit, "SmartKiteTarget: Unit not valid");
+    assert(target, "SmartKiteTarget: Target not valid");
+    assert(target->tag);
 
-    //if (!rangedUnit || !target)
-    //{
-    //    return;
-    //}
     const float range = Util::GetAttackRange(ranged_unit->unit_type, bot);
 
-    //// determine whether the target can be kited
-    //bool kiteLonger = Config::Micro::KiteLongerRangedUnits.find(rangedUnit->getType()) != Config::Micro::KiteLongerRangedUnits.end();
-    //if (!kiteLonger && (range <= target->getType().groundWeapon().maxRange()))
-    //{
-    //    // if we can't kite it, there's no point
-    //    Micro::SmartAttackUnit(rangedUnit, target);
-    //    return;
-    //}
+    bool should_flee(true);
 
-    bool kite(true);
-    //const double dist(bot.Map().GetGroundDistance(ranged_unit->pos, target->pos));
+    // When passing a unit into PathingDistance, how the unit moves is taken into account.
+    // EXAMPLE:: Reapers can cliffjump, Void Rays can fly over everything.
     const double dist(bot.Query()->PathingDistance(ranged_unit, target->pos));
     const double speed(bot.Observation()->GetUnitTypeData()[ranged_unit->unit_type].movement_speed);
 
-
-    // if the unit can't attack back don't kite
-    //if (bot.GetUnit(target)->is_flying /*&& !UnitUtil::CanAttackAir(target)) || (!rangedUnit->isFlying() && !UnitUtil::CanAttackGround(target))*/)
-    //{
-    //    kite = false;
-    //}
-
     const double time_to_enter = (dist - range) / speed;
+
     // If we start moving back to attack, will our weapon be off cooldown?
     if ((time_to_enter >= ranged_unit->weapon_cooldown))
     {
-        kite = false;
+        should_flee = false;
     }
 
     // Don't kite workers and buildings. 
     if (Util::IsBuilding(target->unit_type) || Util::IsWorker(target))
     {
-        kite = false;
+        should_flee = false;
     }
 
     sc2::Point2D flee_position;
+    // If we are in danger of dieing, run back to home base!
     if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot) + 5.0)
     {
-        kite = true;
+        // Run away no matter what the other logic above says to do. 
+        should_flee = true;
         flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
-        /*SmartRunAway(ranged_unit, 20, bot);
-        return;*/
     }
+    // Otherwise, kite if we are not close to death.
     else
     {
-        // kite if we are not close to death.
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
     }
 
-    //// if we can't shoot, run away
-    if (kite)
+    // If we are on cooldown, run away.
+    if (should_flee)
     {
-        //fleePosition = rangedUnit->pos - target->pos + rangedUnit->pos;
         bot.DebugHelper().DrawLine(ranged_unit->pos, flee_position);
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
         SmartMove(ranged_unit, flee_position, bot);
-        //SmartRunAway(ranged_unit, 20, bot);
     }
-    //// otherwise shoot
+    // Otherwise go attack!
     else
     {
-        //bot.Actions()->UnitCommand(rangedUnit, sc2::ABILITY_ID::EFFECT_KD8CHARGE, target);
         bot.DebugHelper().DrawLine(ranged_unit->pos, target->pos, sc2::Colors::Red);
         SmartAttackUnit(ranged_unit, target, bot);
     }
 }
 
-void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Point2D pos, ByunJRBot & bot)
+void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Point2D pos, sc2::Agent & bot)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
@@ -248,7 +167,7 @@ void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & buildin
         bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
 }
 
-void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, ByunJRBot & bot)
+void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, sc2::Agent & bot)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
@@ -264,7 +183,7 @@ void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & b
         bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), target);
 }
 
-void Micro::SmartTrain(const sc2::Unit* production_building, const sc2::UnitTypeID & type_to_train, ByunJRBot & bot)
+void Micro::SmartTrain(const sc2::Unit* production_building, const sc2::UnitTypeID & type_to_train, sc2::Agent & bot)
 {
     bot.Actions()->UnitCommand(production_building, Util::UnitTypeIDToAbilityID(type_to_train));
 }

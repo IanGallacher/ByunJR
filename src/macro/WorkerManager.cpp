@@ -1,11 +1,12 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
+#include "common/BotAssert.h"
 #include "common/Common.h"
 #include "macro/Building.h"
 #include "macro/WorkerManager.h"
-#include "util/Util.h"
-#include "common/BotAssert.h"
 
 WorkerManager::WorkerManager(ByunJRBot & bot)
     : bot_ (bot)
@@ -34,8 +35,8 @@ void WorkerManager::AssignIdleWorkers() const
         if (!worker) { continue; }
 
         // if it's a scout or creating a proxy building, don't handle it here
-        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Scout
-            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(PlayerArrayIndex::Self).at(worker_info->unit->tag).mission == UnitMission::Proxy)
+        if (bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self).at(worker_info->unit->tag).mission == UnitMission::Scout
+            || bot_.InformationManager().UnitInfo().GetUnitInfoMap(sc2::Unit::Alliance::Self).at(worker_info->unit->tag).mission == UnitMission::Proxy)
         {
             continue;
         }
@@ -53,7 +54,7 @@ void WorkerManager::AssignIdleWorkers() const
 void WorkerManager::AssignGasWorkers() const
 {
     // for each unit we have
-    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto refinery : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // if that unit is a refinery
         if (Util::IsRefinery(refinery) && Util::IsCompleted(refinery))
@@ -138,69 +139,4 @@ const sc2::Unit* WorkerManager::GetMineralToMine(const sc2::Unit* unit) const
     }
 
     return best_mineral;
-}
-
-// Unlike the GetCosestUnit functions inside InformationManager, this only iterates through workers.
-const sc2::Unit* WorkerManager::GetClosestMineralWorkerTo(const sc2::Point2D & pos) const
-{
-    const sc2::Unit* closest_mineral_worker = nullptr;
-    double closest_dist = std::numeric_limits<double>::max();
-
-    // for each of our workers
-    for (auto & worker_info : bot_.InformationManager().UnitInfo().GetWorkers())
-    {
-        if (!worker_info) { std::cout << "Warning: a workerInfo pointer is invalid." << std::endl; continue; }
-
-        // if it is a mineral worker
-        if (worker_info->mission == UnitMission::Minerals
-        ||  worker_info->mission == UnitMission::Proxy)
-        {
-            const double dist = Util::DistSq(worker_info->unit->pos, pos);
-
-            if (!closest_mineral_worker || dist < closest_dist)
-            {
-                closest_mineral_worker = worker_info->unit;
-                closest_dist = dist;
-            }
-        }
-    }
-
-    return closest_mineral_worker;
-}
-
-const sc2::Unit* WorkerManager::GetGasWorker(const sc2::Unit* refinery) const
-{
-    return GetClosestMineralWorkerTo(refinery->pos);
-}
-
-// gets a builder for BuildingManager to use
-// if set_job_as_builder is true (default), it will be flagged as a builder unit
-// set 'set_job_as_builder' to false if we just want to see which worker will build a building
-const sc2::Unit* WorkerManager::GetBuilder(Building & b, const bool set_job_as_builder) const
-{
-    const sc2::Unit* builder_worker = GetClosestMineralWorkerTo(sc2::Point2D(b.finalPosition.x, b.finalPosition.y));
-
-    // if the worker exists (one may not have been found in rare cases)
-    if (builder_worker && set_job_as_builder)
-    {
-        bot_.InformationManager().UnitInfo().SetJob(builder_worker, UnitMission::Build);
-    }
-
-    return builder_worker;
-}
-
-bool WorkerManager::IsFree(const sc2::Unit* worker) const
-{
-    const UnitMission job = bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission;
-    return job == UnitMission::Minerals || job == UnitMission::Idle;
-}
-
-bool WorkerManager::IsWorkerScout(const sc2::Unit* worker) const
-{
-    return (bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission == UnitMission::Scout);
-}
-
-bool WorkerManager::IsBuilder(const sc2::Unit* worker) const
-{
-    return (bot_.InformationManager().UnitInfo().GetUnitInfo(worker)->mission == UnitMission::Build);
 }

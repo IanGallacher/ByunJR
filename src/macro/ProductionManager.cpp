@@ -1,10 +1,11 @@
 #include <sstream>
 
 #include "ByunJRBot.h"
+#include "TechLab/util/Util.h"
+
 #include "common/Common.h"
 #include "macro/ProductionManager.h"
 #include "micro/Micro.h"
-#include "util/Util.h"
 
 ProductionManager::ProductionManager(ByunJRBot & bot)
     : bot_             (bot)
@@ -49,7 +50,7 @@ void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
     // The building is dead! We can build where it used to be!
     if(Util::IsBuilding(building->unit_type))
-        bot_.InformationManager().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
+        bot_.Strategy().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
 }
 
 void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
@@ -137,7 +138,7 @@ void ProductionManager::PreventSupplyBlock() {
     }
 
     // Build wall if needed.
-    if (bot_.InformationManager().GetPlayerRace(PlayerArrayIndex::Enemy) == sc2::Zerg
+    if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Enemy) == sc2::Zerg
         && Util::GetGameTimeInSeconds(bot_) > 50 && !has_completed_wall)
     {
         has_completed_wall = true;
@@ -148,23 +149,23 @@ void ProductionManager::PreventSupplyBlock() {
 
 int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
 {
-    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, unit_type)
+    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
         + queue_.GetItemsInQueueOfType(unit_type)
-        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(unit_type);
+        + NumberOfUnitsInProductionOfType(unit_type);
 }
 
 // Every frame, see if more depots are required. 
 void ProductionManager::MacroUp() {
     // Macro up.
-    const int scv_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_SCV);
-    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
-    const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-    const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
+    const int scv_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SCV);
+    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+    const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
 
     if (bot_.Strategy().ShouldExpandNow()
         // Don't queue more bases than you have minerals for.
      && queue_.GetItemsInQueueOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-        + bot_.InformationManager().UnitInfo().UnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
+        + NumberOfUnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
         < bot_.Observation()->GetMinerals() / 400)
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
@@ -176,7 +177,7 @@ void ProductionManager::MacroUp() {
 
     if(bot_.Strategy().MacroGoal() == Strategy::ReaperRush)
     {
-        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
         {
             // Constantly make SCV's. At this level of play, no reason not to.
             // Skip one scv to get the proxy barracks up faster. 
@@ -195,7 +196,7 @@ void ProductionManager::MacroUp() {
     }
     else if(bot_.Strategy().MacroGoal() == Strategy::BattlecruiserMacro)
     {
-        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+        for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
         {
             // Constantly make SCV's. At this level of play, no reason not to.
             if (Util::IsTownHall(unit) && unit->orders.size() == 0 && scv_count < base_count * 23 && scv_count < 80)
@@ -232,13 +233,13 @@ void ProductionManager::MacroUp() {
 
 int ProductionManager::ProductionCapacity() const
 {
-    const  size_t command_centers = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const  size_t command_centers = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                                  + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
-    const size_t barracks = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-    const size_t factory = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_FACTORY);
-    const size_t starport = bot_.InformationManager().UnitInfo().GetUnitTypeCount(PlayerArrayIndex::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
+    const size_t barracks = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    const size_t factory = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_FACTORY);
+    const size_t starport = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
     // Factories and starports can build really supply intensive units. Make sure we have enough supply. 
     return static_cast<int>(command_centers + barracks) * 2 + factory * 4 + starport * 12;
 }
@@ -250,7 +251,7 @@ const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const s
 
     // make a set of all candidate producers
     std::vector<const sc2::Unit*> candidate_producers;
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // reasons a unit can not train the desired type
         if (unit->unit_type != producer_type) { continue; }
@@ -388,7 +389,7 @@ void ProductionManager::DrawProductionInformation() const
     std::stringstream ss;
     ss << "Production Information\n\n";
 
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(PlayerArrayIndex::Self))
+    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         if (unit->build_progress < 1.0f)
         {
