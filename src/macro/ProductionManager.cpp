@@ -26,10 +26,13 @@ void ProductionManager::OnFrame()
 {
     // Dynamically spend our money based on our current needs. 
     PreventSupplyBlock();
-    MacroUp();
 
     // check the _queue for stuff we can build
+    // Do this before MacroUp to allow OrbitalCommands to build. (otherwise scvs will get trained instead)
     ManageBuildOrderQueue();
+
+    MacroUp();
+
 
     // TODO: if nothing is currently building, get a new goal from the strategy manager
     // TODO: detect if there's a build order deadlock once per second
@@ -158,7 +161,9 @@ int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
 void ProductionManager::MacroUp() {
     // Macro up.
     const int scv_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SCV);
-    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER);
+    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                         + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                         + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
     const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
 
@@ -170,9 +175,22 @@ void ProductionManager::MacroUp() {
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
     }
-    if(base_count > 1 && TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < base_count*2)
+    // Once we are done following a build order, let's go on to do some other stuff!
+    if(base_count > 1)
     {
-        queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
+        if(TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < base_count * 2)
+            queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
+
+        // Upgrade to Orbital Commands!
+        for (const auto & base : bot_.InformationManager().Bases().GetOccupiedBaseLocations(sc2::Unit::Alliance::Self))
+        {
+            if (base->GetTownHall())
+            {
+                const sc2::Unit* drop_mineral = bot_.InformationManager().GetClosestMineralField(base->GetTownHall());
+                bot_.Actions()->UnitCommand(base->GetTownHall(), sc2::ABILITY_ID::EFFECT_CALLDOWNMULE, drop_mineral);
+                Micro::SmartTrain(base->GetTownHall(), sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND, bot_);
+            }
+        }
     }
 
     if(bot_.Strategy().MacroGoal() == Strategy::ReaperRush)
@@ -311,7 +329,11 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 
     // if we're dealing with a building
     // TODO: deal with morphed buildings & addons
-    if (Util::IsBuilding(item_type))
+    if (Util::IsMorphCommand(Util::UnitTypeIDToAbilityID(item.type)))
+    {
+        Micro::SmartTrain(producer, item_type, bot_);
+    }
+    else if (Util::IsBuilding(item_type))
     {
         building_manager_.AddBuildingTask(item_type);
     }
