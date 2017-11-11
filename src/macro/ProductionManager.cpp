@@ -127,7 +127,7 @@ void ProductionManager::PreventSupplyBlock() {
     // If the current supply that we have plus the total amount of things that could be made 
     if ( 
         // If we are at max supply, there is no point in building more depots. 
-         bot_.Observation()->GetFoodCap() < 400
+         bot_.Observation()->GetFoodCap() < 200
         && (bot_.Observation()->GetFoodUsed() + ProductionCapacity())  // We used to compare only against things that are planned on being made
                                                             // Is greater than 
         >=
