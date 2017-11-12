@@ -84,6 +84,8 @@ void ProductionManager::ManageBuildOrderQueue()
         // this is the unit which can produce the currentItem
         const sc2::Unit* producer = GetProducer(current_item.type);
 
+        QueuePrerequisites(current_item.type);
+
         // check to see if we can make it right now
         const bool can_make = CanMakeNow(producer, current_item.type);
 
@@ -113,6 +115,15 @@ void ProductionManager::ManageBuildOrderQueue()
             // so break out
             break;
         }
+    }
+}
+
+void ProductionManager::QueuePrerequisites(sc2::UnitTypeID unit_type)
+{
+    sc2::UnitTypeID j = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
+    if (TrueUnitCount(j) == 0)
+    {
+        queue_.QueueAsHighestPriority(j, true);
     }
 }
 

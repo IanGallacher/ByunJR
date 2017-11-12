@@ -23,6 +23,7 @@ class ProductionManager
     void             SetBuildOrder(const BuildOrder & build_order);
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
+    void             QueuePrerequisites(sc2::UnitTypeID unit_type);
     void             PreventSupplyBlock();
     int              TrueUnitCount(sc2::UnitTypeID unit_type);
     void             MacroUp();
