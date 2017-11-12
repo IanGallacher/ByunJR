@@ -167,7 +167,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
             continue;
 
         // If there are ranged units on high ground we can't see, we can't attack them back.
-        if(!bot_.InformationManager().Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit))
+        if(!bot_.InformationManager().Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit, bot_))
             continue;
         
         if (!best_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))
@@ -187,7 +187,7 @@ int RangedManager::GetAttackPriority(const sc2::Unit* attacker, const sc2::Unit*
     auto unit = unit_tag;
     BOT_ASSERT(unit, "null unit in getAttackPriority");
 
-    if (Util::IsCombatUnit(unit))
+    if (Util::IsCombatUnit(unit, bot_))
     {
         return 10;
     }

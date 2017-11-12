@@ -78,7 +78,7 @@ void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
 
 void CombatCommander::OnUnitCreated(const sc2::Unit* unit)
 {
-    if (Util::IsCombatUnit(unit))
+    if (Util::IsCombatUnit(unit, bot_))
     {
         bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);;
     }

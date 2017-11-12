@@ -141,7 +141,7 @@ int MeleeManager::GetAttackPriority(const sc2::Unit* attacker, const sc2::Unit* 
 {
     BOT_ASSERT(unit, "null unit in getAttackPriority");
 
-    if (Util::IsCombatUnit(unit))
+    if (Util::IsCombatUnit(unit, bot_))
     {
         return 10;
     }
