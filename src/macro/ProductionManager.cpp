@@ -157,13 +157,10 @@ int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
         + NumberOfUnitsInProductionOfType(unit_type);
 }
 
-// Every frame, see if more depots are required. 
+// A set of rules to dictate what we should build based on our current strategy.
 void ProductionManager::MacroUp() {
-    // Macro up.
     const int scv_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SCV);
-    const int base_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                         + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                         + bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const int base_count = bot_.InformationManager().UnitInfo().GetNumberOfCompletedTownHalls(sc2::Unit::Alliance::Self);
     const int barracks_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     const int starport_count = bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
 
