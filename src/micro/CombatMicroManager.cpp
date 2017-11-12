@@ -29,7 +29,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     std::set<const sc2::Unit*> nearby_enemies;
 
     // Get all relavant units that are close to our combat unit.
-    for (auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
+    for (auto & enemy_unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::Dist(enemy_unit->pos, order_.GetPosition()) < order_.GetRadius())
         {
@@ -45,7 +45,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
     //        auto unit = bot_.unitTag;
     //        BOT_ASSERT(unit, "null unit in attack");
 
-    //        for (auto & enemyUnit : bot_.InformationManager().UnitInfo().getUnits(sc2::Unit::Alliance::Enemy))
+    //        for (auto & enemyUnit : bot_.Info().UnitInfo().getUnits(sc2::Unit::Alliance::Enemy))
     //        {
     //            if (Util::Dist(enemyUnit.pos, unit->pos) < order.getRadius())
     //            {
@@ -71,14 +71,14 @@ const std::vector<const sc2::Unit*> & CombatMicroManager::GetUnits() const
 void CombatMicroManager::Regroup(const sc2::Point2D & regroup_position) const
 {
     const sc2::Point2D our_base_position = bot_.GetStartLocation();
-    const int regroup_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(regroup_position, our_base_position);
+    const int regroup_distance_from_base = bot_.Info().Map().GetGroundDistance(regroup_position, our_base_position);
 
     // for each of the units we have
     for (auto & unit : units_)
     {
         BOT_ASSERT(unit, "null unit in CombatMicroManager regroup");
 
-        const int unit_distance_from_base = bot_.InformationManager().Map().GetGroundDistance(unit->pos, our_base_position);
+        const int unit_distance_from_base = bot_.Info().Map().GetGroundDistance(unit->pos, our_base_position);
 
         // if the unit is outside the regroup area
         if (unit_distance_from_base > regroup_distance_from_base)

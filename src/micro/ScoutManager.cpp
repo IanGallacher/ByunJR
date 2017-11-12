@@ -41,8 +41,8 @@ void ScoutManager::DrawScoutInformation() const
 
 void ScoutManager::MoveScouts()
 {
-    // Setup shorthand for bot_.InformationManager().UnitInfo().GetScouts(),
-    const std::set<const UnitInfo*> & scout_units = bot_.InformationManager().UnitInfo().GetScouts();
+    // Setup shorthand for bot_.Info().UnitInfo().GetScouts(),
+    const std::set<const UnitInfo*> & scout_units = bot_.Info().UnitInfo().GetScouts();
 
     // No need to print an error message. Sometimes we don't need any scouts for our current strategy.
     if (scout_units.size() == 0) { return; }
@@ -52,12 +52,12 @@ void ScoutManager::MoveScouts()
         if (!scout || scout->unit->health <= 0) { return; }
 
         // get the enemy base location, if we have one
-        const BaseLocation* enemy_base_location = bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
+        const BaseLocation* enemy_base_location = bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Enemy);
 
         // If we know where the enemy region is, use the scouts to harass the enemy workers.
         if (enemy_base_location)
         {
-            bot_.InformationManager().UnitInfo().SetJob(scout->unit, UnitMission::Attack);
+            bot_.Info().UnitInfo().SetJob(scout->unit, UnitMission::Attack);
         }
 
         // for each start location on the map
@@ -65,12 +65,12 @@ void ScoutManager::MoveScouts()
         {
             scout_status_ = "Enemy base unknown, exploring";
 
-            //for (const BaseLocation* startLocation : bot_.InformationManager().Bases().getStartingBaseLocations())
+            //for (const BaseLocation* startLocation : bot_.Info().Bases().getStartingBaseLocations())
             for (const sc2::Point2D start_location : bot_.Observation()->GetGameInfo().enemy_start_locations)
             {
                 // if we haven't explored it yet then scout it out
                 // TODO: this is where we could change the order of the base scouting, since right now it's iterator order
-                if (!bot_.InformationManager().Map().IsExplored(start_location))
+                if (!bot_.Info().Map().IsExplored(start_location))
                 {
                     Micro::SmartMove(scout->unit, start_location, bot_);
                     return;
@@ -88,7 +88,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
     float min_dist = std::numeric_limits<float>::max();
 
     // for each enemy worker
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
+    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::IsWorker(unit))
         {
@@ -106,7 +106,7 @@ const sc2::Unit* ScoutManager::ClosestEnemyWorkerTo(const sc2::Unit * scout) con
 }
 bool ScoutManager::EnemyWorkerInRadiusOf(const sc2::Point2D & pos) const
 {
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
+    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
         if (Util::IsWorker(unit) && Util::Dist(unit->pos, pos) < 10)
         {

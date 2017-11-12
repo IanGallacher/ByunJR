@@ -47,7 +47,7 @@ void MeleeManager::AssignTargets(const std::set<const sc2::Unit*> & targets)
                 const sc2::Point2D flee_to(bot_.GetStartLocation());
 
                 Micro::SmartMove(melee_unit, flee_to, bot_);
-                bot_.InformationManager().UnitInfo().SetJob(melee_unit, UnitMission::Minerals);
+                bot_.Info().UnitInfo().SetJob(melee_unit, UnitMission::Minerals);
             }
             // if there are targets
             else if (!melee_unit_targets.empty())
@@ -92,7 +92,7 @@ const sc2::Unit* MeleeManager::GetTarget(const sc2::Unit* melee_unit, const std:
     const sc2::Unit* best_target = nullptr;
 
     // If our reaper is currently safe, go kill some workers.
-    if (bot_.InformationManager().GetDPSMap()[melee_unit->pos.y][melee_unit->pos.x] < 12)
+    if (bot_.Info().GetDPSMap()[melee_unit->pos.y][melee_unit->pos.x] < 12)
     {
         for (auto & target_unit : targets)
         {

@@ -116,7 +116,7 @@ StrategyManager & ByunJRBot::Strategy()
     return strategy_;
 }
 
-InformationManager & ByunJRBot::InformationManager()
+InformationManager & ByunJRBot::Info()
 {
     return information_manager_;
 }

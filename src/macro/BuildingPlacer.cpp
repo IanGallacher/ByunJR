@@ -13,7 +13,7 @@ BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
 
 void BuildingPlacer::OnStart()
 {
-    reserve_map_ = std::vector< std::vector<bool> >(bot_.InformationManager().Map().TrueMapWidth(), std::vector<bool>(bot_.InformationManager().Map().TrueMapHeight(), false));
+    reserve_map_ = std::vector< std::vector<bool> >(bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
 }
 
 void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
@@ -72,7 +72,7 @@ bool BuildingPlacer::IsReserved(const int x, const int y) const
 
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 {
-    return bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->IsInResourceBox(x, y);
+    return bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->IsInResourceBox(x, y);
 }
 
 // makes final checks to see if a building can be built at a certain location
@@ -88,7 +88,7 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
     {
         for (int y = by; y < by + Util::GetUnitTypeHeight(type, bot_); y++)
         {
-            if (!bot_.InformationManager().Map().IsOnMap(x, y) || reserve_map_[x][y])
+            if (!bot_.Info().Map().IsOnMap(x, y) || reserve_map_[x][y])
             {
                 return false;
             }
@@ -127,7 +127,7 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     const int endy   = by + (height/2) + build_dist;
 
     // if this rectangle doesn't fit on the map we can't build here
-    if (startx < 0 || starty < 0 || endx > bot_.InformationManager().Map().TrueMapWidth() || endy > bot_.InformationManager().Map().TrueMapHeight() || build_dist < 0)
+    if (startx < 0 || starty < 0 || endx > bot_.Info().Map().TrueMapWidth() || endy > bot_.Info().Map().TrueMapHeight() || build_dist < 0)
     {
         return false;
     }
@@ -174,7 +174,7 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const sc2::Point2DI desired_l
     t.Start();
 
     // get the precomputed vector of tile positions which are sorted closes to this location
-    auto & closest_to_building = bot_.InformationManager().Map().GetClosestTilesTo(desired_loc);
+    auto & closest_to_building = bot_.Info().Map().GetClosestTilesTo(desired_loc);
 
     double ms1 = t.GetElapsedTimeInMilliSec();
 
@@ -213,13 +213,13 @@ bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc
     const int ty2 = ty1 + Util::GetUnitTypeHeight(type, bot_);
 
     // for each base location
-    for (const BaseLocation* base : bot_.InformationManager().Bases().GetBaseLocations())
+    for (const BaseLocation* base : bot_.Info().Bases().GetBaseLocations())
     {
         // dimensions of the base location
         const int bx1 = static_cast<int>(base->GetTownHallPosition().x);
         const int by1 = static_cast<int>(base->GetTownHallPosition().y);
-        const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
-        const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
+        const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
+        const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
 
         // conditions for non-overlap are easy
         const bool no_overlap = (tx2 < bx1) || (tx1 > bx2) || (ty2 < by1) || (ty1 > by2);
@@ -238,7 +238,7 @@ bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc
 bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID type) const
 {
     // TODO: does this take units on the map into account?
-    if (!bot_.InformationManager().Map().IsOnMap(x, y) || !bot_.InformationManager().Map().CanBuildTypeAtPosition(x, y, type))
+    if (!bot_.Info().Map().IsOnMap(x, y) || !bot_.Info().Map().CanBuildTypeAtPosition(x, y, type))
     {
         return false;
     }
@@ -290,7 +290,7 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
         const sc2::Point2D geyser_pos(geyser->pos);
 
         // For each of our bases, see if we can build refineries there. 
-        for (auto & base : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+        for (auto & base : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
         {
             if ( Util::IsTownHall(base) )
             {
@@ -298,7 +298,7 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
 
                 if (geyser_distance < min_geyser_distance_from_home)
                 {
-                    if (bot_.InformationManager().Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
+                    if (bot_.Info().Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
                     {
                         min_geyser_distance_from_home = geyser_distance;
                         closest_geyser = sc2::Point2DI(geyser->pos.x, geyser->pos.y);

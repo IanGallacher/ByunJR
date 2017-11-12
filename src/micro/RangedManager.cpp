@@ -41,8 +41,8 @@ void RangedManager::AssignTargets(const std::set<const sc2::Unit*> & targets) co
             && ranged_unit->health < ranged_unit->health_max / 5)
         {
             bot_.Actions()->UnitCommand(ranged_unit, sc2::ABILITY_ID::EFFECT_TACTICALJUMP,
-                bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition());
-            bot_.InformationManager().UnitInfo().SetJob(ranged_unit, UnitMission::Wait);
+                bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition());
+            bot_.Info().UnitInfo().SetJob(ranged_unit, UnitMission::Wait);
             continue;
         }
 
@@ -106,7 +106,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
     const sc2::Unit* best_target = nullptr;
 
     // If our reaper is currently safe, go kill some workers.
-    if (bot_.InformationManager().GetDPSMap()[ranged_unit->pos.y][ranged_unit->pos.x] < 12)
+    if (bot_.Info().GetDPSMap()[ranged_unit->pos.y][ranged_unit->pos.x] < 12)
     {
         for(auto & target_unit : targets)
         {
@@ -125,7 +125,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
         }
     }
 
-    if (bot_.InformationManager().GetDPSMap()[ranged_unit->pos.y][ranged_unit->pos.x] < 12)
+    if (bot_.Info().GetDPSMap()[ranged_unit->pos.y][ranged_unit->pos.x] < 12)
     {
         for (auto & target_unit : targets)
         {
@@ -167,7 +167,7 @@ const sc2::Unit* RangedManager::GetTarget(const sc2::Unit* ranged_unit, const st
             continue;
 
         // If there are ranged units on high ground we can't see, we can't attack them back.
-        if(!bot_.InformationManager().Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit, bot_))
+        if(!bot_.Info().Map().IsVisible(target_unit->pos) && Util::IsCombatUnit(target_unit, bot_))
             continue;
         
         if (!best_target || (priority > high_priority) || (priority == high_priority && distance < closest_dist))

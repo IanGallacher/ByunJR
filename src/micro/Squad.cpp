@@ -103,7 +103,7 @@ void Squad::SetNearEnemyUnits()
         near_enemy_[unit->tag] = IsUnitNearEnemy(unit);
 
         sc2::Color color = near_enemy_[unit->tag] ? bot_.Config().ColorUnitNearEnemy : bot_.Config().ColorUnitNotNearEnemy;
-        //bot_.InformationManager().Map().drawSphereAroundUnit(unitTag, color);
+        //bot_.Info().Map().drawSphereAroundUnit(unitTag, color);
     }
 }
 
@@ -240,7 +240,7 @@ const sc2::Unit* Squad::UnitClosestToEnemy() const
         BOT_ASSERT(unit, "null unit");
 
         // the distance to the order position
-        const int dist = bot_.InformationManager().Map().GetGroundDistance(unit->pos, order_.GetPosition());
+        const int dist = bot_.Info().Map().GetGroundDistance(unit->pos, order_.GetPosition());
 
         if (dist != -1 && (!closest || dist < closest_dist))
         {

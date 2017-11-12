@@ -241,7 +241,7 @@ void Pathfinding::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & targ
     Pathfinding p;
     std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
         sc2::Point2DI(target_position.x, target_position.y),
-        bot.InformationManager().GetDPSMap());
+        bot.Info().GetDPSMap());
     Micro::SmartMove(unit, move_path[0], bot);
 }
 
@@ -251,7 +251,7 @@ void Pathfinding::SmartRunAway(const sc2::Unit* unit, const int run_distance, By
     Pathfinding p;
     std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
         run_distance,
-        bot.InformationManager().GetDPSMap());
+        bot.Info().GetDPSMap());
     //SmartMove(unit, move_path[0], bot, false);
     //SmartMove(unit, move_path[1], bot, true);
     //SmartMove(unit, move_path[2], bot, true);

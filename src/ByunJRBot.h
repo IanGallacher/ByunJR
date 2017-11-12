@@ -54,7 +54,7 @@ public:
     const ProductionManager & ProductionManager() const;
     ScoutManager & Scout();
     DebugManager& DebugHelper();
-    InformationManager & InformationManager();
+    InformationManager & Info();
     ProxyManager & GetProxyManager();
     StrategyManager & Strategy();
     sc2::Point2D GetStartLocation() const;

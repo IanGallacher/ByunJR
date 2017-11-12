@@ -22,7 +22,7 @@ void BuildingManager::OnStart()
 
 void BuildingManager::OnFrame()
 {
-    for (auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Filter out units which aren't buildings under construction.
         if (Util::IsBuilding(unit->unit_type))
@@ -104,7 +104,7 @@ void BuildingManager::FindBuildingLocation()
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
         b.finalPosition = GetBuildingLocation(b);
-        BOT_ASSERT(bot_.InformationManager().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
+        BOT_ASSERT(bot_.Info().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
         bot_.Strategy().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
@@ -127,12 +127,12 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         {
             // Grab the worker unit from WorkerManager which is closest to this final position.
             const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
-            b.builderUnit = bot_.InformationManager().GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
+            b.builderUnit = bot_.Info().GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
             
             // if the worker exists (one may not have been found in rare cases)
             if (b.builderUnit)
             {
-                bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
             }
 
             // If all our workers are dead or preocupied, no worries, we can try again next game loop.
@@ -180,7 +180,7 @@ void BuildingManager::ConstructAssignedBuildings()
                 {
                     // If the build was interruptted, the worker will go back to gathering minerals. 
                     // Once we continue building, mark the unit as such.
-                    bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                    bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
                     Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
                     // TODO: in here is where we would check to see if the builder died on the way
                     //       or if things are taking too long, or the build location is no longer valid
@@ -220,7 +220,7 @@ void BuildingManager::ConstructAssignedBuildings()
 
                     // If the build was interruptted, the worker will go back to gathering minerals. 
                     // Once we continue building, mark the unit as such.
-                    bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                    bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
                     // Don't spam build commands. 
                     b.buildCommandGiven = true;
                 }
@@ -233,7 +233,7 @@ void BuildingManager::ConstructAssignedBuildings()
 void BuildingManager::CheckForStartedConstruction()
 {
     // For each building unit which is being constructed.
-    for (auto & building_started : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+    for (auto & building_started : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Filter out units which aren't buildings under construction.
         if (!Util::IsBuilding(building_started->unit_type) || building_started->build_progress == 0.0f || building_started->build_progress == 1.0f)
@@ -263,14 +263,14 @@ void BuildingManager::CheckForStartedConstruction()
                 b.buildingUnit = building_started;
 
                 // If we are zerg, the buildingUnit now becomes nullptr since it's destroyed.
-                if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Zerg)
+                if (bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Zerg)
                 {
                     b.builderUnit = nullptr;
                 }
-                else if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Protoss)
+                else if (bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Protoss)
                 {
                     // Protoss does not need to keep the worker around after starting construction.
-                    bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
+                    bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
                     b.builderUnit = nullptr;
                 }
 
@@ -298,9 +298,9 @@ void BuildingManager::CheckForCompletedBuildings()
         if (b.buildingUnit->build_progress == 1.0f)
         {
             // If we are Terran, give the worker back to worker manager.
-            if (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Terran)
+            if (bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self) == sc2::Race::Terran)
             {
-                bot_.InformationManager().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
+                bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Idle);
             }
 
             // This building is completed, no need to ever attempt construction again.
@@ -323,7 +323,7 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type)
 // TODO: may need to iterate over all tiles of the building footprint.
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
-    return bot_.InformationManager().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
+    return bot_.Info().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
 }
 
 void BuildingManager::DrawBuildingInformation()
@@ -354,7 +354,7 @@ void BuildingManager::DrawBuildingInformation()
             dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
             bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
-        const UnitInfo* u = b.builderUnit ? bot_.InformationManager().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
+        const UnitInfo* u = b.builderUnit ? bot_.Info().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
         const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
         if (b.status == BuildingStatus::Unassigned)
         {
@@ -405,15 +405,15 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
     }
 
     // Make a wall if necessary.
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.InformationManager().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
+    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
     {
-        desired_loc = bot_.InformationManager().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+        desired_loc = bot_.Info().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
     }
 
     // Find the next expansion location. 
     else if (Util::IsTownHallType(b.type))
     {
-        const sc2::Point2D next_expansion_location = bot_.InformationManager().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
+        const sc2::Point2D next_expansion_location = bot_.Info().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
         desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
     }
     // If no special placement code is required, get a position somewhere in our starting base.

@@ -49,7 +49,7 @@ void StrategyManager::OnFrame()
 
     // At various times we will want to use special abilities of a unit. 
     // Loop through all our units and see if it is time to use one yet. 
-    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+    for (const auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Emergency repair units and depots.
         if (Util::IsBuilding(unit->unit_type))
@@ -58,7 +58,7 @@ void StrategyManager::OnFrame()
             if(unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT || unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED)
             {
                 if (unit->health != unit->health_max)
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.Info());
             }
 
             if (unit->health < unit->health_max/3+100)
@@ -74,20 +74,20 @@ void StrategyManager::OnFrame()
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
          && unit->health != unit->health_max
             // Square 10 to avoid taking the square root as part of the distance formula. 
-         && Util::DistSq(unit->pos,bot_.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition()) < 10*10)
+         && Util::DistSq(unit->pos,bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition()) < 10*10)
         {
             if(bases_safe_)
             // If we repair with too many workers, the battlecruiser will get sent back into battle before Tactical Jump is back online. 
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.Info());
             if (!bases_safe_)
             // If we are in critical danger, pull all the boys!
-                Micro::SmartRepairWithSCVCount(unit, 10, bot_.InformationManager());
+                Micro::SmartRepairWithSCVCount(unit, 10, bot_.Info());
         }
         // Once we are done repairing, send that battlecruiser back to the field!
         else if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER
             && unit->health == unit->health_max)
         {
-            bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Attack);
+            bot_.Info().UnitInfo().SetJob(unit, UnitMission::Attack);
         }
     }
 }
@@ -99,12 +99,12 @@ BuildingPlacer & StrategyManager::BuildingPlacer()
 
 void StrategyManager::RecalculateMacroGoal()
 {
-    if (bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON)
-     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
-     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
-    // || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
-     || bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
-     || (bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
+    if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::PROTOSS_PHOTONCANNON)
+     || bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
+     || bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED)
+    // || bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::PROTOSS_VOIDRAY)
+     || bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Enemy, sc2::UNIT_TYPEID::TERRAN_BANSHEE)
+     || (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_REAPER) < 2
         && Util::GetGameTimeInSeconds(bot_) > 240 )
      || Util::GetGameTimeInSeconds(bot_) > 600)
     {
@@ -118,14 +118,14 @@ void StrategyManager::HandleUnitAssignments()
     SetScoutUnits();
 
     // Repair any damaged supply depots. If our base is safe, lower the wall. Otherwise, raise the wall. 
-    for (const auto & unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+    for (const auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
     {
         // Find all the depots and perform some actions on them. 
         if (Util::IsSupplyProvider(unit))
         {
             // If the depot may die, go repair it. 
             if (unit->health != unit->health_max)
-                Micro::SmartRepairWithSCVCount(unit, 2, bot_.InformationManager());
+                Micro::SmartRepairWithSCVCount(unit, 2, bot_.Info());
 
             if (bases_safe_)
             {
@@ -142,25 +142,25 @@ void StrategyManager::HandleUnitAssignments()
 void StrategyManager::SetScoutUnits()
 {
     // if we haven't set a scout unit, do it
-    if (bot_.InformationManager().UnitInfo().GetScouts().empty() && !initial_scout_set_)
+    if (bot_.Info().UnitInfo().GetScouts().empty() && !initial_scout_set_)
     {
         // Should we send the initial scout?
         if (ShouldSendInitialScout())
         {
-            const ::UnitInfo * worker_scout = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+            const ::UnitInfo * worker_scout = bot_.Info().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
             // If we find a worker (which we should) add it to the Scouting units.
             if (worker_scout)
             {
-                bot_.InformationManager().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
+                bot_.Info().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
 
             // Add a second worker to scout in order to harass the enemy after we find their base. 
-            const ::UnitInfo * worker_attacker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+            const ::UnitInfo * worker_attacker = bot_.Info().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
             if (worker_attacker)
             {
-                bot_.InformationManager().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
+                bot_.Info().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
             }
         }
     }
@@ -168,12 +168,12 @@ void StrategyManager::SetScoutUnits()
     if (ShouldSendSecondProxyWorker())
     {
         // Grab the closest worker to our base.
-        const ::UnitInfo * proxy_worker = bot_.InformationManager().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
+        const ::UnitInfo * proxy_worker = bot_.Info().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
         // If we find a worker (which we should) go send it out to proxy.
         if (proxy_worker)
         {
-            bot_.InformationManager().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
+            bot_.Info().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
             second_proxy_worker_set_ = true;
         }
     }
@@ -189,20 +189,20 @@ bool StrategyManager::ShouldSendSecondProxyWorker() const
 bool StrategyManager::ShouldSendInitialScout() const
 {
     return true;
-    switch (bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self))
+    switch (bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self))
     {
-        case sc2::Race::Terran:  return bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
-        case sc2::Race::Protoss: return bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
-        case sc2::Race::Zerg:    return bot_.InformationManager().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
+        case sc2::Race::Terran:  return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true) > 0;
+        case sc2::Race::Protoss: return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::PROTOSS_PYLON, true) > 0;
+        case sc2::Race::Zerg:    return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::ZERG_SPAWNINGPOOL, true) > 0;
         default: return false;
     }
 }
 
 bool StrategyManager::AreBasesSafe()
 {
-    for (const auto & enemy_unit : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
+    for (const auto & enemy_unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy))
     {
-        for (const auto & potential_base : bot_.InformationManager().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
+        for (const auto & potential_base : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
         {
             if( Util::IsTownHall(potential_base)
              && Util::DistSq(potential_base->pos, enemy_unit->pos) < (30*30))
@@ -272,7 +272,7 @@ UnitPairVector StrategyManager::GetZergBuildOrderGoal() const
 
 void StrategyManager::ReadStrategyFile(const std::string & filename)
 {
-    const sc2::Race race = bot_.InformationManager().GetPlayerRace(sc2::Unit::Alliance::Self);
+    const sc2::Race race = bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self);
     std::string our_race = Util::GetStringFromRace(race);
     std::string config = bot_.Config().RawConfigString;
     rapidjson::Document doc;

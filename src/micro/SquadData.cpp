@@ -32,7 +32,7 @@ void SquadData::ClearSquadData()
 
             if (Util::IsWorker(unit))
             {
-                bot_.InformationManager().UnitInfo().SetJob(unit_tag, UnitMission::Idle);
+                bot_.Info().UnitInfo().SetJob(unit_tag, UnitMission::Idle);
             }
         }
     }
@@ -56,7 +56,7 @@ void SquadData::RemoveSquad(const std::string& squad_name)
 
         if (Util::IsWorker(unit))
         {
-            bot_.InformationManager().UnitInfo().SetJob(unit, UnitMission::Idle);
+            bot_.Info().UnitInfo().SetJob(unit, UnitMission::Idle);
         }
     }
 

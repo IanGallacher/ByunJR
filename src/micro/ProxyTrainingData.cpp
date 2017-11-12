@@ -12,16 +12,16 @@ void ProxyTrainingData::InitAllValues(ByunJRBot & bot)
     playable_max_ = bot.Observation()->GetGameInfo().playable_max;
     playable_min_ = bot.Observation()->GetGameInfo().playable_min;
 
-    player_start_y_ = (int)bot.InformationManager().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition().y;
+    player_start_y_ = (int)bot.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition().y;
     // This won't work for four player maps.
     enemy_start_y_ = (int)bot.Observation()->GetGameInfo().enemy_start_locations[0].y;
 
     // init the result vector to have the correct number of elements. 
     // Done over a few lines to increase legibility.
-    result_.resize(bot_->InformationManager().Map().PlayableMapHeight());
+    result_.resize(bot_->Info().Map().PlayableMapHeight());
     for (auto &row : result_)
     {
-        row.resize(bot_->InformationManager().Map().PlayableMapWidth());
+        row.resize(bot_->Info().Map().PlayableMapWidth());
     }
 
     LoadProxyTrainingData();
@@ -44,8 +44,8 @@ sc2::Point2DI ProxyTrainingData::FlipCoordinatesIfNecessary(const int x, const i
     }
     else
     {
-        return_val.x = (bot_->InformationManager().Map().PlayableMapWidth() - x);
-        return_val.y = (bot_->InformationManager().Map().PlayableMapHeight() - y);
+        return_val.x = (bot_->Info().Map().PlayableMapWidth() - x);
+        return_val.y = (bot_->Info().Map().PlayableMapHeight() - y);
     }
     return return_val;
 }
@@ -236,7 +236,7 @@ void ProxyTrainingData::RecordResult(const int fitness)
 // This function takes the parameters in "True Map Space"
 bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 {
-    if (bot_->InformationManager().Map().CanBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
+    if (bot_->Info().Map().CanBuildTypeAtPosition(x, y, sc2::UNIT_TYPEID::TERRAN_BARRACKS))
         return true;
     return false;
 }
@@ -244,9 +244,9 @@ bool ProxyTrainingData::IsProxyLocationValid(int x, int y) const
 // If we can't build at the chosen location, update that information in our data structure.
 void ProxyTrainingData::TestAllPointsOnMap()
 {
-    for (int y = 0; y < bot_->InformationManager().Map().PlayableMapHeight(); ++y)
+    for (int y = 0; y < bot_->Info().Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_->InformationManager().Map().PlayableMapWidth(); ++x)
+        for (int x = 0; x < bot_->Info().Map().PlayableMapWidth(); ++x)
         {
             if (!IsProxyLocationValid(x + static_cast<int>(playable_min_.x), y + static_cast<int>(playable_min_.y)))
             {
@@ -268,9 +268,9 @@ void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
     if (reduction_factor == 1) { return; }
 
     int valid_location_number = 0;
-    for (int y = 0; y < bot_->InformationManager().Map().PlayableMapHeight(); ++y)
+    for (int y = 0; y < bot_->Info().Map().PlayableMapHeight(); ++y)
     {
-        for (int x = 0; x < bot_->InformationManager().Map().PlayableMapWidth(); ++x)
+        for (int x = 0; x < bot_->Info().Map().PlayableMapWidth(); ++x)
         {
             // keep only 1/reductionfactor valid entries. 
             // We are only interested in the untested locations.
