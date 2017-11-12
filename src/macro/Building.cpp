@@ -4,7 +4,6 @@
 // constructor we use most often
 Building::Building(const sc2::UnitTypeID t)
     : finalPosition     (0,0)
-    , position          (0,0)
     , type              (t)
     , buildingUnit      (0)
     , builderUnit       (0)

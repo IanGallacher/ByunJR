@@ -6,7 +6,6 @@ enum class BuildingStatus { Unassigned = 0, Assigned = 1, UnderConstruction = 2,
 struct Building
 {
     sc2::Point2DI       finalPosition;
-    sc2::Point2D        position;
     sc2::UnitTypeID     type;
     // The pointer to the building.
     const sc2::Unit*    buildingUnit;

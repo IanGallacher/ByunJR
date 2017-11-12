@@ -422,6 +422,11 @@ sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
         desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
     }
 
+    // Return a "null" point if the desired_loc was not on the map. 
+    if (!bot_.Info().Map().IsOnMap(desired_loc))
+    {
+        return sc2::Point2DI(0, 0);
+    }
     return bot_.Strategy().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
 }
 
