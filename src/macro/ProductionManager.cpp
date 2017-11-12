@@ -69,22 +69,17 @@ void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
 // Called every frame.
 void ProductionManager::ManageBuildOrderQueue()
 {
-    // if there is nothing in the queue, oh well
-    if (queue_.IsEmpty())
-    {
-        return;
-    }
-
     // the current item to be used
     BuildOrderItem & current_item = queue_.GetHighestPriorityItem();
 
     // while there is still something left in the queue
     while (!queue_.IsEmpty())
     {
-        // this is the unit which can produce the currentItem
+        // this is the unit which can produce the current_item
         const sc2::Unit* producer = GetProducer(current_item.type);
 
-        QueuePrerequisites(current_item.type);
+        // Rebuild the tech tree if we have to. 
+        AddPrerequisitesToQueue(current_item.type);
 
         // check to see if we can make it right now
         const bool can_make = CanMakeNow(producer, current_item.type);
@@ -118,16 +113,25 @@ void ProductionManager::ManageBuildOrderQueue()
     }
 }
 
-void ProductionManager::QueuePrerequisites(sc2::UnitTypeID unit_type)
+// If our base gets wiped, we need to know the tech tree well enough to rebuild.
+void ProductionManager::AddPrerequisitesToQueue(sc2::UnitTypeID unit_type)
 {
-    sc2::UnitTypeID j = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
-    if (TrueUnitCount(j) == 0)
+    if (!Util::IsBuilding(unit_type))
     {
-        queue_.QueueAsHighestPriority(j, true);
+        queue_.QueueAsHighestPriority(Util::WhatBuilds(unit_type), true); ;
+    }
+    else
+    {
+        sc2::UnitTypeID tech_requirement = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
+        if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
+            + NumberOfBuildingsQueued(tech_requirement) == 0)
+        {
+            queue_.QueueAsHighestPriority(tech_requirement, true);
+        }
     }
 }
 
-size_t ProductionManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+size_t ProductionManager::NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const
 {
     return building_manager_.NumberOfUnitsInProductionOfType(unit_type);
 }
@@ -165,7 +169,7 @@ int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
 {
     return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
         + queue_.GetItemsInQueueOfType(unit_type)
-        + NumberOfUnitsInProductionOfType(unit_type);
+        + NumberOfBuildingsQueued(unit_type);
 }
 
 // A set of rules to dictate what we should build based on our current strategy.
@@ -178,7 +182,7 @@ void ProductionManager::MacroUp() {
     if (bot_.Strategy().ShouldExpandNow()
         // Don't queue more bases than you have minerals for.
      && queue_.GetItemsInQueueOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-        + NumberOfUnitsInProductionOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
+        + NumberOfBuildingsQueued(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
         < bot_.Observation()->GetMinerals() / 400)
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
@@ -186,7 +190,7 @@ void ProductionManager::MacroUp() {
     // Once we are done following a build order, let's go on to do some other stuff!
     if(base_count > 1)
     {
-        if(TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < base_count * 2)
+        if(TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < bot_.Info().Bases().NumberOfControlledGeysers())
             queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
 
         // Upgrade to Orbital Commands!
@@ -381,12 +385,6 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
         }
     }
 
-    return false;
-}
-
-bool ProductionManager::DetectBuildOrderDeadlock() const
-{
-    // TODO: detect build order deadlocks here
     return false;
 }
 

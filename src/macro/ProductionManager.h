@@ -19,11 +19,10 @@ class ProductionManager
     const sc2::Unit* GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, sc2::Point2D closest_to) const;
     bool             MeetsReservedResources(sc2::UnitTypeID type) const;
     bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t) const;
-    bool             DetectBuildOrderDeadlock() const;
     void             SetBuildOrder(const BuildOrder & build_order);
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
-    void             QueuePrerequisites(sc2::UnitTypeID unit_type);
+    void             AddPrerequisitesToQueue(sc2::UnitTypeID unit_type);
     void             PreventSupplyBlock();
     int              TrueUnitCount(sc2::UnitTypeID unit_type);
     void             MacroUp();
@@ -41,7 +40,7 @@ public:
     void             OnUnitDestroyed(const sc2::Unit* unit);
     void             DrawProductionInformation() const;
 
-    size_t           NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
+    size_t           NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const;
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
 
