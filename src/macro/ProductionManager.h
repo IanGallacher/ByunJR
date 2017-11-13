@@ -17,7 +17,10 @@ class ProductionManager
     int              planned_supply_depots_; // don't spend all our money on depots if capped. 
 
     const sc2::Unit* GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, sc2::Point2D closest_to) const;
-    bool             MeetsReservedResources(sc2::UnitTypeID type) const;
+    
+    // If distance is not set to negative one, and is greater or equal to 0, 
+    // we take into account the money we make while the worker travels to the build location.
+    bool             MeetsReservedResources(sc2::UnitTypeID type, int distance = -1) const;
     bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t) const;
     void             SetBuildOrder(const BuildOrder & build_order);
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
@@ -27,8 +30,6 @@ class ProductionManager
     int              TrueUnitCount(sc2::UnitTypeID unit_type);
     void             MacroUp();
     int              ProductionCapacity() const;
-    int              GetFreeMinerals() const;
-    int              GetFreeGas() const;
 
 public:
 

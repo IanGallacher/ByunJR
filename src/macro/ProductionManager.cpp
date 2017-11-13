@@ -69,6 +69,8 @@ void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
 // Called every frame.
 void ProductionManager::ManageBuildOrderQueue()
 {
+    if (queue_.IsEmpty()) return;
+
     // the current item to be used
     BuildOrderItem & current_item = queue_.GetHighestPriorityItem();
 
@@ -367,7 +369,7 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
     if(producer_unit==nullptr)
         return false;
 
-    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit);
+    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit,true );
 
     // quick check if the unit can't do anything it certainly can't build the thing we want
     if (available_abilities.abilities.empty())
@@ -390,23 +392,22 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
     return false;
 }
 
-// Shorthand for getting minerals from the observation layer. 
-int ProductionManager::GetFreeMinerals() const
+// Return whether or not we meet resources.
+// distance is optional. If it is greater or equal to 0, 
+// take into account income earned while the scv is traveling to the desired location.
+bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int distance) const
 {
-    return bot_.Observation()->GetMinerals();
-}
+    int minerals_en_route = 0;
+    int gas_en_route = 0;
+    if (distance >= 0)
+    {
+        minerals_en_route = bot_.Info().Bases().MineralIncome() / distance;
+        gas_en_route = bot_.Info().Bases().GasIncome() / distance;
+    }
 
-// Shorthand for getting gas from the observation layer. 
-int ProductionManager::GetFreeGas() const
-{
-    return bot_.Observation()->GetVespene();
-}
-
-// return whether or not we meet resources, including building reserves
-bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type) const
-{
-    // return whether or not we meet the resources
-    return (Util::GetUnitTypeMineralPrice(type, bot_) <= GetFreeMinerals()) && (Util::GetUnitTypeGasPrice(type, bot_) <= GetFreeGas());
+    // Can we afford the unit?
+    return (Util::GetUnitTypeMineralPrice(type, bot_) + minerals_en_route <= bot_.Observation()->GetMinerals())
+        && (Util::GetUnitTypeGasPrice(type, bot_) + gas_en_route <= bot_.Observation()->GetVespene());
 }
 
 void ProductionManager::DrawProductionInformation() const
