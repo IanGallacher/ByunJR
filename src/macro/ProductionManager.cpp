@@ -116,18 +116,20 @@ void ProductionManager::ManageBuildOrderQueue()
 // If our base gets wiped, we need to know the tech tree well enough to rebuild.
 void ProductionManager::AddPrerequisitesToQueue(sc2::UnitTypeID unit_type)
 {
+    sc2::UnitTypeID tech_requirement;
     if (!Util::IsBuilding(unit_type))
     {
-        queue_.QueueAsHighestPriority(Util::WhatBuilds(unit_type), true); ;
+        tech_requirement = Util::WhatBuilds(unit_type);
     }
     else
     {
-        sc2::UnitTypeID tech_requirement = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
-        if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
-            + NumberOfBuildingsQueued(tech_requirement) == 0)
-        {
-            queue_.QueueAsHighestPriority(tech_requirement, true);
-        }
+        tech_requirement = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
+    }
+
+    if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
+        + NumberOfBuildingsQueued(tech_requirement) == 0)
+    {
+        queue_.QueueAsHighestPriority(tech_requirement, true);
     }
 }
 
