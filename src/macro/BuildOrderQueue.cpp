@@ -13,6 +13,16 @@ BuildOrderQueue::BuildOrderQueue(ByunJRBot & bot)
 
 }
 
+void BuildOrderQueue::SetBuildOrder(const BuildOrder & build_order)
+{
+    ClearAll();
+
+    for (size_t i(0); i<build_order.Size(); ++i)
+    {
+        QueueAsLowestPriority(build_order[i], true);
+    }
+}
+
 void BuildOrderQueue::ClearAll()
 {
     // clear the queue

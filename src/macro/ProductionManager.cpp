@@ -19,7 +19,7 @@ void ProductionManager::OnStart()
 {
     planned_supply_depots_ = 0;
     building_manager_.OnStart();
-    SetBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
+    queue_.SetBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
 }
 
 void ProductionManager::OnFrame()
@@ -54,16 +54,6 @@ void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
     // The building is dead! We can build where it used to be!
     if(Util::IsBuilding(building->unit_type))
         bot_.Strategy().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
-}
-
-void ProductionManager::SetBuildOrder(const BuildOrder & build_order)
-{
-    queue_.ClearAll();
-
-    for (size_t i(0); i<build_order.Size(); ++i)
-    {
-        queue_.QueueAsLowestPriority(build_order[i], true);
-    }
 }
 
 // Called every frame.

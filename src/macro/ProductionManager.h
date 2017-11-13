@@ -2,7 +2,7 @@
 #include <sc2api/sc2_api.h>
 
 #include "macro/BuildOrder.h"
-#include "BuildOrderQueue.h"
+#include "macro/BuildOrderQueue.h"
 #include "macro/BuildingManager.h"
 
 class ByunJRBot;
@@ -22,7 +22,6 @@ class ProductionManager
     // we take into account the money we make while the worker travels to the build location.
     bool             MeetsReservedResources(sc2::UnitTypeID type, int distance = -1) const;
     bool             CanMakeNow(const sc2::Unit* producer, sc2::UnitTypeID t) const;
-    void             SetBuildOrder(const BuildOrder & build_order);
     void             Create(const sc2::Unit* producer, BuildOrderItem & item);
     void             ManageBuildOrderQueue();
     void             AddPrerequisitesToQueue(sc2::UnitTypeID unit_type);

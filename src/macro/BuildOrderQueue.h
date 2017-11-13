@@ -27,6 +27,8 @@ public:
 
     BuildOrderQueue(ByunJRBot & bot);
 
+    void SetBuildOrder(const BuildOrder & build_order);
+
     void ClearAll();                                                         // clears the entire build order queue
     void SkipItem();                                                         // increments skippedItems
     void QueueAsHighestPriority(const sc2::UnitTypeID unit_type, const bool blocking);        // queues something at the highest priority
