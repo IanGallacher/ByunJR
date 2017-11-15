@@ -192,12 +192,19 @@ void BuildingManager::ConstructAssignedBuildings()
                 // It must be the case that something was in the way of building.
                 else if (b.buildCommandGiven)
                 {
-                    // If the build was interruptted, the worker will go back to gathering minerals. 
-                    // Once we continue building, mark the unit as such.
-                    bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
-                    Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
-                    // TODO: in here is where we would check to see if the builder died on the way
-                    //       or if things are taking too long, or the build location is no longer valid
+                    if (b.type == sc2::UNIT_TYPEID::TERRAN_REFINERY)
+                    {
+                        bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                        const sc2::Unit* refinery = bot_.Info().FindNeutralUnitAtPosition(b.finalPosition);
+                        Micro::SmartBuildGeyser(b.builderUnit, b.type, refinery, bot_);
+                    }
+                    else
+                    {
+                        // If the build was interrupted, the worker will go back to gathering minerals. 
+                        // Once we continue building, mark the unit as such.
+                        bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                        Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                    }
                 }
                 // If is_construction_in_progress is not true AND we have already sent a command to build a building, something must have gone wrong. 
                 // Resend the command to build the building.
