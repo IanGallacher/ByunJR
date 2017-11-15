@@ -56,7 +56,21 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
     return false;
 }
 
-size_t BuildingManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+// Returns the buildings that a worker has been sent to build, but has not yet started construction.
+// Even if the "green preview building" is present, this function will not count it until the physical building is present. 
+size_t BuildingManager::NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const
+{
+    size_t count = 0;
+    for (const auto & b : buildings_)
+    {
+        if (b.type == unit_type && b.status != BuildingStatus::UnderConstruction) ++count;
+    }
+    return count;
+}
+
+// Returns the number of buildings that the building manager is currently in charge. 
+// Regardless of if construction has started or not. 
+size_t BuildingManager::NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const
 {
     size_t count = 0;
     for (const auto & b : buildings_)
@@ -103,7 +117,7 @@ void BuildingManager::FindBuildingLocation()
         // Only assign a worker to the building if it does not yet have one, or the worker died en route. 
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
-        b.finalPosition = GetBuildingLocation(b);
+        b.finalPosition = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(b.type);
         BOT_ASSERT(bot_.Info().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
@@ -389,45 +403,6 @@ std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
     }
 
     return buildings_queued;
-}
-
-sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
-{
-    sc2::Point2DI desired_loc;
-    if (Util::IsRefineryType(b.type))
-    {
-        desired_loc =  bot_.Strategy().BuildingPlacer().GetRefineryPosition();
-    }
-
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
-    {
-        desired_loc = bot_.GetProxyManager().GetProxyLocation();
-    }
-
-    // Make a wall if necessary.
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
-    {
-        desired_loc = bot_.Info().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-    }
-
-    // Find the next expansion location. 
-    else if (Util::IsTownHallType(b.type))
-    {
-        const sc2::Point2D next_expansion_location = bot_.Info().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
-        desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
-    }
-    // If no special placement code is required, get a position somewhere in our starting base.
-    else 
-    {
-        desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
-    }
-
-    // Return a "null" point if the desired_loc was not on the map. 
-    if (!bot_.Info().Map().IsOnMap(desired_loc))
-    {
-        return sc2::Point2DI(0, 0);
-    }
-    return bot_.Strategy().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
 }
 
 void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)

@@ -42,13 +42,6 @@ void ProductionManager::OnFrame()
     DrawProductionInformation();
 }
 
-void ProductionManager::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
-    {
-        planned_supply_depots_--;
-    }
-}
-
 void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
     // The building is dead! We can build where it used to be!
@@ -127,7 +120,22 @@ void ProductionManager::AddPrerequisitesToQueue(sc2::UnitTypeID unit_type)
 
 size_t ProductionManager::NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const
 {
-    return building_manager_.NumberOfUnitsInProductionOfType(unit_type);
+    return building_manager_.NumberOfBuildingTypeInProduction(unit_type);
+}
+
+// Buildings scvs have been sent to make plus the number of buildings in the queue. 
+// Useful for counting how many depots have been planned to prevent a supply block. 
+size_t ProductionManager::NumberOfBuildingsPlanned(sc2::UnitTypeID unit_type) const
+{
+    return building_manager_.NumberOfBuildingTypePlanned(unit_type)
+        + queue_.GetItemsInQueueOfType(unit_type);
+}
+
+int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
+{
+    return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
+        + queue_.GetItemsInQueueOfType(unit_type)
+        + NumberOfBuildingsQueued(unit_type);
 }
 
 bool has_completed_wall = false;
@@ -157,13 +165,6 @@ void ProductionManager::PreventSupplyBlock() {
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
-}
-
-int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
-{
-    return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
-        + queue_.GetItemsInQueueOfType(unit_type)
-        + NumberOfBuildingsQueued(unit_type);
 }
 
 // A set of rules to dictate what we should build based on our current strategy.
@@ -380,8 +381,8 @@ bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int d
     int gas_en_route = 0;
     if (distance >= 0)
     {
-        minerals_en_route = bot_.Info().Bases().MineralIncome() / distance;
-        gas_en_route = bot_.Info().Bases().GasIncome() / distance;
+        minerals_en_route = bot_.Info().Bases().MineralIncomePerSecond() * (distance / 2.813); // 2.813 is worker speed. 
+        gas_en_route = bot_.Info().Bases().GasIncomePerSecond() * (distance / 2.813);
     }
 
     // Can we afford the unit?

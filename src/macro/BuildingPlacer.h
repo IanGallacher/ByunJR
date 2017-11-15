@@ -22,6 +22,7 @@ public:
 
     void OnStart();
 
+    sc2::Point2DI   GetBuildLocationForType(const sc2::UnitTypeID) const;
     void            ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location);
     void            FreeTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location);
     bool            IsReserved(int x, int y) const;

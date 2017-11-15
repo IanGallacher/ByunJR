@@ -26,7 +26,6 @@ class ProductionManager
     void             ManageBuildOrderQueue();
     void             AddPrerequisitesToQueue(sc2::UnitTypeID unit_type);
     void             PreventSupplyBlock();
-    int              TrueUnitCount(sc2::UnitTypeID unit_type);
     void             MacroUp();
     int              ProductionCapacity() const;
 
@@ -36,11 +35,12 @@ public:
 
     void             OnStart();
     void             OnFrame();
-    void             OnBuildingConstructionComplete(const sc2::Unit* unit);
     void             OnUnitDestroyed(const sc2::Unit* unit);
     void             DrawProductionInformation() const;
 
     size_t           NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const;
+    size_t           NumberOfBuildingsPlanned(sc2::UnitTypeID unit_type) const;
+    int              TrueUnitCount(sc2::UnitTypeID unit_type);
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
 

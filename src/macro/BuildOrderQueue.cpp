@@ -25,7 +25,6 @@ void BuildOrderQueue::SetBuildOrder(const BuildOrder & build_order)
 
 void BuildOrderQueue::ClearAll()
 {
-    // clear the queue
     queue_.clear();
 
     // reset the priorities
@@ -76,7 +75,7 @@ bool BuildOrderQueue::CanSkipItem()
     return highest_not_blocking;
 }
 
-void BuildOrderQueue::QueueItem(const BuildOrderItem b)
+void BuildOrderQueue::QueueItem(BuildOrderItem b)
 {
     // if the queue is empty, set the highest and lowest priorities
     if (queue_.empty())

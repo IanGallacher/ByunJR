@@ -13,7 +13,47 @@ BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
 
 void BuildingPlacer::OnStart()
 {
-    reserve_map_ = std::vector< std::vector<bool> >(bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
+    reserve_map_ = std::vector<std::vector<bool>> (bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
+}
+
+sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type) const
+{
+    sc2::Point2DI desired_loc;
+    if (Util::IsRefineryType(type))
+    {
+        desired_loc = bot_.Strategy().BuildingPlacer().GetRefineryPosition();
+    }
+
+    else if (type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
+    {
+        desired_loc = bot_.GetProxyManager().GetProxyLocation();
+    }
+
+    // Make a wall if necessary.
+    else if (type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
+    {
+        desired_loc = bot_.Info().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+    }
+
+    // Find the next expansion location. 
+    else if (Util::IsTownHallType(type))
+    {
+        const sc2::Point2D next_expansion_location = bot_.Info().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
+        desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
+    }
+    // If no special placement code is required, get a position somewhere in our starting base.
+    else
+    {
+        desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
+    }
+
+    // Return a "null" point if the desired_loc was not on the map. 
+    if (!bot_.Info().Map().IsOnMap(desired_loc))
+    {
+        return sc2::Point2DI(0, 0);
+    }
+
+    return GetBuildLocationNear(desired_loc, type, bot_.Config().BuildingSpacing);
 }
 
 void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)

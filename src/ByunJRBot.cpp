@@ -91,7 +91,7 @@ void ByunJRBot::OnUnitEnterVision(const sc2::Unit* unit) {
 }
 
 void ByunJRBot::OnBuildingConstructionComplete(const sc2::Unit* unit) {
-    production_manager_.OnBuildingConstructionComplete(unit);
+
 }
 
 // Returns true if the bot thinks it still has a chance.
