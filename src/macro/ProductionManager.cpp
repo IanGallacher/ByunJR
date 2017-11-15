@@ -17,7 +17,6 @@ ProductionManager::ProductionManager(ByunJRBot & bot)
 
 void ProductionManager::OnStart()
 {
-    planned_supply_depots_ = 0;
     building_manager_.OnStart();
     queue_.SetBuildOrder(bot_.Strategy().GetOpeningBookBuildOrder());
 }
@@ -150,10 +149,10 @@ void ProductionManager::PreventSupplyBlock() {
         >=
         // the player supply capacity, including pylons in production. 
         // The depots in production is key, otherwise you will build hundreds of pylons while suppsuly blocked.
-        (bot_.Observation()->GetFoodCap() + (planned_supply_depots_ * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
-        )
+        ( bot_.Observation()->GetFoodCap() 
+            + (TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT) * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
+       )
     {
-        planned_supply_depots_++;
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
     }
 

@@ -13,8 +13,7 @@ class ProductionManager
 
     BuildingManager  building_manager_;
     BuildOrderQueue  queue_;
-    int              planned_production_;
-    int              planned_supply_depots_; // don't spend all our money on depots if capped. 
+    int              planned_production_; 
 
     const sc2::Unit* GetClosestUnitToPosition(const std::vector<const sc2::Unit*> & units, sc2::Point2D closest_to) const;
     
