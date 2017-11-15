@@ -1,19 +1,15 @@
 #include "Building.h"
 
-
-// constructor we use most often
 Building::Building(const sc2::UnitTypeID t)
     : finalPosition     (0,0)
     , type              (t)
     , buildingUnit      (0)
     , builderUnit       (0)
-    , lastOrderFrame    (0)
     , status            (BuildingStatus::Unassigned)
     , buildCommandGiven (false)
     , underConstruction (false) 
 {}
 
-// equals operator
 bool Building::operator == (const Building& b) 
 {
     // buildings are equal if their worker unit and building unit are equal

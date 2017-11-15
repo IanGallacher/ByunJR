@@ -326,28 +326,17 @@ const sc2::Unit* ProductionManager::GetClosestUnitToPosition(const std::vector<c
 // this function will check to see if all preconditions are met and then create a unit
 void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 {
-    if (!producer)
-    {
-        return;
-    }
+    if (!producer) return;
 
     const sc2::UnitTypeID item_type = item.type;
 
-    // if we're dealing with a building
-    // TODO: deal with morphed buildings & addons
+    // Make the unit using whatever command is necessary
     if (Util::IsMorphCommand(Util::UnitTypeIDToAbilityID(item.type)))
-    {
         Micro::SmartTrain(producer, item_type, bot_);
-    }
     else if (Util::IsBuilding(item_type))
-    {
         building_manager_.AddBuildingTask(item_type);
-    }
-    // if we're dealing with a non-building unit
     else
-    {
         Micro::SmartTrain(producer, item_type, bot_);
-    }
 }
 
 bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type) const

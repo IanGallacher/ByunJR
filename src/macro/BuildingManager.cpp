@@ -169,7 +169,7 @@ void BuildingManager::ConstructAssignedBuildings()
             {
                 // If we haven't explored the build position, go there.
                 // For all current ladder maps, this will always be true. 
-                // We are leaving this in here to insure future compatability (campaign maps, broodwar, etc)
+                // We are leaving this in here to ensure future compatability (campaign maps, broodwar, etc)
                 if (!IsBuildingPositionExplored(b))
                 {
                     Micro::SmartMove(builder_unit, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
