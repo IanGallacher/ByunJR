@@ -37,6 +37,6 @@ public:
     std::vector<sc2::UnitTypeID> BuildingsQueued() const;
 
 
-    void DrawBuildingInfo() const;
+    void                DrawBuildingInfo() const;
     std::string         ToString() const;
 };
