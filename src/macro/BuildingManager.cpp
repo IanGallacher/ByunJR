@@ -80,6 +80,36 @@ size_t BuildingManager::NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_ty
     return count;
 }
 
+int BuildingManager::PlannedMinerals() const
+{
+    int planned_minerals = 0;
+    for (const auto & b : buildings_)
+    {
+        bool sent_command_already = false;
+        for (sc2::UnitOrder the_order : b.builderUnit->orders)
+        {
+            if (the_order.ability_id == Util::UnitTypeIDToAbilityID(b.type))
+            {
+                sent_command_already = true;
+                break;
+            }
+        }
+        if (!sent_command_already)
+        {
+            // if we can't build the building, then don't bother reserving the resources. the unit is on the way!
+            auto tech_requirement = Util::GetUnitTypeData(b.type, bot_).tech_requirement;
+            if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
+                + NumberOfBuildingTypeInProduction(tech_requirement) != 0)
+            {
+                planned_minerals += Util::GetUnitTypeMineralPrice(b.type, bot_);
+            }
+        }
+    }
+
+    return planned_minerals;
+}
+
+
 #pragma region The six steps for constructing a building. 
 // STEP 1: If a building has dies during construction, do not attempt to build it again.
 void BuildingManager::StopConstructingDeadBuildings()
@@ -350,6 +380,7 @@ bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 void BuildingManager::DrawBuildingInformation()
 {
     bot_.Strategy().BuildingPlacer().DrawReservedTiles();
+    bot_.Strategy().BuildingPlacer().DrawBuildLocationCache();
 
     if (!bot_.Config().DrawBuildingInfo)
     {

@@ -153,25 +153,20 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
 
 void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Point2D pos, sc2::Agent & bot)
 {
-    if (bot.Observation()->GetMinerals() < Util::GetUnitTypeMineralPrice(building_type, bot))
+    // Prevent sending duplicate commands to give an accurate APM measurement in replays.
+    // Spamming every frame also causes bugs in the sc2 engine. 
+    bool sent_command_already = false;
+    for (sc2::UnitOrder the_order : builder->orders)
     {
-        SmartMove(builder, pos, bot);
-    }
-    else 
-    {
-        // Prevent sending duplicate commands to give an accurate APM measurement in replays.
-        // Spamming every frame also causes bugs in the sc2 engine. 
-        bool sent_command_already = false;
-        for (sc2::UnitOrder the_order : builder->orders)
+        if (the_order.ability_id == Util::UnitTypeIDToAbilityID(building_type))
         {
-            if (the_order.ability_id == Util::UnitTypeIDToAbilityID(building_type))
-            {
-                sent_command_already = true;
-            }
+            sent_command_already = true;
         }
-        if (sent_command_already == false)
-            bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
     }
+    if (sent_command_already == false && Util::UnitCanBuildTypeNow(builder, building_type, bot))
+        bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
+    else 
+        SmartMove(builder, pos, bot);
 }
 
 void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, sc2::Agent & bot)

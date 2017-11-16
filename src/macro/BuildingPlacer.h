@@ -10,6 +10,9 @@ class BuildingPlacer
     // All the tiles that either have a building planned, or currently have a building on them. 
     // They are only unreserved if the building dies. 
     std::vector< std::vector<bool> > reserve_map_;
+    // Cache where a building is most likely going to be created. 
+    // Useful for deciding if we should send a scv to go build. (accounting for current income)
+    mutable std::map<sc2::UnitTypeID, sc2::Point2DI> build_location_cache_;
 
     // queries for various BuildingPlacer data
     bool            Buildable(int x, int y, const sc2::UnitTypeID type) const;
@@ -34,5 +37,6 @@ public:
     sc2::Point2DI   GetBuildLocationNear(const sc2::Point2DI desired_loc, const sc2::UnitTypeID building_type, const int build_dist) const;
 
     void            DrawReservedTiles();
+    void            DrawBuildLocationCache();
     sc2::Point2DI   GetRefineryPosition() const;
 };

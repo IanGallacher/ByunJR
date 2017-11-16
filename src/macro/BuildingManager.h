@@ -33,5 +33,7 @@ public:
     size_t              NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const;
     size_t              NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const;
 
+    int PlannedMinerals() const;
+
     std::vector<sc2::UnitTypeID> BuildingsQueued() const;
 };

@@ -62,9 +62,6 @@ void ProductionManager::ManageBuildOrderQueue()
         // this is the unit which can produce the current_item
         const sc2::Unit* producer = GetProducer(current_item.type);
 
-        // Rebuild the tech tree if we have to. 
-        AddPrerequisitesToQueue(current_item.type);
-
         // check to see if we can make it right now
         const bool can_make = CanMakeNow(producer, current_item.type);
 
@@ -94,6 +91,9 @@ void ProductionManager::ManageBuildOrderQueue()
             // so break out
             break;
         }
+
+        // Rebuild the tech tree if we have to. 
+        AddPrerequisitesToQueue(current_item.type);
     }
 }
 
@@ -101,13 +101,13 @@ void ProductionManager::ManageBuildOrderQueue()
 void ProductionManager::AddPrerequisitesToQueue(sc2::UnitTypeID unit_type)
 {
     sc2::UnitTypeID tech_requirement;
-    if (!Util::IsBuilding(unit_type))
+    if (Util::IsBuilding(unit_type))
     {
-        tech_requirement = Util::WhatBuilds(unit_type);
+        tech_requirement = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
     }
     else
     {
-        tech_requirement = Util::GetUnitTypeData(unit_type, bot_).tech_requirement;
+        tech_requirement = Util::WhatBuilds(unit_type);
     }
 
     if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
@@ -341,34 +341,36 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 
 bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type) const
 {
-    if (!MeetsReservedResources(type))
+    const sc2::Point2DI point = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(type);
+    const int dist = bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y));
+    if (!MeetsReservedResources(type, dist))
     {
         return false;
     }
     if(producer_unit==nullptr)
         return false;
 
-    sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit,true );
+    //sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit,true );
 
-    // quick check if the unit can't do anything it certainly can't build the thing we want
-    if (available_abilities.abilities.empty())
-    {
-        return false;
-    }
-    else
-    {
-        // check to see if one of the unit's available abilities matches the build ability type
-        const sc2::AbilityID build_type_ability = Util::UnitTypeIDToAbilityID(type);
-        for (const sc2::AvailableAbility & available_ability : available_abilities.abilities)
-        {
-            if (available_ability.ability_id == build_type_ability)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
+    //// quick check if the unit can't do anything it certainly can't build the thing we want
+    //if (available_abilities.abilities.empty())
+    //{
+    //    return false;
+    //}
+    //else
+    //{
+    //    // check to see if one of the unit's available abilities matches the build ability type
+    //    const sc2::AbilityID build_type_ability = Util::UnitTypeIDToAbilityID(type);
+    //    for (const sc2::AvailableAbility & available_ability : available_abilities.abilities)
+    //    {
+    //        if (available_ability.ability_id == build_type_ability)
+    //        {
+    //            return true;
+    //        }
+    //    }
+    //}
+    return true;
+    //return false;
 }
 
 // Return whether or not we meet resources.
@@ -385,8 +387,11 @@ bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int d
     }
 
     // Can we afford the unit?
-    return (Util::GetUnitTypeMineralPrice(type, bot_) + minerals_en_route <= bot_.Observation()->GetMinerals())
-        && (Util::GetUnitTypeGasPrice(type, bot_) + gas_en_route <= bot_.Observation()->GetVespene());
+    if( (Util::GetUnitTypeMineralPrice(type, bot_) + building_manager_.PlannedMinerals() 
+           <= bot_.Observation()->GetMinerals() + minerals_en_route)
+     && (Util::GetUnitTypeGasPrice(type, bot_) <= bot_.Observation()->GetVespene() + gas_en_route))
+        return true;
+    return false; // break on rax three, make sure scv gets there accounting for travel dist
 }
 
 void ProductionManager::DrawProductionInformation() const

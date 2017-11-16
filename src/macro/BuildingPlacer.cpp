@@ -16,8 +16,15 @@ void BuildingPlacer::OnStart()
     reserve_map_ = std::vector<std::vector<bool>> (bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
 }
 
+// Default argument for reserve_tiles is true.
+// If you want to preview the build location without placing the building, set reserve_tiles to false. 
 sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type) const
 {
+    if (build_location_cache_.find(type) != build_location_cache_.end())
+    {
+        return build_location_cache_.at(type);
+    }
+
     sc2::Point2DI desired_loc;
     if (Util::IsRefineryType(type))
     {
@@ -53,7 +60,8 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type
         return sc2::Point2DI(0, 0);
     }
 
-    return GetBuildLocationNear(desired_loc, type, bot_.Config().BuildingSpacing);
+    build_location_cache_[type] = GetBuildLocationNear(desired_loc, type, bot_.Config().BuildingSpacing);
+    return build_location_cache_[type];
 }
 
 void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
@@ -73,6 +81,12 @@ void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI b
         {
             reserve_map_[x][y] = true;
         }
+    }
+    // Remove the placed building from the cache.
+    const auto build_loc_iter = build_location_cache_.find(building_type);
+    if (build_loc_iter != build_location_cache_.end())
+    {
+        build_location_cache_.erase(build_loc_iter);
     }
 }
 
@@ -291,14 +305,19 @@ void BuildingPlacer::DrawReservedTiles()
         {
             if (reserve_map_[x][y] || IsInResourceBox(x, y))
             {
-                const float x1 = x+0.5;
-                const float y1 = y+0.5;
-                const float x2 = x-0.5;
-                const float y2 = y-0.5;
-
-                bot_.DebugHelper().DrawBox(x1, y1, x2, y2, sc2::Colors::Yellow);
+                bot_.DebugHelper().DrawSquareOnMap(sc2::Point2DI(x, y), sc2::Colors::Yellow);
             }
         }
+    }
+}
+
+void BuildingPlacer::DrawBuildLocationCache()
+{
+    for (const auto & cache_data : build_location_cache_)
+    {
+        const auto & type = cache_data.first;
+        const auto & loc = cache_data.second;
+        bot_.DebugHelper().DrawBoxAroundUnit(type, loc, sc2::Colors::Yellow);
     }
 }
 

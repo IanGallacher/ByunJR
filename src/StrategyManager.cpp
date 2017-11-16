@@ -170,12 +170,12 @@ void StrategyManager::SetScoutUnits()
         // Grab the closest worker to our base.
         const ::UnitInfo * proxy_worker = bot_.Info().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
 
-        // If we find a worker (which we should) go send it out to proxy.
-        if (proxy_worker)
-        {
-            bot_.Info().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
-            second_proxy_worker_set_ = true;
-        }
+        //// If we find a worker (which we should) go send it out to proxy.
+        //if (proxy_worker)
+        //{
+        //    bot_.Info().UnitInfo().SetJob(proxy_worker->unit, UnitMission::Proxy);
+        //    second_proxy_worker_set_ = true;
+        //}
     }
 }
 
