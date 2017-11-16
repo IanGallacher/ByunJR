@@ -55,7 +55,7 @@ void ByunJRBot::OnStep()
 
 
     debug_.DrawAllUnitInformation();
-    debug_.DrawResourceDebugInfo();
+    debug_.DrawUnitMissionOnUnit();
 
 
     //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
