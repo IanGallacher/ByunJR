@@ -53,25 +53,7 @@ void ByunJRBot::OnStep()
     proxy_manager_.OnFrame();
     combat_commander_.OnFrame(information_manager_.UnitInfo().GetCombatUnits());
 
-
-    debug_.DrawAllUnitInformation();
-    debug_.DrawUnitMissionOnUnit();
-
-
-    //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
-
-    if (config_.DrawWalkableSectors)
-        debug_.DrawMapSectors();
-
-    if (config_.DrawTileInfo)
-        debug_.DrawMapWalkableTiles();
-
-    if (config_.DrawBaseLocationInfo)
-        debug_.DrawBaseLocations();
-
-    debug_.DrawAllSelectedUnitsDebugInfo();
-
-    Debug()->SendDebug();
+    DrawDebugInfo();
 }
 
 void ByunJRBot::OnUnitCreated(const sc2::Unit* unit) {
@@ -104,6 +86,35 @@ bool ByunJRBot::IsWillingToFight() const
 void ByunJRBot::Resign()
 {
     is_willing_to_fight_ = false;
+}
+
+void ByunJRBot::DrawDebugInfo()
+{
+    debug_.DrawAllUnitInformation();
+    debug_.DrawUnitMissionOnUnit();
+    debug_.DrawAllSelectedUnitsDebugInfo();
+    strategy_.BuildingPlacer().DrawReservedTiles();
+    strategy_.BuildingPlacer().DrawBuildLocationCache();
+
+    //debug_.DrawEnemyDPSMap(information_manager_.GetDPSMap());
+
+    if (config_.DrawWalkableSectors)
+        debug_.DrawMapSectors();
+
+    if (config_.DrawTileInfo)
+        debug_.DrawMapWalkableTiles();
+
+    if (config_.DrawBaseLocationInfo)
+        debug_.DrawBaseLocations();
+
+    if (config_.DrawProductionInfo)
+        debug_.AddToSidebar(production_manager_.ToString());
+
+    if (config_.DrawBuildingInfo)
+        debug_.AddToSidebar(production_manager_.BuildingInfoString());
+
+    debug_.DrawSidebar();
+    Debug()->SendDebug();
 }
 
 BotConfig & ByunJRBot::Config()

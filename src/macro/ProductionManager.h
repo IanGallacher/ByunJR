@@ -35,7 +35,6 @@ public:
     void             OnStart();
     void             OnFrame();
     void             OnUnitDestroyed(const sc2::Unit* unit);
-    void             DrawProductionInformation() const;
 
     size_t           NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const;
     size_t           NumberOfBuildingsPlanned(sc2::UnitTypeID unit_type) const;
@@ -43,4 +42,6 @@ public:
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
 
+    std::string      ToString() const;
+    std::string BuildingInfoString() const;
 };

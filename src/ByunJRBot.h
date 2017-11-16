@@ -49,6 +49,7 @@ public:
     void OnBuildingConstructionComplete(const sc2::Unit*) override;
     bool IsWillingToFight() const;
     void Resign();
+    void DrawDebugInfo();
 
           BotConfig & Config();
     const ProductionManager & ProductionManager() const;

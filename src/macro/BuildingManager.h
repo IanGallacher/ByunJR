@@ -27,7 +27,6 @@ public:
     void                OnStart();
     void                OnFrame();
     void                AddBuildingTask(const sc2::UnitTypeID & type);
-    void                DrawBuildingInformation();
 
     bool                IsBeingBuilt(sc2::UnitTypeID type);
     size_t              NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const;
@@ -36,4 +35,8 @@ public:
     int PlannedMinerals() const;
 
     std::vector<sc2::UnitTypeID> BuildingsQueued() const;
+
+
+    void DrawBuildingInfo() const;
+    std::string         ToString() const;
 };

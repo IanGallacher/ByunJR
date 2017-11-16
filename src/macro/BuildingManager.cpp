@@ -22,25 +22,12 @@ void BuildingManager::OnStart()
 
 void BuildingManager::OnFrame()
 {
-    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
-    {
-        // Filter out units which aren't buildings under construction.
-        if (Util::IsBuilding(unit->unit_type))
-        {
-            std::stringstream ss;
-            ss << unit->tag;
-            bot_.DebugHelper().DrawText(unit->pos, ss.str());
-        }
-    }
-
     StopConstructingDeadBuildings();        // Check to see if assigned workers have died en route or while constructing.
     FindBuildingLocation();                 // Find a good place to build the building.
     AssignWorkersToUnassignedBuildings();   // If we are terran and a building is under construction without a worker, assign a new one.
     ConstructAssignedBuildings();           // For each planned building, if the worker isn't constructing, send the command.
     CheckForStartedConstruction();          // Check to see if any buildings have started construction and update data structures.
     CheckForCompletedBuildings();           // Check to see if any buildings have completed and update data structures.
-
-    DrawBuildingInformation();
 }
 
 bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
@@ -377,20 +364,70 @@ bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
     return bot_.Info().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
 }
 
-void BuildingManager::DrawBuildingInformation()
+std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
 {
-    bot_.Strategy().BuildingPlacer().DrawReservedTiles();
-    bot_.Strategy().BuildingPlacer().DrawBuildLocationCache();
+    std::vector<sc2::UnitTypeID> buildings_queued;
 
-    if (!bot_.Config().DrawBuildingInfo)
+    for (const auto & b : buildings_)
     {
-        return;
+        if (b.status == BuildingStatus::Unassigned || b.status == BuildingStatus::Assigned)
+        {
+            buildings_queued.push_back(b.type);
+        }
     }
 
-    std::stringstream ss;
-    ss << "Building Information " << buildings_.size() << "\n\n\n";
+    return buildings_queued;
+}
 
-    int yspace = 0;
+void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
+{
+    for (auto & b : to_remove)
+    {
+        const auto & it = std::find(buildings_.begin(), buildings_.end(), b);
+
+        if (it != buildings_.end())
+        {
+            buildings_.erase(it);
+        }
+    }
+}
+
+bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
+{
+    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+}
+
+void BuildingManager::DrawBuildingInfo() const
+{
+    for (const auto & b : buildings_)
+    {
+        std::stringstream dss;
+
+        if (b.builderUnit)
+        {
+            dss << "\n\nBuilder: " << b.builderUnit << std::endl;
+        }
+
+        if (b.buildingUnit)
+        {
+            dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
+            bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
+        }
+
+        const UnitInfo* u = b.builderUnit ? bot_.Info().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
+        const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
+        if (b.status == BuildingStatus::Assigned)
+        {
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
+            bot_.DebugHelper().DrawLine(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), b.builderUnit->pos, sc2::Colors::Yellow);
+        }
+    }
+}
+
+std::string BuildingManager::ToString() const
+{
+    std::stringstream ss;
+    ss << "Building Information " << std::endl;
 
     for (const auto & b : buildings_)
     {
@@ -425,38 +462,5 @@ void BuildingManager::DrawBuildingInformation()
         }
     }
 
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.05f, 0.05f), ss.str());
-}
-
-std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
-{
-    std::vector<sc2::UnitTypeID> buildings_queued;
-
-    for (const auto & b : buildings_)
-    {
-        if (b.status == BuildingStatus::Unassigned || b.status == BuildingStatus::Assigned)
-        {
-            buildings_queued.push_back(b.type);
-        }
-    }
-
-    return buildings_queued;
-}
-
-void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
-{
-    for (auto & b : to_remove)
-    {
-        const auto & it = std::find(buildings_.begin(), buildings_.end(), b);
-
-        if (it != buildings_.end())
-        {
-            buildings_.erase(it);
-        }
-    }
-}
-
-bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
-{
-    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+    return ss.str();
 }

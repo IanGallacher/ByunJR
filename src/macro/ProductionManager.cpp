@@ -38,7 +38,6 @@ void ProductionManager::OnFrame()
     // TODO: triggers for game things like cloaked units etc
 
     building_manager_.OnFrame();
-    DrawProductionInformation();
 }
 
 void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
@@ -394,25 +393,15 @@ bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int d
     return false; // break on rax three, make sure scv gets there accounting for travel dist
 }
 
-void ProductionManager::DrawProductionInformation() const
+std::string ProductionManager::ToString() const
 {
-    if (!bot_.Config().DrawProductionInfo)
-    {
-        return;
-    }
-
     std::stringstream ss;
-    ss << "Production Information\n\n";
+    ss << "Production Information" << std::endl << std::endl;
+    ss << queue_.ToString();
+    return ss.str();
+}
 
-    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
-    {
-        if (unit->build_progress < 1.0f)
-        {
-            //ss << sc2::UnitTypeToName(unit->unit_type) << " " << unit->build_progress << std::endl;
-        }
-    }
-
-    ss << queue_.GetQueueInformation();
-
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.01f, 0.01f), ss.str(), sc2::Colors::Yellow);
+std::string ProductionManager::BuildingInfoString() const
+{
+    return building_manager_.ToString();
 }

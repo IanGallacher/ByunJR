@@ -176,13 +176,13 @@ BuildOrderItem BuildOrderQueue::operator [] (const int i)
     return queue_[i];
 }
 
-std::string BuildOrderQueue::GetQueueInformation() const
+std::string BuildOrderQueue::ToString() const
 {
     const size_t reps = queue_.size() < 30 ? queue_.size() : 30;
     std::stringstream ss;
 
     // for each unit in the queue
-    for (size_t i(0); i<reps; i++)
+    for (size_t i(0); i<reps; ++i)
     {
         const sc2::UnitTypeID & type = queue_[queue_.size() - 1 - i].type;
         ss << sc2::UnitTypeToName(type) << std::endl;
