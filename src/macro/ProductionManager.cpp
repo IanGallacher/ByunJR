@@ -341,7 +341,7 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type) const
 {
     const sc2::Point2DI point = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(type);
-    const int dist = bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y));
+    const int dist = producer_unit ? bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y)) : 0;
     if (!MeetsReservedResources(type, dist))
     {
         return false;
