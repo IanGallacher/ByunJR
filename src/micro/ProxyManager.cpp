@@ -66,22 +66,22 @@ bool ProxyManager::MoveProxyWorkers()
     if (!ptd_.ProxyLocationReady())
         return false;
 
-    const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
-    if (!proxy_worker_)
-    {
-        Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
-        const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
-        proxy_worker_ = bot_.Info().GetClosestUnitWithJob(sc2::Point2D(my_vec.x, my_vec.y), acceptable_missions);
+    //const sc2::Point2DI my_vec(ptd_.GetProxyLocation());
+    //if (!proxy_worker_)
+    //{
+    //    Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
+    //    const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
+    //    proxy_worker_ = bot_.Info().GetClosestUnitWithJob(sc2::Point2D(my_vec.x, my_vec.y), acceptable_missions);
 
-        if (proxy_worker_)
-            bot_.Info().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
-    }
+    //    if (proxy_worker_)
+    //        bot_.Info().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
+    //}
 
-    for (const auto & unit : bot_.Info().UnitInfo().GetWorkers())
-    {
-        if(unit->mission == UnitMission::Proxy)
-            Micro::SmartMove(unit->unit, sc2::Point2D(my_vec.x, my_vec.y), bot_);
-    }
+    //for (const auto & unit : bot_.Info().UnitInfo().GetWorkers())
+    //{
+    //    if(unit->mission == UnitMission::Proxy)
+    //        Micro::SmartMove(unit->unit, sc2::Point2D(my_vec.x, my_vec.y), bot_);
+    //}
 
     return true;
 }

@@ -27,11 +27,16 @@ public:
     void                OnStart();
     void                OnFrame();
     void                AddBuildingTask(const sc2::UnitTypeID & type);
-    void                DrawBuildingInformation();
-    sc2::Point2DI       GetBuildingLocation(const Building & b) const;
 
     bool                IsBeingBuilt(sc2::UnitTypeID type);
-    size_t              NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const;
+    size_t              NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const;
+    size_t              NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const;
+
+    int PlannedMinerals() const;
 
     std::vector<sc2::UnitTypeID> BuildingsQueued() const;
+
+
+    void                DrawBuildingInfo() const;
+    std::string         ToString() const;
 };

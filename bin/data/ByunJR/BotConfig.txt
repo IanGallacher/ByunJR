@@ -33,9 +33,9 @@
         "DrawUnitTargetInfo"        : false,
         "DrawLastSeenTileInfo"      : false,
         "DrawSquadInfo"             : false,
-        "DrawWorkerInfo"            : false,
-        "DrawBuildingInfo"          : false,
-        "DrawReservedBuildingTiles" : false
+        "DrawWorkerInfo"            : true,
+        "DrawBuildingInfo"          : true,
+        "DrawReservedBuildingTiles" : true
     },
 
     "Modules" :

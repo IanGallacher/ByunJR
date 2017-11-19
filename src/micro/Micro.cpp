@@ -163,8 +163,10 @@ void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & buildin
             sent_command_already = true;
         }
     }
-    if (sent_command_already == false)
+    if (sent_command_already == false && Util::UnitCanBuildTypeNow(builder, building_type, bot))
         bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
+    else 
+        SmartMove(builder, pos, bot);
 }
 
 void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, sc2::Agent & bot)

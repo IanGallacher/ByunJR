@@ -22,25 +22,12 @@ void BuildingManager::OnStart()
 
 void BuildingManager::OnFrame()
 {
-    for (auto & unit : bot_.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Self))
-    {
-        // Filter out units which aren't buildings under construction.
-        if (Util::IsBuilding(unit->unit_type))
-        {
-            std::stringstream ss;
-            ss << unit->tag;
-            bot_.DebugHelper().DrawText(unit->pos, ss.str());
-        }
-    }
-
     StopConstructingDeadBuildings();        // Check to see if assigned workers have died en route or while constructing.
     FindBuildingLocation();                 // Find a good place to build the building.
     AssignWorkersToUnassignedBuildings();   // If we are terran and a building is under construction without a worker, assign a new one.
     ConstructAssignedBuildings();           // For each planned building, if the worker isn't constructing, send the command.
     CheckForStartedConstruction();          // Check to see if any buildings have started construction and update data structures.
     CheckForCompletedBuildings();           // Check to see if any buildings have completed and update data structures.
-
-    DrawBuildingInformation();
 }
 
 bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
@@ -56,7 +43,21 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
     return false;
 }
 
-size_t BuildingManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_type) const
+// Returns the buildings that a worker has been sent to build, but has not yet started construction.
+// Even if the "green preview building" is present, this function will not count it until the physical building is present. 
+size_t BuildingManager::NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const
+{
+    size_t count = 0;
+    for (const auto & b : buildings_)
+    {
+        if (b.type == unit_type && b.status != BuildingStatus::UnderConstruction) ++count;
+    }
+    return count;
+}
+
+// Returns the number of buildings that the building manager is currently in charge. 
+// Regardless of if construction has started or not. 
+size_t BuildingManager::NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const
 {
     size_t count = 0;
     for (const auto & b : buildings_)
@@ -65,6 +66,36 @@ size_t BuildingManager::NumberOfUnitsInProductionOfType(sc2::UnitTypeID unit_typ
     }
     return count;
 }
+
+int BuildingManager::PlannedMinerals() const
+{
+    int planned_minerals = 0;
+    for (const auto & b : buildings_)
+    {
+        bool sent_command_already = false;
+        for (sc2::UnitOrder the_order : b.builderUnit->orders)
+        {
+            if (the_order.ability_id == Util::UnitTypeIDToAbilityID(b.type))
+            {
+                sent_command_already = true;
+                break;
+            }
+        }
+        if (!sent_command_already)
+        {
+            // if we can't build the building, then don't bother reserving the resources. the unit is on the way!
+            auto tech_requirement = Util::GetUnitTypeData(b.type, bot_).tech_requirement;
+            if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
+                + NumberOfBuildingTypeInProduction(tech_requirement) != 0)
+            {
+                planned_minerals += Util::GetUnitTypeMineralPrice(b.type, bot_);
+            }
+        }
+    }
+
+    return planned_minerals;
+}
+
 
 #pragma region The six steps for constructing a building. 
 // STEP 1: If a building has dies during construction, do not attempt to build it again.
@@ -103,7 +134,7 @@ void BuildingManager::FindBuildingLocation()
         // Only assign a worker to the building if it does not yet have one, or the worker died en route. 
         BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
 
-        b.finalPosition = GetBuildingLocation(b);
+        b.finalPosition = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(b.type);
         BOT_ASSERT(bot_.Info().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
@@ -169,7 +200,7 @@ void BuildingManager::ConstructAssignedBuildings()
             {
                 // If we haven't explored the build position, go there.
                 // For all current ladder maps, this will always be true. 
-                // We are leaving this in here to insure future compatability (campaign maps, broodwar, etc)
+                // We are leaving this in here to ensure future compatability (campaign maps, broodwar, etc)
                 if (!IsBuildingPositionExplored(b))
                 {
                     Micro::SmartMove(builder_unit, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
@@ -178,12 +209,19 @@ void BuildingManager::ConstructAssignedBuildings()
                 // It must be the case that something was in the way of building.
                 else if (b.buildCommandGiven)
                 {
-                    // If the build was interruptted, the worker will go back to gathering minerals. 
-                    // Once we continue building, mark the unit as such.
-                    bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
-                    Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
-                    // TODO: in here is where we would check to see if the builder died on the way
-                    //       or if things are taking too long, or the build location is no longer valid
+                    if (b.type == sc2::UNIT_TYPEID::TERRAN_REFINERY)
+                    {
+                        bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                        const sc2::Unit* refinery = bot_.Info().FindNeutralUnitAtPosition(b.finalPosition);
+                        Micro::SmartBuildGeyser(b.builderUnit, b.type, refinery, bot_);
+                    }
+                    else
+                    {
+                        // If the build was interrupted, the worker will go back to gathering minerals. 
+                        // Once we continue building, mark the unit as such.
+                        bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
+                        Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                    }
                 }
                 // If is_construction_in_progress is not true AND we have already sent a command to build a building, something must have gone wrong. 
                 // Resend the command to build the building.
@@ -326,19 +364,70 @@ bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
     return bot_.Info().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
 }
 
-void BuildingManager::DrawBuildingInformation()
+std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
 {
-    bot_.Strategy().BuildingPlacer().DrawReservedTiles();
+    std::vector<sc2::UnitTypeID> buildings_queued;
 
-    if (!bot_.Config().DrawBuildingInfo)
+    for (const auto & b : buildings_)
     {
-        return;
+        if (b.status == BuildingStatus::Unassigned || b.status == BuildingStatus::Assigned)
+        {
+            buildings_queued.push_back(b.type);
+        }
     }
 
-    std::stringstream ss;
-    ss << "Building Information " << buildings_.size() << "\n\n\n";
+    return buildings_queued;
+}
 
-    int yspace = 0;
+void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
+{
+    for (auto & b : to_remove)
+    {
+        const auto & it = std::find(buildings_.begin(), buildings_.end(), b);
+
+        if (it != buildings_.end())
+        {
+            buildings_.erase(it);
+        }
+    }
+}
+
+bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
+{
+    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+}
+
+void BuildingManager::DrawBuildingInfo() const
+{
+    for (const auto & b : buildings_)
+    {
+        std::stringstream dss;
+
+        if (b.builderUnit)
+        {
+            dss << "\n\nBuilder: " << b.builderUnit << std::endl;
+        }
+
+        if (b.buildingUnit)
+        {
+            dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
+            bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
+        }
+
+        const UnitInfo* u = b.builderUnit ? bot_.Info().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
+        const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
+        if (b.status == BuildingStatus::Assigned)
+        {
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
+            bot_.DebugHelper().DrawLine(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), b.builderUnit->pos, sc2::Colors::Yellow);
+        }
+    }
+}
+
+std::string BuildingManager::ToString() const
+{
+    std::stringstream ss;
+    ss << "Building Information " << std::endl;
 
     for (const auto & b : buildings_)
     {
@@ -373,77 +462,5 @@ void BuildingManager::DrawBuildingInformation()
         }
     }
 
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.05f, 0.05f), ss.str());
-}
-
-std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
-{
-    std::vector<sc2::UnitTypeID> buildings_queued;
-
-    for (const auto & b : buildings_)
-    {
-        if (b.status == BuildingStatus::Unassigned || b.status == BuildingStatus::Assigned)
-        {
-            buildings_queued.push_back(b.type);
-        }
-    }
-
-    return buildings_queued;
-}
-
-sc2::Point2DI BuildingManager::GetBuildingLocation(const Building & b) const
-{
-    sc2::Point2DI desired_loc;
-    if (Util::IsRefineryType(b.type))
-    {
-        desired_loc =  bot_.Strategy().BuildingPlacer().GetRefineryPosition();
-    }
-
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_BARRACKS)
-    {
-        desired_loc = bot_.GetProxyManager().GetProxyLocation();
-    }
-
-    // Make a wall if necessary.
-    else if (b.type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
-    {
-        desired_loc = bot_.Info().Map().GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-    }
-
-    // Find the next expansion location. 
-    else if (Util::IsTownHallType(b.type))
-    {
-        const sc2::Point2D next_expansion_location = bot_.Info().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
-        desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
-    }
-    // If no special placement code is required, get a position somewhere in our starting base.
-    else 
-    {
-        desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
-    }
-
-    // Return a "null" point if the desired_loc was not on the map. 
-    if (!bot_.Info().Map().IsOnMap(desired_loc))
-    {
-        return sc2::Point2DI(0, 0);
-    }
-    return bot_.Strategy().BuildingPlacer().GetBuildLocationNear(desired_loc, b.type, bot_.Config().BuildingSpacing);
-}
-
-void BuildingManager::RemoveBuildings(const std::vector<Building> & to_remove)
-{
-    for (auto & b : to_remove)
-    {
-        const auto & it = std::find(buildings_.begin(), buildings_.end(), b);
-
-        if (it != buildings_.end())
-        {
-            buildings_.erase(it);
-        }
-    }
-}
-
-bool BuildingManager::IsValidBuildLocation(const int x, const int y, const sc2::UnitTypeID type) const
-{
-    return bot_.Strategy().BuildingPlacer().CanBuildHereWithSpace(x, y, type, 0);
+    return ss.str();
 }

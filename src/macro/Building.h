@@ -12,7 +12,6 @@ struct Building
     // The pointer to the worker that will make the building.
     const sc2::Unit*    builderUnit;
     BuildingStatus      status;
-    int                 lastOrderFrame;
     bool                buildCommandGiven;
     bool                underConstruction;
 

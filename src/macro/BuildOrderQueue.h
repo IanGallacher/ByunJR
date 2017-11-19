@@ -48,7 +48,7 @@ public:
     BuildOrderItem & GetNextHighestPriorityItem();                           // returns the highest priority item
 
     bool CanSkipItem();
-    std::string GetQueueInformation() const;
+    std::string ToString() const;
 
     // overload the bracket operator for ease of use
     BuildOrderItem operator [] (int i);
