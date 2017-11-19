@@ -58,9 +58,9 @@ public:
     void            RecordResult(int fitness);
     void            WriteAllTrainingData(std::string filename);
 
-    sc2::Point2DI GetProxyLocation();
-    sc2::Point2DI GetBestProxyLocation();
+    sc2::Point2DI   GetProxyLocation();
+    sc2::Point2DI   GetBestProxyLocation();
     int             GetReward();
     sc2::Point2D    GetNearestUntestedProxyLocation(int x, int y);
-    sc2::Point2DI GetRandomViableProxyLocation();
+    sc2::Point2DI   GetRandomViableProxyLocation();
 };

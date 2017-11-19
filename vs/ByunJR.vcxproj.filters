@@ -22,9 +22,6 @@
     <ClCompile Include="..\src\macro\ProductionManager.cpp">
       <Filter>macro</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\micro\RangedManager.cpp">
-      <Filter>micro</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\micro\ScoutManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
@@ -38,9 +35,6 @@
       <Filter>micro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\micro\CombatCommander.cpp">
-      <Filter>micro</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\micro\MeleeManager.cpp">
       <Filter>micro</Filter>
     </ClCompile>
     <ClCompile Include="..\src\micro\Micro.cpp">
@@ -126,9 +120,6 @@
     <ClInclude Include="..\src\macro\ProductionManager.h">
       <Filter>macro</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\micro\RangedManager.h">
-      <Filter>micro</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\micro\ScoutManager.h">
       <Filter>micro</Filter>
     </ClInclude>
@@ -142,9 +133,6 @@
       <Filter>micro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\micro\CombatCommander.h">
-      <Filter>micro</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\micro\MeleeManager.h">
       <Filter>micro</Filter>
     </ClInclude>
     <ClInclude Include="..\src\micro\Micro.h">

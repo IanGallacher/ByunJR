@@ -16,8 +16,7 @@ ByunJRBot::ByunJRBot()
     , workers_(*this)
     , is_willing_to_fight_(true)
     , frame_skip_(0)
-{
-}
+{ }
 
 void ByunJRBot::OnGameStart() 
 {

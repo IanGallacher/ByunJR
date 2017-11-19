@@ -1,7 +1,5 @@
 #pragma once
-#include "micro/MeleeManager.h"
-#include "micro/RangedManager.h"
-#include "micro/SquadOrder.h"
+#include "micro/CombatMicroManager.h"
 
 class ByunJRBot;
 
@@ -17,8 +15,7 @@ class Squad
     size_t                      priority_;
 
     SquadOrder                  order_;
-    MeleeManager                melee_manager_;
-    RangedManager               ranged_manager_;
+    CombatMicroManager          combat_micro_manager_;
 
     std::map<sc2::Tag, bool>    near_enemy_;
 

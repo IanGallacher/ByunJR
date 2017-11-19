@@ -2,7 +2,6 @@
 #include "TechLab/util/Util.h"
 
 #include "common/BotAssert.h"
-#include "common/Common.h"
 #include "micro/Squad.h"
 
 Squad::Squad(ByunJRBot & bot)
@@ -11,8 +10,7 @@ Squad::Squad(ByunJRBot & bot)
     , last_retreat_switch_val_(false)
     , priority_(0)
     , name_("Default")
-    , melee_manager_(bot)
-    , ranged_manager_(bot)
+    , combat_micro_manager_(bot)
 {
 
 }
@@ -24,8 +22,7 @@ Squad::Squad(const std::string & name, const SquadOrder & order, const size_t pr
     , last_retreat_switch_(0)
     , last_retreat_switch_val_(false)
     , priority_(priority)
-    , melee_manager_(bot)
-    , ranged_manager_(bot)
+    , combat_micro_manager_(bot)
 {
 }
 
@@ -44,13 +41,11 @@ void Squad::OnFrame()
 
         bot_.DebugHelper().DrawSphere(regroup_position, 3, sc2::Colors::Purple);
 
-        melee_manager_.Regroup(regroup_position);
-        ranged_manager_.Regroup(regroup_position);
+        combat_micro_manager_.Regroup(regroup_position);
     }
     else // otherwise, execute micro
     {
-        melee_manager_.Execute(order_);
-        ranged_manager_.Execute(order_);
+        combat_micro_manager_.Execute(order_);
 
         //_detectorManager.setUnitClosestToEnemy(unitClosestToEnemy());
         //_detectorManager.execute(_order);
@@ -109,8 +104,7 @@ void Squad::SetNearEnemyUnits()
 
 void Squad::AddUnitsToMicroManagers()
 {
-    std::vector<const sc2::Unit*> melee_units;
-    std::vector<const sc2::Unit*> ranged_units;
+    std::vector<const sc2::Unit*> combat_units;
     std::vector<const sc2::Unit*> detector_units;
     std::vector<const sc2::Unit*> transport_units;
     std::vector<const sc2::Unit*> tank_units;
@@ -130,21 +124,13 @@ void Squad::AddUnitsToMicroManagers()
             detector_units.push_back(unit);
         }
         // select ranged _units
-        else if (Util::GetAttackRange(unit->unit_type, bot_) >= 1.5f)
+        else
         {
-            ranged_units.push_back(unit);
-        }
-        // select melee _units
-        else if (Util::GetAttackRange(unit->unit_type, bot_) < 1.5f)
-        {
-            melee_units.push_back(unit);
+            combat_units.push_back(unit);
         }
     }
 
-    melee_manager_.SetUnits(melee_units);
-    ranged_manager_.SetUnits(ranged_units);
-    //m_detectorManager.setUnits(detectorUnits);
-    //m_tankManager.setUnits(tankUnits);
+    combat_micro_manager_.SetUnits(combat_units);
 }
 
 // TODO: calculates whether or not to regroup
