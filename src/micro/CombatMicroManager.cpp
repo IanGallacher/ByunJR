@@ -36,7 +36,7 @@ void CombatMicroManager::Execute(const SquadOrder & input_order)
             nearby_enemies.insert(enemy_unit);
         }
     }
-    Util::EnemyDPSInRange(sc2::Point3D(30,30,10), bot_);
+
     // otherwise we want to see everything on the way as well
     //if (order.getType() == SquadOrderTypes::Attack)
     //{
@@ -107,11 +107,13 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
                 bot_.Info().UnitInfo().SetJob(combat_unit, UnitMission::Wait);
             }
             // The unit is running away. We don't have to fight anything, so lets move on to the next unit. 
-            continue;
+            //continue;
         }
 
+		const sc2::Unit* target = GetTarget(combat_unit, targets);
+
         // If there are no targets, no need to try to micro our units. 
-        if (targets.empty())
+        if (!target)
             // No targets? Go find the enemy base!
         {
             // if we're not near the order position
@@ -124,8 +126,6 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
 
         if (order_.GetType() == SquadOrderTypes::Attack || order_.GetType() == SquadOrderTypes::Defend)
         {
-            const sc2::Unit* target = GetTarget(combat_unit, targets);
-
             // Sometimes we won't find a unit to attack. 
             if (!target) continue;
 

@@ -171,8 +171,6 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     const int width  = Util::GetUnitTypeWidth(type, bot_);
     const int height = Util::GetUnitTypeHeight(type, bot_);
 
-    // TODO: make sure we leave space for add-ons. These types of units can have addons:
-
     // define the rectangle of the building spot
     const int startx = bx - (width / 2) - build_dist;
     const int starty = by - (height / 2) - build_dist;
@@ -180,11 +178,13 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     int endx   = bx + (width/2) + build_dist;
     const int endy   = by + (height/2) + build_dist;
 
-    // if this rectangle doesn't fit on the map we can't build here
-    if (startx < 0 || starty < 0 || endx > bot_.Info().Map().TrueMapWidth() || endy > bot_.Info().Map().TrueMapHeight() || build_dist < 0)
-    {
+    // Make sure the building fits on the map. 
+    if (startx < 0 
+     || starty < 0 
+	 || endx > bot_.Info().Map().TrueMapWidth() 
+	 || endy > bot_.Info().Map().TrueMapHeight() 
+	 || build_dist < 0)
         return false;
-    }
 
     // The starcraft 2 api will check every square on the building for us. No need to include it in the following loop. 
     if(!Buildable(bx, by, type))
@@ -278,14 +278,8 @@ bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc
 
 bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID type) const
 {
-    // TODO: does this take units on the map into account?
     if (!bot_.Info().Map().IsOnMap(x, y) || !bot_.Info().Map().CanBuildTypeAtPosition(x, y, type))
-    {
         return false;
-    }
-
-    // todo: check that it won't block an addon
-
     return true;
 }
 

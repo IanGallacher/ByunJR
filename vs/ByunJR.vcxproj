@@ -465,7 +465,6 @@
     <ClInclude Include="..\src\ai\Pathfinding.h" />
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\common\BotAssert.h" />
-    <ClInclude Include="..\src\common\Common.h" />
     <ClInclude Include="..\src\global\BotConfig.h" />
     <ClInclude Include="..\src\macro\Building.h" />
     <ClInclude Include="..\src\macro\BuildingManager.h" />

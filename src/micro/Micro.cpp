@@ -124,7 +124,8 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
 
     sc2::Point2D flee_position;
     // If we are in danger of dieing, run back to home base!
-    if (ranged_unit->health < Util::EnemyDPSInRange(ranged_unit->pos, bot) + 5.0)
+    if (ranged_unit->health < Util::DPSAtPoint(ranged_unit->pos,
+		bot.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy), bot) + 5.0)
     {
         // Run away no matter what the other logic above says to do. 
         should_flee = true;
