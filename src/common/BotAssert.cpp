@@ -3,6 +3,10 @@
 
 #include "common/BotAssert.h"
 
+// BOT_ASSERT is from CommandCenter.
+// It is used instead of assert() for two reasons.
+// 1. Assert does not allow custom error messages. 
+// 2. BOT_ASSERT can still give helpful debug information, even on release builds. 
 namespace Assert
 {
     std::string last_error_message;
