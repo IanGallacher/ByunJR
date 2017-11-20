@@ -3,7 +3,6 @@
 #include "ByunJRBot.h"
 #include "TechLab/util/Util.h"
 
-#include "common/Common.h"
 #include "macro/ProductionManager.h"
 #include "micro/Micro.h"
 

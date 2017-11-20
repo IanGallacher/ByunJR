@@ -1,10 +1,10 @@
+#include <iostream>
 #include <sstream>
 
 #include "ByunJRBot.h"
 #include "TechLab/util/Util.h"
 
 #include "common/BotAssert.h"
-#include "common/Common.h"
 #include "micro/CombatCommander.h"
 
 const size_t IdlePriority = 0;

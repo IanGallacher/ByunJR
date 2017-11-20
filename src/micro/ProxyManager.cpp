@@ -1,8 +1,8 @@
 #include <sc2lib/sc2_lib.h>
+#include <iostream>
 #include <sstream>
 
 #include "ByunJRBot.h"
-#include "common/Common.h"
 #include "macro/Building.h"
 #include "micro/ProxyManager.h"
 #include "micro/Micro.h"

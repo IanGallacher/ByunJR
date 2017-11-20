@@ -2,7 +2,6 @@
 #include "TechLab/util/Util.h"
 
 #include "common/BotAssert.h"
-#include "common/Common.h"
 #include "micro/CombatMicroManager.h"
 
 CombatMicroManager::CombatMicroManager(ByunJRBot & bot)

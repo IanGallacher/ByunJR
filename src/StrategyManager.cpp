@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "ByunJRBot.h"
 #include "TechLab/util/JSONTools.h"
 #include "TechLab/util/Util.h"
