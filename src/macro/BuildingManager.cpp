@@ -73,6 +73,8 @@ int BuildingManager::PlannedMinerals() const
     for (const auto & b : buildings_)
     {
         bool sent_command_already = false;
+		if (!b.builderUnit) continue;
+
         for (sc2::UnitOrder the_order : b.builderUnit->orders)
         {
             if (the_order.ability_id == Util::UnitTypeIDToAbilityID(b.type))
@@ -436,14 +438,14 @@ std::string BuildingManager::ToString() const
         if (b.builderUnit)
         {
             dss << "\n\nBuilder: " << b.builderUnit << std::endl;
-        }
+        } else return "null builder unit";
 
         if (b.buildingUnit)
         {
             dss << "Building: " << b.buildingUnit << std::endl << b.buildingUnit->build_progress;
             bot_.DebugHelper().DrawText(b.buildingUnit->pos, dss.str());
         }
-        const UnitInfo* u = b.builderUnit ? bot_.Info().UnitInfo().GetUnitInfo(b.builderUnit) : nullptr;
+        const UnitInfo* u = bot_.Info().UnitInfo().GetUnitInfo(b.builderUnit);
         const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
         if (b.status == BuildingStatus::Unassigned)
         {
