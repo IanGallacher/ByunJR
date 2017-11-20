@@ -6,17 +6,13 @@
 
 BuildingPlacer::BuildingPlacer(ByunJRBot & bot)
     : bot_(bot)
-{
-
-}
+{ }
 
 void BuildingPlacer::OnStart()
 {
     reserve_map_ = std::vector<std::vector<bool>> (bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
 }
 
-// Default argument for reserve_tiles is true.
-// If you want to preview the build location without placing the building, set reserve_tiles to false. 
 sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type) const
 {
     if (build_location_cache_.find(type) != build_location_cache_.end())
@@ -125,18 +121,19 @@ bool BuildingPlacer::IsReserved(const int x, const int y) const
 
 bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 {
-    return bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->IsInResourceBox(x, y);
+    // GetBaseAtLocation will only return a base if the given point is inside that bases resource box.
+    if(bot_.Info().Bases().GetBaseAtLocation(x,y)) return true;
+    return false;
 }
 
 // makes final checks to see if a building can be built at a certain location
 bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTypeID type) const
 {
-    if (IsInResourceBox(by, by))
-    {
+    // Don't build to close to a base unless that building is a command center.
+    if (IsInResourceBox(by, by) && !Util::IsTownHallType(type))
         return false;
-    }
 
-    // check the reserve map
+    // We are not allowed to build on any tile that we have reserved.
     for (int x = bx; x < bx + Util::GetUnitTypeWidth(type, bot_); x++)
     {
         for (int y = by; y < by + Util::GetUnitTypeHeight(type, bot_); y++)
@@ -148,12 +145,11 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
         }
     }
 
-    // if it overlaps a base location return false
-    if (TileOverlapsBaseLocation(bx, by, type))
-    {
+    // Will the starcraft engine allow the building to be built at the location?
+    if (!Buildable(bx, by, type))
         return false;
-    }
 
+    // If none of the above conditions failed, we must be allowed to build at the location.
     return true;
 }
 
@@ -174,8 +170,8 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     const int startx = bx - (width / 2) - build_dist;
     const int starty = by - (height / 2) - build_dist;
     // endx is not const to account for add-ons. 
-    int endx   = bx + (width/2) + build_dist;
-    const int endy   = by + (height/2) + build_dist;
+    int endx = bx + (width/2) + build_dist;
+    const int endy = by + (height/2) + build_dist;
 
     // Make sure the building fits on the map. 
     if (startx < 0 
@@ -183,10 +179,6 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
 	 || endx > bot_.Info().Map().TrueMapWidth() 
 	 || endy > bot_.Info().Map().TrueMapHeight() 
 	 || build_dist < 0)
-        return false;
-
-    // The starcraft 2 api will check every square on the building for us. No need to include it in the following loop. 
-    if(!Buildable(bx, by, type))
         return false;
 
     // Account for add-ons.
@@ -236,43 +228,6 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const sc2::Point2DI desired_l
     }
 
     return sc2::Point2DI(0, 0);
-}
-
-bool BuildingPlacer::TileOverlapsBaseLocation(const int x, const int y, const sc2::UnitTypeID type) const
-{
-    // if it's a resource depot we don't care if it overlaps
-    if (Util::IsTownHallType(type))
-    {
-        return false;
-    }
-
-    // dimensions of the proposed location
-    const int tx1 = x;
-    const int ty1 = y;
-    const int tx2 = tx1 + Util::GetUnitTypeWidth(type, bot_);
-    const int ty2 = ty1 + Util::GetUnitTypeHeight(type, bot_);
-
-    // for each base location
-    for (const BaseLocation* base : bot_.Info().Bases().GetBaseLocations())
-    {
-        // dimensions of the base location
-        const int bx1 = static_cast<int>(base->GetTownHallPosition().x);
-        const int by1 = static_cast<int>(base->GetTownHallPosition().y);
-        const int bx2 = bx1 + Util::GetUnitTypeWidth(Util::GetTownHall(bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
-        const int by2 = by1 + Util::GetUnitTypeHeight(Util::GetTownHall(bot_.Info().GetPlayerRace(sc2::Unit::Alliance::Self)), bot_);
-
-        // conditions for non-overlap are easy
-        const bool no_overlap = (tx2 < bx1) || (tx1 > bx2) || (ty2 < by1) || (ty1 > by2);
-
-        // if the reverse is true, return true
-        if (!no_overlap)
-        {
-            return true;
-        }
-    }
-
-    // otherwise there is no overlap
-    return false;
 }
 
 bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID type) const

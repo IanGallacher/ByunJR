@@ -17,8 +17,6 @@ class BuildingPlacer
     // queries for various BuildingPlacer data
     bool            Buildable(int x, int y, const sc2::UnitTypeID type) const;
     bool            IsInResourceBox(int x, int y) const;
-    bool            TileOverlapsBaseLocation(int x, int y, sc2::UnitTypeID type) const;
-
 
 public:
     BuildingPlacer(ByunJRBot & bot);

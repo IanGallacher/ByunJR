@@ -133,9 +133,6 @@ void BuildingManager::FindBuildingLocation()
         // If the building does not yet have a worker assigned to it, go assign one. 
         if (b.finalPosition != sc2::Point2DI(0,0)) continue;
 
-        // Only assign a worker to the building if it does not yet have one, or the worker died en route. 
-        BOT_ASSERT(b.builderUnit == nullptr || !b.builderUnit->is_alive, "Error: Tried to assign a builder to a building that already had one ");
-
         b.finalPosition = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(b.type);
         BOT_ASSERT(bot_.Info().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 

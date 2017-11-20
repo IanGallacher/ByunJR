@@ -35,7 +35,7 @@
         "DrawSquadInfo"             : false,
         "DrawWorkerInfo"            : true,
         "DrawBuildingInfo"          : true,
-        "DrawReservedBuildingTiles" : true
+        "DrawReservedBuildingTiles" : false
     },
 
     "Modules" :
