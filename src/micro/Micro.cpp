@@ -123,18 +123,31 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     }
 
     sc2::Point2D flee_position;
+    
+    float delta_x = ranged_unit->pos.x - target->pos.x;
+    float delta_y = ranged_unit->pos.y - target->pos.y;
+    
+    float dist2 = Util::Dist(ranged_unit->pos, target->pos);
+
+    float new_x = delta_x * range / dist2 + target->pos.x;
+    float new_y = delta_y * range / dist2 + target->pos.y;
+
     // If we are in danger of dieing, run back to home base!
     if (ranged_unit->health < Util::DPSAtPoint(ranged_unit->pos,
-		bot.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy), bot) + 5.0)
+         bot.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy), bot) + 5.0
+      || ranged_unit->health < Util::DPSAtPoint(sc2::Point2D(new_x, new_y),
+         bot.Info().UnitInfo().GetUnits(sc2::Unit::Alliance::Enemy), bot) + 5.0)
     {
-        // Run away no matter what the other logic above says to do. 
+        // No matter what the other logic above says to do, RUN!
         should_flee = true;
         flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
+        bot.DebugHelper().DrawLine(ranged_unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Red);
     }
     // Otherwise, kite if we are not close to death.
     else
     {
         flee_position = ranged_unit->pos - target->pos + ranged_unit->pos;
+        bot.DebugHelper().DrawLine(ranged_unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Green);
     }
 
     // If we are on cooldown, run away.
@@ -147,7 +160,7 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
     // Otherwise go attack!
     else
     {
-        bot.DebugHelper().DrawLine(ranged_unit->pos, target->pos, sc2::Colors::Red);
+       // bot.DebugHelper().DrawLine(ranged_unit->pos, target->pos, sc2::Colors::Red);
         SmartAttackUnit(ranged_unit, target, bot);
     }
 }
