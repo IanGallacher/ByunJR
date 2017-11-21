@@ -128,6 +128,7 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
             // Sometimes we won't find a unit to attack. 
             if (!target) continue;
 
+            // Special logic to attack with battlecruisers.
             if (combat_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER)
             {
                 Micro::SmartAttackUnit(combat_unit, target, bot_);

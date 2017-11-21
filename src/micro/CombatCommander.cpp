@@ -40,12 +40,13 @@ void CombatCommander::OnStart()
 
 void CombatCommander::OnFrame(const std::set<const UnitInfo*> & combat_units)
 {
+    combat_units_ = combat_units;
+
     if (!attack_started_)
     {
         attack_started_ = ShouldWeStartAttacking();
+        return;
     }
-
-    combat_units_ = combat_units;
 
     //if (isSquadUpdateFrame())
     //{

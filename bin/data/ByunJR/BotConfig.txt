@@ -9,7 +9,7 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Protoss",
+        "EnemyRace"                 : "Terran",
         "MapName"                   : "OdysseyLE"
     },
 

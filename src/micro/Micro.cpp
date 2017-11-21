@@ -3,7 +3,7 @@
 #include "ByunJRBot.h"
 #include "TechLab/InformationManager.h"
 #include "TechLab/util/Util.h"
-
+#include "AI/pathfinding.h"
 #include "micro/Micro.h"
 
 void Micro::SmartAttackUnit(const sc2::Unit* attacker, const sc2::Unit* target, sc2::Agent & bot)
@@ -34,6 +34,9 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
     bool sent_command_already = false;
+    if (sc2::Point2D(unit->pos.x, unit->pos.y) == target_position)
+        sent_command_already = true;
+
     for (sc2::UnitOrder the_order : unit->orders)
     {
         if (the_order.ability_id == sc2::ABILITY_ID::MOVE && the_order.target_pos == target_position)
@@ -142,6 +145,9 @@ void Micro::SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* targe
         should_flee = true;
         flee_position = sc2::Point2D(bot.Config().ProxyLocationX, bot.Config().ProxyLocationY);
         bot.DebugHelper().DrawLine(ranged_unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Red);
+        Pathfinding p;
+        p.SmartRunAway(ranged_unit, 20, bot);
+        return;
     }
     // Otherwise, kite if we are not close to death.
     else
