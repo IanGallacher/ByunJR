@@ -31,7 +31,7 @@ inline std::pair<sc2::Point2DI, int> Pathfinding::BestPotentialPair(const std::p
 
 // Will only test and update if the path has not yet been visited, garunteeing that the path will never loop on itself. 
 inline void Pathfinding::TestPointAndUpdateInformation(const int x, const int y, const int current_path_weight,
-                                                       const std::vector<std::vector<int>>& map_to_path,
+                                                       const std::vector<std::vector<float>>& map_to_path,
                                                        const std::vector<sc2::Point2D>& current_shortest_path)
 {
     Timer t;
@@ -58,12 +58,8 @@ inline void Pathfinding::TestPointAndUpdateInformation(const int x, const int y,
     printf("TestPointAndUpdateInformation %lf ms\n", ms);*/
 }
 
-void Pathfinding::DjikstraInit(const std::vector<std::vector<int>>& map_to_path)
-{
-    const int width = map_to_path.size();
-    const int height = map_to_path[0].size();
-
-    // Setup the values in the distance map.
+void Pathfinding::DjikstraInit(const std::vector<std::vector<float>>& map_to_path)
+{// Setup the values in the distance map.
     distance_map_.clear();
     for (int y = 0; y < map_to_path.size(); ++y)
     {
@@ -78,7 +74,7 @@ void Pathfinding::DjikstraInit(const std::vector<std::vector<int>>& map_to_path)
 
 std::vector<sc2::Point2D> Pathfinding::Djikstra(const sc2::Point2DI start_point,
     const sc2::Point2DI end_point,
-    const std::vector<std::vector<int>>& map_to_path)
+    const std::vector<std::vector<float>>& map_to_path)
 {
     DjikstraInit(map_to_path);
 
@@ -129,7 +125,7 @@ std::vector<sc2::Point2D> Pathfinding::Djikstra(const sc2::Point2DI start_point,
 
 std::vector<sc2::Point2D> Pathfinding::DjikstraLimit(const sc2::Point2DI start_point,
     const int max_run_dist,
-    const std::vector<std::vector<int>>& map_to_path)
+    const std::vector<std::vector<float>>& map_to_path)
 {
     // Setup the values in the distance map.
     DjikstraInit(map_to_path);
@@ -185,7 +181,7 @@ bool Pathfinding::TestDjikstra()
 {
     const sc2::Point2DI start_point = { 2, 5 };
     const sc2::Point2DI end_point = { 7, 6 };
-    const std::vector<std::vector<int>> map_to_path =
+    const std::vector<std::vector<float>> map_to_path =
     {
         { 5, 1, 5, 5, 5 },
         { 5, 1, 5, 5, 5 },
@@ -255,6 +251,14 @@ void Pathfinding::SmartRunAway(const sc2::Unit* unit, const int run_distance, By
     //SmartMove(unit, move_path[0], bot, false);
     //SmartMove(unit, move_path[1], bot, true);
     //SmartMove(unit, move_path[2], bot, true);
+
+    bot.DebugHelper().DrawLine(unit->pos, move_path[0]);
+    bot.DebugHelper().DrawLine(move_path[0], move_path[1]);
+    bot.DebugHelper().DrawLine(move_path[1], move_path[2]);
+    bot.DebugHelper().DrawLine(move_path[2], move_path[3]);
+    bot.DebugHelper().DrawLine(move_path[3], move_path[4]);
+    bot.DebugHelper().DrawLine(move_path[4], move_path[5]);
+    bot.DebugHelper().DrawLine(move_path[5], move_path[6]);
     Micro::SmartMove(unit, move_path[3], bot, false);
     //for (const auto & j : move_path)
     //{
