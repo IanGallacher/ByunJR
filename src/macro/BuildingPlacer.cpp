@@ -130,7 +130,7 @@ bool BuildingPlacer::IsInResourceBox(const int x, const int y) const
 bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTypeID type) const
 {
     // Don't build to close to a base unless that building is a command center.
-    if (IsInResourceBox(by, by) && !Util::IsTownHallType(type))
+    if (IsInResourceBox(by, by) && !Util::IsTownHallType(type) && !Util::IsRefineryType(type))
         return false;
 
     // We are not allowed to build on any tile that we have reserved.
