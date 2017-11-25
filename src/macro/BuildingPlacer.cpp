@@ -14,29 +14,36 @@ void BuildingPlacer::OnStart()
     reserve_map_ = std::vector<std::vector<bool>> (bot_.Info().Map().TrueMapWidth(), std::vector<bool>(bot_.Info().Map().TrueMapHeight(), false));
 }
 
-void BuildingPlacer::OnFrame()
+std::vector<sc2::Point2DI> BuildingPlacer::GetTilesForBuilding(const sc2::UnitTypeID type, const sc2::Point2DI pos) const
 {
-	const auto type = sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT;
-	sc2::Point2DI p = GetNextCoordinateToWallWithBuilding(type);
-	const int width = Util::GetUnitTypeWidth(type, bot_);
-	const int height = Util::GetUnitTypeHeight(type, bot_);
+	assert(Util::IsBuilding(type));
+	std::vector<sc2::Point2DI> return_vector;
 
-	const int startx = p.x - (width / 2);
-	const int starty = p.y - (height / 2);
-	const int endx = p.x + (width / 2);
-	const int endy = p.y + (height / 2);
+	// Remember to take add-ons into account!
+	int space_for_add_on = 0;
+	if (type == sc2::UNIT_TYPEID::TERRAN_BARRACKS 
+	 || type == sc2::UNIT_TYPEID::TERRAN_FACTORY
+	 || type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
+		space_for_add_on = 2;
+	
+	const int building_width = Util::GetUnitTypeWidth(type, bot_) + space_for_add_on;
+	const int building_height = Util::GetUnitTypeHeight(type, bot_);
+	const size_t rwidth = reserve_map_.size();
+	const size_t rheight = reserve_map_[0].size();
 
-	// We are not allowed to build on any tile that we have reserved.
-	for (int y = starty; y < endy; ++y)
+	const int startx = pos.x - (building_width / 2);
+	const int starty = pos.y - (building_height / 2);
+	const int endx = pos.x + (building_width / 2);
+	const int endy = pos.y + (building_height / 2);
+
+	for (int y = starty; y < starty + building_height && y < rheight; y++)
 	{
-		for (int x = startx; x < endx; ++x)
+		for (int x = startx; x < startx + building_width && x < rwidth; x++)
 		{
-			if (!bot_.Info().Map().IsOnMap(x, y) || reserve_map_[x][y])
-				bot_.DebugHelper().DrawPoint(x, y, sc2::Colors::Red);
-			else
-				bot_.DebugHelper().DrawPoint(x, y, sc2::Colors::Green);
+			return_vector.push_back(sc2::Point2DI{x,y});
 		}
 	}
+	return return_vector;
 }
 
 sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type) const
@@ -139,27 +146,10 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 
 void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
 {
-    // Remember to take add-ons into account!
-    int space_for_add_on = 0;
-    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-        space_for_add_on = 2;
-
-    const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
-    const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
-    const size_t rwidth = reserve_map_.size();
-    const size_t rheight = reserve_map_[0].size();
-
-	const int startx = building_location.x - (building_width / 2);
-	const int starty = building_location.y - (building_height / 2);
-	const int endx = building_location.x + (building_width / 2);
-	const int endy = building_location.y + (building_height / 2);
-
-	for (int y = starty; y < starty + building_height && y < rheight; y++)
+	// Reserve the tiles.
+	for (const auto pos : GetTilesForBuilding(building_type, building_location))
 	{
-		for (int x = startx; x < startx + building_width && x < rwidth; x++)
-		{
-            reserve_map_[x][y] = true;
-        }
+        reserve_map_[pos.x][pos.y] = true;
     }
 
     // Remove the placed building from the cache.
@@ -172,27 +162,9 @@ void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI b
 
 void BuildingPlacer::FreeTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
 {
-    // Remember to take add-ons into account!
-    int space_for_add_on = 0;
-    if (building_type == sc2::UNIT_TYPEID::TERRAN_BARRACKS || building_type == sc2::UNIT_TYPEID::TERRAN_FACTORY || building_type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-        space_for_add_on = 2;
-
-	const int building_width = Util::GetUnitTypeWidth(building_type, bot_) + space_for_add_on;
-	const int building_height = Util::GetUnitTypeHeight(building_type, bot_);
-	const size_t rwidth = reserve_map_.size();
-	const size_t rheight = reserve_map_[0].size();
-
-	const int startx = building_location.x - (building_width / 2);
-	const int starty = building_location.y - (building_height / 2);
-	const int endx = building_location.x + (building_width / 2);
-	const int endy = building_location.y + (building_height / 2);
-
-	for (int y = starty; y < starty + building_height && y < rheight; y++)
+	for (const auto pos : GetTilesForBuilding(building_type, building_location))
 	{
-		for (int x = startx; x < startx + building_width && x < rwidth; x++)
-        {
-            reserve_map_[x][y] = false;
-        }
+		reserve_map_[pos.x][pos.y] = false;
     }
 }
 
@@ -200,11 +172,9 @@ bool BuildingPlacer::IsReserved(const int x, const int y) const
 {
     const int rwidth = static_cast<int>(reserve_map_.size());
     const int rheight = static_cast<int>(reserve_map_[0].size());
-    if (x < 0 || y < 0 || x >= rwidth || y >= rheight)
-    {
-        return false;
-    }
 
+    if (x < 0 || y < 0 || x >= rwidth || y >= rheight) 
+		return false;
     return reserve_map_[x][y];
 }
 
@@ -243,24 +213,12 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
 	if (!Buildable(bx, by, type))
 		return false;
 
-	const int width = Util::GetUnitTypeWidth(type, bot_);
-	const int height = Util::GetUnitTypeHeight(type, bot_);
-
-	const int startx = bx - (width / 2);
-	const int starty = by - (height / 2);
-	const int endx = bx + (width / 2);
-	const int endy = by + (height / 2);
-
     // We are not allowed to build on any tile that we have reserved.
-	for (int y = starty; y < endy; ++y)
+	for (const auto pos : GetTilesForBuilding(type, sc2::Point2DI{bx,by}))
 	{
-		for (int x = startx; x < endx; ++x)
-		{
-            if (!bot_.Info().Map().IsOnMap(x, y) || reserve_map_[x][y])
-            {
-                return false;
-            }
-        }
+        if (!bot_.Info().Map().IsOnMap(pos.x, pos.y) 
+		 || reserve_map_[pos.x][pos.y])
+            return false;
     }
 
     // If none of the above conditions failed, we must be allowed to build at the location.

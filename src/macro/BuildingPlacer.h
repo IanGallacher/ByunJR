@@ -22,7 +22,7 @@ public:
     BuildingPlacer(ByunJRBot & bot);
 
 	void OnStart();
-	void OnFrame();
+	std::vector<sc2::Point2DI> GetTilesForBuilding(const sc2::UnitTypeID type, const sc2::Point2DI pos) const;
 
     sc2::Point2DI   GetBuildLocationForType(const sc2::UnitTypeID) const;
 	sc2::Point2DI   GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
