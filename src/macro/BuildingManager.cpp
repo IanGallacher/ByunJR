@@ -11,9 +11,7 @@
 
 BuildingManager::BuildingManager(ByunJRBot & bot)
     : bot_(bot)
-{
-
-}
+{ }
 
 void BuildingManager::OnStart()
 {
@@ -90,7 +88,7 @@ int BuildingManager::PlannedMinerals() const
             if (bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, tech_requirement)
                 + NumberOfBuildingTypeInProduction(tech_requirement) != 0)
             {
-                planned_minerals += Util::GetUnitTypeMineralPrice(b.type, bot_);
+                planned_minerals += Util::GetMineralPrice(b.type, bot_);
             }
         }
     }

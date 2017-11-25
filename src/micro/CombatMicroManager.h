@@ -40,4 +40,10 @@ public:
     const sc2::Unit* GetTarget(const sc2::Unit* ranged_unit, const std::set<const sc2::Unit*> & targets) const;
 
     bool ShouldUnitRetreat(const sc2::Unit * unit) const;
+
+
+#pragma region Advanced micro functionality
+    float TimeToFaceEnemy(const sc2::Unit * unit, const sc2::Unit * target) const;
+    void SmartKiteTarget(const sc2::Unit* ranged_unit, const sc2::Unit* target) const;
+#pragma endregion
 };

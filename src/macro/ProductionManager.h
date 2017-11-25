@@ -37,7 +37,7 @@ public:
     void             OnUnitDestroyed(const sc2::Unit* unit);
 
     size_t           NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) const;
-    size_t           NumberOfBuildingsPlanned(sc2::UnitTypeID unit_type) const;
+    size_t           BuildingsIncompleteCount(sc2::UnitTypeID unit_type) const;
     int              TrueUnitCount(sc2::UnitTypeID unit_type);
 
     const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;

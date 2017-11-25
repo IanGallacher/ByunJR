@@ -132,12 +132,12 @@ std::vector<sc2::Point2D> Pathfinding::DjikstraLimit(const sc2::Point2DI start_p
 
     sc2::Point2DI current_point;
 
-    // If we have not yet found the shortest path between the two points, keep searching for a new path. 
+    // If we have not yet found the optimal path between the two points, keep searching for a new path. 
     while (true)
     {
         std::pair<sc2::Point2DI, int> p = BestPotentialPair(std::pair<sc2::Point2DI, int> { start_point, 2 });
         // Hard copy the current point into the visited set, and test nearby nodes if it has not yet been visited. 
-        // visited.set.insert( ... ).second is set to true if we have not yet visited the element. =
+        // visited.set.insert( ... ).second is set to true if we have not yet visited the element.
         if (visited_.insert(p.first).second)
         {
             const int best_potential_x = p.first.x;

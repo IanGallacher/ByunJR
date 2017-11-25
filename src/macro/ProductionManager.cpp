@@ -7,12 +7,10 @@
 #include "micro/Micro.h"
 
 ProductionManager::ProductionManager(ByunJRBot & bot)
-    : bot_             (bot)
+    : bot_              (bot)
     , building_manager_ (bot)
-    , queue_           (bot)
-{
-
-}
+    , queue_            (bot)
+{ }
 
 void ProductionManager::OnStart()
 {
@@ -31,9 +29,6 @@ void ProductionManager::OnFrame()
 
     MacroUp();
 
-
-    // TODO: if nothing is currently building, get a new goal from the strategy manager
-    // TODO: detect if there's a build order deadlock once per second
     // TODO: triggers for game things like cloaked units etc
 
     building_manager_.OnFrame();
@@ -86,7 +81,6 @@ void ProductionManager::ManageBuildOrderQueue()
         }
         else
         {
-            // so break out
             break;
         }
 
@@ -122,17 +116,19 @@ size_t ProductionManager::NumberOfBuildingsQueued(sc2::UnitTypeID unit_type) con
 
 // Buildings scvs have been sent to make plus the number of buildings in the queue. 
 // Useful for counting how many depots have been planned to prevent a supply block. 
-size_t ProductionManager::NumberOfBuildingsPlanned(sc2::UnitTypeID unit_type) const
+size_t ProductionManager::BuildingsIncompleteCount(sc2::UnitTypeID unit_type) const
 {
-    return building_manager_.NumberOfBuildingTypePlanned(unit_type)
-        + queue_.GetItemsInQueueOfType(unit_type);
+    return building_manager_.NumberOfBuildingTypeInProduction(unit_type)
+         + queue_.GetItemsInQueueOfType(unit_type);
 }
 
 int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
 {
-    return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
-        + queue_.GetItemsInQueueOfType(unit_type)
-        + NumberOfBuildingsQueued(unit_type);
+	return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
+		+ queue_.GetItemsInQueueOfType(unit_type)
+		// GetUnitTypeCount gets depots that are currently under construction.
+		// NumberOfBuildingTypePlanned only includes buildings that scvs have not started yet. 
+		+ building_manager_.NumberOfBuildingTypePlanned(unit_type);
 }
 
 bool has_completed_wall = false;
@@ -142,13 +138,12 @@ void ProductionManager::PreventSupplyBlock() {
     if ( 
         // If we are at max supply, there is no point in building more depots. 
          bot_.Observation()->GetFoodCap() < 200
-        && (bot_.Observation()->GetFoodUsed() + ProductionCapacity())  // We used to compare only against things that are planned on being made
-                                                            // Is greater than 
-        >=
-        // the player supply capacity, including pylons in production. 
-        // The depots in production is key, otherwise you will build hundreds of pylons while suppsuly blocked.
-        ( bot_.Observation()->GetFoodCap() 
-            + (TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT) * 8)) // Not sure how to get supply provided by a depot, lets just go with 8.
+        && bot_.Observation()->GetFoodUsed() + ProductionCapacity()
+           >= 
+           bot_.Observation()->GetFoodCap() 
+			// Multiply the number of depots we have and have planned by the amount of supply they provide. 
+            + ( BuildingsIncompleteCount(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+			  * Util::GetSupplyProvided(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, bot_))
        )
     {
         queue_.QueueAsHighestPriority(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, true);
@@ -175,7 +170,7 @@ void ProductionManager::MacroUp() {
         // Don't queue more bases than you have minerals for.
      && queue_.GetItemsInQueueOfType(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
         + NumberOfBuildingsQueued(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER) 
-        < bot_.Observation()->GetMinerals() / 400)
+        < bot_.Observation()->GetMinerals() / Util::GetMineralPrice(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, bot_))
     {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
     }
@@ -255,15 +250,16 @@ void ProductionManager::MacroUp() {
 
 int ProductionManager::ProductionCapacity() const
 {
-    const  size_t command_centers = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
-                                  + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
-                                  + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
+    const size_t command_centers = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
+                                 + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
+                                 + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
 
     const size_t barracks = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     const size_t factory = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_FACTORY);
     const size_t starport = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
     // Factories and starports can build really supply intensive units. Make sure we have enough supply. 
-    return static_cast<int>(command_centers + barracks) * 2 + factory * 4 + starport * 12;
+	// Two scv's can be built in the time it takes to make one depot. 
+    return static_cast<int>(command_centers*2 + barracks + factory*4 + starport*6);
 }
 
 const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const sc2::Point2D closest_to) const
@@ -339,13 +335,12 @@ void ProductionManager::Create(const sc2::Unit* producer, BuildOrderItem & item)
 
 bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::UnitTypeID type) const
 {
+	if (!producer_unit) return false;
     const sc2::Point2DI point = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(type);
-    const int dist = producer_unit ? bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y)) : 0;
+
+	// producer_unit can not be null do to the return statement above. 
+    const int dist = bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y));
     if (!MeetsReservedResources(type, dist))
-    {
-        return false;
-    }
-    if(producer_unit==nullptr)
         return false;
 
     //sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit,true );
@@ -368,12 +363,11 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
     //    }
     //}
     return true;
-    //return false;
 }
 
-// Return whether or not we meet resources.
-// distance is optional. If it is greater or equal to 0, 
-// take into account income earned while the scv is traveling to the desired location.
+// distance is optional. 
+// If it is greater or equal to 0, 
+// Take into account income earned while the scv is traveling to the desired location.
 bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int distance) const
 {
     int minerals_en_route = 0;
@@ -385,9 +379,9 @@ bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int d
     }
 
     // Can we afford the unit?
-    if( (Util::GetUnitTypeMineralPrice(type, bot_) + building_manager_.PlannedMinerals() 
+    if( (Util::GetMineralPrice(type, bot_) + building_manager_.PlannedMinerals() 
            <= bot_.Observation()->GetMinerals() + minerals_en_route)
-     && (Util::GetUnitTypeGasPrice(type, bot_) <= bot_.Observation()->GetVespene() + gas_en_route))
+     && Util::GetGasPrice(type, bot_) <= bot_.Observation()->GetVespene() + gas_en_route)
         return true;
     return false; // break on rax three, make sure scv gets there accounting for travel dist
 }

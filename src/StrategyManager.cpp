@@ -157,13 +157,6 @@ void StrategyManager::SetScoutUnits()
                 bot_.Info().UnitInfo().SetJob(worker_scout->unit, UnitMission::Scout);
                 initial_scout_set_ = true;
             }
-
-            // Add a second worker to scout in order to harass the enemy after we find their base. 
-            const ::UnitInfo * worker_attacker = bot_.Info().GetClosestUnitInfoWithJob(bot_.GetStartLocation(), UnitMission::Minerals);
-            if (worker_attacker)
-            {
-                bot_.Info().UnitInfo().SetJob(worker_attacker->unit, UnitMission::Scout);
-            }
         }
     }
     // Is it time to send the worker to go build the second barracks?

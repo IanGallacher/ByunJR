@@ -21,12 +21,15 @@ class BuildingPlacer
 public:
     BuildingPlacer(ByunJRBot & bot);
 
-    void OnStart();
+	void OnStart();
+	void OnFrame();
 
     sc2::Point2DI   GetBuildLocationForType(const sc2::UnitTypeID) const;
+	sc2::Point2DI   GetNextCoordinateToWallWithBuilding(sc2::UnitTypeID building_type) const;
     void            ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location);
     void            FreeTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location);
     bool            IsReserved(int x, int y) const;
+	bool            IsTileCornerReserved(const sc2::Point2DI p) const;
 
     // determines whether we can build at a given location
     bool            CanBuildHere(int bx, int by, const sc2::UnitTypeID type) const;

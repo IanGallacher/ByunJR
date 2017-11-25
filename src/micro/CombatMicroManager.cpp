@@ -1,6 +1,7 @@
 #include "ByunJRBot.h"
 #include "TechLab/util/Util.h"
 
+#include "AI/pathfinding.h"
 #include "common/BotAssert.h"
 #include "micro/CombatMicroManager.h"
 
@@ -144,7 +145,7 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
             // attack it
             else if (bot_.Config().KiteWithRangedUnits)
             {
-                Micro::SmartKiteTarget(combat_unit, target, bot_);
+                SmartKiteTarget(combat_unit, target);
             }
             else
             {
@@ -275,3 +276,94 @@ int CombatMicroManager::GetAttackPriority(const sc2::Unit* attacker, const sc2::
 
     return 1;
 }
+
+
+
+#pragma region Advanced micro functionality
+float CombatMicroManager::TimeToFaceEnemy(const sc2::Unit* unit, const sc2::Unit* target) const
+{
+    const float x_segment = abs(unit->pos.x - target->pos.x);
+    const float y_segment = abs(unit->pos.y - target->pos.y);
+    const float angle = atan(y_segment / x_segment) * 57.29f; // 57.29 = 180/pi
+
+    return angle/999; // 999 is the turning spead of reapers. 
+}
+
+// Warning: This funcition has no discrestion in what it kites. Be careful to not attack overlords with reapers!
+void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit* target) const
+{
+    assert(unit);
+    assert(target);
+
+    const float range = Util::GetAttackRange(unit->unit_type, bot_);
+
+    bool should_flee(true);
+
+    // When passing a unit into PathingDistance, how the unit moves is taken into account.
+    // EXAMPLE:: Reapers can cliffjump, Void Rays can fly over everything.
+    const float dist(bot_.Query()->PathingDistance(unit, target->pos));
+    const float speed(bot_.Observation()->GetUnitTypeData()[unit->unit_type].movement_speed);
+
+    const float time_to_enter = (dist - range) / speed;
+
+    // If we start moving back to attack, will our weapon be off cooldown?
+    if ((time_to_enter >= unit->weapon_cooldown))
+    {
+        should_flee = false;
+    }
+
+    // Don't kite workers and buildings. 
+    if (Util::IsBuilding(target->unit_type) || Util::IsWorker(target))
+    {
+        should_flee = false;
+    }
+
+    sc2::Point2D flee_position;
+
+    // find the new coordinates.
+    const float delta_x = unit->pos.x - target->pos.x;
+    const float delta_y = unit->pos.y - target->pos.y;
+
+    const float dist2 = Util::Dist(unit->pos, target->pos);
+
+    const float new_x = delta_x * range / dist2 + target->pos.x;
+    const float new_y = delta_y * range / dist2 + target->pos.y;
+
+    const float fire_time = TimeToFaceEnemy(unit, target) + Util::GetAttackRate(unit->unit_type,bot_) + 0.05;
+
+    // If we are in danger of dieing, run back to home base!
+        // If we are danger of dieing while attacking
+    if (unit->health <= Util::PredictFutureDPSAtPoint(unit->pos, fire_time, bot_)
+        // If we are danger of dieing while moving to attack a point.
+     || unit->health <= Util::DPSAtPoint(sc2::Point2D(new_x, new_y), bot_))
+    {
+        // No matter what the other logic above says to do, RUN!
+        should_flee = true;
+        flee_position = sc2::Point2D(bot_.Config().ProxyLocationX, bot_.Config().ProxyLocationY);
+        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Red);
+        Pathfinding p;
+        p.SmartRunAway(unit, 20, bot_);
+        return;
+    }
+    // Otherwise, kite if we are not close to death.
+    else
+    {
+        flee_position = unit->pos - target->pos + unit->pos;
+        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Green);
+    }
+
+    // If we are on cooldown, run away.
+    if (should_flee)
+    {
+        bot_.DebugHelper().DrawLine(unit->pos, flee_position);
+        flee_position = unit->pos - target->pos + unit->pos;
+        Micro::SmartMove(unit, flee_position, bot_);
+    }
+    // Otherwise go attack!
+    else
+    {
+        // bot.DebugHelper().DrawLine(ranged_unit->pos, target->pos, sc2::Colors::Red);
+        Micro::SmartAttackUnit(unit, target, bot_);
+    }
+}
+#pragma endregion

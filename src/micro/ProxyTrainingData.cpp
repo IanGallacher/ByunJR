@@ -262,7 +262,7 @@ void ProxyTrainingData::TestAllPointsOnMap()
 // Example: If reduction_factor is 1, keep everything. 
 void ProxyTrainingData::ReduceSearchSpace(int reduction_factor)
 {
-    assert(reduction_factor > 0, "reductionFactor must be one or bigger");
+    assert(reduction_factor > 0);
 
     // If reductionFactor is one, nothing will change.
     // Save time by skipping the rest of the function.
