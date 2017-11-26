@@ -173,7 +173,7 @@ sc2::Point2D Squad::CalcCenterOfUnitGroup() const
 {
     if (units_.empty())
     {
-        return sc2::Point2D(0.0f,0.0f);
+        return sc2::Point2D{0.0f,0.0f};
     }
 
     sc2::Point2D sum(0,0);
@@ -184,7 +184,7 @@ sc2::Point2D Squad::CalcCenterOfUnitGroup() const
         sum += unit->pos;
     }
 
-    return sc2::Point2D(sum.x / units_.size(), sum.y / units_.size());
+    return sc2::Point2D{sum.x / units_.size(), sum.y / units_.size()};
 }
 
 sc2::Point2D Squad::CalcRegroupPosition() const

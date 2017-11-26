@@ -43,9 +43,9 @@ bool BuildingManager::IsBeingBuilt(const sc2::UnitTypeID type)
 
 // Returns the buildings that a worker has been sent to build, but has not yet started construction.
 // Even if the "green preview building" is present, this function will not count it until the physical building is present. 
-size_t BuildingManager::NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const
+int BuildingManager::NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const
 {
-    size_t count = 0;
+    int count = 0;
     for (const auto & b : buildings_)
     {
         if (b.type == unit_type && b.status != BuildingStatus::UnderConstruction) ++count;
@@ -55,9 +55,9 @@ size_t BuildingManager::NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) c
 
 // Returns the number of buildings that the building manager is currently in charge. 
 // Regardless of if construction has started or not. 
-size_t BuildingManager::NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const
+int BuildingManager::NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const
 {
-    size_t count = 0;
+    int count = 0;
     for (const auto & b : buildings_)
     {
         if (b.type == unit_type) ++count;
@@ -129,10 +129,9 @@ void BuildingManager::FindBuildingLocation()
     for (Building & b : buildings_)
     {
         // If the building does not yet have a worker assigned to it, go assign one. 
-        if (b.finalPosition != sc2::Point2DI(0,0)) continue;
+        if (b.finalPosition != sc2::Point2DI{0,0}) continue;
 
         b.finalPosition = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(b.type);
-        BOT_ASSERT(bot_.Info().Map().IsOnMap(sc2::Point2D(b.finalPosition.x, b.finalPosition.y)), "Tried to build the building off of the map.");
 
         // Reserve this building's space.
         bot_.Strategy().BuildingPlacer().ReserveTiles(b.type, b.finalPosition);
@@ -155,7 +154,7 @@ void BuildingManager::AssignWorkersToUnassignedBuildings()
         {
             // Grab the worker unit from WorkerManager which is closest to this final position.
             const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
-            b.builderUnit = bot_.Info().GetClosestUnitWithJob(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), acceptable_missions);
+            b.builderUnit = bot_.Info().GetClosestUnitWithJob(Util::ToPoint2D(b.finalPosition), acceptable_missions);
             
             // if the worker exists (one may not have been found in rare cases)
             if (b.builderUnit)
@@ -200,7 +199,7 @@ void BuildingManager::ConstructAssignedBuildings()
                 // We are leaving this in here to ensure future compatability (campaign maps, broodwar, etc)
                 if (!IsBuildingPositionExplored(b))
                 {
-                    Micro::SmartMove(builder_unit, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                    Micro::SmartMove(builder_unit, Util::ToPoint2D(b.finalPosition), bot_);
                 }
                 // If this is not the first time we've sent this guy to build this.
                 // It must be the case that something was in the way of building.
@@ -217,7 +216,7 @@ void BuildingManager::ConstructAssignedBuildings()
                         // If the build was interrupted, the worker will go back to gathering minerals. 
                         // Once we continue building, mark the unit as such.
                         bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
-                        Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                        Micro::SmartBuild(b.builderUnit, b.type, Util::ToPoint2D(b.finalPosition), bot_);
                     }
                 }
                 // If is_construction_in_progress is not true AND we have already sent a command to build a building, something must have gone wrong. 
@@ -250,7 +249,7 @@ void BuildingManager::ConstructAssignedBuildings()
                     // If it's not a refinery, we build right on the position.
                     else
                     {
-                        Micro::SmartBuild(b.builderUnit, b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), bot_);
+                        Micro::SmartBuild(b.builderUnit, b.type, Util::ToPoint2D(b.finalPosition), bot_);
                     }
 
                     // If the build was interruptted, the worker will go back to gathering minerals. 
@@ -358,7 +357,7 @@ void BuildingManager::AddBuildingTask(const sc2::UnitTypeID & type)
 // TODO: may need to iterate over all tiles of the building footprint.
 bool BuildingManager::IsBuildingPositionExplored(const Building & b) const
 {
-    return bot_.Info().Map().IsExplored( sc2::Point2D(b.finalPosition.x,b.finalPosition.y) );
+    return bot_.Info().Map().IsExplored( Util::ToPoint2D(b.finalPosition) );
 }
 
 std::vector<sc2::UnitTypeID> BuildingManager::BuildingsQueued() const
@@ -415,8 +414,8 @@ void BuildingManager::DrawBuildingInfo() const
         const std::string job_code = u ? u->GetJobCode() : "NoWorkerFound";
         if (b.status == BuildingStatus::Assigned)
         {
-            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
-            bot_.DebugHelper().DrawLine(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), b.builderUnit->pos, sc2::Colors::Yellow);
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, Util::ToPoint2D(b.finalPosition), sc2::Colors::Red);
+            bot_.DebugHelper().DrawLine(Util::ToPoint2D(b.finalPosition), b.builderUnit->pos, sc2::Colors::Yellow);
         }
     }
 }
@@ -450,8 +449,8 @@ std::string BuildingManager::ToString() const
         {
             ss << "Assigned " << sc2::UnitTypeToName(b.type) << "    " << b.builderUnit << " " << job_code << " (" << b.finalPosition.x << "," << b.finalPosition.y << ")\n";
 
-            bot_.DebugHelper().DrawBoxAroundUnit(b.type, sc2::Point2D(b.finalPosition.x, b.finalPosition.y), sc2::Colors::Red);
-            bot_.DebugHelper().DrawLine(sc2::Point2D(b.finalPosition.x, b.finalPosition.y), b.builderUnit->pos, sc2::Colors::Yellow);
+            bot_.DebugHelper().DrawBoxAroundUnit(b.type, Util::ToPoint2D(b.finalPosition), sc2::Colors::Red);
+            bot_.DebugHelper().DrawLine(Util::ToPoint2D(b.finalPosition), b.builderUnit->pos, sc2::Colors::Yellow);
         }
         else if (b.status == BuildingStatus::UnderConstruction)
         {

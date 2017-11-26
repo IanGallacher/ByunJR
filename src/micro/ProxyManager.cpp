@@ -71,7 +71,7 @@ bool ProxyManager::MoveProxyWorkers()
     //{
     //    Building b(sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     //    const std::vector<UnitMission> acceptable_missions{ UnitMission::Idle, UnitMission::Minerals, UnitMission::Proxy };
-    //    proxy_worker_ = bot_.Info().GetClosestUnitWithJob(sc2::Point2D(my_vec.x, my_vec.y), acceptable_missions);
+    //    proxy_worker_ = bot_.Info().GetClosestUnitWithJob(sc2::Point2D{my_vec.x, my_vec.y), acceptable_missions);
 
     //    if (proxy_worker_)
     //        bot_.Info().UnitInfo().SetJob(proxy_worker_, UnitMission::Proxy);
@@ -80,7 +80,7 @@ bool ProxyManager::MoveProxyWorkers()
     //for (const auto & unit : bot_.Info().UnitInfo().GetWorkers())
     //{
     //    if(unit->mission == UnitMission::Proxy)
-    //        Micro::SmartMove(unit->unit, sc2::Point2D(my_vec.x, my_vec.y), bot_);
+    //        Micro::SmartMove(unit->unit, sc2::Point2D{my_vec.x, my_vec.y), bot_);
     //}
 
     return true;

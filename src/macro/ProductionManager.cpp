@@ -38,7 +38,7 @@ void ProductionManager::OnUnitDestroyed(const sc2::Unit* building)
 {
     // The building is dead! We can build where it used to be!
     if(Util::IsBuilding(building->unit_type))
-        bot_.Strategy().BuildingPlacer().FreeTiles(building->unit_type, sc2::Point2DI(building->pos.x, building->pos.y));
+        bot_.Strategy().BuildingPlacer().FreeTiles(building->unit_type, Util::ToPoint2DI(building->pos));
 }
 
 // Called every frame.
@@ -253,13 +253,13 @@ int ProductionManager::ProductionCapacity() const
     const size_t command_centers = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER)
                                  + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND)
                                  + bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS);
-
+		
     const size_t barracks = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_BARRACKS);
     const size_t factory = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_FACTORY);
     const size_t starport = bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, sc2::UNIT_TYPEID::TERRAN_STARPORT);
     // Factories and starports can build really supply intensive units. Make sure we have enough supply. 
 	// Two scv's can be built in the time it takes to make one depot. 
-    return static_cast<int>(command_centers*2 + barracks + factory*4 + starport*6);
+    return static_cast<int>(command_centers*2 + barracks*2 + factory*2 + starport*6);
 }
 
 const sc2::Unit* ProductionManager::GetProducer(const sc2::UnitTypeID t, const sc2::Point2D closest_to) const
@@ -339,8 +339,8 @@ bool ProductionManager::CanMakeNow(const sc2::Unit* producer_unit, const sc2::Un
     const sc2::Point2DI point = bot_.Strategy().BuildingPlacer().GetBuildLocationForType(type);
 
 	// producer_unit can not be null do to the return statement above. 
-    const int dist = bot_.Query()->PathingDistance(producer_unit, sc2::Point2D(point.x, point.y));
-    if (!MeetsReservedResources(type, dist))
+    const float dist = bot_.Query()->PathingDistance(producer_unit, Util::ToPoint2D(point));
+    if (!MeetsReservedResources(type, static_cast<int>(dist)))
         return false;
 
     //sc2::AvailableAbilities available_abilities = bot_.Query()->GetAbilitiesForUnit(producer_unit,true );
@@ -374,8 +374,8 @@ bool ProductionManager::MeetsReservedResources(const sc2::UnitTypeID type, int d
     int gas_en_route = 0;
     if (distance >= 0)
     {
-        minerals_en_route = bot_.Info().Bases().MineralIncomePerSecond() * (distance / 2.813); // 2.813 is worker speed. 
-        gas_en_route = bot_.Info().Bases().GasIncomePerSecond() * (distance / 2.813);
+        minerals_en_route = static_cast<int>(bot_.Info().Bases().MineralIncomePerSecond() * (distance / 2.813f)); // 2.813 is worker speed. 
+        gas_en_route = static_cast<int>(bot_.Info().Bases().GasIncomePerSecond() * (distance / 2.813f));
     }
 
     // Can we afford the unit?

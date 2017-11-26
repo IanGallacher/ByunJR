@@ -74,18 +74,18 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type
     else if (Util::IsTownHallType(type))
     {
         const sc2::Point2D next_expansion_location = bot_.Info().Bases().GetNextExpansion(sc2::Unit::Alliance::Self);
-        desired_loc = sc2::Point2DI(next_expansion_location.x, next_expansion_location.y);
+        desired_loc = Util::ToPoint2DI(next_expansion_location);
     }
     // If no special placement code is required, get a position somewhere in our starting base.
     else
     {
-        desired_loc = sc2::Point2DI(bot_.GetStartLocation().x, bot_.GetStartLocation().y);
+        desired_loc = Util::ToPoint2DI(bot_.GetStartLocation());
     }
 
     // Return a "null" point if the desired_loc was not on the map. 
     if (!bot_.Info().Map().IsOnMap(desired_loc))
     {
-        return sc2::Point2DI(0, 0);
+        return sc2::Point2DI{0, 0};
     }
 
     build_location_cache_[type] = GetBuildLocationNear(desired_loc, type, bot_.Config().BuildingSpacing);
@@ -110,17 +110,17 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 		{
 			// If we can walk on it, but not build on it, it is most likely a ramp.
 			// TODO: That is not actually correct, come up with a beter way to detect ramps. 
-			if (bot_.Info().Map().IsAnyTileAdjacentToTileType(sc2::Point2DI(x, y), MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+			if (bot_.Info().Map().IsAnyTileAdjacentToTileType(sc2::Point2DI{x, y}, MapTileType::Ramp, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
 				&& CanBuildHere(x, y, sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT))
 			{
 				// The first depot in a wall has to be next to, well, a wall. 
 				// This allows the depot wall to be built correctly on AbyssalReefLE.
 				//if (bot_.Config().MapName == "AbyssalReefLE" &&
 				//    information_manager_.UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 2
-				//    && !(IsTileCornerOfTileType(sc2::Point2DI(x, y), MapTileType::CantWalk))
+				//    && !(IsTileCornerOfTileType(sc2::Point2DI{x, y), MapTileType::CantWalk))
 				//    continue;
 
-				if (/*IsTileCornerReserved(sc2::Point2DI(x, y))
+				if (/*IsTileCornerReserved(sc2::Point2DI{x, y))
 					|| */bot_.Info().Map().TerrainHeight(x, y) < 10.5)
 					continue;
 
@@ -130,7 +130,8 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 				// && ((y < 49 || y > 119) || TerrainHeight(x, y) < 10.5))
 				//    continue;
 
-				const sc2::Point2D point(x, y);
+				const sc2::Point2D point{ static_cast<float>(x),
+										  static_cast<float>(y) };
 				const double distance = Util::DistSq(point, base_location);
 				if (distance < closest_distance)
 				{
@@ -141,7 +142,7 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 			}
 		}
 	}
-	return sc2::Point2DI(closest_point.x, closest_point.y);
+	return Util::ToPoint2DI(closest_point);
 }
 
 void BuildingPlacer::ReserveTiles(sc2::UnitTypeID building_type, sc2::Point2DI building_location)
@@ -296,7 +297,7 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationNear(const sc2::Point2DI desired_l
         }
     }
 
-    return sc2::Point2DI(0, 0);
+    return sc2::Point2DI{0, 0};
 }
 
 bool BuildingPlacer::Buildable(const int x, const int y, const sc2::UnitTypeID type) const
@@ -322,7 +323,7 @@ void BuildingPlacer::DrawReservedTiles()
         {
             if (reserve_map_[x][y] || IsInResourceBox(x, y))
             {
-                //bot_.DebugHelper().DrawSquareOnMap(sc2::Point2DI(x, y), sc2::Colors::Yellow);
+                //bot_.DebugHelper().DrawSquareOnMap(sc2::Point2DI{x, y), sc2::Colors::Yellow);
 				bot_.DebugHelper().DrawPoint(x, y, sc2::Colors::Yellow);
             }
         }
@@ -365,7 +366,7 @@ sc2::Point2DI BuildingPlacer::GetRefineryPosition() const
                     if (bot_.Info().Map().CanBuildTypeAtPosition(static_cast<int>(geyser_pos.x), static_cast<int>(geyser_pos.y), sc2::UNIT_TYPEID::TERRAN_REFINERY))
                     {
                         min_geyser_distance_from_home = geyser_distance;
-                        closest_geyser = sc2::Point2DI(geyser->pos.x, geyser->pos.y);
+                        closest_geyser = Util::ToPoint2DI(geyser->pos);
                     }
                 }
             }

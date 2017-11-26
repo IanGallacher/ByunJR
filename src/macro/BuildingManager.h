@@ -29,8 +29,8 @@ public:
     void                AddBuildingTask(const sc2::UnitTypeID & type);
 
     bool                IsBeingBuilt(sc2::UnitTypeID type);
-    size_t              NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const;
-    size_t              NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const;
+    int                 NumberOfBuildingTypePlanned(sc2::UnitTypeID unit_type) const;
+    int                 NumberOfBuildingTypeInProduction(sc2::UnitTypeID unit_type) const;
 
     int PlannedMinerals() const;
 

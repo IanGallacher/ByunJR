@@ -56,7 +56,8 @@ sc2::Point2DI ProxyTrainingData::GetProxyLocation()
 {
     if(proxy_loc_.x == 0 || proxy_loc_.y == 0)
         std::cout << "Please setup the proxy location values before trying to retrieve them." << std::endl;
-    const sc2::Point2DI proxy_location(proxy_loc_.x + playable_min_.x, proxy_loc_.y + playable_min_.y);
+    const sc2::Point2DI proxy_location(proxy_loc_.x + static_cast<int>(playable_min_.x), 
+		                               proxy_loc_.y + static_cast<int>(playable_min_.y) );
 
     if (bot_->Config().TrainingMode)
         return proxy_location;
@@ -76,7 +77,8 @@ sc2::Point2DI ProxyTrainingData::GetBestProxyLocation()
     const sc2::Point2DI best_loc = FlipCoordinatesIfNecessary(best_proxy_loc_.x, best_proxy_loc_.y);
 
     // Convert coordinate systems.
-    const sc2::Point2DI proxy_location(best_loc.x + playable_min_.x, best_loc.y + playable_min_.y );
+    const sc2::Point2DI proxy_location(best_loc.x + static_cast<int>(playable_min_.x), 
+									   best_loc.y + static_cast<int>(playable_min_.y) );
 
     return proxy_location;
 }
@@ -99,7 +101,7 @@ sc2::Point2D ProxyTrainingData::GetNearestUntestedProxyLocation(const int x, con
         const int new_dist = (delta_x * delta_x) + (delta_y * delta_y);
         if (new_dist < dist)
         {
-            closest_point = sc2::Point2D(x, y);
+            closest_point = sc2::Point2D{static_cast<float>(x), static_cast<float>(y)};
             dist = new_dist;
         }
     }

@@ -40,7 +40,7 @@ public:
     size_t           BuildingsIncompleteCount(sc2::UnitTypeID unit_type) const;
     int              TrueUnitCount(sc2::UnitTypeID unit_type);
 
-    const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D(0, 0)) const;
+    const sc2::Unit* GetProducer(sc2::UnitTypeID t, sc2::Point2D closest_to = sc2::Point2D{0, 0}) const;
 
     std::string      ToString() const;
     std::string BuildingInfoString() const;

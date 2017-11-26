@@ -37,7 +37,7 @@ void ScoutManager::DrawScoutInformation() const
     std::stringstream ss;
     ss << "Scout Info: " << scout_status_;
 
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.1f, 0.6f), ss.str());
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D{0.1f, 0.6f}, ss.str());
 }
 
 void ScoutManager::MoveScouts()

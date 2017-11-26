@@ -178,7 +178,7 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
 
 
         // If our reaper is currently safe, go kill some workers.
-        if (bot_.Info().GetDPSMap()[combat_unit->pos.y][combat_unit->pos.x] < 12)
+        if (bot_.Info().GetDPSMap()[combat_unit->pos.y][combat_unit->pos.x] < 12.0f)
         {
             if (Util::IsWorker(target_unit))
             {
@@ -188,7 +188,7 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
                 if (distance > 7) continue;
                 if (!best_target || target_unit->health < lowest_health)
                 {
-                    lowest_health = target_unit->health;
+                    lowest_health = static_cast<int>(target_unit->health);
                     best_target = target_unit;
                 }
             }
@@ -206,7 +206,7 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
                 continue;
             if (!best_target || target_unit->health + target_unit->shield < lowest_health)
             {
-                lowest_health = target_unit->health + target_unit->shield;
+                lowest_health = static_cast<int>(target_unit->health + target_unit->shield);
                 best_target = target_unit;
             }
         }
@@ -329,18 +329,19 @@ void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit*
     const float new_x = delta_x * range / dist2 + target->pos.x;
     const float new_y = delta_y * range / dist2 + target->pos.y;
 
-    const float fire_time = TimeToFaceEnemy(unit, target) + Util::GetAttackRate(unit->unit_type,bot_) + 0.05;
+    const float fire_time = TimeToFaceEnemy(unit, target) + Util::GetAttackRate(unit->unit_type,bot_) + 0.05f;
 
     // If we are in danger of dieing, run back to home base!
         // If we are danger of dieing while attacking
     if (unit->health <= Util::PredictFutureDPSAtPoint(unit->pos, fire_time, bot_)
         // If we are danger of dieing while moving to attack a point.
-     || unit->health <= Util::DPSAtPoint(sc2::Point2D(new_x, new_y), bot_))
+     || unit->health <= Util::DPSAtPoint(sc2::Point2D{new_x, new_y}, bot_))
     {
         // No matter what the other logic above says to do, RUN!
         should_flee = true;
-        flee_position = sc2::Point2D(bot_.Config().ProxyLocationX, bot_.Config().ProxyLocationY);
-        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Red);
+        flee_position = sc2::Point2D{static_cast<float>(bot_.Config().ProxyLocationX), 
+									 static_cast<float>(bot_.Config().ProxyLocationY)};
+        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D{new_x, new_y}, sc2::Colors::Red);
         Pathfinding p;
         p.SmartRunAway(unit, 20, bot_);
         return;
@@ -349,7 +350,7 @@ void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit*
     else
     {
         flee_position = unit->pos - target->pos + unit->pos;
-        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D(new_x, new_y), sc2::Colors::Green);
+        bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D{new_x, new_y}, sc2::Colors::Green);
     }
 
     // If we are on cooldown, run away.

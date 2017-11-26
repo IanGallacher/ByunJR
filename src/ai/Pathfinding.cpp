@@ -2,6 +2,7 @@
 
 #include "ByunJRBot.h"
 #include "TechLab/util/Timer.hpp"
+#include "TechLab/util/Util.h"
 
 #include "ai/Pathfinding.h"
 #include "micro/Micro.h"
@@ -37,13 +38,13 @@ inline void Pathfinding::TestPointAndUpdateInformation(const int x, const int y,
     Timer t;
     t.Start();
     // The second value of the pair is the current weight of the node we are testing. 
-    const int new_weight = current_path_weight + map_to_path[y][x];
+    const int new_weight = current_path_weight + static_cast<int>(map_to_path[y][x]);
     // If we have visited the node we are about to test, the path we are considering taking loops back on itself. 
     // Test only the paths that do not loop back on themselves. 
     const sc2::Point2DI point{ x,y };
     if (visited_.find(point) == visited_.end())
     {
-        int & current_tentative_distance_at_point = distance_map_.at(sc2::Point2DI(x, y));
+        int & current_tentative_distance_at_point = distance_map_.at(sc2::Point2DI{x, y});
         // If the distance to the node is 1, we have not yet found a path that leads to it. 
         // Did we discover a more optimal path (or a path for the first time?)
         // If we did, update the stored optimal path data.
@@ -51,7 +52,7 @@ inline void Pathfinding::TestPointAndUpdateInformation(const int x, const int y,
         {
             current_tentative_distance_at_point = new_weight;
             shortest_path_to_vector_[point] = current_shortest_path;
-            shortest_path_to_vector_[point].push_back(sc2::Point2D(point.x, point.y));
+            shortest_path_to_vector_[point].push_back(Util::ToPoint2D(point));
         }
     }/*
     double ms = t.GetElapsedTimeInMilliSec();
@@ -60,14 +61,15 @@ inline void Pathfinding::TestPointAndUpdateInformation(const int x, const int y,
 
 void Pathfinding::DjikstraInit(const std::vector<std::vector<float>>& map_to_path)
 {// Setup the values in the distance map.
+	visited_.clear();
     distance_map_.clear();
     for (int y = 0; y < map_to_path.size(); ++y)
     {
         for (int x = 0; x < map_to_path[y].size(); ++x)
         {
-            distance_map_.insert(std::make_pair(sc2::Point2DI(x, y), 1));
+            distance_map_.insert(std::make_pair(sc2::Point2DI{x, y}, 1));
 
-            shortest_path_to_vector_[sc2::Point2DI(x, y)] = std::vector<sc2::Point2D>();
+            shortest_path_to_vector_[sc2::Point2DI{x, y}] = std::vector<sc2::Point2D>();
         }
     }
 }
@@ -123,6 +125,8 @@ std::vector<sc2::Point2D> Pathfinding::Djikstra(const sc2::Point2DI start_point,
     return shortest_path_to_vector_.at(end_point);
 }
 
+// Find the optimal path, searching no farther than max_run_dist. 
+// Uses a modified Djikstra algorithm. 
 std::vector<sc2::Point2D> Pathfinding::DjikstraLimit(const sc2::Point2DI start_point,
     const int max_run_dist,
     const std::vector<std::vector<float>>& map_to_path)
@@ -147,28 +151,28 @@ std::vector<sc2::Point2D> Pathfinding::DjikstraLimit(const sc2::Point2DI start_p
             if (best_potential_x > 0)
             {
                 TestPointAndUpdateInformation(best_potential_x - 1, best_potential_y, weight, map_to_path, shortest_path_to_vector_.at(p.first));
-                current_point = sc2::Point2DI(best_potential_x - 1, best_potential_y);
+                current_point = sc2::Point2DI{best_potential_x - 1, best_potential_y};
                 if (shortest_path_to_vector_.at(current_point).size() >= max_run_dist)
                     break;
             }
             if (best_potential_x < map_to_path[0].size() - 1)
             {
                 TestPointAndUpdateInformation(best_potential_x + 1, best_potential_y, weight, map_to_path, shortest_path_to_vector_.at(p.first));
-                current_point = sc2::Point2DI(best_potential_x + 1, best_potential_y);
+                current_point = sc2::Point2DI{best_potential_x + 1, best_potential_y};
                 if (shortest_path_to_vector_.at(current_point).size() >= max_run_dist)
                     break;
             }
             if (best_potential_y > 0)
             {
                 TestPointAndUpdateInformation(best_potential_x, best_potential_y - 1, weight, map_to_path, shortest_path_to_vector_.at(p.first));
-                current_point = sc2::Point2DI(best_potential_x, best_potential_y - 1);
+                current_point = sc2::Point2DI{best_potential_x, best_potential_y - 1};
                 if (shortest_path_to_vector_.at(current_point).size() >= max_run_dist)
                     break;
             }
             if (best_potential_y < map_to_path.size() - 1)
             {
                 TestPointAndUpdateInformation(best_potential_x, best_potential_y + 1, weight, map_to_path, shortest_path_to_vector_.at(p.first));
-                current_point = sc2::Point2DI(best_potential_x, best_potential_y + 1);
+                current_point = sc2::Point2DI{best_potential_x, best_potential_y + 1};
                 if (shortest_path_to_vector_.at(current_point).size() >= max_run_dist)
                     break;
             }
@@ -227,16 +231,16 @@ void Pathfinding::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & targ
 {
     // Sometimes after we remove the floating points, it will turn out we are trying to move to is almost the same as our current position.
     // No need to run the pathfinding algorithm in that case. 
-    if (sc2::Point2DI(unit->pos.x, unit->pos.y)
-        == sc2::Point2DI(target_position.x, target_position.y))
+    if (Util::ToPoint2DI(unit->pos)
+        == Util::ToPoint2DI(target_position))
     {
         Micro::SmartMove(unit, target_position, bot);
         return;
     }
 
     Pathfinding p;
-    std::vector<sc2::Point2D> move_path = p.Djikstra(sc2::Point2DI(unit->pos.x, unit->pos.y),
-        sc2::Point2DI(target_position.x, target_position.y),
+    std::vector<sc2::Point2D> move_path = p.Djikstra(Util::ToPoint2DI(unit->pos),
+        Util::ToPoint2DI(target_position),
         bot.Info().GetDPSMap());
     Micro::SmartMove(unit, move_path[0], bot);
 }
@@ -245,7 +249,7 @@ void Pathfinding::SmartPathfind(const sc2::Unit* unit, const sc2::Point2D & targ
 void Pathfinding::SmartRunAway(const sc2::Unit* unit, const int run_distance, ByunJRBot & bot)
 {
     Pathfinding p;
-    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(sc2::Point2DI(unit->pos.x, unit->pos.y),
+    std::vector<sc2::Point2D> move_path = p.DjikstraLimit(Util::ToPoint2DI(unit->pos),
         run_distance,
         bot.Info().GetDPSMap());
     //SmartMove(unit, move_path[0], bot, false);

@@ -30,7 +30,7 @@ void CombatCommander::OnStart()
     squad_data_.AddSquad("Idle", Squad("Idle", idle_order, IdlePriority, bot_));
 
     // the main attack squad that will pressure the enemy's closest base location
-    SquadOrder mainAttackOrder(SquadOrderTypes::Attack, sc2::Point2D(0.0f, 0.0f), 50, "Attack Enemy Base");
+    SquadOrder mainAttackOrder(SquadOrderTypes::Attack, sc2::Point2D{0.0f, 0.0f}, 50, "Attack Enemy Base");
     squad_data_.AddSquad("MainAttack", Squad("MainAttack", mainAttackOrder, AttackPriority, bot_));
 
     // the scout defense squad will handle chasing the enemy worker scout
@@ -139,7 +139,7 @@ sc2::Point2D CombatCommander::GetMainAttackLocation() const
     }
 
     std::cout << "WARNING: ENEMY BASE LOCATION NOT FOUND, RETURNING 0,0" << std::endl;
-    return sc2::Point2D(0, 0);
+    return sc2::Point2D{0.0f, 0.0f};
 
     // Fourth choice: We can't see anything so explore the map attacking along the way
     //return bot_.Info().Map().getLeastRecentlySeenPosition();

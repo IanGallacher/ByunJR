@@ -34,7 +34,7 @@ void Micro::SmartMove(const sc2::Unit* unit, const sc2::Point2D & target_positio
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
     bool sent_command_already = false;
-    if (sc2::Point2D(unit->pos.x, unit->pos.y) == target_position)
+    if (sc2::Point2D{unit->pos.x, unit->pos.y} == target_position)
         sent_command_already = true;
 
     for (sc2::UnitOrder the_order : unit->orders)

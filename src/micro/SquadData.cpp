@@ -118,7 +118,7 @@ void SquadData::DrawSquadInformation()
         }
     }
 
-    bot_.DebugHelper().DrawTextScreen(sc2::Point2D(0.5f, 0.2f), ss.str(), sc2::Colors::Red);
+    bot_.DebugHelper().DrawTextScreen(sc2::Point2D{0.5f, 0.2f}, ss.str(), sc2::Colors::Red);
 }
 
 void SquadData::VerifySquadUniqueMembership()
