@@ -48,9 +48,6 @@ namespace std
 
 class Pathfinding {
     CandidatePoint BestPotentialPoint(CandidatePoint fallback_pair) const;
-    void TestPointAndUpdateInformation(const int x, const int y, const float current_path_weight,
-                                       const std::vector<std::vector<float>>& map_to_path,
-                                       const std::vector<sc2::Point2D>& current_shortest_path);
 
     int map_width_;
     int map_height_;
@@ -64,7 +61,10 @@ class Pathfinding {
     std::unordered_map<sc2::Point2DI, float> distance_map_;
     std::unordered_map<sc2::Point2DI, Path> shortest_path_to_vector_;
 
+    void TestPointAndUpdateInformation(const CandidatePoint p, const std::vector<std::vector<float>>& map_to_path);
+
     void DjikstraInit(const std::vector<std::vector<float>>& map_to_path);
+    Path Djikstra(const sc2::Point2DI start_point, const sc2::Point2DI end_point, const std::vector<std::vector<float>>& map_to_path);
     void AddCandidatePoint(const CandidatePoint c);
 public:
     // Returns the optimal path. 
@@ -76,4 +76,5 @@ public:
     bool TestDjikstra();
     void SmartPathfind(const sc2::Unit * unit, const sc2::Point2D & target_position, ByunJRBot & bot);
     void SmartRunAway(const sc2::Unit * unit, const int run_distance, ByunJRBot & bot);
+    void DrawPath(const Path path, ByunJRBot & bot);
 };
