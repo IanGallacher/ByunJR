@@ -122,7 +122,7 @@ size_t ProductionManager::BuildingsIncompleteCount(sc2::UnitTypeID unit_type) co
          + queue_.GetItemsInQueueOfType(unit_type);
 }
 
-int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type)
+int ProductionManager::TrueUnitCount(sc2::UnitTypeID unit_type) const
 {
 	return bot_.Info().UnitInfo().GetUnitTypeCount(sc2::Unit::Alliance::Self, unit_type)
 		+ queue_.GetItemsInQueueOfType(unit_type)
@@ -175,20 +175,21 @@ void ProductionManager::MacroUp() {
         queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER, 2);
     }
     // Once we are done following a build order, let's go on to do some other stuff!
-    if(base_count > 1)
-    {
-        if(TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < bot_.Info().Bases().NumberOfControlledGeysers())
-            queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
 
-        // Upgrade to Orbital Commands!
-        for (const auto & base : bot_.Info().Bases().GetOccupiedBaseLocations(sc2::Unit::Alliance::Self))
+    // Upgrade to Orbital Commands!
+    for (const auto & base : bot_.Info().Bases().GetOccupiedBaseLocations(sc2::Unit::Alliance::Self))
+    {
+        if (base_count > 1)
         {
+            if (TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < bot_.Info().Bases().NumberOfControlledGeysers())
+                queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
             if (base->GetTownHall())
-            {
-                const sc2::Unit* drop_mineral = bot_.Info().GetClosestMineralField(base->GetTownHall());
-                bot_.Actions()->UnitCommand(base->GetTownHall(), sc2::ABILITY_ID::EFFECT_CALLDOWNMULE, drop_mineral);
                 Micro::SmartTrain(base->GetTownHall(), sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND, bot_);
-            }
+        }
+        if (base->GetTownHall())
+        {
+            const sc2::Unit* drop_mineral = bot_.Info().GetClosestMineralField(base->GetTownHall());
+            bot_.Actions()->UnitCommand(base->GetTownHall(), sc2::ABILITY_ID::EFFECT_CALLDOWNMULE, drop_mineral);
         }
     }
 
@@ -209,6 +210,12 @@ void ProductionManager::MacroUp() {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_REAPER, bot_);
                 //queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REAPER, 5);
             }
+
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_STARPORT && unit->orders.size() == 0)
+            {
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
+                Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
+            }
         }
     }
     else if(bot_.Strategy().MacroGoal() == Strategy::BattlecruiserMacro)
@@ -227,14 +234,6 @@ void ProductionManager::MacroUp() {
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_TECHLAB, bot_);
                 Micro::SmartTrain(unit, sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER, bot_);
             }
-            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
-            {
-                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS);
-            }
-            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
-            {
-                bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANVEHICLEANDSHIPPLATING);
-            }
             if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_FUSIONCORE && unit->orders.size() == 0)
             {
                 bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_BATTLECRUISERWEAPONREFIT);
@@ -243,7 +242,15 @@ void ProductionManager::MacroUp() {
             if (base_count > 1 && TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_STARPORT) < base_count - 1)
             {
                 queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_STARPORT, 2);
-            } 
+            }
+
+            if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_ARMORY && unit->orders.size() == 0)
+            {
+                if(Util::UnitHasAbilityAvailable(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS, bot_))
+                    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS);
+                else
+                    bot_.Actions()->UnitCommand(unit, sc2::ABILITY_ID::RESEARCH_TERRANVEHICLEANDSHIPPLATING);
+            }
         }
     }
 }

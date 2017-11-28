@@ -21,9 +21,9 @@ ByunJRBot::ByunJRBot()
 void ByunJRBot::OnGameStart() 
 {
     config_.ReadConfigFile();
-    config_.MapName = Observation()->GetGameInfo().local_map_path;
+    config_.MapName = Observation()->GetGameInfo().map_name;
     // Ignore file extension of the local_map_path.
-    config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
+//    config_.MapName = config_.MapName.substr(0, config_.MapName.find('.'));
 
     information_manager_.OnStart();
 
@@ -38,7 +38,7 @@ void ByunJRBot::OnGameStart()
 void ByunJRBot::OnStep()
 {
     frame_skip_++;
-    if (frame_skip_ % 2) return;
+    if (frame_skip_ % 3 != 0) return;
     Control()->GetObservation();
 
     information_manager_.OnFrame();

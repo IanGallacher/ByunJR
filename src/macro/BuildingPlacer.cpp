@@ -24,9 +24,9 @@ std::vector<sc2::Point2DI> BuildingPlacer::GetTilesForBuilding(const sc2::UnitTy
 	if (type == sc2::UNIT_TYPEID::TERRAN_BARRACKS 
 	 || type == sc2::UNIT_TYPEID::TERRAN_FACTORY
 	 || type == sc2::UNIT_TYPEID::TERRAN_STARPORT)
-		space_for_add_on = 2;
+		space_for_add_on = 4;
 	
-	const int building_width = Util::GetUnitTypeWidth(type, bot_) + space_for_add_on;
+	const int building_width = Util::GetUnitTypeWidth(type, bot_);
 	const int building_height = Util::GetUnitTypeHeight(type, bot_);
 	const size_t rwidth = reserve_map_.size();
 	const size_t rheight = reserve_map_[0].size();
@@ -38,7 +38,7 @@ std::vector<sc2::Point2DI> BuildingPlacer::GetTilesForBuilding(const sc2::UnitTy
 
 	for (int y = starty; y < starty + building_height && y < rheight; y++)
 	{
-		for (int x = startx; x < startx + building_width && x < rwidth; x++)
+		for (int x = startx; x < startx + building_width + space_for_add_on && x < rwidth; x++)
 		{
 			return_vector.push_back(sc2::Point2DI{x,y});
 		}
@@ -115,20 +115,26 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 			{
 				// The first depot in a wall has to be next to, well, a wall. 
 				// This allows the depot wall to be built correctly on AbyssalReefLE.
-				//if (bot_.Config().MapName == "AbyssalReefLE" &&
-				//    information_manager_.UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 2
-				//    && !(IsTileCornerOfTileType(sc2::Point2DI{x, y), MapTileType::CantWalk))
-				//    continue;
+				if (bot_.Config().MapName == "AbyssalReefLE" &&
+                    bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 1
+				    && !(bot_.Info().Map().IsTileCornerOfTileType(sc2::Point2DI{x, y}, MapTileType::CantWalk)))
+				    continue;
 
-				if (/*IsTileCornerReserved(sc2::Point2DI{x, y))
+				if (/*IsTileCornerReserved(sc2::Point2DI{x, y})
 					|| */bot_.Info().Map().TerrainHeight(x, y) < 10.5)
 					continue;
 
 				//// Don't wall of at Proxima Station's pocket expansion.
-				//if (bot_.Config().MapName == "ProximaStationLE" 
-				//    && information_manager_.UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
-				// && ((y < 49 || y > 119) || TerrainHeight(x, y) < 10.5))
-				//    continue;
+				if (bot_.Config().MapName == "ProximaStationLE" 
+				    && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
+				 && (y < 49 || y > 119))
+				    continue;
+
+                //// Don't wall of at Acolyte's pocket expansion.
+                if (bot_.Config().MapName == "AcolyteLE"
+                    && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
+                    && (x < 38 || x > 130))
+                    continue;
 
 				const sc2::Point2D point{ static_cast<float>(x),
 										  static_cast<float>(y) };
@@ -136,7 +142,6 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 				if (distance < closest_distance)
 				{
 					closest_point = point;
-					closest_point.x;
 					closest_distance = distance;
 				}
 			}

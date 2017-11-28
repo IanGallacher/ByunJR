@@ -71,19 +71,19 @@ int main(int argc, char* argv[])
 
             // Setting this = N means the bot's OnFrame gets called once every N frames
             // The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(1);
+            coordinator.SetStepSize(5);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;
 
             coordinator.SetParticipants({
                 CreateParticipant(Util::GetRaceFromString(bot_race_string), &bot),
-                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::CheatInsane)
+                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::VeryEasy)
             });
 
             // Start the game.
             coordinator.LaunchStarcraft();
-            coordinator.StartGame(map_string);
+            coordinator.StartGame("Interloper LE");
             bool already_init = false;
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {

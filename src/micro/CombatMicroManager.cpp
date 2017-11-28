@@ -107,8 +107,9 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
                 bot_.Info().UnitInfo().SetJob(combat_unit, UnitMission::Wait);
             }
             // The unit is running away. We don't have to fight anything, so lets move on to the next unit. 
-            //continue;
+            continue;
         }
+
 
 		const sc2::Unit* target = GetTarget(combat_unit, targets);
 
@@ -133,9 +134,10 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
             if (combat_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER)
             {
                 Micro::SmartAttackUnit(combat_unit, target, bot_);
-                // YAMATO THOSE GUYS WHO CAN SHOOT US!
-                if (Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target->unit_type].weapons)
-                    && planned_damage_[target->tag] < target->health)
+
+                const sc2::Unit* yamato_target = GetYamatoTarget(combat_unit, targets);
+
+                if (yamato_target && planned_damage_[target->tag] < target->health)
                 {
                     bot_.Actions()->UnitCommand(combat_unit, sc2::ABILITY_ID::EFFECT_YAMATOGUN, target);
                     planned_damage_[target->tag] += 300;
@@ -218,8 +220,6 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
     // If no special case handles the situation, use a standard way of getting a target. 
     for (auto & target_unit : targets)
     {
-        BOT_ASSERT(target_unit, "null target unit in getTarget");
-
         const int priority = GetAttackPriority(combat_unit, target_unit);
         const float distance = Util::Dist(combat_unit->pos, target_unit->pos);
         int f = bot_.Observation()->GetGameLoop();
@@ -246,6 +246,50 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
 
     return best_target;
 }
+
+
+// Out of all possible targets, which is the best one for our unit to attack.
+const sc2::Unit* CombatMicroManager::GetYamatoTarget(const sc2::Unit* combat_unit, const std::set<const sc2::Unit*> & targets) const
+{
+    BOT_ASSERT(combat_unit, "null combat unit in GetTarget");
+
+    int lowest_health = std::numeric_limits<int>::max();
+    int high_priority = std::numeric_limits<int>::max();
+    double closest_dist = std::numeric_limits<double>::max();
+    const sc2::Unit* best_target = nullptr;
+
+    bool attack_air_target = false;
+    // Look through all possible targets. Find the best one for the given unit. 
+    for (auto & target_unit : targets)
+    {
+        // Always yamato medivacs. They may have units in them, and they are healing the marines. 
+        if (target_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_MEDIVAC
+         || target_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_VIKINGFIGHTER)
+            return target_unit;
+
+        if (target_unit->unit_type == sc2::UNIT_TYPEID::ZERG_EGG)   continue;
+        if (target_unit->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA) continue;
+
+        // It is faster to kill marines without yamato
+        if (target_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_MARINE) continue;
+        
+        // Only look for workers that are close to the battlecruiser.
+        const float distance = Util::Dist(combat_unit->pos, target_unit->pos);
+        if (distance > 10) continue;
+
+        // If we have found a target that can shoot us, don't bother trying to shoot anything on the ground.
+        if (attack_air_target && !Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons))
+            continue;
+        if (!best_target || target_unit->health + target_unit->shield < lowest_health)
+        {
+            lowest_health = static_cast<int>(target_unit->health + target_unit->shield);
+            best_target = target_unit;
+            attack_air_target = Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons);
+        }
+    }
+    return best_target;
+}
+
 
 bool CombatMicroManager::ShouldUnitRetreat(const sc2::Unit* unit) const
 {
@@ -313,7 +357,7 @@ void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit*
     }
 
     // Don't kite workers and buildings. 
-    if (Util::IsBuilding(target->unit_type) || Util::IsWorker(target))
+    if (Util::IsBuilding(target->unit_type))
     {
         should_flee = false;
     }
@@ -343,7 +387,7 @@ void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit*
 									 static_cast<float>(bot_.Config().ProxyLocationY)};
         bot_.DebugHelper().DrawLine(unit->pos, sc2::Point2D{new_x, new_y}, sc2::Colors::Red);
         Pathfinding p;
-        p.SmartRunAway(unit, 20, bot_);
+        p.SmartRunAway(unit, 15, bot_);
         return;
     }
     // Otherwise, kite if we are not close to death.

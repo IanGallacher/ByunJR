@@ -216,7 +216,7 @@ void BuildingManager::ConstructAssignedBuildings()
                         // If the build was interrupted, the worker will go back to gathering minerals. 
                         // Once we continue building, mark the unit as such.
                         bot_.Info().UnitInfo().SetJob(b.builderUnit, UnitMission::Build);
-                        Micro::SmartBuild(b.builderUnit, b.type, Util::ToPoint2D(b.finalPosition), bot_);
+                        Micro::SmartBuild(b, Util::ToPoint2D(b.finalPosition), bot_);
                     }
                 }
                 // If is_construction_in_progress is not true AND we have already sent a command to build a building, something must have gone wrong. 
@@ -249,7 +249,7 @@ void BuildingManager::ConstructAssignedBuildings()
                     // If it's not a refinery, we build right on the position.
                     else
                     {
-                        Micro::SmartBuild(b.builderUnit, b.type, Util::ToPoint2D(b.finalPosition), bot_);
+                        Micro::SmartBuild(b, Util::ToPoint2D(b.finalPosition), bot_);
                     }
 
                     // If the build was interruptted, the worker will go back to gathering minerals. 

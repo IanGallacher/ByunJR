@@ -39,6 +39,8 @@ public:
     int  GetAttackPriority(const sc2::Unit* ranged_unit, const sc2::Unit* target) const;
     const sc2::Unit* GetTarget(const sc2::Unit* ranged_unit, const std::set<const sc2::Unit*> & targets) const;
 
+    const sc2::Unit * GetYamatoTarget(const sc2::Unit * combat_unit, const std::set<const sc2::Unit*>& targets) const;
+
     bool ShouldUnitRetreat(const sc2::Unit * unit) const;
 
 

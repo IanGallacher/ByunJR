@@ -9,20 +9,20 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Protoss",
-        "MapName"                   : "OdysseyLE"
+        "EnemyRace"                 : "Zerg",
+        "MapName"                   : "Mech Depot LE"
     },
 
     "Micro" :
     {
         "KiteWithRangedUnits"       : true,
         "ScoutHarassEnemy"          : true,
-        "CombatUnitsForAttack"      : 2
+        "CombatUnitsForAttack"      : 1
     },
 
     "Debug" :
     {
-        "DrawGameInfo"              : true,
+        "DrawGameInfo"              : false,
         "DrawProductionInfo"        : true,
         "DrawBaseLocationInfo"      : false,
         "DrawTileInfo"              : false,

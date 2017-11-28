@@ -94,22 +94,25 @@ void Micro::SmartRepairWithSCVCount(const sc2::Unit* unit_to_repair, const int n
     }
 }
 
-void Micro::SmartBuild(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Point2D pos, sc2::Agent & bot)
+void Micro::SmartBuild(const Building b, const sc2::Point2D pos, sc2::Agent & bot)
 {
     // Prevent sending duplicate commands to give an accurate APM measurement in replays.
     // Spamming every frame also causes bugs in the sc2 engine. 
     bool sent_command_already = false;
-    for (sc2::UnitOrder the_order : builder->orders)
+    for (sc2::UnitOrder the_order : b.builderUnit->orders)
     {
-        if (the_order.ability_id == Util::UnitTypeIDToAbilityID(building_type))
+        if (the_order.ability_id == Util::UnitTypeIDToAbilityID(b.type))
         {
             sent_command_already = true;
         }
     }
-    if (sent_command_already == false && Util::UnitCanBuildTypeNow(builder, building_type, bot))
-        bot.Actions()->UnitCommand(builder, Util::UnitTypeIDToAbilityID(building_type), pos);
+    if (sent_command_already == false && Util::UnitCanBuildTypeNow(b.builderUnit, b.type, bot))
+        bot.Actions()->UnitCommand(b.builderUnit, Util::UnitTypeIDToAbilityID(b.type), pos);
+ /*   else if(b.buildingUnit)
+        Micro::SmartRightClick(b.builderUnit, b.buildingUnit, bot);*/
     else 
-        SmartMove(builder, pos, bot);
+        SmartMove(b.builderUnit, pos, bot);
+
 }
 
 void Micro::SmartBuildGeyser(const sc2::Unit* builder, const sc2::UnitTypeID & building_type, const sc2::Unit* target, sc2::Agent & bot)
