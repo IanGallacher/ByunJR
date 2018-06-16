@@ -115,7 +115,7 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 			{
 				// The first depot in a wall has to be next to, well, a wall. 
 				// This allows the depot wall to be built correctly on AbyssalReefLE.
-				if (bot_.Config().MapName == "AbyssalReefLE" &&
+				if (bot_.Config().MapName == "Abyssal Reef LE" &&
                     bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 1
 				    && !(bot_.Info().Map().IsTileCornerOfTileType(sc2::Point2DI{x, y}, MapTileType::CantWalk)))
 				    continue;
@@ -125,13 +125,13 @@ sc2::Point2DI BuildingPlacer::GetNextCoordinateToWallWithBuilding(const sc2::Uni
 					continue;
 
 				//// Don't wall of at Proxima Station's pocket expansion.
-				if (bot_.Config().MapName == "ProximaStationLE" 
+				if (bot_.Config().MapName == "Proxima Station LE" 
 				    && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
 				 && (y < 49 || y > 119))
 				    continue;
 
                 //// Don't wall of at Acolyte's pocket expansion.
-                if (bot_.Config().MapName == "AcolyteLE"
+                if (bot_.Config().MapName == "Acolyte LE"
                     && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3
                     && (x < 38 || x > 130))
                     continue;
@@ -223,7 +223,7 @@ bool BuildingPlacer::CanBuildHere(const int bx, const int by, const sc2::UnitTyp
 	for (const auto pos : GetTilesForBuilding(type, sc2::Point2DI{bx,by}))
 	{
         if (!bot_.Info().Map().IsOnMap(pos.x, pos.y) 
-		 || reserve_map_[pos.x][pos.y])
+         || reserve_map_[pos.x][pos.y])
             return false;
     }
 
@@ -264,7 +264,7 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
         endx += 3;
 
         // Make sure there is room to build the addon. 
-        if (!Buildable(bx+3, by, type))
+        if (!Buildable(bx+4, by, type))
             return false;
     }
     
@@ -272,16 +272,19 @@ bool BuildingPlacer::CanBuildHereWithSpace(const int bx, const int by, const sc2
     {
         for(int x  = startx; x < endx; ++x)
         {
-            // Refineries can only be built in one spot, it does not matter what is next to them. 
-            // Supply depots are usually part of a wall. They have to be built flush with the buildings next to them. 
-            if (!Util::IsRefineryType(type) && type != sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+            // Refineries and bases can only be built in one spot, 
+            // it does not matter what is next to them. 
+            if (!Util::IsRefineryType(type) && !Util::IsTownHallType(type))
             {
-                // Make sure we have space for our units to walk through. Don't let them get stuck!
-                if (reserve_map_[x][y])
-                {
-                    return false;
-                }
+                // Make sure we have space for our units to walk through.
+                // Don't let them get stuck!
+                if (IsInResourceBox(x, y)) return false;
+                // Supply depots are usually part of a wall.
+                // They have to be built flush with the buildings next to them. 
+                if(type != sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT)
+                    if (reserve_map_[x][y]) return false;
             }
+
         }
     }
 
@@ -328,7 +331,7 @@ void BuildingPlacer::DrawReservedTiles()
         {
             if (reserve_map_[x][y] || IsInResourceBox(x, y))
             {
-                //bot_.DebugHelper().DrawSquareOnMap(sc2::Point2DI{x, y), sc2::Colors::Yellow);
+                bot_.DebugHelper().DrawSquareOnMap(sc2::Point2DI(x, y), sc2::Colors::Yellow);
 				bot_.DebugHelper().DrawPoint(x, y, sc2::Colors::Yellow);
             }
         }
@@ -342,6 +345,7 @@ void BuildingPlacer::DrawBuildLocationCache()
         const auto & type = cache_data.first;
         const auto & loc = cache_data.second;
         bot_.DebugHelper().DrawBoxAroundUnit(type, loc, sc2::Colors::Yellow);
+		bot_.DebugHelper().DrawBoxAroundUnit(type, loc, sc2::Colors::Yellow);
     }
 }
 
