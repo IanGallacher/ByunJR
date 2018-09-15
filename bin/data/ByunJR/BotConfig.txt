@@ -9,8 +9,8 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Zerg",
-        "MapName"                   : "Mech Depot LE"
+        "EnemyRace"                 : "Terran",
+        "MapName"                   : "AscensionToAiurLE"
     },
 
     "Micro" :
@@ -51,7 +51,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery",  "Barracks", "OrbitalCommand", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery",  "Barracks", "OrbitalCommand", "CommandCenter", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
         }
     }
 }

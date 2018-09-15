@@ -8,11 +8,15 @@
 #include "TechLab/util/Util.h"
 
 #include "ai/GeneticAlgorithm.h"
+#include "ai/Pathfinding.h"
 #include "rapidjson/document.h"
 
 
 int main(int argc, char* argv[])
 {
+    Pathfinding p;
+    p.TestSafestPath();
+
     rapidjson::Document doc;
     std::string config = JSONTools::ReadFile("data/ByunJR/BotConfig.txt");
     if (config.length() == 0)
@@ -71,19 +75,19 @@ int main(int argc, char* argv[])
 
             // Setting this = N means the bot's OnFrame gets called once every N frames
             // The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(5);
+            coordinator.SetStepSize(1);
 
             // Add the custom bot, it will control the players.
             ByunJRBot bot;
 
             coordinator.SetParticipants({
                 CreateParticipant(Util::GetRaceFromString(bot_race_string), &bot),
-                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::VeryEasy)
+                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::CheatInsane)
             });
 
             // Start the game.
             coordinator.LaunchStarcraft();
-            coordinator.StartGame("Interloper LE");
+            coordinator.StartGame(map_string);
             bool already_init = false;
             while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
             {

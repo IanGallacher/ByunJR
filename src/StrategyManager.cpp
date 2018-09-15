@@ -75,6 +75,7 @@ void StrategyManager::OnFrame()
         // Repair battlecruisers that have tactical jumped back to our base. 
         if (unit->unit_type == sc2::UNIT_TYPEID::TERRAN_BATTLECRUISER 
          && unit->health != unit->health_max
+         && bot_.Info().UnitInfo().GetNumWorkersWithJob(UnitMission::Repair) < 10
             // Square 10 to avoid taking the square root as part of the distance formula. 
          && Util::DistSq(unit->pos,bot_.Info().Bases().GetPlayerStartingBaseLocation(sc2::Unit::Alliance::Self)->GetPosition()) < 10*10)
         {

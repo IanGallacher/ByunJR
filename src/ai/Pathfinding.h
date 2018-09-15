@@ -20,26 +20,20 @@ namespace std
     };
 }
 
+typedef std::vector<sc2::Point2D> Path;
+typedef sc2::Point2DI Tile;
 class Pathfinding {
-    std::pair<sc2::Point2DI, int> BestPotentialPair(std::pair<sc2::Point2DI, int> fallback_pair) const;
-    void TestPointAndUpdateInformation(const int x, const int y, const int current_path_weight,
-                                       const std::vector<std::vector<float>>& map_to_path,
-                                       const std::vector<sc2::Point2D>& current_shortest_path);
-
     // We can't use a set because Point2DI does not have a comparison function, and sets must be "ordered" somehow.
     std::unordered_set<sc2::Point2DI> visited_;
+    Path GetPath(const std::unordered_map<Tile, Tile>& parent, const Tile destination);
+    Path bfs(const std::vector<std::vector<float>>& map_to_path);
 
-    // The distance of the optimal route to that path.
-    std::unordered_map<sc2::Point2DI, int> distance_map_;
-    std::unordered_map<sc2::Point2DI, std::vector<sc2::Point2D>> shortest_path_to_vector_;
-
-    void DjikstraInit(const std::vector<std::vector<float>>& map_to_path);
 public:
-    // Returns the optimal path. 
-    std::vector<sc2::Point2D> Djikstra(const sc2::Point2DI start_point, const sc2::Point2DI end_point,
-                                       const std::vector<std::vector<float>>& map_to_path);
-    std::vector<sc2::Point2D> DjikstraLimit(const sc2::Point2DI start_point, const int max_run_dist,
-                                            const std::vector<std::vector<float>>& map_to_path);
+    Path SafestPath(const std::vector<std::vector<float>>& dps_map, const Tile origin, const int max_depth);
+    //std::vector<sc2::Point2D> DjikstraLimit(const sc2::Point2DI start_point, const int max_run_dist,
+    //                                        const std::vector<std::vector<float>>& map_to_path);
+    bool TestSafestPath();
+    bool TestBFS();
     bool TestDjikstra();
     void SmartPathfind(const sc2::Unit * unit, const sc2::Point2D & target_position, ByunJRBot & bot);
     void SmartRunAway(const sc2::Unit * unit, const int run_distance, ByunJRBot & bot);

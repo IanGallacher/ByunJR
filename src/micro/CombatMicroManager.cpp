@@ -180,7 +180,7 @@ const sc2::Unit* CombatMicroManager::GetTarget(const sc2::Unit* combat_unit, con
 
 
         // If our reaper is currently safe, go kill some workers.
-        if (bot_.Info().GetDPSMap()[combat_unit->pos.y][combat_unit->pos.x] < 12.0f)
+        if (Util::DPSAtPoint(combat_unit->pos, bot_) < 12.0f)
         {
             if (Util::IsWorker(target_unit))
             {
@@ -258,7 +258,6 @@ const sc2::Unit* CombatMicroManager::GetYamatoTarget(const sc2::Unit* combat_uni
     double closest_dist = std::numeric_limits<double>::max();
     const sc2::Unit* best_target = nullptr;
 
-    bool attack_air_target = false;
     // Look through all possible targets. Find the best one for the given unit. 
     for (auto & target_unit : targets)
     {
@@ -271,20 +270,20 @@ const sc2::Unit* CombatMicroManager::GetYamatoTarget(const sc2::Unit* combat_uni
         if (target_unit->unit_type == sc2::UNIT_TYPEID::ZERG_LARVA) continue;
 
         // It is faster to kill marines without yamato
-        if (target_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_MARINE) continue;
+        if (target_unit->unit_type == sc2::UNIT_TYPEID::TERRAN_MARINE)
+			continue;
         
         // Only look for workers that are close to the battlecruiser.
         const float distance = Util::Dist(combat_unit->pos, target_unit->pos);
         if (distance > 10) continue;
 
         // If we have found a target that can shoot us, don't bother trying to shoot anything on the ground.
-        if (attack_air_target && !Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons))
+        if (!Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons))
             continue;
         if (!best_target || target_unit->health + target_unit->shield < lowest_health)
         {
             lowest_health = static_cast<int>(target_unit->health + target_unit->shield);
             best_target = target_unit;
-            attack_air_target = Util::CanAttackAir(bot_.Observation()->GetUnitTypeData()[target_unit->unit_type].weapons);
         }
     }
     return best_target;
@@ -381,7 +380,7 @@ void CombatMicroManager::SmartKiteTarget(const sc2::Unit* unit, const sc2::Unit*
         // If we are danger of dieing while moving to attack a point.
      || unit->health <= Util::DPSAtPoint(sc2::Point2D{new_x, new_y}, bot_))
     {
-        // No matter what the other logic above says to do, RUN!
+        // No matter what the other logic above says to do, RUN! 
         should_flee = true;
         flee_position = sc2::Point2D{static_cast<float>(bot_.Config().ProxyLocationX), 
 									 static_cast<float>(bot_.Config().ProxyLocationY)};
