@@ -1,7 +1,7 @@
 {
     "Bot Info" :
     {
-        "BotName"                   : "ByunJr",
+        "BotName"                   : "ByunJR",
         "Authors"                   : "Ian Gallacher & David Churchill",
         "PrintInfoOnStart"          : false
     },
@@ -9,20 +9,20 @@
     "Game Info" :
     {
         "BotRace"                   : "Terran",
-        "EnemyRace"                 : "Terran",
-        "MapName"                   : "ParaSiteLE"
+        "EnemyRace"                 : "Protoss",
+        "MapName"                   : "AbyssalReefLE"
     },
 
     "Micro" :
     {
         "KiteWithRangedUnits"       : true,
         "ScoutHarassEnemy"          : true,
-        "CombatUnitsForAttack"      : 1
+        "CombatUnitsForAttack"      : 2
     },
 
     "Debug" :
     {
-        "DrawGameInfo"              : false,
+        "DrawGameInfo"              : true,
         "DrawProductionInfo"        : true,
         "DrawBaseLocationInfo"      : false,
         "DrawTileInfo"              : false,
@@ -33,9 +33,9 @@
         "DrawUnitTargetInfo"        : false,
         "DrawLastSeenTileInfo"      : false,
         "DrawSquadInfo"             : false,
-        "DrawWorkerInfo"            : true,
-        "DrawBuildingInfo"          : true,
-        "DrawReservedBuildingTiles" : true
+        "DrawWorkerInfo"            : false,
+        "DrawBuildingInfo"          : false,
+        "DrawReservedBuildingTiles" : false
     },
 
     "Modules" :
@@ -51,7 +51,7 @@
 
         "Strategies" :
         {
-            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery", "Barracks", "OrbitalCommand", "CommandCenter", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
+            "Terran_ReaperRush"     : { "Race" : "Terran", "OpeningBuildOrder" : ["Barracks", "Refinery", "Barracks", "Refinery",  "Barracks", "Factory", "Starport", "FusionCore", "Battlecruiser", "Armory", "Armory" ] }
         }
     }
 }

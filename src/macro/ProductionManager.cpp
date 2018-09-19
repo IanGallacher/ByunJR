@@ -181,7 +181,7 @@ void ProductionManager::MacroUp() {
     {
         if (base_count > 1)
         {
-            if (TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < bot_.Info().Bases().NumberOfControlledGeysers())
+            if (TrueUnitCount(sc2::UNIT_TYPEID::TERRAN_REFINERY) < bot_.Info().Bases().NumberOfControlledGeysers()-1)
                 queue_.QueueItem(sc2::UNIT_TYPEID::TERRAN_REFINERY, 2);
             if (base->GetTownHall())
                 Micro::SmartTrain(base->GetTownHall(), sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND, bot_);

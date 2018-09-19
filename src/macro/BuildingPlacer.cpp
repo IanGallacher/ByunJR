@@ -65,10 +65,10 @@ sc2::Point2DI BuildingPlacer::GetBuildLocationForType(const sc2::UnitTypeID type
     }
 
     // Make a wall if necessary.
-    else if (type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
-    {
-        desired_loc = GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
-    }
+    //else if (type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT && bot_.Info().UnitInfo().GetNumDepots(sc2::Unit::Alliance::Self) < 3)
+    //{
+    //    desired_loc = GetNextCoordinateToWallWithBuilding(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT);
+    //}
 
     // Find the next expansion location. 
     else if (Util::IsTownHallType(type))

@@ -194,6 +194,7 @@
     </ClInclude>
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\StrategyManager.h" />
+    <ClInclude Include="..\src\Ladder.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="common">

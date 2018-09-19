@@ -139,7 +139,7 @@ void CombatMicroManager::AttackTargets(const std::set<const sc2::Unit*> & target
 
                 if (yamato_target && planned_damage_[target->tag] < target->health)
                 {
-                    bot_.Actions()->UnitCommand(combat_unit, sc2::ABILITY_ID::EFFECT_YAMATOGUN, target);
+                    bot_.Actions()->UnitCommand(combat_unit, sc2::ABILITY_ID::EFFECT_YAMATOGUN, yamato_target);
                     planned_damage_[target->tag] += 300;
                 }
             }

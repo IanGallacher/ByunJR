@@ -466,6 +466,7 @@
     <ClInclude Include="..\src\ByunJRBot.h" />
     <ClInclude Include="..\src\common\BotAssert.h" />
     <ClInclude Include="..\src\global\BotConfig.h" />
+    <ClInclude Include="..\src\Ladder.h" />
     <ClInclude Include="..\src\macro\Building.h" />
     <ClInclude Include="..\src\macro\BuildingManager.h" />
     <ClInclude Include="..\src\macro\BuildingPlacer.h" />

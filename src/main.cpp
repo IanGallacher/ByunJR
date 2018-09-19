@@ -2,8 +2,9 @@
 #include <string>
 #include <sc2api/sc2_api.h>
 #include <sc2utils/sc2_manage_process.h>
-
+#include <conio.h>
 #include "ByunJRBot.h"
+#include "Ladder.h"
 #include "TechLab/util/JSONTools.h"
 #include "TechLab/util/Util.h"
 
@@ -23,6 +24,7 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Config file could not be found, and is required for starting the bot\n";
         std::cerr << "Please read the instructions and try again\n";
+		getchar();
         exit(-1);
     }
 
@@ -31,6 +33,7 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Config file could not be parsed, and is required for starting the bot\n";
         std::cerr << "Please read the instructions and try again\n";
+		getchar();
         exit(-1);
     }
 
@@ -50,6 +53,7 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Config file has no 'Game Info' object, required for starting the bot\n";
         std::cerr << "Please read the instructions and try again\n";
+		getchar();
         exit(-1);
     }
     std::cout << map_string << std::endl;
@@ -58,85 +62,86 @@ int main(int argc, char* argv[])
     std::cout << "GLHF" << std::endl;
 
     GeneticAlgorithm ga = GeneticAlgorithm();
-    bool genetic_algorithm_setup = false;
+    //bool genetic_algorithm_setup = false;
+	RunBot(argc, argv, new ByunJRBot(), sc2::Race::Terran);
+ //   while (true) {
+ //       // Test all 10 Candidates inside the population
+ //       for (int i = 0; i < 10; i++)
+ //       {
+ //           sc2::Coordinator coordinator;
+ //           if (!coordinator.LoadSettings(argc, argv))
+ //           {
+ //               std::cout << "Unable to find or parse settings." << std::endl;
+ //               return 1;
+ //           }
 
-    while (true) {
-        // Test all 10 Candidates inside the population
-        for (int i = 0; i < 10; i++)
-        {
-            sc2::Coordinator coordinator;
-            if (!coordinator.LoadSettings(argc, argv))
-            {
-                std::cout << "Unable to find or parse settings." << std::endl;
-                return 1;
-            }
+ //           coordinator.SetRealtime(false);
 
-            coordinator.SetRealtime(false);
+ //           // Setting this = N means the bot's OnFrame gets called once every N frames
+ //           // The bot may crash or do unexpected things if its logic is not called every frame
+ //           coordinator.SetStepSize(2);
 
-            // Setting this = N means the bot's OnFrame gets called once every N frames
-            // The bot may crash or do unexpected things if its logic is not called every frame
-            coordinator.SetStepSize(1);
+ //           // Add the custom bot, it will control the players.
+ //           ByunJRBot bot;
 
-            // Add the custom bot, it will control the players.
-            ByunJRBot bot;
+ //           coordinator.SetParticipants({
+ //               CreateParticipant(Util::GetRaceFromString(bot_race_string), &bot),
+ //               CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::CheatInsane)
+ //           });
 
-            coordinator.SetParticipants({
-                CreateParticipant(Util::GetRaceFromString(bot_race_string), &bot),
-                CreateComputer(Util::GetRaceFromString(enemy_race_string), sc2::Difficulty::CheatInsane)
-            });
+ //           // Start the game.
+ //           coordinator.LaunchStarcraft();
+ //           coordinator.StartGame(map_string);
+ //           bool already_init = false;
+ //           while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
+ //           {
+ //               coordinator.Update();
 
-            // Start the game.
-            coordinator.LaunchStarcraft();
-            coordinator.StartGame(map_string);
-            bool already_init = false;
-            while (coordinator.AllGamesEnded() != true && bot.IsWillingToFight())
-            {
-                coordinator.Update();
-
-                if (genetic_algorithm_setup == false)
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        Population* pop = ga.GetPopulation();
-                        // grab proxy training data once
-                        const sc2::Point2DI point = bot.GetProxyManager().GetProxyTrainingData().GetRandomViableProxyLocation();
-                        std::vector<int> genes = std::vector<int>();
-                        genes.resize(2);
-                        genes[0] = point.x;
-                        genes[1] = point.y;
-                        const Candidate can = Candidate(genes);
-                        pop->SetCanidate(i, can);
-                    }
-                    genetic_algorithm_setup = true;
-                }
+ //               if (genetic_algorithm_setup == false)
+ //               {
+ //                   for (int i = 0; i < 10; i++)
+ //                   {
+ //                       Population* pop = ga.GetPopulation();
+ //                       // grab proxy training data once
+ //                       const sc2::Point2DI point = bot.GetProxyManager().GetProxyTrainingData().GetRandomViableProxyLocation();
+ //                       std::vector<int> genes = std::vector<int>();
+ //                       genes.resize(2);
+ //                       genes[0] = point.x;
+ //                       genes[1] = point.y;
+ //                       const Candidate can = Candidate(genes);
+ //                       pop->SetCanidate(i, can);
+ //                   }
+ //                   genetic_algorithm_setup = true;
+ //               }
 
 
-                if (already_init == false)
-                {
-                    Candidate c = ga.GetPopulation()->GetCandidate(i);
-                    bot.Config().SetProxyLocation(c.GetGene(0), c.GetGene(1));
-                    bot.GetProxyManager().GetProxyTrainingData().SetupProxyLocation();
-                    already_init = true;
-                }
-            }
+ //               if (already_init == false)
+ //               {
+ //                   Candidate c = ga.GetPopulation()->GetCandidate(i);
+ //                   bot.Config().SetProxyLocation(c.GetGene(0), c.GetGene(1));
+ //                   bot.GetProxyManager().GetProxyTrainingData().SetupProxyLocation();
+ //                   already_init = true;
+ //               }
+ //           }
 
-            if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
-            {
-                std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay" << std::endl;
-            }
-            else
-            {
-                std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
-            }
-            coordinator.LeaveGame();
-            ga.SetReward(i, bot.GetProxyManager().GetProxyTrainingData().GetReward());
-            if(i==9)
-            {
-                ga.EvolvePopulation(bot.GetProxyManager().GetProxyTrainingData());
-                std::cout << "MUTATING" << std::endl;
-            }
-        }
-    }
+ //           if (bot.Control()->SaveReplay("replay/asdf.Sc2Replay"))
+ //           {
+ //               std::cout << "REPLAYSUCESS" << "replay/asdf.Sc2Replay" << std::endl;
+ //           }
+ //           else
+ //           {
+ //               std::cout << "REPLAY FAIL" << "replay/asdf.Sc2Replay" << std::endl;
+ //           }
+ //           coordinator.LeaveGame();
+ //           ga.SetReward(i, bot.GetProxyManager().GetProxyTrainingData().GetReward());
+ //           if(i==9)
+ //           {
+ //               ga.EvolvePopulation(bot.GetProxyManager().GetProxyTrainingData());
+ //               std::cout << "MUTATING" << std::endl;
+ //           }
+ //       }
+ //   }
+	//getchar();
 
     return 0;
 }

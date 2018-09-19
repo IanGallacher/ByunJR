@@ -16,8 +16,6 @@
 #include "micro/ScoutManager.h"
 #include "micro/CombatCommander.h"
 
-#define DllExport   __declspec( dllexport )  
-
 class ByunJRBot : public sc2::Agent 
 {
     CombatCommander          combat_commander_;
@@ -60,9 +58,3 @@ public:
     StrategyManager & Strategy();
     sc2::Point2D GetStartLocation() const;
 };
-
-void DllExport *CreateNewAgent();
-
-int DllExport GetAgentRace();
-
-const char DllExport *GetAgentName();
